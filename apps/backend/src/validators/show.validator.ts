@@ -7,3 +7,8 @@ export const searchSchema = z.object({
 export const tmdbIdParamSchema = z.object({
   tmdbId: z.coerce.number().int().positive(),
 });
+
+export const seasonParamSchema = z.object({
+  tmdbId: z.coerce.number().int().positive(),
+  seasonNumber: z.coerce.number().int().positive(),
+});

@@ -6,6 +6,7 @@ import {
   TmdbShowDetails,
   tmdbService,
 } from "./tmdb.service.js";
+import { invalidateRedisPattern } from "../lib/redis.js";
 
 export type ShowDocument = HydratedDocument<IShow>;
 
@@ -101,6 +102,8 @@ export async function upsertShowFromTmdb(
     show.tvdbId = tvdbId;
     await show.save();
   }
+
+  await invalidateRedisPattern(`api:GET:/api/shows/${show.tmdbId}*`);
 
   return show;
 }

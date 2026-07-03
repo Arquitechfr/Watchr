@@ -2,13 +2,14 @@
 import "dotenv/config";
 import mongoose from "mongoose";
 import { connectDatabase } from "../lib/database.js";
-import { createEpisodeSyncWorker, scheduleEpisodeSync } from "./episodeSync.worker.js";
+import { createEpisodeSyncWorker, scheduleEpisodeSync, schedulePopularSync } from "./episodeSync.worker.js";
 
 async function main() {
   await connectDatabase();
   console.log("Episode sync worker connected to MongoDB");
 
   await scheduleEpisodeSync();
+  await schedulePopularSync();
   const worker = createEpisodeSyncWorker();
   console.log("Episode sync worker started");
 

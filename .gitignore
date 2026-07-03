@@ -35,3 +35,6 @@ Thumbs.db
 # Temporary uploads
 uploads/
 tmp/
+
+# Backend cache
+.cache/

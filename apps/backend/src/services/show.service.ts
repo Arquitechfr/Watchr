@@ -2,7 +2,15 @@ import { Show } from "../models/show.model.js";
 import { ApiError } from "../middleware/error.middleware.js";
 import { tmdbService, TmdbSearchResult } from "./tmdb.service.js";
 import { tvdbService } from "./tvdb.service.js";
-import { isShowCacheStale, upsertShowFromTmdb, syncEpisodesForShow, ShowDocument } from "./cacheShow.service.js";
+import {
+  isShowCacheStale,
+  isEpisodesCacheStale,
+  upsertShowFromTmdb,
+  syncEpisodesForShow,
+  ShowDocument,
+} from "./cacheShow.service.js";
+import { scheduleShowRefresh } from "../workers/episodeSync.worker.js";
+import { invalidateRedisPattern } from "../lib/redis.js";
 import { log, logError } from "../lib/logger.js";
 
 export interface SearchResultItem {
@@ -80,7 +88,7 @@ export async function getShowDetails(tmdbId: number): Promise<ReturnType<typeof 
   let show = await Show.findOne({ tmdbId });
   log("ShowService", "details cache", { tmdbId, cached: Boolean(show), stale: isShowCacheStale(show) });
 
-  if (isShowCacheStale(show)) {
+  if (!show) {
     try {
       const tmdbDetails = await tmdbService.getTvDetails(tmdbId);
       show = await upsertShowFromTmdb("tv", tmdbDetails);
@@ -93,14 +101,10 @@ export async function getShowDetails(tmdbId: number): Promise<ReturnType<typeof 
         log("ShowService", "details upserted movie", { tmdbId, title: show.title });
       } catch (movieErr) {
         logError("ShowService", "details movie fetch failed", movieErr, { tmdbId });
-        if (show) {
-          log("ShowService", "details returning stale cache", { tmdbId });
-          return showToResponse(show);
-        }
         throw new ApiError(
           502,
           "EXTERNAL_SERVICES_DOWN",
-          "TMDB and TheTVDB are unavailable and this show is not cached",
+          "TMDB is unavailable and this show is not cached",
         );
       }
     }
@@ -110,10 +114,20 @@ export async function getShowDetails(tmdbId: number): Promise<ReturnType<typeof 
     throw new ApiError(404, "SHOW_NOT_FOUND", "Show not found");
   }
 
-  if (show.type === "tv" && show.seasons.length > 0) {
+  if (isShowCacheStale(show)) {
+    log("ShowService", "details stale scheduling refresh", { tmdbId });
+    try {
+      await scheduleShowRefresh(tmdbId);
+    } catch (err) {
+      logError("ShowService", "details refresh scheduling failed", err, { tmdbId });
+    }
+  }
+
+  if (show.type === "tv" && show.seasons.length > 0 && isEpisodesCacheStale(show)) {
     try {
       show = await syncEpisodesForShow(show);
       log("ShowService", "details episodes synced", { tmdbId, title: show.title });
+      await invalidateRedisPattern(`api:GET:/api/shows/${tmdbId}*`);
     } catch (syncErr) {
       logError("ShowService", "details episode sync failed", syncErr, { tmdbId });
     }
@@ -132,10 +146,77 @@ export function showToResponse(show: ShowDocument) {
     posterPath: show.posterPath,
     overview: show.overview,
     firstAirDate: show.firstAirDate?.toISOString(),
-    seasons: show.seasons,
+    seasons: show.seasons.map((season) => ({
+      seasonNumber: season.seasonNumber,
+      episodeCount: season.episodeCount ?? season.episodes.length,
+    })),
     nextEpisodeToAir: show.nextEpisodeToAir,
     lastSyncedAt: show.lastSyncedAt?.toISOString(),
     lastEpisodesSyncedAt: show.lastEpisodesSyncedAt?.toISOString(),
+  };
+}
+
+export interface SeasonDetails {
+  tmdbId: number;
+  seasonNumber: number;
+  episodes: Array<{
+    episodeNumber: number;
+    name?: string;
+    overview?: string;
+    stillPath?: string;
+    airDate?: string;
+  }>;
+}
+
+export async function getSeasonDetails(tmdbId: number, seasonNumber: number): Promise<SeasonDetails> {
+  log("ShowService", "season details start", { tmdbId, seasonNumber });
+
+  let show = await Show.findOne({ tmdbId });
+
+  if (!show) {
+    try {
+      const tmdbDetails = await tmdbService.getTvDetails(tmdbId);
+      show = await upsertShowFromTmdb("tv", tmdbDetails);
+    } catch {
+      try {
+        const movieDetails = await tmdbService.getMovieDetails(tmdbId);
+        show = await upsertShowFromTmdb("movie", movieDetails);
+      } catch {
+        throw new ApiError(502, "EXTERNAL_SERVICES_DOWN", "TMDB is unavailable and this show is not cached");
+      }
+    }
+  }
+
+  if (!show || show.type !== "tv") {
+    throw new ApiError(404, "SEASON_NOT_FOUND", "Season not found");
+  }
+
+  let season = show.seasons.find((s) => s.seasonNumber === seasonNumber);
+
+  if (!season || isEpisodesCacheStale(show)) {
+    try {
+      show = await syncEpisodesForShow(show);
+      season = show.seasons.find((s) => s.seasonNumber === seasonNumber);
+      await invalidateRedisPattern(`api:GET:/api/shows/${tmdbId}*`);
+    } catch (syncErr) {
+      logError("ShowService", "season episode sync failed", syncErr, { tmdbId, seasonNumber });
+    }
+  }
+
+  if (!season) {
+    throw new ApiError(404, "SEASON_NOT_FOUND", "Season not found");
+  }
+
+  return {
+    tmdbId,
+    seasonNumber,
+    episodes: season.episodes.map((episode) => ({
+      episodeNumber: episode.episodeNumber,
+      name: episode.name,
+      overview: episode.overview,
+      stillPath: episode.stillPath,
+      airDate: episode.airDate?.toISOString(),
+    })),
   };
 }
 

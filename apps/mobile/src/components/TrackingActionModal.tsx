@@ -56,10 +56,10 @@ export function TrackingActionModal({
     [show.seasons, selectedSeason],
   );
 
-  const maxEpisode = currentSeason?.episodes.length ?? 1;
+  const maxEpisode = currentSeason?.episodeCount ?? 1;
 
   const selectedEpisodeData = useMemo(
-    () => currentSeason?.episodes.find((e) => e.episodeNumber === selectedEpisode),
+    () => currentSeason?.episodes?.find((e) => e.episodeNumber === selectedEpisode),
     [currentSeason, selectedEpisode],
   );
 
@@ -79,7 +79,7 @@ export function TrackingActionModal({
   const handleSeasonChange = (nextSeasonNumber: number) => {
     setSelectedSeason(nextSeasonNumber);
     const nextSeason = show.seasons.find((s) => s.seasonNumber === nextSeasonNumber);
-    const nextMaxEpisode = nextSeason?.episodes.length ?? 1;
+    const nextMaxEpisode = nextSeason?.episodeCount ?? 1;
     if (selectedEpisode > nextMaxEpisode) {
       setSelectedEpisode(nextMaxEpisode);
     } else if (selectedEpisode < 1) {

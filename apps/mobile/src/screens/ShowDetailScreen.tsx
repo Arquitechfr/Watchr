@@ -6,7 +6,7 @@ import { useShowDetails } from "../hooks/useShowDetails";
 import { useTrackingEntry } from "../hooks/useTrackingEntry";
 import { useUpsertTracking, useToggleEpisode, useMarkUpTo } from "../hooks/useTracking";
 import { useRatingsForShow, useUpsertRating } from "../hooks/useRatings";
-import { EpisodeGrid } from "../components/EpisodeGrid";
+import { LazyEpisodeGrid } from "../components/LazyEpisodeGrid";
 import { RatingStars } from "../components/RatingStars";
 import { NetworkError } from "../components/NetworkError";
 import { Skeleton } from "../components/Skeleton";
@@ -56,7 +56,7 @@ export function ShowDetailScreen() {
       return 0;
     }
     const totalEpisodes = show.seasons.reduce(
-      (sum: number, season: { episodes: unknown[] }) => sum + season.episodes.length,
+      (sum: number, season: { episodeCount: number }) => sum + (season.episodeCount ?? 0),
       0,
     );
     if (totalEpisodes === 0) return 0;
@@ -122,15 +122,17 @@ export function ShowDetailScreen() {
       return;
     }
 
-    const previousUnwatched = show.seasons.flatMap((s: { seasonNumber: number; episodes: Array<{ episodeNumber: number }> }) =>
-      s.episodes
-        .filter((e: { episodeNumber: number }) => {
+    const previousUnwatched = show.seasons.flatMap((s: { seasonNumber: number; episodeCount: number }) => {
+      const count = s.episodeCount ?? 0;
+      const episodeNumbers = Array.from({ length: count }, (_, i) => i + 1);
+      return episodeNumbers
+        .filter((episodeNumber) => {
           if (s.seasonNumber < season) return true;
           if (s.seasonNumber > season) return false;
-          return e.episodeNumber < episode.episodeNumber;
+          return episodeNumber < episode.episodeNumber;
         })
-        .map((e: { episodeNumber: number }) => ({ season: s.seasonNumber, episode: e.episodeNumber })),
-    ).filter((ep: { season: number; episode: number }) => !watchedKeys.has(`${ep.season}-${ep.episode}`));
+        .map((episodeNumber) => ({ season: s.seasonNumber, episode: episodeNumber }));
+    }).filter((ep: { season: number; episode: number }) => !watchedKeys.has(`${ep.season}-${ep.episode}`));
 
     if (previousUnwatched.length === 0) {
       handleToggleEpisode(season, episode.episodeNumber, true);
@@ -254,7 +256,8 @@ export function ShowDetailScreen() {
           {show.type === "tv" && show.seasons.length > 0 && (
             <View className="mb-6">
               <Text className="text-lg font-semibold text-text mb-2">Épisodes</Text>
-              <EpisodeGrid
+              <LazyEpisodeGrid
+                tmdbId={tmdbId}
                 seasons={show.seasons}
                 watchedEpisodes={trackingEntry?.watchedEpisodes ?? []}
                 onToggleEpisode={handleToggleEpisode}

@@ -5,6 +5,7 @@ import { redisConnection } from "../config/env.js";
 import { WatchEntry } from "../models/watchEntry.model.js";
 import { Show } from "../models/show.model.js";
 import { refreshShowFromTmdb, syncEpisodesForShow } from "../services/cacheShow.service.js";
+import { tmdbService } from "../services/tmdb.service.js";
 
 export const episodeSyncQueue = new Queue("episode-sync", { connection: redisConnection });
 
@@ -35,6 +36,17 @@ export async function scheduleShowRefresh(tmdbId: number): Promise<void> {
   );
 }
 
+export async function schedulePopularSync(): Promise<void> {
+  await episodeSyncQueue.add(
+    "syncPopular",
+    {},
+    {
+      repeat: { pattern: "0 3 * * 0" },
+      jobId: "weekly-popular-sync",
+    },
+  );
+}
+
 export function createEpisodeSyncWorker(): Worker {
   return new Worker(
     "episode-sync",
@@ -42,6 +54,11 @@ export function createEpisodeSyncWorker(): Worker {
       if (job.name === "refreshShow") {
         const { tmdbId } = job.data as RefreshShowJobData;
         await refreshShowFromTmdb(tmdbId);
+        return;
+      }
+
+      if (job.name === "syncPopular") {
+        await syncTrendingShows();
         return;
       }
 
@@ -59,6 +76,23 @@ export function createEpisodeSyncWorker(): Worker {
     },
     { connection: redisConnection, concurrency: 1 },
   );
+}
+
+export async function syncTrendingShows(): Promise<void> {
+  let trending: Awaited<ReturnType<typeof tmdbService.getTrendingTv>> = [];
+  try {
+    trending = await tmdbService.getTrendingTv(20);
+  } catch (err) {
+    console.error("Failed to fetch trending TV shows:", err);
+  }
+
+  for (const item of trending) {
+    try {
+      await refreshShowFromTmdb(item.id);
+    } catch (err) {
+      console.error(`Failed to refresh trending show ${item.id}:`, err);
+    }
+  }
 }
 
 export async function syncEpisodesForShowById(showId: Types.ObjectId): Promise<void> {

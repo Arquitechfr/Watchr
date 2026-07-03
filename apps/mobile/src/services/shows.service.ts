@@ -1,6 +1,8 @@
 import { log } from "../utils/logger";
 import { api } from "./api";
 
+const API_BASE_URL = api.defaults.baseURL ?? "";
+
 export interface SearchResult {
   tmdb: SearchResultItem[];
   tvdb: SearchResultItem[];
@@ -39,6 +41,12 @@ export interface ShowDetails {
 export interface Season {
   seasonNumber: number;
   episodeCount: number;
+  episodes?: Episode[];
+}
+
+export interface SeasonDetails {
+  tmdbId: number;
+  seasonNumber: number;
   episodes: Episode[];
 }
 
@@ -64,12 +72,19 @@ export async function getShowDetails(tmdbId: number): Promise<ShowDetails> {
   return response.data;
 }
 
+export async function getSeasonDetails(tmdbId: number, seasonNumber: number): Promise<SeasonDetails> {
+  log("ShowsService", "season details", { tmdbId, seasonNumber });
+  const response = await api.get<SeasonDetails>(`/shows/${tmdbId}/seasons/${seasonNumber}`);
+  log("ShowsService", "season details response", { count: response.data.episodes.length });
+  return response.data;
+}
+
 export function getPosterUrl(path?: string, size: number = 200): string | undefined {
   if (!path) return undefined;
-  return `https://image.tmdb.org/t/p/w${size}${path}`;
+  return `${API_BASE_URL}/images/poster/w${size}${path}`;
 }
 
 export function getStillUrl(path?: string, size: number = 300): string | undefined {
   if (!path) return undefined;
-  return `https://image.tmdb.org/t/p/w${size}${path}`;
+  return `${API_BASE_URL}/images/still/w${size}${path}`;
 }

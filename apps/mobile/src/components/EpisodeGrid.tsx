@@ -28,6 +28,8 @@ export function EpisodeGrid({
     watchedEpisodes.map((ep) => `${ep.season}-${ep.episode}`),
   );
 
+  const getEpisodes = (season: Season) => season.episodes ?? [];
+
   const toggleSeason = (seasonNumber: number) => {
     setCollapsedSeasons((prev) => {
       const next = new Set(prev);
@@ -108,7 +110,7 @@ export function EpisodeGrid({
               </Text>
               <View className="flex-row items-center">
                 <Text className="text-text-muted text-sm mr-2">
-                  {season.episodes.length} épisode{season.episodes.length > 1 ? "s" : ""}
+                  {getEpisodes(season).length} épisode{getEpisodes(season).length > 1 ? "s" : ""}
                 </Text>
                 <Ionicons
                   name={isCollapsed ? "chevron-down" : "chevron-up"}
@@ -118,7 +120,7 @@ export function EpisodeGrid({
               </View>
             </TouchableOpacity>
             {!isCollapsed &&
-              season.episodes.map((episode) =>
+              getEpisodes(season).map((episode) =>
                 renderEpisode(season.seasonNumber, episode),
               )}
           </View>

@@ -133,6 +133,26 @@ class TmdbService {
     }
   }
 
+  async getTrendingTv(limit = 10): Promise<TmdbSearchResult[]> {
+    await tmdbRateLimiter.consume();
+    try {
+      const response = await this.client.get<{ results: TmdbSearchResult[] }>("/trending/tv/week");
+      return (response.data.results || []).slice(0, limit);
+    } catch (err) {
+      throw this.handleError(err);
+    }
+  }
+
+  async getTrendingMovies(limit = 10): Promise<TmdbSearchResult[]> {
+    await tmdbRateLimiter.consume();
+    try {
+      const response = await this.client.get<{ results: TmdbSearchResult[] }>("/trending/movie/week");
+      return (response.data.results || []).slice(0, limit);
+    } catch (err) {
+      throw this.handleError(err);
+    }
+  }
+
   private handleError(err: unknown): Error {
     if (err instanceof AxiosError) {
       const status = err.response?.status || 500;

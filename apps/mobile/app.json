@@ -1,0 +1,40 @@
+{
+  "expo": {
+    "name": "Watchr",
+    "slug": "watchr",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.watchr.app"
+    },
+    "android": {
+      "package": "com.watchr.app"
+    },
+    "extra": {
+      "apiUrl": "http://192.168.1.20:4000",
+      "firebase": {
+        "apiKey": "AIzaSyB9mfMDceZpn9Q93CUicDgOijy0RhA7d38",
+        "authDomain": "watchr-37257.firebaseapp.com",
+        "projectId": "watchr-37257",
+        "storageBucket": "watchr-37257.firebasestorage.app",
+        "messagingSenderId": "419719991485",
+        "appId": "1:419719991485:web:8320dfd85d8c4b8bc6a7d4",
+        "clientId": "419719991485-39v3i34o5mmnbp4g5aujfu6mcglepm08.apps.googleusercontent.com"
+      },
+      "eas": {
+        "projectId": "326c4789-7383-4a4c-9cd7-202f4bc90faf"
+      }
+    },
+    "plugins": [
+      "expo-font",
+      "expo-secure-store",
+      "expo-splash-screen"
+    ],
+    "owner": "arquitech"
+  }
+}

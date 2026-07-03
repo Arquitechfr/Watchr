@@ -1,0 +1,34 @@
+import { z } from "zod";
+
+export const watchStatusSchema = z.enum(["watching", "completed", "plan_to_watch", "dropped"]);
+
+export const watchedEpisodeSchema = z.object({
+  season: z.coerce.number().int().min(0),
+  episode: z.coerce.number().int().min(1),
+  watchedAt: z.coerce.date().optional(),
+});
+
+export const upsertTrackingSchema = z.object({
+  status: watchStatusSchema,
+  watchedEpisodes: z.array(watchedEpisodeSchema).optional(),
+  currentSeason: z.coerce.number().int().min(0).optional(),
+  currentEpisode: z.coerce.number().int().min(1).optional(),
+});
+
+export const toggleEpisodeSchema = z.object({
+  season: z.coerce.number().int().min(0),
+  episode: z.coerce.number().int().min(1),
+  watched: z.boolean(),
+});
+
+export const markUpToSchema = z.object({
+  season: z.coerce.number().int().min(0),
+  episode: z.coerce.number().int().min(1),
+  includePrevious: z.boolean().default(true),
+});
+
+export const listTrackingSchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+  status: watchStatusSchema.optional(),
+});

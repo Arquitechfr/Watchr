@@ -1,0 +1,71 @@
+/* eslint-disable no-console */
+import { Queue, Worker } from "bullmq";
+import { Types } from "mongoose";
+import { redisConnection } from "../config/env.js";
+import { WatchEntry } from "../models/watchEntry.model.js";
+import { Show } from "../models/show.model.js";
+import { refreshShowFromTmdb, syncEpisodesForShow } from "../services/cacheShow.service.js";
+
+export const episodeSyncQueue = new Queue("episode-sync", { connection: redisConnection });
+
+export async function scheduleEpisodeSync(): Promise<void> {
+  await episodeSyncQueue.add(
+    "sync",
+    {},
+    {
+      repeat: { pattern: "0 4 * * *" },
+      jobId: "daily-episode-sync",
+    },
+  );
+}
+
+export interface RefreshShowJobData {
+  tmdbId: number;
+}
+
+export async function scheduleShowRefresh(tmdbId: number): Promise<void> {
+  await episodeSyncQueue.add(
+    "refreshShow",
+    { tmdbId } satisfies RefreshShowJobData,
+    {
+      jobId: `refresh-show-${tmdbId}`,
+      removeOnComplete: true,
+      removeOnFail: 5,
+    },
+  );
+}
+
+export function createEpisodeSyncWorker(): Worker {
+  return new Worker(
+    "episode-sync",
+    async (job) => {
+      if (job.name === "refreshShow") {
+        const { tmdbId } = job.data as RefreshShowJobData;
+        await refreshShowFromTmdb(tmdbId);
+        return;
+      }
+
+      const showIds = await WatchEntry.distinct("showId", {
+        status: { $in: ["watching", "plan_to_watch"] },
+      });
+
+      for (const showId of showIds) {
+        try {
+          await syncEpisodesForShowById(showId as unknown as Types.ObjectId);
+        } catch (err) {
+          console.error(`Episode sync failed for show ${showId}:`, err);
+        }
+      }
+    },
+    { connection: redisConnection, concurrency: 1 },
+  );
+}
+
+export async function syncEpisodesForShowById(showId: Types.ObjectId): Promise<void> {
+  const show = await Show.findById(showId);
+  if (!show) {
+    throw new Error("Show not found");
+  }
+  await syncEpisodesForShow(show);
+}
+

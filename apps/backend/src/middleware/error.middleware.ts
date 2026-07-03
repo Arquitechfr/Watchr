@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import { NextFunction, Request, Response } from "express";
 import { env } from "../config/env.js";
+import { translate } from "../i18n/index.js";
 
 export class ApiError extends Error {
   constructor(
@@ -16,10 +17,11 @@ export class ApiError extends Error {
 
 export const errorMiddleware = (
   err: Error,
-  _req: Request,
+  req: Request,
   res: Response,
   _next: NextFunction,
 ): void => {
+  const lang = req.language;
   if (err instanceof ApiError) {
     if (env.NODE_ENV === "production") {
       console.error(`API error ${err.status} ${err.code}: ${err.message}`);
@@ -29,14 +31,14 @@ export const errorMiddleware = (
     res.status(err.status).json({
       error: {
         code: err.code,
-        message: err.message,
+        message: translate(err.code, lang) ?? err.message,
       },
     });
     return;
   }
 
   console.error("Unhandled error:", err);
-  const message = env.NODE_ENV === "production" ? "Internal server error" : err.message;
+  const message = env.NODE_ENV === "production" ? translate("UNKNOWN", lang) : err.message;
   res.status(500).json({
     error: {
       code: "INTERNAL_ERROR",

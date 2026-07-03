@@ -1,0 +1,71 @@
+/* eslint-disable no-undef */
+module.exports = {
+  apps: [
+    {
+      name: 'watchr-api',
+      script: 'dist/server.js',
+      instances: 2,
+      exec_mode: 'cluster',
+      env: {
+        NODE_ENV: 'production',
+        PORT: 4000,
+      },
+      env_development: {
+        NODE_ENV: 'development',
+        PORT: 4000,
+      },
+      error_file: './logs/api-error.log',
+      out_file: './logs/api-out.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+      merge_logs: true,
+      autorestart: true,
+      max_memory_restart: '1G',
+      watch: false,
+      max_restarts: 10,
+      min_uptime: '10s',
+      restart_delay: 4000,
+    },
+    {
+      name: 'watchr-import-worker',
+      script: 'dist/workers/startImportWorker.js',
+      instances: 1,
+      env: {
+        NODE_ENV: 'production',
+      },
+      env_development: {
+        NODE_ENV: 'development',
+      },
+      error_file: './logs/import-worker-error.log',
+      out_file: './logs/import-worker-out.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+      merge_logs: true,
+      autorestart: true,
+      max_memory_restart: '500M',
+      watch: false,
+      max_restarts: 10,
+      min_uptime: '10s',
+      restart_delay: 4000,
+    },
+    {
+      name: 'watchr-episode-sync-worker',
+      script: 'dist/workers/startEpisodeSyncWorker.js',
+      instances: 1,
+      env: {
+        NODE_ENV: 'production',
+      },
+      env_development: {
+        NODE_ENV: 'development',
+      },
+      error_file: './logs/episode-sync-worker-error.log',
+      out_file: './logs/episode-sync-worker-out.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+      merge_logs: true,
+      autorestart: true,
+      max_memory_restart: '500M',
+      watch: false,
+      max_restarts: 10,
+      min_uptime: '10s',
+      restart_delay: 4000,
+    },
+  ],
+};

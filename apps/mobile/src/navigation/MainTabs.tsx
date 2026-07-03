@@ -1,68 +1,103 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
+import { View } from "react-native";
+import { SeriesScreen } from "../screens/SeriesScreen";
+import { MoviesScreen } from "../screens/MoviesScreen";
 import { SearchScreen } from "../screens/SearchScreen";
-import { MyShowsScreen } from "../screens/MyShowsScreen";
-import { UpcomingScreen } from "../screens/UpcomingScreen";
-import { ImportScreen } from "../screens/ImportScreen";
+import { NewsScreen } from "../screens/NewsScreen";
 import { ProfileScreen } from "../screens/ProfileScreen";
 import { colors } from "../theme/colors";
+import { useI18n } from "../i18n/useI18n";
 
 export type MainTabsParamList = {
+  Series: undefined;
+  Movies: undefined;
   Search: undefined;
-  MyShows: undefined;
-  Upcoming: undefined;
-  Import: undefined;
+  News: undefined;
   Profile: undefined;
 };
 
 const Tab = createBottomTabNavigator<MainTabsParamList>();
 
+function SearchTabIcon({ focused: _focused }: { focused: boolean }) {
+  return (
+    <View
+      className="items-center justify-center rounded-full"
+      style={{
+        width: 56,
+        height: 56,
+        backgroundColor: colors.primary,
+        marginTop: -24,
+        shadowColor: colors.primary,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.4,
+        shadowRadius: 8,
+        elevation: 8,
+      }}
+    >
+      <Ionicons name="search" size={28} color={colors.background} />
+    </View>
+  );
+}
+
 export function MainTabs() {
+  const { t } = useI18n();
   return (
     <Tab.Navigator
-      initialRouteName="MyShows"
+      initialRouteName="Series"
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
+          height: 64,
+          paddingBottom: 8,
         },
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textMuted,
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: "600",
+        },
       }}
     >
       <Tab.Screen
-        name="MyShows"
-        component={MyShowsScreen}
+        name="Series"
+        component={SeriesScreen}
         options={{
-          tabBarIcon: ({ color, size }) => <Ionicons name="albums" size={size} color={color} />,
+          tabBarLabel: t("navigation.series"),
+          tabBarIcon: ({ color, size }) => <Ionicons name="tv" size={size} color={color} />,
+        }}
+      />
+      <Tab.Screen
+        name="Movies"
+        component={MoviesScreen}
+        options={{
+          tabBarLabel: t("navigation.movies"),
+          tabBarIcon: ({ color, size }) => <Ionicons name="film" size={size} color={color} />,
         }}
       />
       <Tab.Screen
         name="Search"
         component={SearchScreen}
         options={{
-          tabBarIcon: ({ color, size }) => <Ionicons name="search" size={size} color={color} />,
+          tabBarIcon: ({ focused }) => <SearchTabIcon focused={focused} />,
+          tabBarShowLabel: false,
         }}
       />
       <Tab.Screen
-        name="Upcoming"
-        component={UpcomingScreen}
+        name="News"
+        component={NewsScreen}
         options={{
-          tabBarIcon: ({ color, size }) => <Ionicons name="calendar" size={size} color={color} />,
-        }}
-      />
-      <Tab.Screen
-        name="Import"
-        component={ImportScreen}
-        options={{
-          tabBarIcon: ({ color, size }) => <Ionicons name="download" size={size} color={color} />,
+          tabBarLabel: t("navigation.news"),
+          tabBarIcon: ({ color, size }) => <Ionicons name="newspaper" size={size} color={color} />,
         }}
       />
       <Tab.Screen
         name="Profile"
         component={ProfileScreen}
         options={{
+          tabBarLabel: t("navigation.profile"),
           tabBarIcon: ({ color, size }) => <Ionicons name="person" size={size} color={color} />,
         }}
       />

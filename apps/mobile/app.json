@@ -2,6 +2,7 @@
   "expo": {
     "name": "Watchr",
     "slug": "watchr",
+    "scheme": "watchr",
     "version": "0.1.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
@@ -9,6 +10,11 @@
       "**/*"
     ],
     "ios": {
+      "infoPlist": {
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true
+        }
+      },
       "supportsTablet": true,
       "bundleIdentifier": "com.watchr.app"
     },
@@ -33,7 +39,8 @@
     "plugins": [
       "expo-font",
       "expo-secure-store",
-      "expo-splash-screen"
+      "expo-splash-screen",
+      "expo-localization"
     ],
     "owner": "arquitech"
   }

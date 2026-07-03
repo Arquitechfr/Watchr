@@ -7,12 +7,15 @@ import {
   useDeleteComment,
   useLikeComment,
   useUnlikeComment,
+  useAddReaction,
+  useRemoveReaction,
 } from "../../hooks/useComments";
 import { ListCommentsQuery } from "../../services/comments.service";
 import { useUIStore } from "../../store/uiStore";
 import { log } from "../../utils/logger";
 import { CommentsList } from "./CommentsList";
 import { CommentInput } from "./CommentInput";
+import { useI18n } from "../../i18n/useI18n";
 
 interface CommentsSectionProps {
   showId: string;
@@ -22,25 +25,30 @@ interface CommentsSectionProps {
 export function CommentsSection({ showId, query }: CommentsSectionProps) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const { showSnackbar } = useUIStore();
+  const { t } = useI18n();
   const { data, isLoading } = useCommentsForShow(showId, query);
   const createComment = useCreateComment(showId, query);
   const updateComment = useUpdateComment(showId, query);
   const deleteComment = useDeleteComment(showId, query);
   const likeComment = useLikeComment(showId, query);
   const unlikeComment = useUnlikeComment(showId, query);
+  const addReaction = useAddReaction(showId, query);
+  const removeReaction = useRemoveReaction(showId, query);
 
   const isPending =
     createComment.isPending ||
     updateComment.isPending ||
     deleteComment.isPending ||
     likeComment.isPending ||
-    unlikeComment.isPending;
+    unlikeComment.isPending ||
+    addReaction.isPending ||
+    removeReaction.isPending;
 
   const handleCreate = (content: string) => {
     createComment.mutate(
       { content },
       {
-        onError: () => showSnackbar("Impossible d'ajouter le commentaire", "error"),
+        onError: () => showSnackbar(t("screens.comments.addError"), "error"),
       },
     );
   };
@@ -49,7 +57,7 @@ export function CommentsSection({ showId, query }: CommentsSectionProps) {
     createComment.mutate(
       { content, parentId },
       {
-        onError: () => showSnackbar("Impossible d'ajouter la réponse", "error"),
+        onError: () => showSnackbar(t("screens.comments.replyError"), "error"),
       },
     );
   };
@@ -58,27 +66,41 @@ export function CommentsSection({ showId, query }: CommentsSectionProps) {
     updateComment.mutate(
       { id, content },
       {
-        onError: () => showSnackbar("Impossible de modifier le commentaire", "error"),
+        onError: () => showSnackbar(t("screens.comments.editError"), "error"),
       },
     );
   };
 
   const handleDelete = (id: string) => {
     deleteComment.mutate(id, {
-      onError: () => showSnackbar("Impossible de supprimer le commentaire", "error"),
+      onError: () => showSnackbar(t("screens.comments.deleteError"), "error"),
     });
   };
 
   const handleLike = (id: string) => {
     likeComment.mutate(id, {
-      onError: () => showSnackbar("Impossible de liker", "error"),
+      onError: () => showSnackbar(t("screens.comments.likeError"), "error"),
     });
   };
 
   const handleUnlike = (id: string) => {
     unlikeComment.mutate(id, {
-      onError: () => showSnackbar("Impossible de retirer le like", "error"),
+      onError: () => showSnackbar(t("screens.comments.likeError"), "error"),
     });
+  };
+
+  const handleAddReaction = (id: string, emoji: string) => {
+    addReaction.mutate(
+      { id, emoji },
+      { onError: () => showSnackbar(t("screens.comments.likeError"), "error") },
+    );
+  };
+
+  const handleRemoveReaction = (id: string, emoji: string) => {
+    removeReaction.mutate(
+      { id, emoji },
+      { onError: () => showSnackbar(t("screens.comments.likeError"), "error") },
+    );
   };
 
   log("CommentsSection", "render", { showId, total: data?.total ?? 0 });
@@ -88,7 +110,7 @@ export function CommentsSection({ showId, query }: CommentsSectionProps) {
       {isAuthenticated && (
         <View className="mb-4">
           <CommentInput
-            placeholder="Ajouter un commentaire..."
+            placeholder={t("screens.comments.placeholder")}
             onSubmit={handleCreate}
             isPending={isPending}
           />
@@ -103,6 +125,8 @@ export function CommentsSection({ showId, query }: CommentsSectionProps) {
         onDelete={handleDelete}
         onLike={handleLike}
         onUnlike={handleUnlike}
+        onAddReaction={handleAddReaction}
+        onRemoveReaction={handleRemoveReaction}
       />
     </View>
   );

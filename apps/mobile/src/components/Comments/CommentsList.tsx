@@ -1,29 +1,40 @@
-import { View, Text, FlatList, ActivityIndicator } from "react-native";
+import { View, Text, FlatList, ActivityIndicator, RefreshControl } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { Comment } from "../../services/comments.service";
 import { colors } from "../../theme/colors";
 import { CommentItem } from "./CommentItem";
+import { useI18n } from "../../i18n/useI18n";
 
 interface CommentsListProps {
   comments: Comment[];
   isLoading?: boolean;
   isPending?: boolean;
+  refreshing?: boolean;
+  onRefresh?: () => void;
   onReply?: (content: string, parentId: string) => void;
   onEdit?: (id: string, content: string) => void;
   onDelete?: (id: string) => void;
   onLike?: (id: string) => void;
   onUnlike?: (id: string) => void;
+  onAddReaction?: (id: string, emoji: string) => void;
+  onRemoveReaction?: (id: string, emoji: string) => void;
 }
 
 export function CommentsList({
   comments,
   isLoading,
   isPending,
+  refreshing,
+  onRefresh,
   onReply,
   onEdit,
   onDelete,
   onLike,
   onUnlike,
+  onAddReaction,
+  onRemoveReaction,
 }: CommentsListProps) {
+  const { t } = useI18n();
   if (isLoading) {
     return (
       <View className="py-8 items-center">
@@ -34,8 +45,10 @@ export function CommentsList({
 
   if (comments.length === 0) {
     return (
-      <View className="py-8 items-center">
-        <Text className="text-text-muted">Aucun commentaire pour le moment.</Text>
+      <View className="flex-1 items-center justify-center px-6">
+        <Ionicons name="chatbubbles-outline" size={48} color={colors.textMuted} />
+        <Text className="text-text-muted mt-3 text-center font-medium">{t("screens.comments.empty")}</Text>
+        <Text className="text-text-muted text-sm mt-1 text-center">{t("screens.comments.beFirst")}</Text>
       </View>
     );
   }
@@ -53,8 +66,11 @@ export function CommentsList({
           onDelete={onDelete}
           onLike={onLike}
           onUnlike={onUnlike}
+          onAddReaction={onAddReaction}
+          onRemoveReaction={onRemoveReaction}
         />
       )}
+      refreshControl={onRefresh ? <RefreshControl refreshing={refreshing ?? false} onRefresh={onRefresh} tintColor={colors.primary} /> : undefined}
       contentContainerStyle={{ paddingBottom: 16 }}
     />
   );

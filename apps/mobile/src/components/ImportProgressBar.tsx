@@ -1,11 +1,13 @@
 import { View, Text } from "react-native";
 import { ImportProgress } from "../services/import.service";
+import { useI18n } from "../i18n/useI18n";
 
 interface ImportProgressBarProps {
   progress: ImportProgress;
 }
 
 export function ImportProgressBar({ progress }: ImportProgressBarProps) {
+  const { t } = useI18n();
   const percentage =
     progress.total > 0 ? Math.round((progress.processed / progress.total) * 100) : 0;
 
@@ -20,7 +22,7 @@ export function ImportProgressBar({ progress }: ImportProgressBarProps) {
       <Text className="text-text-muted text-sm text-center">
         {progress.processed} / {progress.total} ({percentage}%)
         {" · "}
-        {progress.matched} importés, {progress.failed} échecs
+        {progress.matched} {t("screens.import.imported")}, {progress.failed} {t("screens.import.failures")}
       </Text>
     </View>
   );

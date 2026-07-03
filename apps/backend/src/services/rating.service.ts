@@ -56,9 +56,18 @@ export async function listRatingsForShow(userId: string, showId: string) {
     showId: new Types.ObjectId(showId),
   }).sort({ createdAt: -1 });
 
+  const showRating = ratings.find((r) => !r.episodeRef) ?? null;
+  const episodeRatings = ratings
+    .filter((r) => r.episodeRef)
+    .map((r) => ({
+      season: r.episodeRef!.season,
+      episode: r.episodeRef!.episode,
+      value: r.value,
+    }));
+
   return {
-    showId,
-    ratings,
+    show: showRating ? showRating.value : null,
+    episodes: episodeRatings,
   };
 }
 

@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 import { requireAuth } from "../middleware/requireAuth.middleware.js";
-import { getShowDetails, getSeasonDetails, searchShows } from "../services/show.service.js";
+import { getShowDetails, getSeasonDetails, searchShows, getDiscoverSections } from "../services/show.service.js";
 import { searchSchema, tmdbIdParamSchema, seasonParamSchema } from "../validators/show.validator.js";
 import { validateRequest } from "../validators/validateRequest.js";
 import { asyncHandler } from "../lib/asyncHandler.js";
@@ -16,7 +16,16 @@ router.get(
   cacheResponse(3600),
   asyncHandler(async (req: Request, res: Response) => {
     const { q } = req.query as { q: string };
-    const results = await searchShows(q);
+    const results = await searchShows(q, req.language);
+    res.json(results);
+  }),
+);
+
+router.get(
+  "/discover",
+  cacheResponse(259200),
+  asyncHandler(async (req: Request, res: Response) => {
+    const results = await getDiscoverSections(req.language);
     res.json(results);
   }),
 );
@@ -27,7 +36,7 @@ router.get(
   cacheResponse(300),
   asyncHandler(async (req: Request, res: Response) => {
     const { tmdbId } = req.params;
-    const show = await getShowDetails(Number(tmdbId));
+    const show = await getShowDetails(Number(tmdbId), req.language);
     res.json(show);
   }),
 );
@@ -38,7 +47,7 @@ router.get(
   cacheResponse(300),
   asyncHandler(async (req: Request, res: Response) => {
     const { tmdbId, seasonNumber } = req.params;
-    const season = await getSeasonDetails(Number(tmdbId), Number(seasonNumber));
+    const season = await getSeasonDetails(Number(tmdbId), Number(seasonNumber), req.language);
     res.json(season);
   }),
 );

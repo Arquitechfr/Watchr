@@ -2,7 +2,9 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import Constants from "expo-constants";
 import * as SecureStore from "expo-secure-store";
 import { log } from "../utils/logger";
-import { useAuthStore } from "../store/authStore";
+import { useAuthStore, waitForHydration } from "../store/authStore";
+import { useLocaleStore } from "../store/localeStore";
+import { useI18n } from "../i18n/useI18n";
 
 const API_URL = (Constants.expoConfig?.extra?.apiUrl as string | undefined) ?? "http://localhost:4000";
 
@@ -30,10 +32,16 @@ function onTokenRefreshed(token: string) {
 
 api.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
   log("API", "request", { method: config.method, url: config.url });
-  const token = useAuthStore.getState().accessToken;
+  let token = useAuthStore.getState().accessToken;
+  if (!token) {
+    await waitForHydration();
+    token = useAuthStore.getState().accessToken;
+  }
   if (token) {
     config.headers.set("Authorization", `Bearer ${token}`);
   }
+  const locale = useLocaleStore.getState().locale;
+  config.headers.set("Accept-Language", locale);
   return config;
 });
 
@@ -45,7 +53,13 @@ api.interceptors.response.use(
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
-    if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
+    // Skip token refresh for auth endpoints
+    const isAuthEndpoint = originalRequest.url?.startsWith("/auth/login") ||
+                           originalRequest.url?.startsWith("/auth/register") ||
+                           originalRequest.url?.startsWith("/auth/refresh") ||
+                           originalRequest.url?.startsWith("/auth/firebase");
+
+    if (error.response?.status === 401 && originalRequest && !originalRequest._retry && !isAuthEndpoint) {
       if (isRefreshing) {
         return new Promise((resolve) => {
           subscribeTokenRefresh((token) => {
@@ -73,8 +87,7 @@ api.interceptors.response.use(
           refreshToken: string;
         };
 
-        useAuthStore.getState().setTokens(accessToken, refreshToken);
-        await SecureStore.setItemAsync("refreshToken", newRefreshToken);
+        await useAuthStore.getState().setTokens(accessToken, newRefreshToken);
 
         log("API", "refresh token success");
         onTokenRefreshed(accessToken);
@@ -105,13 +118,34 @@ export function isNetworkError(error: unknown): boolean {
   return false;
 }
 
-export function getErrorMessage(error: unknown): string {
+const errorMessageKeys: Record<string, string> = {
+  INVALID_CREDENTIALS: "auth.invalidCredentials",
+  EMAIL_IN_USE: "auth.emailAlreadyUsed",
+  INVALID_REFRESH_TOKEN: "errors.unauthorized",
+  RATE_LIMITED: "errors.unknown",
+  UNAUTHORIZED: "errors.unauthorized",
+};
+
+export function getErrorMessage(
+  error: unknown,
+  t?: (key: string, options?: Record<string, unknown>) => string,
+): string {
+  const translate = t ?? ((key: string) => key);
   if (isNetworkError(error)) {
-    return "Vérifie ta connexion internet.";
+    return translate("auth.networkError");
   }
   if (error instanceof AxiosError) {
-    const data = error.response?.data as { error?: { message?: string } } | undefined;
-    return data?.error?.message ?? "Un problème est survenu.";
+    const data = error.response?.data as { error?: { code?: string; message?: string } } | undefined;
+    const code = data?.error?.code;
+    if (code && code in errorMessageKeys) {
+      return translate(errorMessageKeys[code]);
+    }
+    return data?.error?.message ?? translate("errors.unknown");
   }
-  return "Un problème est survenu.";
+  return translate("errors.unknown");
+}
+
+export function useErrorMessage() {
+  const { t } = useI18n();
+  return (error: unknown) => getErrorMessage(error, t);
 }

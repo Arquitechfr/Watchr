@@ -1,6 +1,7 @@
 import { Types } from "mongoose";
 import { Comment, IComment } from "../models/comment.model.js";
 import { CommentLike } from "../models/commentLike.model.js";
+import { CommentReaction } from "../models/commentReaction.model.js";
 import { Show } from "../models/show.model.js";
 import { User } from "../models/user.model.js";
 import { ApiError } from "../middleware/error.middleware.js";
@@ -23,12 +24,19 @@ export interface ListCommentsQuery {
   limit: number;
 }
 
+export interface ReactionItem {
+  emoji: string;
+  count: number;
+  reactedByMe: boolean;
+}
+
 export interface CommentItem {
   id: string;
   userId: string;
   content: string;
   likesCount: number;
   likedByMe: boolean;
+  reactions: ReactionItem[];
   createdAt: string;
   updatedAt: string;
   replies: CommentItem[];
@@ -93,13 +101,54 @@ async function getLikedCommentIds(userId: string, commentIds: string[]): Promise
   return new Set(likes.map((like) => like.commentId.toString()));
 }
 
-function buildCommentItem(comment: IComment, likedIds: Set<string>): CommentItem {
+async function getReactionsForComments(
+  userId: string,
+  commentIds: string[],
+): Promise<Map<string, ReactionItem[]>> {
+  if (commentIds.length === 0) {
+    return new Map();
+  }
+
+  const reactions = await CommentReaction.aggregate<{ _id: string; emoji: string; count: number; reactedByMe: boolean }>([
+    { $match: { commentId: { $in: commentIds.map((id) => new Types.ObjectId(id)) } } },
+    {
+      $group: {
+        _id: { commentId: "$commentId", emoji: "$emoji" },
+        count: { $sum: 1 },
+        reactedByMe: { $max: { $cond: [{ $eq: ["$userId", new Types.ObjectId(userId)] }, true, false] } },
+      },
+    },
+    {
+      $project: {
+        _id: { $toString: "$_id.commentId" },
+        emoji: "$_id.emoji",
+        count: 1,
+        reactedByMe: 1,
+      },
+    },
+  ]);
+
+  const map = new Map<string, ReactionItem[]>();
+  for (const reaction of reactions) {
+    const list = map.get(reaction._id) || [];
+    list.push({ emoji: reaction.emoji, count: reaction.count, reactedByMe: reaction.reactedByMe });
+    map.set(reaction._id, list);
+  }
+  return map;
+}
+
+function buildCommentItem(
+  comment: IComment,
+  likedIds: Set<string>,
+  reactionMap: Map<string, ReactionItem[]>,
+): CommentItem {
   return {
     id: comment._id.toString(),
     userId: comment.userId.toString(),
     content: comment.content,
     likesCount: comment.likesCount,
     likedByMe: likedIds.has(comment._id.toString()),
+    reactions: reactionMap.get(comment._id.toString()) ?? [],
     createdAt: comment.createdAt.toISOString(),
     updatedAt: comment.updatedAt.toISOString(),
     replies: [],
@@ -205,7 +254,10 @@ export async function listCommentsForShow(
     ...topLevelComments.map((c) => c._id.toString()),
     ...replies.map((c) => c._id.toString()),
   ];
-  const likedIds = await getLikedCommentIds(userId, allCommentIds);
+  const [likedIds, reactionMap] = await Promise.all([
+    getLikedCommentIds(userId, allCommentIds),
+    getReactionsForComments(userId, allCommentIds),
+  ]);
 
   const replyMap = new Map<string, CommentItem[]>();
   for (const reply of replies) {
@@ -213,14 +265,14 @@ export async function listCommentsForShow(
     if (!parentId || !topLevelIds.includes(parentId)) {
       continue;
     }
-    const item = buildCommentItem(reply, likedIds);
+    const item = buildCommentItem(reply, likedIds, reactionMap);
     const list = replyMap.get(parentId) || [];
     list.push(item);
     replyMap.set(parentId, list);
   }
 
   const comments = topLevelComments.map((comment) => {
-    const item = buildCommentItem(comment, likedIds);
+    const item = buildCommentItem(comment, likedIds, reactionMap);
     item.replies = replyMap.get(comment._id.toString()) || [];
     return item;
   });
@@ -275,4 +327,37 @@ export async function unlikeComment(userId: string, commentId: string) {
     comment.likesCount = Math.max(0, comment.likesCount - 1);
     await comment.save();
   }
+}
+
+export async function addReaction(userId: string, commentId: string, emoji: string) {
+  const comment = await Comment.findById(commentId);
+  if (!comment) {
+    throw new ApiError(404, "COMMENT_NOT_FOUND", "Comment not found");
+  }
+
+  try {
+    await CommentReaction.create({
+      userId: new Types.ObjectId(userId),
+      commentId: new Types.ObjectId(commentId),
+      emoji,
+    });
+  } catch (err) {
+    if (err && typeof err === "object" && "code" in err && err.code === 11000) {
+      return;
+    }
+    throw err;
+  }
+}
+
+export async function removeReaction(userId: string, commentId: string, emoji: string) {
+  const comment = await Comment.findById(commentId);
+  if (!comment) {
+    throw new ApiError(404, "COMMENT_NOT_FOUND", "Comment not found");
+  }
+
+  await CommentReaction.deleteOne({
+    userId: new Types.ObjectId(userId),
+    commentId: new Types.ObjectId(commentId),
+    emoji,
+  });
 }

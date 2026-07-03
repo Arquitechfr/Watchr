@@ -10,7 +10,7 @@ router.use(requireAuth);
 router.get(
   "/",
   asyncHandler(async (req: Request, res: Response) => {
-    const episodes = await getUpcomingEpisodes(req.userId!);
+    const episodes = await getUpcomingEpisodes(req.userId!, req.language);
     res.json(episodes);
   }),
 );

@@ -21,12 +21,57 @@ export interface TmdbEpisode {
   overview?: string;
   still_path?: string | null;
   air_date?: string;
+  runtime?: number;
 }
 
 export interface TmdbSeason {
   season_number: number;
   episode_count?: number;
   episodes?: TmdbEpisode[];
+}
+
+export interface TmdbCast {
+  id: number;
+  name?: string;
+  character?: string;
+  profile_path?: string | null;
+  order?: number;
+}
+
+export interface TmdbCrew {
+  id: number;
+  name?: string;
+  job?: string;
+  department?: string;
+  profile_path?: string | null;
+}
+
+export interface TmdbCredits {
+  cast?: TmdbCast[];
+  crew?: TmdbCrew[];
+}
+
+export interface TmdbGenre {
+  id: number;
+  name?: string;
+}
+
+export interface TmdbNetwork {
+  id: number;
+  name?: string;
+  logo_path?: string | null;
+}
+
+export interface TmdbCreatedBy {
+  id: number;
+  name?: string;
+  profile_path?: string | null;
+}
+
+export interface TmdbProductionCompany {
+  id: number;
+  name?: string;
+  logo_path?: string | null;
 }
 
 export interface TmdbShowDetails {
@@ -43,6 +88,18 @@ export interface TmdbShowDetails {
     episode_number: number;
     air_date?: string;
   } | null;
+  genres?: TmdbGenre[];
+  status?: string;
+  vote_average?: number;
+  vote_count?: number;
+  episode_run_time?: number[];
+  runtime?: number;
+  networks?: TmdbNetwork[];
+  created_by?: TmdbCreatedBy[];
+  production_companies?: TmdbProductionCompany[];
+  credits?: TmdbCredits;
+  number_of_seasons?: number;
+  number_of_episodes?: number;
 }
 
 class TmdbService {
@@ -75,11 +132,11 @@ class TmdbService {
     );
   }
 
-  async searchShows(query: string): Promise<TmdbSearchResult[]> {
+  async searchShows(query: string, language = "en-US"): Promise<TmdbSearchResult[]> {
     await tmdbRateLimiter.consume();
     try {
       const response = await this.client.get<{ results: TmdbSearchResult[] }>("/search/tv", {
-        params: { query, include_adult: false },
+        params: { query, include_adult: false, language },
       });
       return response.data.results || [];
     } catch (err) {
@@ -87,11 +144,11 @@ class TmdbService {
     }
   }
 
-  async searchMovies(query: string): Promise<TmdbSearchResult[]> {
+  async searchMovies(query: string, language = "en-US"): Promise<TmdbSearchResult[]> {
     await tmdbRateLimiter.consume();
     try {
       const response = await this.client.get<{ results: TmdbSearchResult[] }>("/search/movie", {
-        params: { query, include_adult: false },
+        params: { query, include_adult: false, language },
       });
       return response.data.results || [];
     } catch (err) {
@@ -99,11 +156,11 @@ class TmdbService {
     }
   }
 
-  async getTvDetails(tmdbId: number): Promise<TmdbShowDetails> {
+  async getTvDetails(tmdbId: number, language = "en-US"): Promise<TmdbShowDetails> {
     await tmdbRateLimiter.consume();
     try {
       const response = await this.client.get<TmdbShowDetails>(`/tv/${tmdbId}`, {
-        params: { append_to_response: "next_episode_to_air" },
+        params: { append_to_response: "next_episode_to_air,credits", language },
       });
       return response.data;
     } catch (err) {
@@ -111,11 +168,12 @@ class TmdbService {
     }
   }
 
-  async getTvSeason(tmdbId: number, seasonNumber: number): Promise<TmdbSeason> {
+  async getTvSeason(tmdbId: number, seasonNumber: number, language = "en-US"): Promise<TmdbSeason> {
     await tmdbRateLimiter.consume();
     try {
       const response = await this.client.get<TmdbSeason>(
         `/tv/${tmdbId}/season/${seasonNumber}`,
+        { params: { language } },
       );
       return response.data;
     } catch (err) {
@@ -123,30 +181,84 @@ class TmdbService {
     }
   }
 
-  async getMovieDetails(tmdbId: number): Promise<TmdbShowDetails> {
+  async getTvCredits(tmdbId: number, language = "en-US"): Promise<TmdbCredits> {
     await tmdbRateLimiter.consume();
     try {
-      const response = await this.client.get<TmdbShowDetails>(`/movie/${tmdbId}`);
+      const response = await this.client.get<TmdbCredits>(`/tv/${tmdbId}/credits`, {
+        params: { language },
+      });
       return response.data;
     } catch (err) {
       throw this.handleError(err);
     }
   }
 
-  async getTrendingTv(limit = 10): Promise<TmdbSearchResult[]> {
+  async getMovieDetails(tmdbId: number, language = "en-US"): Promise<TmdbShowDetails> {
     await tmdbRateLimiter.consume();
     try {
-      const response = await this.client.get<{ results: TmdbSearchResult[] }>("/trending/tv/week");
+      const response = await this.client.get<TmdbShowDetails>(`/movie/${tmdbId}`, {
+        params: { append_to_response: "credits", language },
+      });
+      return response.data;
+    } catch (err) {
+      throw this.handleError(err);
+    }
+  }
+
+  async getMovieCredits(tmdbId: number, language = "en-US"): Promise<TmdbCredits> {
+    await tmdbRateLimiter.consume();
+    try {
+      const response = await this.client.get<TmdbCredits>(`/movie/${tmdbId}/credits`, {
+        params: { language },
+      });
+      return response.data;
+    } catch (err) {
+      throw this.handleError(err);
+    }
+  }
+
+  async getTrendingTv(limit = 10, language = "en-US"): Promise<TmdbSearchResult[]> {
+    await tmdbRateLimiter.consume();
+    try {
+      const response = await this.client.get<{ results: TmdbSearchResult[] }>("/trending/tv/week", {
+        params: { language },
+      });
       return (response.data.results || []).slice(0, limit);
     } catch (err) {
       throw this.handleError(err);
     }
   }
 
-  async getTrendingMovies(limit = 10): Promise<TmdbSearchResult[]> {
+  async getTrendingMovies(limit = 10, language = "en-US"): Promise<TmdbSearchResult[]> {
     await tmdbRateLimiter.consume();
     try {
-      const response = await this.client.get<{ results: TmdbSearchResult[] }>("/trending/movie/week");
+      const response = await this.client.get<{ results: TmdbSearchResult[] }>("/trending/movie/week", {
+        params: { language },
+      });
+      return (response.data.results || []).slice(0, limit);
+    } catch (err) {
+      throw this.handleError(err);
+    }
+  }
+
+  async getPopularTv(limit = 10, language = "en-US"): Promise<TmdbSearchResult[]> {
+    await tmdbRateLimiter.consume();
+    try {
+      const response = await this.client.get<{ results: TmdbSearchResult[] }>("/tv/popular", {
+        params: { language },
+      });
+      return (response.data.results || []).slice(0, limit);
+    } catch (err) {
+      throw this.handleError(err);
+    }
+  }
+
+  async getPopularMovies(limit = 10, language = "en-US"): Promise<TmdbSearchResult[]> {
+    await tmdbRateLimiter.consume();
+    try {
+      const response = await this.client.get<{ results: TmdbSearchResult[] }>("/movie/popular", {
+        params: { language },
+      });
       return (response.data.results || []).slice(0, limit);
     } catch (err) {
       throw this.handleError(err);

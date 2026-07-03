@@ -6,11 +6,14 @@ import {
   deleteComment,
   likeComment,
   unlikeComment,
+  addReaction,
+  removeReaction,
   CreateCommentInput,
   UpdateCommentInput,
   ListCommentsQuery,
 } from "../services/comments.service";
 import { log } from "../utils/logger";
+import { useAuthStore } from "../store/authStore";
 
 const COMMENTS_QUERY_KEY = "comments";
 
@@ -19,10 +22,11 @@ function getCommentsQueryKey(showId: string, query?: ListCommentsQuery) {
 }
 
 export function useCommentsForShow(showId: string, query?: ListCommentsQuery) {
+  const isHydrated = useAuthStore((state) => state.isHydrated);
   return useQuery({
     queryKey: getCommentsQueryKey(showId, query),
     queryFn: () => listCommentsForShow(showId, query),
-    enabled: Boolean(showId),
+    enabled: isHydrated && Boolean(showId),
   });
 }
 
@@ -106,6 +110,36 @@ export function useUnlikeComment(showId: string, query?: ListCommentsQuery) {
     },
     onError: (err) => {
       log("useComments", "unlike error", { showId, err });
+    },
+  });
+}
+
+export function useAddReaction(showId: string, query?: ListCommentsQuery) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, emoji }: { id: string; emoji: string }) => addReaction(id, emoji),
+    onSuccess: () => {
+      log("useComments", "addReaction success", { showId });
+      queryClient.invalidateQueries({ queryKey: getCommentsQueryKey(showId, query) });
+    },
+    onError: (err) => {
+      log("useComments", "addReaction error", { showId, err });
+    },
+  });
+}
+
+export function useRemoveReaction(showId: string, query?: ListCommentsQuery) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, emoji }: { id: string; emoji: string }) => removeReaction(id, emoji),
+    onSuccess: () => {
+      log("useComments", "removeReaction success", { showId });
+      queryClient.invalidateQueries({ queryKey: getCommentsQueryKey(showId, query) });
+    },
+    onError: (err) => {
+      log("useComments", "removeReaction error", { showId, err });
     },
   });
 }

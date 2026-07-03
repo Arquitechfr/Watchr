@@ -1,17 +1,25 @@
 import { Router, Request, Response } from "express";
 import { requireAuth } from "../middleware/requireAuth.middleware.js";
 import {
+  addToWatchlistByTmdb,
   deleteTracking,
+  getTrackedTmdbIds,
   getTrackingEntry,
+  getUnwatched,
   listTracking,
   markEpisodesUpTo,
+  toggleDropped,
   toggleEpisode,
   upsertTracking,
 } from "../services/tracking.service.js";
 import {
+  addToWatchlistByTmdbParamsSchema,
+  addToWatchlistByTmdbSchema,
   listTrackingSchema,
   markUpToSchema,
+  toggleDroppedSchema,
   toggleEpisodeSchema,
+  unwatchedSchema,
   upsertTrackingSchema,
 } from "../validators/tracking.validator.js";
 import { validateRequest } from "../validators/validateRequest.js";
@@ -30,8 +38,37 @@ router.get(
       limit: number;
       status?: import("../models/watchEntry.model.js").WatchStatus;
     };
-    const result = await listTracking(req.userId!, page, limit, status);
+    const result = await listTracking(req.userId!, page, limit, status, req.language);
     res.json(result);
+  }),
+);
+
+router.get(
+  "/unwatched",
+  validateRequest(undefined, unwatchedSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { type } = req.query as { type?: "tv" | "movie" };
+    const result = await getUnwatched(req.userId!, type, req.language);
+    res.json(result);
+  }),
+);
+
+router.get(
+  "/tmdb-ids",
+  asyncHandler(async (req: Request, res: Response) => {
+    const tmdbIds = await getTrackedTmdbIds(req.userId!);
+    res.json({ tmdbIds });
+  }),
+);
+
+router.post(
+  "/by-tmdb/:tmdbId",
+  validateRequest(addToWatchlistByTmdbSchema, undefined, addToWatchlistByTmdbParamsSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { tmdbId } = req.params;
+    const { type } = req.body as { type: "tv" | "movie" };
+    const entry = await addToWatchlistByTmdb(req.userId!, Number(tmdbId), type, req.language);
+    res.status(201).json(entry);
   }),
 );
 
@@ -65,6 +102,17 @@ router.patch(
     const { showId } = req.params;
     const { season, episode, watched } = req.body;
     const entry = await toggleEpisode(req.userId!, showId, season, episode, watched);
+    res.json(entry);
+  }),
+);
+
+router.patch(
+  "/:showId/dropped",
+  validateRequest(toggleDroppedSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { showId } = req.params;
+    const { dropped } = req.body;
+    const entry = await toggleDropped(req.userId!, showId, dropped);
     res.json(entry);
   }),
 );

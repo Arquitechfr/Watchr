@@ -49,3 +49,20 @@ export async function refreshAccessToken(refreshToken: string): Promise<AuthToke
   log("AuthService", "refresh token response", { status: response.status });
   return response.data;
 }
+
+export interface Me {
+  id: string;
+  email: string;
+  preferredLanguage?: string;
+  createdAt: string;
+}
+
+export async function getMe(): Promise<Me> {
+  const response = await api.get<Me>("/auth/me");
+  return response.data;
+}
+
+export async function updateLanguage(language: string): Promise<{ preferredLanguage: string }> {
+  const response = await api.patch<{ preferredLanguage: string }>("/auth/me/language", { language });
+  return response.data;
+}

@@ -6,6 +6,8 @@ import {
   refreshAccessToken,
   registerUser,
   revokeRefreshToken,
+  getMe,
+  updateLanguage,
 } from "../services/auth.service.js";
 import {
   firebaseLoginSchema,
@@ -16,6 +18,12 @@ import {
 } from "../validators/auth.validator.js";
 import { validateRequest } from "../validators/validateRequest.js";
 import { asyncHandler } from "../lib/asyncHandler.js";
+import { z } from "zod";
+import { requireAuth } from "../middleware/requireAuth.middleware.js";
+
+const updateLanguageSchema = z.object({
+  language: z.string().min(2).max(5),
+});
 
 const router: Router = Router();
 
@@ -79,6 +87,26 @@ router.post(
     const { refreshToken } = req.body;
     await revokeRefreshToken(refreshToken);
     res.json({ success: true });
+  }),
+);
+
+router.use("/me", requireAuth);
+
+router.get(
+  "/me",
+  asyncHandler(async (req: Request, res: Response) => {
+    const me = await getMe(req.userId!);
+    res.json(me);
+  }),
+);
+
+router.patch(
+  "/me/language",
+  validateRequest(updateLanguageSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { language } = req.body as { language: string };
+    const result = await updateLanguage(req.userId!, language);
+    res.json(result);
   }),
 );
 

@@ -4,7 +4,8 @@ import { useGoogleAuthRequest } from "../services/googleAuth.service";
 import { loginWithGoogle } from "../services/auth.service";
 import { useAuthStore } from "../store/authStore";
 import { useUIStore } from "../store/uiStore";
-import { getErrorMessage } from "../services/api";
+import { useErrorMessage } from "../services/api";
+import { useI18n } from "../i18n/useI18n";
 import { log } from "../utils/logger";
 import { colors } from "../theme/colors";
 
@@ -15,6 +16,8 @@ interface GoogleSignInButtonProps {
 export function GoogleSignInButton({ label }: GoogleSignInButtonProps) {
   const { setTokens } = useAuthStore();
   const { showSnackbar } = useUIStore();
+  const { t } = useI18n();
+  const getErrorMessage = useErrorMessage();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSuccess = useCallback(
@@ -25,7 +28,7 @@ export function GoogleSignInButton({ label }: GoogleSignInButtonProps) {
         const tokens = await loginWithGoogle(idToken);
         await setTokens(tokens.accessToken, tokens.refreshToken);
         log("GoogleSignInButton", "tokens persisted");
-        showSnackbar("Connecté avec Google", "success");
+        showSnackbar(t("auth.connectedWithGoogle"), "success");
       } catch (err) {
         log("GoogleSignInButton", "error", err);
         showSnackbar(getErrorMessage(err), "error");
@@ -33,7 +36,7 @@ export function GoogleSignInButton({ label }: GoogleSignInButtonProps) {
         setIsSubmitting(false);
       }
     },
-    [setTokens, showSnackbar],
+    [setTokens, showSnackbar, t, getErrorMessage],
   );
 
   const handleError = useCallback(

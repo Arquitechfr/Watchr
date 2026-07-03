@@ -1,7 +1,15 @@
-import { startOfWeek, endOfWeek, isWithinInterval } from "date-fns";
+import {
+  startOfWeek,
+  endOfWeek,
+  isWithinInterval,
+  isSameDay,
+  addWeeks,
+  isAfter,
+} from "date-fns";
 import { Types } from "mongoose";
 import { WatchEntry } from "../models/watchEntry.model.js";
 import { IShow } from "../models/show.model.js";
+import { getShowTitle } from "../models/show.model.js";
 
 export interface UpcomingEpisode {
   showId: string;
@@ -14,14 +22,18 @@ export interface UpcomingEpisode {
   airDate: string;
 }
 
-export async function getUpcomingEpisodes(userId: string): Promise<{
+export interface UpcomingCalendar {
+  today: UpcomingEpisode[];
   thisWeek: UpcomingEpisode[];
-  upcoming: UpcomingEpisode[];
-}> {
+  nextWeek: UpcomingEpisode[];
+  later: UpcomingEpisode[];
+}
+
+export async function getUpcomingEpisodes(userId: string, language = "en"): Promise<UpcomingCalendar> {
   const entries = await WatchEntry.find({
     userId: new Types.ObjectId(userId),
     status: { $in: ["watching", "plan_to_watch"] },
-  }).populate("showId");
+  }).populate("showId", "tmdbId title type posterPath status seasons nextEpisodeToAir translations");
 
   const now = new Date();
   const weekStart = startOfWeek(now, { weekStartsOn: 1 });
@@ -33,11 +45,15 @@ export async function getUpcomingEpisodes(userId: string): Promise<{
     const show = entry.showId as unknown as IShow;
     if (!show || !show.seasons) continue;
 
+    const title = getShowTitle(show, language);
+    const translation = show.translations?.get(language);
+    const seasons = translation?.seasons ?? show.seasons;
+
     const watchedKeys = new Set(
       entry.watchedEpisodes.map((ep) => `${ep.season}-${ep.episode}`),
     );
 
-    for (const season of show.seasons) {
+    for (const season of seasons) {
       for (const episode of season.episodes || []) {
         if (!episode.airDate || episode.airDate < now) continue;
         if (watchedKeys.has(`${season.seasonNumber}-${episode.episodeNumber}`)) continue;
@@ -45,7 +61,7 @@ export async function getUpcomingEpisodes(userId: string): Promise<{
         allEpisodes.push({
           showId: show._id.toString(),
           tmdbId: show.tmdbId,
-          title: show.title,
+          title,
           posterPath: show.posterPath,
           season: season.seasonNumber,
           episode: episode.episodeNumber,
@@ -61,7 +77,7 @@ export async function getUpcomingEpisodes(userId: string): Promise<{
         allEpisodes.push({
           showId: show._id.toString(),
           tmdbId: show.tmdbId,
-          title: show.title,
+          title,
           posterPath: show.posterPath,
           season: show.nextEpisodeToAir.season,
           episode: show.nextEpisodeToAir.episode,
@@ -83,17 +99,26 @@ export async function getUpcomingEpisodes(userId: string): Promise<{
     (a, b) => new Date(a.airDate).getTime() - new Date(b.airDate).getTime(),
   );
 
+  const today: UpcomingEpisode[] = [];
   const thisWeek: UpcomingEpisode[] = [];
-  const upcoming: UpcomingEpisode[] = [];
+  const nextWeek: UpcomingEpisode[] = [];
+  const later: UpcomingEpisode[] = [];
+
+  const nextWeekStart = addWeeks(weekStart, 1);
+  const nextWeekEnd = addWeeks(weekEnd, 1);
 
   for (const ep of episodes) {
     const airDate = new Date(ep.airDate);
-    if (isWithinInterval(airDate, { start: weekStart, end: weekEnd })) {
+    if (isSameDay(airDate, now)) {
+      today.push(ep);
+    } else if (isWithinInterval(airDate, { start: weekStart, end: weekEnd })) {
       thisWeek.push(ep);
-    } else {
-      upcoming.push(ep);
+    } else if (isWithinInterval(airDate, { start: nextWeekStart, end: nextWeekEnd })) {
+      nextWeek.push(ep);
+    } else if (isAfter(airDate, nextWeekEnd)) {
+      later.push(ep);
     }
   }
 
-  return { thisWeek, upcoming };
+  return { today, thisWeek, nextWeek, later };
 }

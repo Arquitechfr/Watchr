@@ -8,11 +8,14 @@ import { ImportProgressBar } from "../components/ImportProgressBar";
 import { NetworkError } from "../components/NetworkError";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { useUIStore } from "../store/uiStore";
-import { getErrorMessage } from "../services/api";
+import { useErrorMessage } from "../services/api";
 import { colors } from "../theme/colors";
+import { useI18n } from "../i18n/useI18n";
 
 export function ImportScreen() {
   const { showSnackbar } = useUIStore();
+  const { t } = useI18n();
+  const getErrorMessage = useErrorMessage();
   const [jobId, setJobId] = useState<string | null>(null);
   const [errors, setErrors] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -35,7 +38,7 @@ export function ImportScreen() {
       const { jobId: newJobId } = await uploadImport(file.uri);
       log("Import", "upload success", { jobId: newJobId });
       setJobId(newJobId);
-      showSnackbar("Import lancé", "success");
+      showSnackbar(t("screens.import.started"), "success");
     } catch (err) {
       log("Import", "upload error", err);
       showSnackbar(getErrorMessage(err), "error");
@@ -63,9 +66,9 @@ export function ImportScreen() {
   return (
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]}>
       <ScrollView className="flex-1 bg-background">
-        <Text className="text-2xl font-bold text-text mb-4">Import TV Time</Text>
+        <Text className="text-2xl font-bold text-text mb-4">{t("screens.import.title")}</Text>
         <Text className="text-text-muted mb-6">
-          Sélectionne ton export GDPR (fichier .zip) pour importer ton historique.
+          {t("screens.import.description")}
         </Text>
 
         <TouchableOpacity
@@ -76,19 +79,19 @@ export function ImportScreen() {
           {isUploading ? (
             <ActivityIndicator color={colors.background} />
           ) : (
-            <Text className="text-background font-semibold text-base">Choisir un fichier .zip</Text>
+            <Text className="text-background font-semibold text-base">{t("screens.import.pickFile")}</Text>
           )}
         </TouchableOpacity>
 
         {job && (
           <View className="bg-surface rounded-lg p-4 mb-4">
             <Text className="text-text font-semibold mb-2">
-              Statut :{" "}
+              {t("screens.import.status")}{" "}
               <Text className={isFailed ? "text-danger" : "text-primary"}>
-                {job.status === "pending" && "En attente"}
-                {job.status === "processing" && "En cours"}
-                {job.status === "completed" && "Terminé"}
-                {job.status === "failed" && "Échec"}
+                {job.status === "pending" && t("screens.import.pending")}
+                {job.status === "processing" && t("screens.import.processing")}
+                {job.status === "completed" && t("screens.import.completed")}
+                {job.status === "failed" && t("screens.import.failed")}
               </Text>
             </Text>
             <ImportProgressBar progress={job.progress} />
@@ -109,7 +112,7 @@ export function ImportScreen() {
             className="bg-surface-light py-3 rounded-lg items-center mb-4"
             onPress={viewErrors}
           >
-            <Text className="text-text font-medium">Voir les {job.progress.failed} erreurs</Text>
+            <Text className="text-text font-medium">{t("screens.import.viewErrors", { count: job.progress.failed })}</Text>
           </TouchableOpacity>
         )}
 

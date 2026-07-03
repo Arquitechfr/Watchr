@@ -1,11 +1,12 @@
 import { useEffect, useState, useMemo } from "react";
-import { View, Text, Image, ScrollView, Alert, TouchableOpacity } from "react-native";
+import { View, Text, Image, ScrollView, TouchableOpacity, RefreshControl } from "react-native";
 import { useRoute, useNavigation, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useShowDetails } from "../hooks/useShowDetails";
 import { useTrackingEntry } from "../hooks/useTrackingEntry";
-import { useUpsertTracking, useToggleEpisode, useMarkUpTo } from "../hooks/useTracking";
+import { useUpsertTracking, useToggleEpisode, useMarkUpTo, useToggleDropped } from "../hooks/useTracking";
 import { useRatingsForShow, useUpsertRating } from "../hooks/useRatings";
+import { useRefreshRateLimit } from "../hooks/useRefreshRateLimit";
 import { LazyEpisodeGrid } from "../components/LazyEpisodeGrid";
 import { RatingStars } from "../components/RatingStars";
 import { NetworkError } from "../components/NetworkError";
@@ -13,44 +14,68 @@ import { Skeleton } from "../components/Skeleton";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { FixedTrackingButton } from "../components/FixedTrackingButton";
 import { TrackingActionModal } from "../components/TrackingActionModal";
-import { EpisodeDetailModal } from "../components/EpisodeDetailModal";
 import { RootStackParamList } from "../navigation/RootNavigator";
-import { getPosterUrl, Episode } from "../services/shows.service";
+import { getPosterUrl, getProfileUrl, Episode, CastMember, CrewMember, Genre, Network } from "../services/shows.service";
 import { Ionicons } from "@expo/vector-icons";
 import { colors } from "../theme/colors";
 import { WatchStatus } from "../services/tracking.service";
 import { useUIStore } from "../store/uiStore";
 import { log } from "../utils/logger";
+import { useI18n } from "../i18n/useI18n";
 
 type ShowDetailRouteProp = RouteProp<RootStackParamList, "ShowDetail">;
 type ShowDetailNavigationProp = NativeStackNavigationProp<RootStackParamList, "ShowDetail">;
+
+function getStatusLabel(t: ReturnType<typeof useI18n>["t"], status: WatchStatus): string {
+  switch (status) {
+    case "watching":
+      return t("screens.showDetail.inProgress");
+    case "completed":
+      return t("screens.showDetail.completed");
+    case "plan_to_watch":
+      return t("screens.showDetail.planToWatch");
+    case "dropped":
+      return t("screens.showDetail.dropped");
+  }
+}
 
 export function ShowDetailScreen() {
   const route = useRoute<ShowDetailRouteProp>();
   const navigation = useNavigation<ShowDetailNavigationProp>();
   const { tmdbId, title } = route.params;
   const { showSnackbar } = useUIStore();
+  const { t } = useI18n();
   const isValidTmdbId = Number.isFinite(tmdbId) && tmdbId > 0;
 
   const { data: show, isLoading, isError, refetch } = useShowDetails(tmdbId);
-  const { data: trackingEntry } = useTrackingEntry(show?.id ?? "");
-  const { data: ratings } = useRatingsForShow(show?.id ?? "");
+  const { data: trackingEntry, refetch: refetchTrackingEntry } = useTrackingEntry(show?.id ?? "");
+  const { data: ratings, refetch: refetchRatings } = useRatingsForShow(show?.id ?? "");
+  const throttledRefresh = useRefreshRateLimit();
   const upsertTracking = useUpsertTracking(show?.id ?? "");
   const toggleEpisode = useToggleEpisode(show?.id ?? "");
   const markUpTo = useMarkUpTo(show?.id ?? "");
   const upsertRating = useUpsertRating(show?.id ?? "");
+  const toggleDropped = useToggleDropped(show?.id ?? "");
 
   const [trackingModalVisible, setTrackingModalVisible] = useState(false);
-  const [detailModal, setDetailModal] = useState<{
-    visible: boolean;
-    season: number;
-    episode: Episode;
-  }>({ visible: false, season: 1, episode: { episodeNumber: 1 } });
 
   useEffect(() => {
     log("ShowDetail", "mount", { tmdbId, title });
     navigation.setOptions({ title });
   }, [navigation, title]);
+
+  useEffect(() => {
+    if (show) {
+      log("ShowDetail", "show data", {
+        tmdbId,
+        hasCast: Boolean(show.cast?.length),
+        castCount: show.cast?.length ?? 0,
+        crewCount: show.crew?.length ?? 0,
+        genresCount: show.genres?.length ?? 0,
+        networksCount: show.networks?.length ?? 0,
+      });
+    }
+  }, [show, tmdbId]);
 
   const progress = useMemo(() => {
     if (!show || show.type !== "tv") {
@@ -69,8 +94,15 @@ export function ShowDetailScreen() {
   const isAnyPending =
     upsertTracking.isPending || markUpTo.isPending || toggleEpisode.isPending || upsertRating.isPending;
 
+  const handleRefresh = () => {
+    refetch();
+    if (show?.id) {
+      refetchTrackingEntry();
+      refetchRatings();
+    }
+  };
+
   const handleSaveTracking = (payload: {
-    status: WatchStatus;
     currentSeason?: number;
     currentEpisode?: number;
     includePrevious: boolean;
@@ -82,7 +114,6 @@ export function ShowDetailScreen() {
 
     upsertTracking.mutate(
       {
-        status: payload.status,
         currentSeason: payload.currentSeason,
         currentEpisode: payload.currentEpisode,
       },
@@ -96,7 +127,7 @@ export function ShowDetailScreen() {
                 includePrevious: payload.includePrevious,
               },
               {
-                onError: () => showSnackbar("Impossible de mettre à jour la progression", "error"),
+                onError: () => showSnackbar(t("screens.showDetail.updateProgressError"), "error"),
               },
             );
           }
@@ -105,7 +136,7 @@ export function ShowDetailScreen() {
           }
           setTrackingModalVisible(false);
         },
-        onError: () => showSnackbar("Impossible de mettre à jour le suivi", "error"),
+        onError: () => showSnackbar(t("screens.showDetail.updateTrackingError"), "error"),
       },
     );
   };
@@ -115,75 +146,32 @@ export function ShowDetailScreen() {
     toggleEpisode.mutate({ season, episode, watched });
   };
 
-  const handleToggleWatchedFromDetail = () => {
-    if (!show || show.type !== "tv") return;
-    const { season, episode } = detailModal;
-    const nextIsWatched = !detailIsWatched;
-    if (!nextIsWatched) {
-      handleToggleEpisode(season, episode.episodeNumber, false);
-      return;
-    }
-
-    const previousUnwatched = show.seasons.flatMap((s: { seasonNumber: number; episodeCount: number }) => {
-      const count = s.episodeCount ?? 0;
-      const episodeNumbers = Array.from({ length: count }, (_, i) => i + 1);
-      return episodeNumbers
-        .filter((episodeNumber) => {
-          if (s.seasonNumber < season) return true;
-          if (s.seasonNumber > season) return false;
-          return episodeNumber < episode.episodeNumber;
-        })
-        .map((episodeNumber) => ({ season: s.seasonNumber, episode: episodeNumber }));
-    }).filter((ep: { season: number; episode: number }) => !watchedKeys.has(`${ep.season}-${ep.episode}`));
-
-    if (previousUnwatched.length === 0) {
-      handleToggleEpisode(season, episode.episodeNumber, true);
-      return;
-    }
-
-    Alert.alert(
-      "Marquer les épisodes précédents ?",
-      `${previousUnwatched.length} épisode${previousUnwatched.length > 1 ? "s" : ""} précédent${previousUnwatched.length > 1 ? "s" : ""} non vu${previousUnwatched.length > 1 ? "s" : ""}. Les marquer comme vus ?`,
-      [
-        { text: "Non", style: "cancel", onPress: () => handleToggleEpisode(season, episode.episodeNumber, true) },
-        {
-          text: "Oui",
-          onPress: () => {
-            log("ShowDetail", "mark up to from detail", { showId: show.id, season, episode: episode.episodeNumber });
-            markUpTo.mutate(
-              { season, episode: episode.episodeNumber, includePrevious: true },
-              { onError: () => showSnackbar("Impossible de marquer les épisodes", "error") },
-            );
-          },
-        },
-      ],
-    );
+  const handleToggleDropped = () => {
+    if (!show) return;
+    const nextDropped = trackingEntry?.status !== "dropped";
+    log("ShowDetail", "toggle dropped", { showId: show.id, dropped: nextDropped });
+    toggleDropped.mutate(nextDropped, {
+      onSuccess: () => showSnackbar(nextDropped ? t("screens.showDetail.droppedStatus") : t("screens.showDetail.resumedStatus"), "success"),
+      onError: () => showSnackbar(t("screens.showDetail.statusError"), "error"),
+    });
   };
 
   const handleOpenEpisodeDetail = (season: number, episode: Episode) => {
-    setDetailModal({ visible: true, season, episode });
+    if (!show) return;
+    navigation.navigate("EpisodeDetail", {
+      showId: show.id,
+      tmdbId,
+      season,
+      episodeNumber: episode.episodeNumber,
+      title: episode.name,
+    });
   };
-
-  const handleCloseEpisodeDetail = () => {
-    setDetailModal((prev) => ({ ...prev, visible: false }));
-  };
-
-  const watchedKeys = useMemo(
-    () =>
-      new Set(
-        (trackingEntry?.watchedEpisodes ?? []).map((ep: { season: number; episode: number }) => `${ep.season}-${ep.episode}`),
-      ),
-    [trackingEntry?.watchedEpisodes],
-  );
-
-  const detailIsWatched =
-    detailModal.episode && watchedKeys.has(`${detailModal.season}-${detailModal.episode.episodeNumber}`);
 
   if (!isValidTmdbId) {
     return (
       <ScreenContainer>
         <NetworkError
-          message="Identifiant de show invalide"
+          message={t("errors.invalidShowId")}
           onRetry={() => navigation.goBack()}
         />
       </ScreenContainer>
@@ -216,7 +204,11 @@ export function ShowDetailScreen() {
 
   return (
     <ScreenContainer edges={["top", "left", "right"]}>
-      <ScrollView className="flex-1 bg-background" contentContainerStyle={{ paddingBottom: 100 }}>
+      <ScrollView
+        className="flex-1 bg-background"
+        contentContainerStyle={{ paddingBottom: 100 }}
+        refreshControl={<RefreshControl refreshing={isLoading} onRefresh={() => throttledRefresh(handleRefresh)} tintColor={colors.primary} />}
+      >
         <View className="relative">
           {posterUrl ? (
             <Image
@@ -226,7 +218,7 @@ export function ShowDetailScreen() {
             />
           ) : (
             <View className="w-full h-80 bg-surface-light items-center justify-center">
-              <Text className="text-text-muted">No image</Text>
+              <Text className="text-text-muted">{t("common.noImage")}</Text>
             </View>
           )}
           <View className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background to-transparent h-24" />
@@ -235,9 +227,9 @@ export function ShowDetailScreen() {
         <View className="px-4 -mt-8">
           <Text className="text-3xl font-bold text-text mb-2">{show.title}</Text>
           <Text className="text-text-muted mb-4">
-            {show.firstAirDate ? new Date(show.firstAirDate).getFullYear() : "—"}
+            {show.firstAirDate ? new Date(show.firstAirDate).getFullYear().toString() : "—"}
             {" · "}
-            {show.type === "tv" ? "Série" : "Film"}
+            {show.type === "tv" ? t("common.tv") : t("common.movie")}
           </Text>
 
           {show.overview && (
@@ -245,7 +237,7 @@ export function ShowDetailScreen() {
           )}
 
           <View className="mb-6">
-            <Text className="text-lg font-semibold text-text mb-2">Ta note</Text>
+            <Text className="text-lg font-semibold text-text mb-2">{t("screens.showDetail.yourRating")}</Text>
             <RatingStars
               value={ratings?.show ?? null}
               onChange={(value) => {
@@ -255,18 +247,119 @@ export function ShowDetailScreen() {
             />
           </View>
 
+          {show.genres && show.genres.length > 0 && (
+            <View className="flex-row flex-wrap mb-4">
+              {show.genres.map((genre: Genre) => (
+                <View key={genre.id} className="bg-surface rounded-full px-3 py-1 mr-2 mb-2">
+                  <Text className="text-text text-xs">{genre.name}</Text>
+                </View>
+              ))}
+            </View>
+          )}
+
+          <View className="bg-surface rounded-lg p-4 mb-6">
+            <View className="flex-row flex-wrap justify-between">
+              {trackingEntry && (
+                <View className="w-1/2 mb-3 pr-2">
+                  <Text className="text-text-muted text-xs uppercase tracking-wider">{t("screens.showDetail.tracking")}</Text>
+                  <Text className="text-text font-medium">{getStatusLabel(t, trackingEntry.status as WatchStatus)}</Text>
+                </View>
+              )}
+              {show.status && (
+                <View className="w-1/2 mb-3 pr-2">
+                  <Text className="text-text-muted text-xs uppercase tracking-wider">{t("screens.showDetail.status")}</Text>
+                  <Text className="text-text font-medium">{show.status}</Text>
+                </View>
+              )}
+              {show.type === "tv" && show.numberOfSeasons !== undefined && (
+                <View className="w-1/2 mb-3 pr-2">
+                  <Text className="text-text-muted text-xs uppercase tracking-wider">{t("screens.showDetail.seasons")}</Text>
+                  <Text className="text-text font-medium">{show.numberOfSeasons}</Text>
+                </View>
+              )}
+              {show.type === "tv" && show.numberOfEpisodes !== undefined && (
+                <View className="w-1/2 mb-3 pr-2">
+                  <Text className="text-text-muted text-xs uppercase tracking-wider">{t("screens.showDetail.episodes")}</Text>
+                  <Text className="text-text font-medium">{show.numberOfEpisodes}</Text>
+                </View>
+              )}
+              {show.runtime && (
+                <View className="w-1/2 mb-3 pr-2">
+                  <Text className="text-text-muted text-xs uppercase tracking-wider">{t("screens.showDetail.duration")}</Text>
+                  <Text className="text-text font-medium">{show.runtime} {t("common.minutesShort")}</Text>
+                </View>
+              )}
+              {show.voteAverage !== undefined && show.voteCount !== undefined && show.voteCount > 0 && (
+                <View className="w-1/2 mb-3 pr-2">
+                  <Text className="text-text-muted text-xs uppercase tracking-wider">{t("screens.showDetail.tmdbRating")}</Text>
+                  <Text className="text-text font-medium">{show.voteAverage.toFixed(1)}/10</Text>
+                </View>
+              )}
+              {show.networks && show.networks.length > 0 && (
+                <View className="w-1/2 mb-3 pr-2">
+                  <Text className="text-text-muted text-xs uppercase tracking-wider">{t("screens.showDetail.network")}</Text>
+                  <Text className="text-text font-medium">{show.networks.map((n: Network) => n.name).join(", ")}</Text>
+                </View>
+              )}
+            </View>
+          </View>
+
+          {show.cast && show.cast.length > 0 && (
+            <View className="mb-6">
+              <Text className="text-lg font-semibold text-text mb-2">{t("screens.showDetail.cast")}</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} className="-mx-4 px-4">
+                {show.cast.slice(0, 15).map((member: CastMember, index: number) => (
+                  <CastMemberCard key={`${member.id}-${index}`} member={member} />
+                ))}
+              </ScrollView>
+            </View>
+          )}
+
+          {show.crew && show.crew.length > 0 && (
+            <View className="mb-6">
+              <Text className="text-lg font-semibold text-text mb-2">
+                {show.type === "tv" ? t("screens.showDetail.creators") : t("screens.showDetail.directors")}
+              </Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} className="-mx-4 px-4">
+                {show.crew.slice(0, 10).map((member: CrewMember, index: number) => (
+                  <CrewMemberCard key={`${member.id}-${member.job ?? index}`} member={member} />
+                ))}
+              </ScrollView>
+            </View>
+          )}
+
           <TouchableOpacity
             onPress={() => navigation.navigate("ShowComments", { showId: show.id, title: show.title })}
             className="flex-row items-center justify-between bg-surface rounded-lg p-4 mb-6"
             activeOpacity={0.7}
           >
-            <Text className="text-text font-semibold">Commentaires</Text>
+            <Text className="text-text font-semibold">{t("screens.showDetail.comments")}</Text>
             <Ionicons name="chatbubbles-outline" size={20} color={colors.primary} />
           </TouchableOpacity>
 
+          {trackingEntry && (
+            <TouchableOpacity
+              onPress={handleToggleDropped}
+              className={`flex-row items-center justify-between rounded-lg p-4 mb-6 ${
+                trackingEntry.status === "dropped" ? "bg-surface border border-primary" : "bg-surface"
+              }`}
+              activeOpacity={0.7}
+              disabled={toggleDropped.isPending}
+            >
+              <Text className="text-text font-semibold">
+                {trackingEntry.status === "dropped" ? t("screens.showDetail.resumeShow") : t("screens.showDetail.dropShow")}
+              </Text>
+              <Ionicons
+                name={trackingEntry.status === "dropped" ? "play-outline" : "trash-outline"}
+                size={20}
+                color={trackingEntry.status === "dropped" ? colors.primary : colors.danger}
+              />
+            </TouchableOpacity>
+          )}
+
           {show.type === "tv" && show.seasons.length > 0 && (
             <View className="mb-6">
-              <Text className="text-lg font-semibold text-text mb-2">Épisodes</Text>
+              <Text className="text-lg font-semibold text-text mb-2">{t("screens.showDetail.episodes")}</Text>
               <LazyEpisodeGrid
                 tmdbId={tmdbId}
                 seasons={show.seasons}
@@ -297,17 +390,62 @@ export function ShowDetailScreen() {
         onSave={handleSaveTracking}
         isPending={upsertTracking.isPending || markUpTo.isPending}
       />
-
-      <EpisodeDetailModal
-        visible={detailModal.visible}
-        onClose={handleCloseEpisodeDetail}
-        showId={show?.id}
-        season={detailModal.season}
-        episode={detailModal.episode}
-        isWatched={detailIsWatched}
-        onToggleWatched={handleToggleWatchedFromDetail}
-        isPending={toggleEpisode.isPending || markUpTo.isPending}
-      />
     </ScreenContainer>
+  );
+}
+
+function CastMemberCard({ member }: { member: CastMember }) {
+  const { t } = useI18n();
+  const profileUrl = getProfileUrl(member.profilePath, 200);
+  return (
+    <View className="mr-3 items-center" style={{ width: 80 }}>
+      {profileUrl ? (
+        <Image
+          source={{ uri: profileUrl }}
+          className="w-20 h-20 rounded-full bg-surface-light mb-2"
+          resizeMode="cover"
+        />
+      ) : (
+        <View className="w-20 h-20 rounded-full bg-surface-light items-center justify-center mb-2">
+          <Ionicons name="person-outline" size={28} color={colors.textMuted} />
+        </View>
+      )}
+      <Text className="text-text text-xs font-medium text-center" numberOfLines={2}>
+        {member.name ?? t("common.unknown")}
+      </Text>
+      {member.character && (
+        <Text className="text-text-muted text-xs text-center mt-0.5" numberOfLines={1}>
+          {member.character}
+        </Text>
+      )}
+    </View>
+  );
+}
+
+function CrewMemberCard({ member }: { member: CrewMember }) {
+  const { t } = useI18n();
+  const profileUrl = getProfileUrl(member.profilePath, 200);
+  return (
+    <View className="mr-3 items-center" style={{ width: 80 }}>
+      {profileUrl ? (
+        <Image
+          source={{ uri: profileUrl }}
+          className="w-20 h-20 rounded-full bg-surface-light mb-2"
+          resizeMode="cover"
+        />
+      ) : (
+        <View className="w-20 h-20 rounded-full bg-surface-light items-center justify-center mb-2">
+          <Ionicons name="person-outline" size={28} color={colors.textMuted} />
+        </View>
+      )}
+      <Text className="text-text text-xs font-medium text-center" numberOfLines={2}>
+        {member.name ?? t("common.unknown")}
+      </Text>
+      {member.job && (
+        <Text className="text-text-muted text-xs text-center mt-0.5" numberOfLines={1}>
+          {member.job}
+        </Text>
+      )}
+    </View>
   );
 }

@@ -9,10 +9,14 @@ export const watchedEpisodeSchema = z.object({
 });
 
 export const upsertTrackingSchema = z.object({
-  status: watchStatusSchema,
+  status: watchStatusSchema.optional(),
   watchedEpisodes: z.array(watchedEpisodeSchema).optional(),
   currentSeason: z.coerce.number().int().min(0).optional(),
   currentEpisode: z.coerce.number().int().min(1).optional(),
+});
+
+export const toggleDroppedSchema = z.object({
+  dropped: z.boolean(),
 });
 
 export const toggleEpisodeSchema = z.object({
@@ -31,4 +35,16 @@ export const listTrackingSchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(20),
   status: watchStatusSchema.optional(),
+});
+
+export const unwatchedSchema = z.object({
+  type: z.enum(["tv", "movie"]).optional(),
+});
+
+export const addToWatchlistByTmdbSchema = z.object({
+  type: z.enum(["tv", "movie"]),
+});
+
+export const addToWatchlistByTmdbParamsSchema = z.object({
+  tmdbId: z.coerce.number().int().positive(),
 });

@@ -36,17 +36,17 @@ describe("Tracking", () => {
   afterAll(teardown);
   beforeEach(clearDatabase);
 
-  it("should upsert tracking entry", async () => {
+  it("should upsert tracking entry and compute status automatically", async () => {
     const { token } = await getAuthUser();
     const show = await createShow();
 
     const res = await request(app)
       .post(`/api/tracking/${show._id.toString()}`)
       .set("Authorization", `Bearer ${token}`)
-      .send({ status: "watching" });
+      .send({ currentSeason: 1, currentEpisode: 1 });
 
     expect(res.status).toBe(200);
-    expect(res.body.status).toBe("watching");
+    expect(res.body.status).toBe("plan_to_watch");
   });
 
   it("should toggle episode watched", async () => {
@@ -151,5 +151,51 @@ describe("Tracking", () => {
     expect(res.status).toBe(200);
     expect(res.body.status).toBe("watching");
     expect(res.body.watchedEpisodes).toHaveLength(1);
+  });
+
+  it("should compute status as completed when all episodes watched and show ended", async () => {
+    const { token } = await getAuthUser();
+    const show = await Show.create({
+      tmdbId: 456,
+      type: "tv",
+      title: "Ended Show",
+      status: "Ended",
+      seasons: [{ seasonNumber: 1, episodeCount: 2, episodes: [{ episodeNumber: 1 }, { episodeNumber: 2 }] }],
+    });
+
+    const res = await request(app)
+      .post(`/api/tracking/${show._id.toString()}/mark-up-to`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({ season: 1, episode: 2, includePrevious: true });
+
+    expect(res.status).toBe(200);
+    expect(res.body.status).toBe("completed");
+    expect(res.body.watchedEpisodes).toHaveLength(2);
+  });
+
+  it("should toggle dropped status", async () => {
+    const { token } = await getAuthUser();
+    const show = await createShow();
+
+    await request(app)
+      .post(`/api/tracking/${show._id.toString()}`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({});
+
+    const droppedRes = await request(app)
+      .patch(`/api/tracking/${show._id.toString()}/dropped`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({ dropped: true });
+
+    expect(droppedRes.status).toBe(200);
+    expect(droppedRes.body.status).toBe("dropped");
+
+    const resumedRes = await request(app)
+      .patch(`/api/tracking/${show._id.toString()}/dropped`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({ dropped: false });
+
+    expect(resumedRes.status).toBe(200);
+    expect(resumedRes.body.status).toBe("plan_to_watch");
   });
 });

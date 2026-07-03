@@ -5,6 +5,7 @@ import { Comment } from "../../services/comments.service";
 import { useAuthStore } from "../../store/authStore";
 import { colors } from "../../theme/colors";
 import { CommentInput } from "./CommentInput";
+import { useI18n } from "../../i18n/useI18n";
 
 interface CommentItemProps {
   comment: Comment;
@@ -15,7 +16,11 @@ interface CommentItemProps {
   onDelete?: (id: string) => void;
   onLike?: (id: string) => void;
   onUnlike?: (id: string) => void;
+  onAddReaction?: (id: string, emoji: string) => void;
+  onRemoveReaction?: (id: string, emoji: string) => void;
 }
+
+const QUICK_EMOJIS = ["👍", "❤️", "🔥", "😂", "😍", "👏", "🤔", "😢"];
 
 export function CommentItem({
   comment,
@@ -26,11 +31,15 @@ export function CommentItem({
   onDelete,
   onLike,
   onUnlike,
+  onAddReaction,
+  onRemoveReaction,
 }: CommentItemProps) {
+  const { t } = useI18n();
   const userId = useAuthStore((state) => state.userId);
   const isOwn = comment.userId === userId;
   const [isReplying, setIsReplying] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   const handleLike = () => {
     if (comment.likedByMe) {
@@ -51,10 +60,20 @@ export function CommentItem({
   };
 
   const handleDelete = () => {
-    Alert.alert("Supprimer le commentaire", "Cette action est irréversible.", [
-      { text: "Annuler", style: "cancel" },
-      { text: "Supprimer", style: "destructive", onPress: () => onDelete?.(comment.id) },
+    Alert.alert(t("screens.comments.deleteConfirmTitle"), t("screens.comments.deleteConfirmMessage"), [
+      { text: t("common.cancel"), style: "cancel" },
+      { text: t("common.delete"), style: "destructive", onPress: () => onDelete?.(comment.id) },
     ]);
+  };
+
+  const handleReaction = (emoji: string) => {
+    const existing = comment.reactions.find((r) => r.emoji === emoji);
+    if (existing?.reactedByMe) {
+      onRemoveReaction?.(comment.id, emoji);
+    } else {
+      onAddReaction?.(comment.id, emoji);
+    }
+    setShowEmojiPicker(false);
   };
 
   const maxDepth = 2;
@@ -68,7 +87,7 @@ export function CommentItem({
           onSubmit={handleEdit}
           onCancel={() => setIsEditing(false)}
           isPending={isPending}
-          submitLabel="Modifier"
+          submitLabel={t("common.edit")}
         />
       ) : (
         <View className="bg-surface rounded-lg p-3">
@@ -98,9 +117,19 @@ export function CommentItem({
                   activeOpacity={0.7}
                 >
                   <Ionicons name="chatbubble-outline" size={16} color={colors.textMuted} />
-                  <Text className="text-text-muted text-sm ml-1">Répondre</Text>
+                  <Text className="text-text-muted text-sm ml-1">{t("common.reply")}</Text>
                 </TouchableOpacity>
               )}
+
+              <TouchableOpacity
+                onPress={() => setShowEmojiPicker((prev) => !prev)}
+                disabled={isPending}
+                className="flex-row items-center ml-4"
+                activeOpacity={0.7}
+              >
+                <Ionicons name="happy-outline" size={16} color={colors.textMuted} />
+                <Text className="text-text-muted text-sm ml-1">{t("common.react")}</Text>
+              </TouchableOpacity>
             </View>
 
             {isOwn && (
@@ -119,13 +148,49 @@ export function CommentItem({
               </View>
             )}
           </View>
+
+          {comment.reactions.length > 0 && (
+            <View className="flex-row flex-wrap mt-2">
+              {comment.reactions.map((reaction) => (
+                <TouchableOpacity
+                  key={reaction.emoji}
+                  onPress={() => handleReaction(reaction.emoji)}
+                  disabled={isPending}
+                  className={`flex-row items-center mr-2 mb-2 px-2 py-1 rounded-full border ${
+                    reaction.reactedByMe ? "bg-primary/20 border-primary" : "bg-surface-light border-border"
+                  }`}
+                  activeOpacity={0.7}
+                >
+                  <Text className="text-base">{reaction.emoji}</Text>
+                  <Text className={`text-sm ml-1 ${reaction.reactedByMe ? "text-primary" : "text-text-muted"}`}>
+                    {reaction.count}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+
+          {showEmojiPicker && (
+            <View className="flex-row flex-wrap mt-2 bg-surface-light rounded-lg p-2">
+              {QUICK_EMOJIS.map((emoji) => (
+                <TouchableOpacity
+                  key={emoji}
+                  onPress={() => handleReaction(emoji)}
+                  className="w-9 h-9 items-center justify-center"
+                  activeOpacity={0.7}
+                >
+                  <Text className="text-2xl">{emoji}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
         </View>
       )}
 
       {isReplying && (
         <View className="mt-2">
           <CommentInput
-            placeholder="Répondre..."
+            placeholder={t("common.reply")}
             onSubmit={handleReply}
             onCancel={() => setIsReplying(false)}
             isPending={isPending}
@@ -146,6 +211,8 @@ export function CommentItem({
               onDelete={onDelete}
               onLike={onLike}
               onUnlike={onUnlike}
+              onAddReaction={onAddReaction}
+              onRemoveReaction={onRemoveReaction}
             />
           ))}
         </View>

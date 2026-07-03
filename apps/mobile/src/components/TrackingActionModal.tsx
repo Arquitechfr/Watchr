@@ -2,9 +2,10 @@ import { useState, useMemo } from "react";
 import { Modal, View, Text, ScrollView, TouchableOpacity, Switch } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { ShowDetails } from "../services/shows.service";
-import { WatchEntry, WatchStatus } from "../services/tracking.service";
+import { WatchEntry } from "../services/tracking.service";
 import { RatingStars } from "./RatingStars";
 import { colors } from "../theme/colors";
+import { useI18n } from "../i18n/useI18n";
 
 interface TrackingActionModalProps {
   visible: boolean;
@@ -13,7 +14,6 @@ interface TrackingActionModalProps {
   trackingEntry?: WatchEntry | null;
   rating?: number | null;
   onSave: (payload: {
-    status: WatchStatus;
     currentSeason?: number;
     currentEpisode?: number;
     includePrevious: boolean;
@@ -21,15 +21,6 @@ interface TrackingActionModalProps {
   }) => void;
   isPending: boolean;
 }
-
-const statusLabels: Record<WatchStatus, string> = {
-  watching: "En cours",
-  completed: "Terminé",
-  plan_to_watch: "À voir",
-  dropped: "Abandonné",
-};
-
-const statusOrder: WatchStatus[] = ["watching", "completed", "plan_to_watch", "dropped"];
 
 export function TrackingActionModal({
   visible,
@@ -40,12 +31,11 @@ export function TrackingActionModal({
   onSave,
   isPending,
 }: TrackingActionModalProps) {
+  const { t } = useI18n();
   const isTv = show.type === "tv";
-  const initialStatus = trackingEntry?.status ?? "plan_to_watch";
   const initialSeason = trackingEntry?.currentSeason ?? (show.seasons[0]?.seasonNumber ?? 1);
   const initialEpisode = trackingEntry?.currentEpisode ?? 1;
 
-  const [status, setStatus] = useState<WatchStatus>(initialStatus);
   const [selectedSeason, setSelectedSeason] = useState<number>(initialSeason);
   const [selectedEpisode, setSelectedEpisode] = useState<number>(initialEpisode);
   const [includePrevious, setIncludePrevious] = useState(true);
@@ -65,7 +55,6 @@ export function TrackingActionModal({
 
   const handleSave = () => {
     const payload: Parameters<typeof onSave>[0] = {
-      status,
       includePrevious,
       rating: selectedRating,
     };
@@ -99,50 +88,27 @@ export function TrackingActionModal({
         <View className="bg-background rounded-t-2xl max-h-[85%]">
           <View className="flex-row items-center justify-between px-4 py-3 border-b border-border">
             <TouchableOpacity onPress={onClose} disabled={isPending}>
-              <Text className="text-text-muted">Annuler</Text>
+              <Text className="text-text-muted">{t("common.cancel")}</Text>
             </TouchableOpacity>
             <Text className="text-text font-semibold">
-              {trackingEntry ? "Modifier le suivi" : "Ajouter à ma liste"}
+              {trackingEntry ? t("common.edit") : t("screens.showDetail.addToList")}
             </Text>
             <TouchableOpacity onPress={handleSave} disabled={isPending}>
               <Text className={`font-semibold ${isPending ? "text-text-muted" : "text-primary"}`}>
-                Valider
+                {t("common.save")}
               </Text>
             </TouchableOpacity>
           </View>
 
           <ScrollView className="p-4">
-            <Text className="text-lg font-semibold text-text mb-3">Statut</Text>
-            <View className="flex-row flex-wrap gap-2 mb-6">
-              {statusOrder.map((s) => {
-                const active = status === s;
-                return (
-                  <TouchableOpacity
-                    key={s}
-                    className={`px-4 py-2 rounded-full border ${
-                      active ? "bg-primary border-primary" : "bg-surface border-border"
-                    }`}
-                    onPress={() => setStatus(s)}
-                    disabled={isPending}
-                  >
-                    <Text
-                      className={`font-medium ${active ? "text-background" : "text-text"}`}
-                    >
-                      {statusLabels[s]}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-
             {isTv && (
               <>
                 <Text className="text-lg font-semibold text-text mb-3">
-                  Où en es-tu ?
+                  {t("screens.showDetail.inProgress")}
                 </Text>
                 <View className="flex-row gap-4 mb-4">
                   <View className="flex-1">
-                    <Text className="text-text-muted text-sm mb-2">Saison</Text>
+                    <Text className="text-text-muted text-sm mb-2">{t("screens.showDetail.season")}</Text>
                     <View className="flex-row items-center bg-surface rounded-lg px-3 py-2">
                       <TouchableOpacity
                         className="p-2"
@@ -158,7 +124,7 @@ export function TrackingActionModal({
                         <Ionicons name="chevron-back" size={20} color={colors.text} />
                       </TouchableOpacity>
                       <Text className="flex-1 text-center text-text font-semibold">
-                        Saison {selectedSeason}
+                        {t("screens.showDetail.season")} {selectedSeason}
                       </Text>
                       <TouchableOpacity
                         className="p-2"
@@ -176,7 +142,7 @@ export function TrackingActionModal({
                   </View>
 
                   <View className="flex-1">
-                    <Text className="text-text-muted text-sm mb-2">Épisode</Text>
+                    <Text className="text-text-muted text-sm mb-2">{t("screens.showDetail.episode")}</Text>
                     <View className="flex-row items-center bg-surface rounded-lg px-3 py-2">
                       <TouchableOpacity
                         className="p-2"
@@ -186,7 +152,7 @@ export function TrackingActionModal({
                         <Ionicons name="chevron-back" size={20} color={colors.text} />
                       </TouchableOpacity>
                       <Text className="flex-1 text-center text-text font-semibold">
-                        Épisode {selectedEpisode}
+                        {t("screens.showDetail.episode")} {selectedEpisode}
                         {selectedEpisodeData?.name ? ` · ${selectedEpisodeData.name}` : ""}
                       </Text>
                       <TouchableOpacity
@@ -202,7 +168,7 @@ export function TrackingActionModal({
 
                 <View className="flex-row items-center justify-between bg-surface rounded-lg px-3 py-3 mb-6">
                   <Text className="text-text flex-1">
-                    Marquer les épisodes précédents comme vus
+                    {t("screens.episode.markPreviousMessage")}
                   </Text>
                   <Switch
                     value={includePrevious}
@@ -215,7 +181,7 @@ export function TrackingActionModal({
               </>
             )}
 
-            <Text className="text-lg font-semibold text-text mb-2">Ta note</Text>
+            <Text className="text-lg font-semibold text-text mb-2">{t("screens.showDetail.yourRating")}</Text>
             <View className="mb-6">
               <RatingStars value={selectedRating} onChange={setSelectedRating} />
             </View>

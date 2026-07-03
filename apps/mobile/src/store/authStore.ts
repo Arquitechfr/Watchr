@@ -25,6 +25,22 @@ interface AuthState {
   hydrate: () => Promise<void>;
 }
 
+export function waitForHydration(): Promise<void> {
+  return new Promise((resolve) => {
+    const state = useAuthStore.getState();
+    if (state.isHydrated) {
+      resolve();
+      return;
+    }
+    const unsubscribe = useAuthStore.subscribe((nextState) => {
+      if (nextState.isHydrated) {
+        unsubscribe();
+        resolve();
+      }
+    });
+  });
+}
+
 export const useAuthStore = create<AuthState>((set) => ({
   accessToken: null,
   userId: null,

@@ -1,18 +1,15 @@
 import { Router, Request, Response } from "express";
-import { requireAuth } from "../middleware/requireAuth.middleware.js";
 import { asyncHandler } from "../lib/asyncHandler.js";
 import { ApiError } from "../middleware/error.middleware.js";
 import { proxyImage, ImageType, getDefaultSize } from "../services/image.service.js";
 
-const ALLOWED_TYPES = new Set<ImageType>(["poster", "still", "backdrop"]);
+const ALLOWED_TYPES = new Set<ImageType>(["poster", "still", "backdrop", "profile"]);
 
 function isImageType(value: string): value is ImageType {
   return ALLOWED_TYPES.has(value as ImageType);
 }
 
 const router: Router = Router();
-
-router.use(requireAuth);
 
 router.get(
   "/:type/:size/*",

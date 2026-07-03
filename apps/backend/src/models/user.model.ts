@@ -11,6 +11,7 @@ export interface IUser extends Document {
   passwordHash?: string;
   firebaseUid?: string;
   refreshTokens: RefreshTokenEntry[];
+  preferredLanguage?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -53,6 +54,10 @@ const userSchema = new Schema<IUser>(
     refreshTokens: {
       type: [refreshTokenSchema],
       default: [],
+    },
+    preferredLanguage: {
+      type: String,
+      required: false,
     },
   },
   { timestamps: true },

@@ -23,11 +23,12 @@ export async function registerUser(email: string, password: string): Promise<Tok
 
   const passwordHash = await bcrypt.hash(password, 12);
   const user = await User.create({ email, passwordHash });
-  return issueTokenPair(user._id.toString());
+  return await issueTokenPair(user._id.toString());
 }
 
 export async function loginUser(email: string, password: string): Promise<TokenPair> {
-  const user = await User.findOne({ email: email.toLowerCase() });
+  const normalizedEmail = email.toLowerCase().trim();
+  const user = await User.findOne({ email: normalizedEmail });
   if (!user || !user.passwordHash) {
     throw new ApiError(401, "INVALID_CREDENTIALS", "Invalid email or password");
   }
@@ -37,7 +38,7 @@ export async function loginUser(email: string, password: string): Promise<TokenP
     throw new ApiError(401, "INVALID_CREDENTIALS", "Invalid email or password");
   }
 
-  return issueTokenPair(user._id.toString());
+  return await issueTokenPair(user._id.toString());
 }
 
 export async function loginWithFirebase(idToken: string): Promise<TokenPair> {
@@ -62,7 +63,7 @@ export async function loginWithFirebase(idToken: string): Promise<TokenPair> {
     await user.save();
   }
 
-  return issueTokenPair(user._id.toString());
+  return await issueTokenPair(user._id.toString());
 }
 
 export async function refreshAccessToken(refreshToken: string): Promise<TokenPair> {
@@ -82,7 +83,7 @@ export async function refreshAccessToken(refreshToken: string): Promise<TokenPai
     { $pull: { refreshTokens: { tokenHash } } },
   );
 
-  return issueTokenPair(user._id.toString());
+  return await issueTokenPair(user._id.toString());
 }
 
 export async function revokeRefreshToken(refreshToken: string): Promise<void> {
@@ -93,7 +94,7 @@ export async function revokeRefreshToken(refreshToken: string): Promise<void> {
   );
 }
 
-export function issueTokenPair(userId: string): TokenPair {
+export async function issueTokenPair(userId: string): Promise<TokenPair> {
   const accessToken = jwt.sign({ sub: userId }, env.JWT_ACCESS_SECRET, {
     expiresIn: ACCESS_TOKEN_TTL_SECONDS,
   });
@@ -102,7 +103,7 @@ export function issueTokenPair(userId: string): TokenPair {
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + REFRESH_TOKEN_TTL_DAYS);
 
-  User.updateOne(
+  await User.updateOne(
     { _id: userId },
     { $push: { refreshTokens: { tokenHash, expiresAt, createdAt: new Date() } } },
   ).catch((err) => {
@@ -114,4 +115,29 @@ export function issueTokenPair(userId: string): TokenPair {
 
 export function verifyAccessToken(token: string): { sub: string } {
   return jwt.verify(token, env.JWT_ACCESS_SECRET) as { sub: string };
+}
+
+export async function getMe(userId: string) {
+  const user = await User.findById(userId).select("email preferredLanguage createdAt").lean();
+  if (!user) {
+    throw new ApiError(404, "USER_NOT_FOUND", "User not found");
+  }
+  return {
+    id: user._id.toString(),
+    email: user.email,
+    preferredLanguage: user.preferredLanguage,
+    createdAt: user.createdAt.toISOString(),
+  };
+}
+
+export async function updateLanguage(userId: string, language: string) {
+  const user = await User.findByIdAndUpdate(
+    userId,
+    { preferredLanguage: language },
+    { new: true },
+  ).select("preferredLanguage").lean();
+  if (!user) {
+    throw new ApiError(404, "USER_NOT_FOUND", "User not found");
+  }
+  return { preferredLanguage: user.preferredLanguage };
 }

@@ -7,12 +7,13 @@ const CACHE_DIR = path.resolve(".cache", "images");
 
 const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p";
 
-export type ImageType = "poster" | "still" | "backdrop";
+export type ImageType = "poster" | "still" | "backdrop" | "profile";
 
 const DEFAULT_SIZE: Record<ImageType, string> = {
   poster: "w500",
   still: "w500",
   backdrop: "w1280",
+  profile: "w200",
 };
 
 export function getImageUrl(size: string, imagePath: string): string {

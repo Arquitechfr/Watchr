@@ -4,6 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { ShowDetails } from "../services/shows.service";
 import { WatchEntry } from "../services/tracking.service";
 import { colors } from "../theme/colors";
+import { useI18n } from "../i18n/useI18n";
 
 interface FixedTrackingButtonProps {
   show: ShowDetails;
@@ -20,18 +21,22 @@ export function FixedTrackingButton({
   onPress,
   disabled,
 }: FixedTrackingButtonProps) {
+  const { t } = useI18n();
   const insets = useSafeAreaInsets();
   const hasProgress = progress !== undefined && progress > 0 && progress < 1;
   const isCompleted = progress === 1;
 
-  let label = "Ajouter à ma liste";
+  let label = t("screens.showDetail.addToList");
   if (trackingEntry) {
     if (isCompleted) {
-      label = "Terminé";
+      label = t("screens.showDetail.completed");
     } else if (show.type === "tv" && trackingEntry.currentSeason && trackingEntry.currentEpisode) {
-      label = `Continuer S${trackingEntry.currentSeason}E${trackingEntry.currentEpisode}`;
+      label = t("screens.showDetail.continueSeason", {
+        season: trackingEntry.currentSeason,
+        episode: trackingEntry.currentEpisode,
+      });
     } else {
-      label = "En cours";
+      label = t("screens.showDetail.inProgress");
     }
   }
 

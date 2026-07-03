@@ -31,6 +31,9 @@ class TvdbService {
     this.client.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
       const token = await this.ensureToken();
       config.headers.set("Authorization", `Bearer ${token}`);
+      if (!config.headers.has("Accept-Language") && config.params?.language) {
+        config.headers.set("Accept-Language", config.params.language);
+      }
       log("TvdbService", "request", { url: config.url, params: config.params });
       return config;
     });
@@ -83,10 +86,10 @@ class TvdbService {
     }
   }
 
-  async searchShows(query: string): Promise<TvdbSearchResult[]> {
+  async searchShows(query: string, language = "eng"): Promise<TvdbSearchResult[]> {
     try {
       const response = await this.client.get<{ data: TvdbSearchResult[] }>("/search", {
-        params: { q: query, type: "series" },
+        params: { q: query, type: "series", language },
       });
       return response.data.data || [];
     } catch (err) {
@@ -94,10 +97,10 @@ class TvdbService {
     }
   }
 
-  async searchMovies(query: string): Promise<TvdbSearchResult[]> {
+  async searchMovies(query: string, language = "eng"): Promise<TvdbSearchResult[]> {
     try {
       const response = await this.client.get<{ data: TvdbSearchResult[] }>("/search", {
-        params: { q: query, type: "movie" },
+        params: { q: query, type: "movie", language },
       });
       return response.data.data || [];
     } catch (err) {

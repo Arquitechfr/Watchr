@@ -6,6 +6,7 @@ export interface Episode {
   overview?: string;
   stillPath?: string;
   airDate?: Date;
+  runtime?: number;
 }
 
 export interface Season {
@@ -20,6 +21,51 @@ export interface NextEpisodeToAir {
   airDate: Date;
 }
 
+export interface CastMember {
+  id: number;
+  name?: string;
+  character?: string;
+  profilePath?: string;
+  order?: number;
+}
+
+export interface CrewMember {
+  id: number;
+  name?: string;
+  job?: string;
+  department?: string;
+  profilePath?: string;
+}
+
+export interface Genre {
+  id: number;
+  name?: string;
+}
+
+export interface Network {
+  id: number;
+  name?: string;
+  logoPath?: string;
+}
+
+export interface ProductionCompany {
+  id: number;
+  name?: string;
+  logoPath?: string;
+}
+
+export interface ShowTranslation {
+  title?: string;
+  overview?: string;
+  status?: string;
+  genres?: Genre[];
+  networks?: Network[];
+  productionCompanies?: ProductionCompany[];
+  cast?: CastMember[];
+  crew?: CrewMember[];
+  seasons?: Season[];
+}
+
 export interface IShow extends Document {
   tmdbId: number;
   tvdbId?: number;
@@ -30,6 +76,18 @@ export interface IShow extends Document {
   firstAirDate?: Date;
   seasons: Season[];
   nextEpisodeToAir?: NextEpisodeToAir;
+  cast?: CastMember[];
+  crew?: CrewMember[];
+  genres?: Genre[];
+  status?: string;
+  voteAverage?: number;
+  voteCount?: number;
+  runtime?: number;
+  networks?: Network[];
+  productionCompanies?: ProductionCompany[];
+  numberOfSeasons?: number;
+  numberOfEpisodes?: number;
+  translations?: Map<string, ShowTranslation>;
   lastSyncedAt?: Date;
   lastEpisodesSyncedAt?: Date;
   createdAt: Date;
@@ -61,6 +119,69 @@ const nextEpisodeToAirSchema = new Schema<NextEpisodeToAir>(
     season: { type: Number, required: true },
     episode: { type: Number, required: true },
     airDate: { type: Date, required: true },
+  },
+  { _id: false },
+);
+
+const castMemberSchema = new Schema<CastMember>(
+  {
+    id: { type: Number, required: true },
+    name: { type: String },
+    character: { type: String },
+    profilePath: { type: String },
+    order: { type: Number },
+  },
+  { _id: false },
+);
+
+const crewMemberSchema = new Schema<CrewMember>(
+  {
+    id: { type: Number, required: true },
+    name: { type: String },
+    job: { type: String },
+    department: { type: String },
+    profilePath: { type: String },
+  },
+  { _id: false },
+);
+
+const genreSchema = new Schema<Genre>(
+  {
+    id: { type: Number, required: true },
+    name: { type: String },
+  },
+  { _id: false },
+);
+
+const networkSchema = new Schema<Network>(
+  {
+    id: { type: Number, required: true },
+    name: { type: String },
+    logoPath: { type: String },
+  },
+  { _id: false },
+);
+
+const productionCompanySchema = new Schema<ProductionCompany>(
+  {
+    id: { type: Number, required: true },
+    name: { type: String },
+    logoPath: { type: String },
+  },
+  { _id: false },
+);
+
+const translationSchema = new Schema<ShowTranslation>(
+  {
+    title: { type: String },
+    overview: { type: String },
+    status: { type: String },
+    genres: { type: [genreSchema], default: undefined },
+    networks: { type: [networkSchema], default: undefined },
+    productionCompanies: { type: [productionCompanySchema], default: undefined },
+    cast: { type: [castMemberSchema], default: undefined },
+    crew: { type: [crewMemberSchema], default: undefined },
+    seasons: { type: [seasonSchema], default: undefined },
   },
   { _id: false },
 );
@@ -103,6 +224,49 @@ const showSchema = new Schema<IShow>(
     nextEpisodeToAir: {
       type: nextEpisodeToAirSchema,
     },
+    cast: {
+      type: [castMemberSchema],
+      default: undefined,
+    },
+    crew: {
+      type: [crewMemberSchema],
+      default: undefined,
+    },
+    genres: {
+      type: [genreSchema],
+      default: undefined,
+    },
+    status: {
+      type: String,
+    },
+    voteAverage: {
+      type: Number,
+    },
+    voteCount: {
+      type: Number,
+    },
+    runtime: {
+      type: Number,
+    },
+    networks: {
+      type: [networkSchema],
+      default: undefined,
+    },
+    productionCompanies: {
+      type: [productionCompanySchema],
+      default: undefined,
+    },
+    numberOfSeasons: {
+      type: Number,
+    },
+    numberOfEpisodes: {
+      type: Number,
+    },
+    translations: {
+      type: Map,
+      of: translationSchema,
+      default: {},
+    },
     lastSyncedAt: {
       type: Date,
     },
@@ -116,3 +280,38 @@ const showSchema = new Schema<IShow>(
 showSchema.index({ title: "text" });
 
 export const Show = model<IShow>("Show", showSchema);
+
+export type LocalizedShow = Omit<IShow, "translations"> & {
+  title: string;
+  overview?: string;
+};
+
+export function getLocalizedShow(show: IShow, language: string): LocalizedShow {
+  const translation = show.translations?.get(language) ?? show.translations?.get(language.split("-")[0]);
+  const base: LocalizedShow = {
+    ...show.toObject(),
+    title: show.title,
+    overview: show.overview,
+  };
+  if (!translation) {
+    return base;
+  }
+
+  return {
+    ...base,
+    title: translation.title ?? base.title,
+    overview: translation.overview ?? base.overview,
+    status: translation.status ?? base.status,
+    genres: translation.genres ?? base.genres,
+    networks: translation.networks ?? base.networks,
+    productionCompanies: translation.productionCompanies ?? base.productionCompanies,
+    cast: translation.cast ?? base.cast,
+    crew: translation.crew ?? base.crew,
+    seasons: translation.seasons ?? base.seasons,
+  };
+}
+
+export function getShowTitle(show: IShow, language: string): string {
+  const translation = show.translations?.get(language) ?? show.translations?.get(language.split("-")[0]);
+  return translation?.title ?? show.title;
+}

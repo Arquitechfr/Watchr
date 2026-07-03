@@ -5,6 +5,8 @@ import compression from "compression";
 import rateLimit from "express-rate-limit";
 import { env } from "./config/env.js";
 import { errorMiddleware } from "./middleware/error.middleware.js";
+import { detectLanguage } from "./middleware/detectLanguage.middleware.js";
+import { translate } from "./i18n/index.js";
 import authRoutes from "./routes/auth.routes.js";
 import showRoutes from "./routes/show.routes.js";
 import trackingRoutes from "./routes/tracking.routes.js";
@@ -13,6 +15,7 @@ import upcomingRoutes from "./routes/upcoming.routes.js";
 import importRoutes from "./routes/import.routes.js";
 import imageRoutes from "./routes/image.routes.js";
 import commentRoutes from "./routes/comment.routes.js";
+import newsRoutes from "./routes/news.routes.js";
 
 const allowedOrigins = process.env.CORS_ORIGINS?.split(",").map((o) => o.trim()) || ["*"];
 
@@ -37,6 +40,7 @@ export function createApp(): Application {
   );
   app.use(express.json({ limit: "10mb" }));
   app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+  app.use(detectLanguage);
 
   app.get("/health", (_req: Request, res: Response) => {
     res.json({ status: "ok" });
@@ -50,12 +54,13 @@ export function createApp(): Application {
   app.use("/api/import", importRoutes);
   app.use("/api/images", imageRoutes);
   app.use("/api/comments", commentRoutes);
+  app.use("/api/news", newsRoutes);
 
-  app.use((_req: Request, res: Response) => {
+  app.use((req: Request, res: Response) => {
     res.status(404).json({
       error: {
         code: "NOT_FOUND",
-        message: "Route not found",
+        message: translate("UNKNOWN", req.language),
       },
     });
   });

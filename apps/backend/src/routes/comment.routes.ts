@@ -8,6 +8,7 @@ import {
   commentParamsSchema,
   showCommentsParamsSchema,
   listCommentsQuerySchema,
+  reactionBodySchema,
 } from "../validators/comment.validator.js";
 import {
   createComment,
@@ -16,6 +17,8 @@ import {
   listCommentsForShow,
   likeComment,
   unlikeComment,
+  addReaction,
+  removeReaction,
 } from "../services/comment.service.js";
 
 const router: Router = Router();
@@ -88,6 +91,28 @@ router.delete(
   asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
     await unlikeComment(req.userId!, id);
+    res.status(204).send();
+  }),
+);
+
+router.post(
+  "/:id/reactions",
+  validateRequest(reactionBodySchema, undefined, commentParamsSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { emoji } = req.body;
+    await addReaction(req.userId!, id, emoji);
+    res.status(204).send();
+  }),
+);
+
+router.delete(
+  "/:id/reactions",
+  validateRequest(reactionBodySchema, undefined, commentParamsSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { emoji } = req.body;
+    await removeReaction(req.userId!, id, emoji);
     res.status(204).send();
   }),
 );

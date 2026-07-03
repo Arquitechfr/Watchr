@@ -7,12 +7,13 @@
     "lint": "pnpm --filter backend lint && pnpm --filter mobile lint",
     "test": "pnpm --filter backend test",
     "typecheck": "pnpm --filter backend typecheck && pnpm --filter mobile typecheck",
-    "dev": "pnpm --filter backend dev",
+    "dev": "concurrently \"pnpm --filter backend dev\" \"pnpm --filter mobile start\"",
     "mobile": "pnpm --filter mobile start"
   },
   "devDependencies": {
     "eslint": "^9.5.0",
     "prettier": "^3.3.2",
-    "typescript": "^5.5.2"
+    "typescript": "^5.5.2",
+    "concurrently": "^8.2.2"
   }
 }

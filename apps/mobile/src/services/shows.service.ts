@@ -8,6 +8,17 @@ export interface SearchResult {
   tvdb: SearchResultItem[];
 }
 
+export interface DiscoverSection {
+  id: string;
+  title: string;
+  type: "tv" | "movie";
+  items: SearchResultItem[];
+}
+
+export interface DiscoverResult {
+  sections: DiscoverSection[];
+}
+
 export interface SearchResultItem {
   tmdbId?: number;
   tvdbId?: number;
@@ -34,6 +45,17 @@ export interface ShowDetails {
     episode: number;
     airDate: string;
   };
+  cast?: CastMember[];
+  crew?: CrewMember[];
+  genres?: Genre[];
+  status?: string;
+  voteAverage?: number;
+  voteCount?: number;
+  runtime?: number;
+  networks?: Network[];
+  productionCompanies?: ProductionCompany[];
+  numberOfSeasons?: number;
+  numberOfEpisodes?: number;
   lastSyncedAt?: string;
   lastEpisodesSyncedAt?: string;
 }
@@ -56,6 +78,40 @@ export interface Episode {
   overview?: string;
   stillPath?: string;
   airDate?: string;
+  runtime?: number;
+}
+
+export interface CastMember {
+  id: number;
+  name?: string;
+  character?: string;
+  profilePath?: string;
+  order?: number;
+}
+
+export interface CrewMember {
+  id: number;
+  name?: string;
+  job?: string;
+  department?: string;
+  profilePath?: string;
+}
+
+export interface Genre {
+  id: number;
+  name?: string;
+}
+
+export interface Network {
+  id: number;
+  name?: string;
+  logoPath?: string;
+}
+
+export interface ProductionCompany {
+  id: number;
+  name?: string;
+  logoPath?: string;
 }
 
 export async function searchShows(query: string): Promise<SearchResult> {
@@ -87,4 +143,16 @@ export function getPosterUrl(path?: string, size: number = 200): string | undefi
 export function getStillUrl(path?: string, size: number = 300): string | undefined {
   if (!path) return undefined;
   return `${API_BASE_URL}/images/still/w${size}${path}`;
+}
+
+export function getProfileUrl(path?: string, size: number = 200): string | undefined {
+  if (!path) return undefined;
+  return `${API_BASE_URL}/images/profile/w${size}${path}`;
+}
+
+export async function getDiscoverSections(): Promise<DiscoverResult> {
+  log("ShowsService", "discover");
+  const response = await api.get<DiscoverResult>("/shows/discover");
+  log("ShowsService", "discover response", { sectionCount: response.data.sections.length });
+  return response.data;
 }

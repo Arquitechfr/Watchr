@@ -68,3 +68,9 @@ watchr/
 2. **pnpm uniquement**, jamais npm/yarn/bun dans les commandes ou la doc.
 3. **Sources de données** : TMDB et TheTVDB peuvent être utilisées selon les besoins. Le parser d'import GDPR TV Time reste tolérant (détection de colonnes par header) et produit un rapport d'erreurs ligne par ligne.
 4. **Planification obligatoire** : toute nouvelle feature ou changement architectural doit faire l'objet d'un plan validé avant implémentation.
+5. **Internationalisation (i18n)** : l'application supporte `en` et `fr`.
+   - Côté mobile, tout texte UI doit passer par `useI18n` et `t()` (interdiction de laisser du texte en dur dans les composants/écrans).
+   - Les clés de traduction vivent dans `apps/mobile/src/i18n/translations.ts` (FR et EN maintenues en parité).
+   - Les dates et formats localisés utilisent `date-fns` avec la locale dynamique fournie par `useI18n` (`dateFnsLocale`).
+   - Les messages d'erreur API utilisent le hook `useErrorMessage` ; les messages snackbar utilisent des clés de traduction.
+   - Toute nouvelle clé doit être ajoutée dans les deux langues supportées avant de considérer la tâche terminée.

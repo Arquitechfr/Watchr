@@ -6,12 +6,19 @@ export interface EpisodeRef {
   episode: number;
 }
 
+export interface Reaction {
+  emoji: string;
+  count: number;
+  reactedByMe: boolean;
+}
+
 export interface Comment {
   id: string;
   userId: string;
   content: string;
   likesCount: number;
   likedByMe: boolean;
+  reactions: Reaction[];
   createdAt: string;
   updatedAt: string;
   replies: Comment[];
@@ -84,4 +91,16 @@ export async function unlikeComment(id: string): Promise<void> {
   log("CommentsService", "unlike", { id });
   await api.delete(`/comments/${id}/like`);
   log("CommentsService", "unlike success");
+}
+
+export async function addReaction(id: string, emoji: string): Promise<void> {
+  log("CommentsService", "addReaction", { id, emoji });
+  await api.post(`/comments/${id}/reactions`, { emoji });
+  log("CommentsService", "addReaction success");
+}
+
+export async function removeReaction(id: string, emoji: string): Promise<void> {
+  log("CommentsService", "removeReaction", { id, emoji });
+  await api.delete(`/comments/${id}/reactions`, { data: { emoji } });
+  log("CommentsService", "removeReaction success");
 }

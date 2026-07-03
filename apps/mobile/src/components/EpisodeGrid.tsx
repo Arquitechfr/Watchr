@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { View, Text, Image, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { format } from "date-fns";
 import { Season, Episode } from "../services/shows.service";
 import { getStillUrl } from "../services/shows.service";
 import { colors } from "../theme/colors";
+import { useI18n } from "../i18n/useI18n";
 
 interface EpisodeGridProps {
   seasons: Season[];
@@ -20,8 +22,9 @@ export function EpisodeGrid({
   onPressEpisode,
   isPending,
 }: EpisodeGridProps) {
+  const { t, dateFnsLocale } = useI18n();
   const [collapsedSeasons, setCollapsedSeasons] = useState<Set<number>>(
-    () => new Set(seasons.length > 0 ? [seasons[0].seasonNumber] : []),
+    () => new Set(seasons.map((s) => s.seasonNumber)),
   );
 
   const watchedKeys = new Set(
@@ -77,7 +80,7 @@ export function EpisodeGrid({
         />
         <View className="flex-1">
           <Text className="text-text font-medium">
-            {episode.episodeNumber}. {episode.name ?? `Épisode ${episode.episodeNumber}`}
+            {episode.episodeNumber}. {episode.name ?? `${t("screens.showDetail.episode")} ${episode.episodeNumber}`}
           </Text>
           {episode.overview && (
             <Text className="text-text-muted text-xs mt-1" numberOfLines={2}>
@@ -86,7 +89,7 @@ export function EpisodeGrid({
           )}
           {episode.airDate && (
             <Text className="text-text-muted text-xs mt-1">
-              {new Date(episode.airDate).toLocaleDateString("fr-FR")}
+              {format(new Date(episode.airDate), "d MMM yyyy", { locale: dateFnsLocale })}
             </Text>
           )}
         </View>
@@ -106,11 +109,11 @@ export function EpisodeGrid({
               activeOpacity={0.7}
             >
               <Text className="text-lg font-semibold text-primary">
-                Saison {season.seasonNumber}
+                {t("screens.showDetail.season")} {season.seasonNumber}
               </Text>
               <View className="flex-row items-center">
                 <Text className="text-text-muted text-sm mr-2">
-                  {getEpisodes(season).length} épisode{getEpisodes(season).length > 1 ? "s" : ""}
+                  {getEpisodes(season).length} {t("screens.showDetail.episodes").toLowerCase()}
                 </Text>
                 <Ionicons
                   name={isCollapsed ? "chevron-down" : "chevron-up"}

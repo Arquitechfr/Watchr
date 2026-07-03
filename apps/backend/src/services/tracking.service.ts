@@ -3,9 +3,42 @@ import { WatchEntry } from "../models/watchEntry.model.js";
 import { Show } from "../models/show.model.js";
 import { ApiError } from "../middleware/error.middleware.js";
 import { WatchStatus, WatchedEpisode } from "../models/watchEntry.model.js";
+import { getShowDetails } from "./show.service.js";
+import { log } from "../lib/logger.js";
+
+function isShowEnded(status?: string): boolean {
+  return ["ended", "canceled", "cancelled"].includes(status?.toLowerCase() ?? "");
+}
+
+function calculateWatchStatus(
+  show: {
+    type?: "tv" | "movie";
+    status?: string;
+    seasons?: { seasonNumber: number; episodes?: { episodeNumber: number; airDate?: Date }[] }[];
+  },
+  entry: { status?: WatchStatus; watchedEpisodes: WatchedEpisode[] },
+): WatchStatus {
+  if (entry.status === "dropped") return "dropped";
+
+  if (show.type !== "tv") {
+    return entry.watchedEpisodes.length > 0 ? "completed" : "plan_to_watch";
+  }
+
+  const totalEpisodes = (show.seasons ?? []).reduce(
+    (sum, season) => sum + (season.episodes?.length ?? 0),
+    0,
+  );
+  const watchedCount = entry.watchedEpisodes.length;
+  const allWatched = totalEpisodes > 0 && watchedCount >= totalEpisodes;
+  const showEnded = isShowEnded(show.status);
+
+  if (allWatched && showEnded) return "completed";
+  if (watchedCount > 0) return "watching";
+  return "plan_to_watch";
+}
 
 export interface UpsertTrackingInput {
-  status: WatchStatus;
+  status?: WatchStatus;
   watchedEpisodes?: WatchedEpisode[];
   currentSeason?: number;
   currentEpisode?: number;
@@ -44,6 +77,7 @@ export async function listTracking(
   page: number,
   limit: number,
   status?: WatchStatus,
+  language = "en",
 ): Promise<TrackingListResult> {
   const filter: { userId: Types.ObjectId; status?: WatchStatus } = {
     userId: new Types.ObjectId(userId),
@@ -55,7 +89,7 @@ export async function listTracking(
   const skip = (page - 1) * limit;
   const [entries, total] = await Promise.all([
     WatchEntry.find(filter)
-      .populate("showId", "tmdbId title type posterPath")
+      .populate("showId", "tmdbId title type posterPath status seasons translations")
       .sort({ updatedAt: -1 })
       .skip(skip)
       .limit(limit)
@@ -70,16 +104,24 @@ export async function listTracking(
       title?: string;
       type?: "tv" | "movie";
       posterPath?: string | null;
+      status?: string;
+      seasons?: { seasonNumber: number; episodes?: { episodeNumber: number; airDate?: Date }[] }[];
+      translations?: Map<string, { title?: string }>;
     };
     const showId = populatedShow._id?.toString() ?? entry.showId.toString();
+    const status = calculateWatchStatus(populatedShow, entry as { status?: WatchStatus; watchedEpisodes: WatchedEpisode[] });
+    const title = populatedShow.translations?.has(language)
+      ? populatedShow.translations.get(language)?.title ?? populatedShow.title ?? "Unknown"
+      : populatedShow.title ?? "Unknown";
     return {
       ...entry,
       id: entry._id.toString(),
       userId: entry.userId.toString(),
       showId,
+      status,
       show: {
         tmdbId: populatedShow.tmdbId ?? 0,
-        title: populatedShow.title ?? "Unknown",
+        title,
         posterPath: populatedShow.posterPath ?? null,
         type: populatedShow.type ?? "tv",
       },
@@ -97,12 +139,104 @@ export async function listTracking(
   };
 }
 
-export async function getTrackingEntry(userId: string, showId: string) {
+export interface TrackingEntry {
+  id: string;
+  userId: string;
+  showId: string;
+  status: WatchStatus;
+  watchedEpisodes: WatchedEpisode[];
+  currentSeason?: number;
+  currentEpisode?: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export async function getTrackingEntry(userId: string, showId: string): Promise<TrackingEntry | null> {
   const entry = await WatchEntry.findOne({
     userId: new Types.ObjectId(userId),
     showId: new Types.ObjectId(showId),
+  })
+    .populate("showId", "type status seasons")
+    .lean();
+  if (!entry) return null;
+
+  const populatedShow = entry.showId as unknown as {
+    type?: "tv" | "movie";
+    status?: string;
+    seasons?: { seasonNumber: number; episodes?: { episodeNumber: number; airDate?: Date }[] }[];
+  };
+  const status = calculateWatchStatus(populatedShow, entry as { status?: WatchStatus; watchedEpisodes: WatchedEpisode[] });
+  return {
+    id: entry._id.toString(),
+    userId: entry.userId.toString(),
+    showId: entry.showId.toString(),
+    status,
+    watchedEpisodes: entry.watchedEpisodes,
+    currentSeason: entry.currentSeason,
+    currentEpisode: entry.currentEpisode,
+    createdAt: entry.createdAt,
+    updatedAt: entry.updatedAt,
+  } as TrackingEntry;
+}
+
+export async function addToWatchlistByTmdb(
+  userId: string,
+  tmdbId: number,
+  type: "tv" | "movie",
+  language = "en",
+) {
+  log("TrackingService", "addToWatchlistByTmdb start", { tmdbId, type, language });
+
+  let show = await Show.findOne({ tmdbId });
+  if (!show) {
+    log("TrackingService", "show not cached, fetching details", { tmdbId, language });
+    await getShowDetails(tmdbId, language);
+    show = await Show.findOne({ tmdbId });
+  }
+
+  if (!show) {
+    throw new ApiError(404, "SHOW_NOT_FOUND", "Show not found after sync");
+  }
+
+  const existing = await WatchEntry.findOne({
+    userId: new Types.ObjectId(userId),
+    showId: show._id,
   }).lean();
+
+  if (existing) {
+    log("TrackingService", "watchlist entry already exists", { tmdbId });
+    return existing;
+  }
+
+  const entry = await WatchEntry.create({
+    userId: new Types.ObjectId(userId),
+    showId: show._id,
+    status: "plan_to_watch" as WatchStatus,
+    watchedEpisodes: [],
+  });
+
+  log("TrackingService", "watchlist entry created", { tmdbId, showId: show._id.toString() });
   return entry;
+}
+
+export async function getTrackedTmdbIds(userId: string): Promise<number[]> {
+  log("TrackingService", "getTrackedTmdbIds start", { userId });
+
+  const entries = await WatchEntry.find({
+    userId: new Types.ObjectId(userId),
+  })
+    .populate("showId", "tmdbId")
+    .lean();
+
+  const tmdbIds = entries
+    .map((entry) => {
+      const populatedShow = entry.showId as unknown as { tmdbId?: number };
+      return populatedShow.tmdbId ?? 0;
+    })
+    .filter((tmdbId) => tmdbId > 0);
+
+  log("TrackingService", "getTrackedTmdbIds result", { count: tmdbIds.length });
+  return tmdbIds;
 }
 
 export async function upsertTracking(
@@ -121,11 +255,21 @@ export async function upsertTracking(
     watchedAt: ep.watchedAt ? new Date(ep.watchedAt) : new Date(),
   }));
 
+  const existing = await WatchEntry.findOne({
+    userId: new Types.ObjectId(userId),
+    showId: new Types.ObjectId(showId),
+  }).lean();
+
+  const status = calculateWatchStatus(show, {
+    status: existing?.status === "dropped" ? "dropped" : undefined,
+    watchedEpisodes,
+  });
+
   const entry = await WatchEntry.findOneAndUpdate(
     { userId: new Types.ObjectId(userId), showId: new Types.ObjectId(showId) },
     {
       $set: {
-        status: input.status,
+        status,
         watchedEpisodes,
         currentSeason: input.currentSeason,
         currentEpisode: input.currentEpisode,
@@ -179,6 +323,9 @@ export async function toggleEpisode(
   }
 
   entry.updatedAt = new Date();
+  if (entry.status !== "dropped") {
+    entry.status = calculateWatchStatus(show, entry);
+  }
   await entry.save();
   return entry;
 }
@@ -242,6 +389,9 @@ export async function markEpisodesUpTo(
   entry.currentSeason = season;
   entry.currentEpisode = episode;
   entry.updatedAt = new Date();
+  if (entry.status !== "dropped") {
+    entry.status = calculateWatchStatus(show, entry);
+  }
   await entry.save();
   return entry;
 }
@@ -254,4 +404,224 @@ export async function deleteTracking(userId: string, showId: string) {
   if (result.deletedCount === 0) {
     throw new ApiError(404, "TRACKING_NOT_FOUND", "Tracking entry not found");
   }
+}
+
+export interface UnwatchedEpisode {
+  season: number;
+  episode: number;
+  name?: string;
+  airDate?: string;
+}
+
+export interface UnwatchedShow {
+  showId: string;
+  tmdbId: number;
+  title: string;
+  posterPath: string | null;
+  type: "tv";
+  status: WatchStatus;
+  isEnded: boolean;
+  unwatchedEpisodes: UnwatchedEpisode[];
+}
+
+export interface UnwatchedMovie {
+  showId: string;
+  tmdbId: number;
+  title: string;
+  posterPath: string | null;
+  status: WatchStatus;
+  type: "movie";
+}
+
+export type UnwatchedResult = { shows: UnwatchedShow[] } | { movies: UnwatchedMovie[] };
+
+export async function getUnwatched(
+  userId: string,
+  type?: "tv" | "movie",
+  language = "en",
+): Promise<UnwatchedResult> {
+  const filter: { userId: Types.ObjectId; status?: { $ne: WatchStatus } } = {
+    userId: new Types.ObjectId(userId),
+  };
+
+  if (type === "movie") {
+    filter.status = { $ne: "completed" };
+  }
+
+  log("TrackingService", "getUnwatched filter", { userId, type, language, filter });
+
+  const entries = await WatchEntry.find(filter)
+    .populate("showId", "tmdbId title type posterPath status seasons translations")
+    .lean();
+
+  log("TrackingService", "getUnwatched entries", { count: entries.length, type });
+
+  const now = new Date();
+
+  if (type === "movie") {
+    const movies = entries
+      .filter((entry) => {
+        const populatedShow = entry.showId as unknown as {
+          type?: "tv" | "movie";
+        };
+        return populatedShow.type === "movie";
+      })
+      .map((entry) => {
+        const populatedShow = entry.showId as unknown as {
+          _id?: string;
+          tmdbId?: number;
+          title?: string;
+          posterPath?: string | null;
+          type?: "tv" | "movie";
+          translations?: Map<string, { title?: string }>;
+        };
+        const title = populatedShow.translations?.has(language)
+          ? populatedShow.translations.get(language)?.title ?? populatedShow.title ?? "Unknown"
+          : populatedShow.title ?? "Unknown";
+        return {
+          showId: populatedShow._id?.toString() ?? entry.showId.toString(),
+          tmdbId: populatedShow.tmdbId ?? 0,
+          title,
+          posterPath: populatedShow.posterPath ?? null,
+          status: entry.status,
+          type: "movie" as const,
+        };
+      });
+    log("TrackingService", "getUnwatched movies", { count: movies.length });
+    return { movies };
+  }
+
+  const shows: UnwatchedShow[] = [];
+
+  for (const entry of entries) {
+    const populatedShow = entry.showId as unknown as {
+      _id?: string;
+      tmdbId?: number;
+      title?: string;
+      posterPath?: string | null;
+      type?: "tv" | "movie";
+      status?: string;
+      seasons?: { seasonNumber: number; episodes?: { episodeNumber: number; name?: string; airDate?: Date }[] }[];
+      translations?: Map<string, { title?: string; seasons?: { seasonNumber: number; episodes?: { episodeNumber: number; name?: string; airDate?: Date }[] }[] }>;
+    };
+    const localizedTitle = populatedShow.translations?.has(language)
+      ? populatedShow.translations.get(language)?.title ?? populatedShow.title ?? "Unknown"
+      : populatedShow.title ?? "Unknown";
+    const localizedSeasons = populatedShow.translations?.has(language)
+      ? populatedShow.translations.get(language)?.seasons ?? populatedShow.seasons
+      : populatedShow.seasons;
+
+    const totalEpisodes = (localizedSeasons ?? []).reduce(
+      (sum, season) => sum + (season.episodes?.length ?? 0),
+      0,
+    );
+
+    log("TrackingService", "getUnwatched entry", {
+      showId: populatedShow._id,
+      title: localizedTitle,
+      type: populatedShow.type,
+      status: entry.status,
+      seasonsCount: localizedSeasons?.length ?? 0,
+      totalEpisodes,
+      watchedCount: entry.watchedEpisodes.length,
+    });
+
+    if (populatedShow.type !== "tv") {
+      log("TrackingService", "getUnwatched skip: not tv", { title: localizedTitle });
+      continue;
+    }
+
+    const watchedKeys = new Set(
+      entry.watchedEpisodes.map((ep) => `${ep.season}-${ep.episode}`),
+    );
+
+    const unwatchedEpisodes: UnwatchedEpisode[] = [];
+
+    for (const season of localizedSeasons ?? []) {
+      for (const episode of season.episodes ?? []) {
+        if (!episode.airDate) {
+          log("TrackingService", "getUnwatched skip episode: no airDate", {
+            title: localizedTitle,
+            season: season.seasonNumber,
+            episode: episode.episodeNumber,
+          });
+          continue;
+        }
+        if (episode.airDate >= now) {
+          log("TrackingService", "getUnwatched skip episode: future", {
+            title: localizedTitle,
+            season: season.seasonNumber,
+            episode: episode.episodeNumber,
+            airDate: episode.airDate.toISOString(),
+          });
+          continue;
+        }
+        if (watchedKeys.has(`${season.seasonNumber}-${episode.episodeNumber}`)) {
+          log("TrackingService", "getUnwatched skip episode: watched", {
+            title: localizedTitle,
+            season: season.seasonNumber,
+            episode: episode.episodeNumber,
+          });
+          continue;
+        }
+        unwatchedEpisodes.push({
+          season: season.seasonNumber,
+          episode: episode.episodeNumber,
+          name: episode.name,
+          airDate: episode.airDate.toISOString(),
+        });
+      }
+    }
+
+    log("TrackingService", "getUnwatched result", {
+      title: localizedTitle,
+      unwatchedCount: unwatchedEpisodes.length,
+    });
+
+    shows.push({
+      showId: populatedShow._id?.toString() ?? entry.showId.toString(),
+      tmdbId: populatedShow.tmdbId ?? 0,
+      title: localizedTitle,
+      posterPath: populatedShow.posterPath ?? null,
+      type: "tv",
+      status: calculateWatchStatus({ ...populatedShow, seasons: localizedSeasons }, entry as { status?: WatchStatus; watchedEpisodes: WatchedEpisode[] }),
+      isEnded: isShowEnded(populatedShow.status),
+      unwatchedEpisodes: unwatchedEpisodes.sort(
+        (a, b) => new Date(b.airDate!).getTime() - new Date(a.airDate!).getTime(),
+      ),
+    });
+  }
+
+  shows.sort((a, b) => b.unwatchedEpisodes.length - a.unwatchedEpisodes.length);
+
+  log("TrackingService", "getUnwatched shows", { count: shows.length });
+  return { shows };
+}
+
+export async function toggleDropped(userId: string, showId: string, dropped: boolean) {
+  const show = await Show.findById(showId);
+  if (!show) {
+    throw new ApiError(404, "SHOW_NOT_FOUND", "Show not found");
+  }
+
+  let entry = await WatchEntry.findOne({
+    userId: new Types.ObjectId(userId),
+    showId: new Types.ObjectId(showId),
+  });
+
+  if (!entry) {
+    entry = await WatchEntry.create({
+      userId: new Types.ObjectId(userId),
+      showId: new Types.ObjectId(showId),
+      status: "plan_to_watch",
+      watchedEpisodes: [],
+    });
+  }
+
+  entry.status = dropped
+    ? "dropped"
+    : calculateWatchStatus(show, { watchedEpisodes: entry.watchedEpisodes });
+  entry.updatedAt = new Date();
+  await entry.save();
+  return entry;
 }

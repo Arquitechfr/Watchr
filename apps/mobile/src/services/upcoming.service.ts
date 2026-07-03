@@ -13,16 +13,20 @@ export interface UpcomingEpisode {
 }
 
 export interface UpcomingResponse {
+  today: UpcomingEpisode[];
   thisWeek: UpcomingEpisode[];
-  upcoming: UpcomingEpisode[];
+  nextWeek: UpcomingEpisode[];
+  later: UpcomingEpisode[];
 }
 
 export async function getUpcomingEpisodes(): Promise<UpcomingResponse> {
   log("UpcomingService", "fetch");
   const response = await api.get<UpcomingResponse>("/upcoming");
   log("UpcomingService", "response", {
+    today: response.data.today.length,
     thisWeek: response.data.thisWeek.length,
-    upcoming: response.data.upcoming.length,
+    nextWeek: response.data.nextWeek.length,
+    later: response.data.later.length,
   });
   return response.data;
 }

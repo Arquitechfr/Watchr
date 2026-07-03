@@ -18,6 +18,9 @@ import {
   Outfit_900Black,
 } from "@expo-google-fonts/outfit";
 import { RootNavigator } from "./src/navigation/RootNavigator";
+import { Snackbar } from "./src/components/Snackbar";
+import { View } from "react-native";
+import { useLocaleStore } from "./src/store/localeStore";
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -44,6 +47,10 @@ export default function App() {
   });
 
   useEffect(() => {
+    useLocaleStore.getState().hydrate();
+  }, []);
+
+  useEffect(() => {
     if (fontsLoaded) {
       SplashScreen.hideAsync().catch(() => {});
     }
@@ -58,7 +65,10 @@ export default function App() {
       <QueryClientProvider client={queryClient}>
         <SafeAreaProvider>
           <StatusBar style="light" />
-          <RootNavigator />
+          <View style={{ flex: 1, position: "relative" }}>
+            <RootNavigator />
+            <Snackbar />
+          </View>
         </SafeAreaProvider>
       </QueryClientProvider>
     </GestureHandlerRootView>

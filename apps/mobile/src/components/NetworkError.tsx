@@ -1,6 +1,7 @@
 import { View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { colors } from "../theme/colors";
+import { useI18n } from "../i18n/useI18n";
 
 interface NetworkErrorProps {
   isOffline?: boolean;
@@ -10,6 +11,7 @@ interface NetworkErrorProps {
 }
 
 export function NetworkError({ isOffline, message, subtitle, onRetry }: NetworkErrorProps) {
+  const { t } = useI18n();
   return (
     <View className="flex-1 items-center justify-center px-6">
       <Ionicons
@@ -19,19 +21,19 @@ export function NetworkError({ isOffline, message, subtitle, onRetry }: NetworkE
         className="mb-4"
       />
       <Text className="text-text text-lg font-semibold text-center mb-2">
-        {message ?? (isOffline ? "Pas de connexion" : "Oups, un problème est survenu")}
+        {message ?? (isOffline ? t("errors.offline") : t("errors.serverError"))}
       </Text>
       <Text className="text-text-muted text-center mb-6">
         {subtitle ??
           (isOffline
-            ? "Vérifie ta connexion internet et réessaie."
-            : "Le serveur a rencontré une erreur. Réessaie dans un moment.")}
+            ? t("errors.offlineSubtitle")
+            : t("errors.serverErrorSubtitle"))}
       </Text>
       <TouchableOpacity
         className="bg-primary px-6 py-3 rounded-lg"
         onPress={onRetry}
       >
-        <Text className="text-background font-semibold">Réessayer</Text>
+        <Text className="text-background font-semibold">{t("common.retry")}</Text>
       </TouchableOpacity>
     </View>
   );

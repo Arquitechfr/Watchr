@@ -1,8 +1,8 @@
 import { View, Text, Image, TouchableOpacity } from "react-native";
 import { format } from "date-fns";
-import { fr } from "date-fns/locale";
 import { UpcomingEpisode } from "../services/upcoming.service";
 import { getPosterUrl } from "../services/shows.service";
+import { useI18n } from "../i18n/useI18n";
 
 interface UpcomingEpisodeRowProps {
   episode: UpcomingEpisode;
@@ -10,6 +10,7 @@ interface UpcomingEpisodeRowProps {
 }
 
 export function UpcomingEpisodeRow({ episode, onPress }: UpcomingEpisodeRowProps) {
+  const { t, dateFnsLocale } = useI18n();
   const posterUrl = getPosterUrl(episode.posterPath, 200);
 
   return (
@@ -25,7 +26,7 @@ export function UpcomingEpisodeRow({ episode, onPress }: UpcomingEpisodeRowProps
         />
       ) : (
         <View className="w-14 h-20 rounded-lg bg-surface-light items-center justify-center">
-          <Text className="text-text-muted text-xs">No image</Text>
+          <Text className="text-text-muted text-xs">{t("common.noImage")}</Text>
         </View>
       )}
       <View className="flex-1 ml-3">
@@ -37,7 +38,7 @@ export function UpcomingEpisodeRow({ episode, onPress }: UpcomingEpisodeRowProps
           {episode.name ? ` · ${episode.name}` : ""}
         </Text>
         <Text className="text-primary text-xs mt-1">
-          {format(new Date(episode.airDate), "EEE d MMM", { locale: fr })}
+          {format(new Date(episode.airDate), "EEE d MMM", { locale: dateFnsLocale })}
         </Text>
       </View>
     </TouchableOpacity>

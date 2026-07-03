@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { View, Text, Image, ScrollView, Alert } from "react-native";
+import { View, Text, Image, ScrollView, Alert, TouchableOpacity } from "react-native";
 import { useRoute, useNavigation, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useShowDetails } from "../hooks/useShowDetails";
@@ -16,6 +16,8 @@ import { TrackingActionModal } from "../components/TrackingActionModal";
 import { EpisodeDetailModal } from "../components/EpisodeDetailModal";
 import { RootStackParamList } from "../navigation/RootNavigator";
 import { getPosterUrl, Episode } from "../services/shows.service";
+import { Ionicons } from "@expo/vector-icons";
+import { colors } from "../theme/colors";
 import { WatchStatus } from "../services/tracking.service";
 import { useUIStore } from "../store/uiStore";
 import { log } from "../utils/logger";
@@ -253,6 +255,15 @@ export function ShowDetailScreen() {
             />
           </View>
 
+          <TouchableOpacity
+            onPress={() => navigation.navigate("ShowComments", { showId: show.id, title: show.title })}
+            className="flex-row items-center justify-between bg-surface rounded-lg p-4 mb-6"
+            activeOpacity={0.7}
+          >
+            <Text className="text-text font-semibold">Commentaires</Text>
+            <Ionicons name="chatbubbles-outline" size={20} color={colors.primary} />
+          </TouchableOpacity>
+
           {show.type === "tv" && show.seasons.length > 0 && (
             <View className="mb-6">
               <Text className="text-lg font-semibold text-text mb-2">Épisodes</Text>
@@ -290,6 +301,7 @@ export function ShowDetailScreen() {
       <EpisodeDetailModal
         visible={detailModal.visible}
         onClose={handleCloseEpisodeDetail}
+        showId={show?.id}
         season={detailModal.season}
         episode={detailModal.episode}
         isWatched={detailIsWatched}

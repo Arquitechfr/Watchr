@@ -12,6 +12,7 @@ import ratingRoutes from "./routes/rating.routes.js";
 import upcomingRoutes from "./routes/upcoming.routes.js";
 import importRoutes from "./routes/import.routes.js";
 import imageRoutes from "./routes/image.routes.js";
+import commentRoutes from "./routes/comment.routes.js";
 
 const allowedOrigins = process.env.CORS_ORIGINS?.split(",").map((o) => o.trim()) || ["*"];
 
@@ -48,6 +49,7 @@ export function createApp(): Application {
   app.use("/api/upcoming", upcomingRoutes);
   app.use("/api/import", importRoutes);
   app.use("/api/images", imageRoutes);
+  app.use("/api/comments", commentRoutes);
 
   app.use((_req: Request, res: Response) => {
     res.status(404).json({

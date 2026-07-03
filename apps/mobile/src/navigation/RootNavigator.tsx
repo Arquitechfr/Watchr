@@ -8,11 +8,13 @@ import { colors } from "../theme/colors";
 import { AuthStack } from "./AuthStack";
 import { MainTabs } from "./MainTabs";
 import { ShowDetailScreen } from "../screens/ShowDetailScreen";
+import { ShowCommentsScreen } from "../screens/ShowCommentsScreen";
 
 export type RootStackParamList = {
   Auth: undefined;
   Main: undefined;
   ShowDetail: { tmdbId: number; title: string };
+  ShowComments: { showId: string; title: string; season?: number; episode?: number };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -44,6 +46,7 @@ export function RootNavigator() {
           <>
             <Stack.Screen name="Main" component={MainTabs} />
             <Stack.Screen name="ShowDetail" component={ShowDetailScreen} />
+            <Stack.Screen name="ShowComments" component={ShowCommentsScreen} />
           </>
         ) : (
           <Stack.Screen name="Auth" component={AuthStack} />

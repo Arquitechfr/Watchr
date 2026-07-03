@@ -1,9 +1,12 @@
 import { useRef } from "react";
 import { Modal, View, Text, Image, ScrollView, TouchableOpacity, Animated } from "react-native";
 import { PanGestureHandler, State } from "react-native-gesture-handler";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 import { Episode } from "../services/shows.service";
 import { getStillUrl } from "../services/shows.service";
+import { RootStackParamList } from "../navigation/RootNavigator";
 import { colors } from "../theme/colors";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -11,6 +14,7 @@ import { fr } from "date-fns/locale";
 interface EpisodeDetailModalProps {
   visible: boolean;
   onClose: () => void;
+  showId?: string;
   season: number;
   episode: Episode;
   isWatched: boolean;
@@ -21,6 +25,7 @@ interface EpisodeDetailModalProps {
 export function EpisodeDetailModal({
   visible,
   onClose,
+  showId,
   season,
   episode,
   isWatched,
@@ -30,6 +35,7 @@ export function EpisodeDetailModal({
   const stillUrl = getStillUrl(episode.stillPath, 500);
   const airDate = episode.airDate ? new Date(episode.airDate) : null;
   const translateY = useRef(new Animated.Value(0)).current;
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const handleClose = () => {
     Animated.timing(translateY, {
@@ -116,6 +122,24 @@ export function EpisodeDetailModal({
                 <Text className="text-text leading-relaxed mb-6">{episode.overview}</Text>
               ) : (
                 <Text className="text-text-muted italic mb-6">Aucun résumé disponible.</Text>
+              )}
+
+              {showId && (
+                <TouchableOpacity
+                  onPress={() =>
+                    navigation.navigate("ShowComments", {
+                      showId,
+                      title: episode.name ?? `Épisode ${episode.episodeNumber}`,
+                      season,
+                      episode: episode.episodeNumber,
+                    })
+                  }
+                  className="flex-row items-center justify-between bg-surface rounded-lg p-4 mb-4"
+                  activeOpacity={0.7}
+                >
+                  <Text className="text-text font-semibold">Commentaires</Text>
+                  <Ionicons name="chatbubbles-outline" size={20} color={colors.primary} />
+                </TouchableOpacity>
               )}
             </View>
           </ScrollView>

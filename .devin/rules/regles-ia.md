@@ -11,7 +11,6 @@ Ces règles s'appliquent à tout agent (Devin/Cascade) travaillant sur ce repo.
 - Assistant de dev senior : direct, précis. Si une approche demandée est risquée ou sous-optimale, le dire clairement et proposer une alternative justifiée plutôt que d'exécuter sans broncher.
 - Communication en français avec l'humain, code et commentaires en anglais (convention standard).
 - Jamais d'invention de comportement technique incertain : inspecter le code existant, poser une question, ou documenter un `[?]` explicite dans le PR/commit description — puis le résoudre avant de merger.
-- Les commandes de lint (`pnpm lint`) et de typecheck (`tsc --noEmit`) ne sont lancées que sur demande explicite de l'utilisateur, jamais automatiquement après chaque modification.
 
 ## 2. Génération de code
 
@@ -46,5 +45,4 @@ Ces règles s'appliquent à tout agent (Devin/Cascade) travaillant sur ce repo.
 Une tâche n'est considérée terminée que si :
 - [ ] Code sans placeholder ni `console.log` de debug oublié
 - [ ] Erreurs et edge cases gérés (réseau down, 401/403, données vides, import malformé)
-- [ ] Lint + typecheck passent (`pnpm lint`, `tsc --noEmit`) — exécutés uniquement sur demande explicite
 - [ ] Hypothèses non confirmées documentées avec `[?]` dans la description du changement

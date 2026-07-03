@@ -5,7 +5,7 @@
 ## Contexte
 
 Watchr est un tracker de séries/films (successeur perso de TV Time, qui ferme le 15/07/2026).
-MVP scope : tracking watch-status + notes/ratings, **pas de social**, import prioritaire des exports GDPR TV Time.
+MVP scope : tracking watch-status + notes/ratings + commentaires publics sur shows/épisodes, import prioritaire des exports GDPR TV Time.
 
 Délai : livraison MVP avant le 15/07/2026.
 
@@ -62,10 +62,9 @@ watchr/
 - Backend dev : `pnpm --filter backend dev`
 - Mobile dev : `pnpm --filter mobile start` (Expo Go, pas de dev client custom sauf accord explicite)
 
-## Contraintes non négociables
+## Contraintes et principes actifs
 
 1. **Aucun module natif custom côté mobile.** Toute lib doit fonctionner en Expo Go ou avoir un config plugin Expo officiel. Si une lib nécessite du code natif custom, le signaler avant de l'ajouter — ne pas prebuild.
-2. **Pas de social features** dans le MVP (following, activité publique, commentaires). Hors scope explicite.
-3. **TMDB en source primaire**, TheTVDB uniquement en fallback silencieux si TMDB ne retourne rien. Pas de merge de données entre les deux sources.
-4. **Import GDPR TV Time** : le format d'export a déjà changé une fois côté TV Time (confirmé sur forums Trakt). Le parser doit être tolérant (détection de colonnes par header, pas par position) et produire un rapport d'erreurs ligne par ligne, jamais un crash silencieux.
-5. **pnpm uniquement**, jamais npm/yarn/bun dans les commandes ou la doc.
+2. **pnpm uniquement**, jamais npm/yarn/bun dans les commandes ou la doc.
+3. **Sources de données** : TMDB et TheTVDB peuvent être utilisées selon les besoins. Le parser d'import GDPR TV Time reste tolérant (détection de colonnes par header) et produit un rapport d'erreurs ligne par ligne.
+4. **Planification obligatoire** : toute nouvelle feature ou changement architectural doit faire l'objet d'un plan validé avant implémentation.

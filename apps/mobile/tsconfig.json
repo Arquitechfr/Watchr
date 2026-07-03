@@ -5,6 +5,7 @@
     "jsx": "react-jsx",
     "jsxImportSource": "nativewind",
     "module": "esnext",
+    "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]

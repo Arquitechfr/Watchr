@@ -1,9 +1,9 @@
 process.env.NODE_ENV = "test";
 process.env.PORT = "4000";
-process.env.MONGO_URI = "mongodb://localhost:27017/watchr_test";
-process.env.REDIS_HOST = "localhost";
+process.env.MONGO_URI = "mongodb://[REDACTED_MONGO_URI]";
+process.env.REDIS_HOST = "[REDACTED_IP]";
 process.env.REDIS_PORT = "6379";
-process.env.REDIS_PASSWORD = "";
+process.env.REDIS_PASSWORD = "[REDACTED_REDIS_PASSWORD]";
 process.env.JWT_ACCESS_SECRET = "test_access_secret";
 process.env.JWT_REFRESH_SECRET = "test_refresh_secret";
 process.env.TMDB_API_KEY = "test_tmdb_key";

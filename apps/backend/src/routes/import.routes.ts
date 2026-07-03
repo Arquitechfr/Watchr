@@ -8,6 +8,7 @@ import { jobIdParamSchema } from "../validators/import.validator.js";
 import { validateRequest } from "../validators/validateRequest.js";
 import { asyncHandler } from "../lib/asyncHandler.js";
 import { ApiError } from "../middleware/error.middleware.js";
+import { translate } from "../i18n/index.js";
 
 const router: Router = Router();
 
@@ -21,7 +22,12 @@ const importRateLimiter = rateLimit({
   max: 10,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { error: { code: "RATE_LIMITED", message: "Too many import requests" } },
+  handler: (req, res) => {
+    const lang = req.language;
+    res.status(429).json({
+      error: { code: "TOO_MANY_IMPORT_REQUESTS", message: translate("TOO_MANY_IMPORT_REQUESTS", lang) ?? "Too many import requests" },
+    });
+  },
 });
 
 router.post(

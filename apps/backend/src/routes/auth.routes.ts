@@ -20,6 +20,7 @@ import { validateRequest } from "../validators/validateRequest.js";
 import { asyncHandler } from "../lib/asyncHandler.js";
 import { z } from "zod";
 import { requireAuth } from "../middleware/requireAuth.middleware.js";
+import { translate } from "../i18n/index.js";
 
 const updateLanguageSchema = z.object({
   language: z.string().min(2).max(5),
@@ -32,7 +33,12 @@ const authRateLimiter = rateLimit({
   max: 20,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { error: { code: "RATE_LIMITED", message: "Too many auth attempts" } },
+  handler: (req, res) => {
+    const lang = req.language;
+    res.status(429).json({
+      error: { code: "TOO_MANY_AUTH_ATTEMPTS", message: translate("TOO_MANY_AUTH_ATTEMPTS", lang) ?? "Too many auth attempts" },
+    });
+  },
 });
 
 router.post(

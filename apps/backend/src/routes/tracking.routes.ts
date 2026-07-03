@@ -1,5 +1,6 @@
 import { Router, Request, Response } from "express";
 import { requireAuth } from "../middleware/requireAuth.middleware.js";
+import { ApiError } from "../middleware/error.middleware.js";
 import {
   addToWatchlistByTmdb,
   deleteTracking,
@@ -78,8 +79,7 @@ router.get(
     const { showId } = req.params;
     const entry = await getTrackingEntry(req.userId!, showId);
     if (!entry) {
-      res.status(404).json({ error: { code: "TRACKING_NOT_FOUND", message: "Tracking entry not found" } });
-      return;
+      throw new ApiError(404, "TRACKING_NOT_FOUND", "Tracking entry not found");
     }
     res.json(entry);
   }),

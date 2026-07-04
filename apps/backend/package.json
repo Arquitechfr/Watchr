@@ -10,12 +10,15 @@
     "worker": "tsx watch src/workers/startImportWorker.ts",
     "sync": "tsx watch src/workers/startEpisodeSyncWorker.ts",
     "sync-all-episodes": "tsx scripts/sync-all-episodes.ts",
+    "notifications": "tsx scripts/sendNotifications.ts",
+    "notifications-worker": "tsx watch src/workers/startNotificationWorker.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1079.0",
     "adm-zip": "^0.5.12",
     "axios": "^1.7.2",
     "bcryptjs": "^2.4.3",
@@ -34,6 +37,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.4.3",
     "multer": "^1.4.5-lts.1",
+    "@getbrevo/brevo": "^2.2.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {

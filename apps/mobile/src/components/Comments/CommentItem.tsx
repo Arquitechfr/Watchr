@@ -1,18 +1,20 @@
 import { useState } from "react";
-import { View, Text, TouchableOpacity, Alert } from "react-native";
+import { View, Text, TouchableOpacity, Alert, Image, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Comment } from "../../services/comments.service";
 import { useAuthStore } from "../../store/authStore";
 import { colors } from "../../theme/colors";
+import { Avatar } from "../Avatar";
 import { CommentInput } from "./CommentInput";
 import { useI18n } from "../../i18n/useI18n";
+import { formatDistanceToNow } from "date-fns";
 
 interface CommentItemProps {
   comment: Comment;
   depth?: number;
   isPending?: boolean;
   onReply?: (content: string, parentId: string) => void;
-  onEdit?: (id: string, content: string) => void;
+  onEdit?: (id: string, content: string, images?: string[]) => void;
   onDelete?: (id: string) => void;
   onLike?: (id: string) => void;
   onUnlike?: (id: string) => void;
@@ -34,12 +36,13 @@ export function CommentItem({
   onAddReaction,
   onRemoveReaction,
 }: CommentItemProps) {
-  const { t } = useI18n();
+  const { t, dateFnsLocale } = useI18n();
   const userId = useAuthStore((state) => state.userId);
   const isOwn = comment.userId === userId;
   const [isReplying, setIsReplying] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [viewingImage, setViewingImage] = useState<string | null>(null);
 
   const handleLike = () => {
     if (comment.likedByMe) {
@@ -54,8 +57,8 @@ export function CommentItem({
     setIsReplying(false);
   };
 
-  const handleEdit = (content: string) => {
-    onEdit?.(comment.id, content);
+  const handleEdit = (content: string, images?: string[]) => {
+    onEdit?.(comment.id, content, images);
     setIsEditing(false);
   };
 
@@ -84,6 +87,7 @@ export function CommentItem({
       {isEditing ? (
         <CommentInput
           initialValue={comment.content}
+          initialImages={comment.images}
           onSubmit={handleEdit}
           onCancel={() => setIsEditing(false)}
           isPending={isPending}
@@ -91,7 +95,40 @@ export function CommentItem({
         />
       ) : (
         <View className="bg-surface rounded-lg p-3">
+          <View className="flex-row items-center mb-2">
+            <Avatar url={comment.authorAvatarUrl} size={32} />
+            <View className="ml-2 flex-1">
+              <Text className="text-text font-semibold text-sm">{comment.authorUsername}</Text>
+              <Text className="text-text-muted text-xs">
+                {formatDistanceToNow(new Date(comment.createdAt), {
+                  addSuffix: true,
+                  locale: dateFnsLocale,
+                })}
+              </Text>
+            </View>
+          </View>
+
           <Text className="text-text leading-relaxed">{comment.content}</Text>
+
+          {comment.images.length > 0 && (
+            <View className="flex-row flex-wrap mt-2">
+              {comment.images.map((img, idx) => (
+                <Pressable key={idx} onPress={() => setViewingImage(img)}>
+                  <Image
+                    source={{ uri: img }}
+                    style={{
+                      width: 100,
+                      height: 100,
+                      borderRadius: 8,
+                      marginRight: 8,
+                      marginBottom: 8,
+                    }}
+                    resizeMode="cover"
+                  />
+                </Pressable>
+              ))}
+            </View>
+          )}
 
           <View className="flex-row items-center justify-between mt-3">
             <View className="flex-row items-center">

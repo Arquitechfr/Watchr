@@ -94,6 +94,10 @@ export function LoginScreen() {
           <Text className="text-primary">{t("auth.registerLink")}</Text>
         </Text>
       </TouchableOpacity>
+
+      <TouchableOpacity onPress={() => navigation.navigate("ForgotPassword")} className="mt-4">
+        <Text className="text-primary text-center">{t("auth.forgotPassword")}</Text>
+      </TouchableOpacity>
     </ScreenContainer>
   );
 }

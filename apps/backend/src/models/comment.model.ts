@@ -11,6 +11,7 @@ export interface IComment extends Document {
   episodeRef?: EpisodeRef;
   parentId?: Schema.Types.ObjectId;
   content: string;
+  images: string[];
   likesCount: number;
   createdAt: Date;
   updatedAt: Date;
@@ -54,6 +55,10 @@ const commentSchema = new Schema<IComment>(
     likesCount: {
       type: Number,
       default: 0,
+    },
+    images: {
+      type: [String],
+      default: [],
     },
   },
   { timestamps: true },

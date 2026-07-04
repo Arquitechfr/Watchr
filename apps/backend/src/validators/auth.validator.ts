@@ -21,3 +21,25 @@ export const logoutSchema = z.object({
 export const firebaseLoginSchema = z.object({
   idToken: z.string().min(1, "Firebase ID token is required"),
 });
+
+export const forgotPasswordSchema = z.object({
+  email: z.string().email("Invalid email"),
+});
+
+export const resetPasswordSchema = z.object({
+  token: z.string().min(1, "Token is required"),
+  newPassword: z.string().min(8, "Password must be at least 8 characters"),
+});
+
+export const pushTokenSchema = z.object({
+  token: z.string().min(1, "Push token is required"),
+});
+
+export const notificationPreferencesSchema = z.object({
+  pushEnabled: z.boolean().optional(),
+  emailEnabled: z.boolean().optional(),
+  newReleases: z.boolean().optional(),
+  commentReplies: z.boolean().optional(),
+  commentReactions: z.boolean().optional(),
+  commentLikes: z.boolean().optional(),
+});

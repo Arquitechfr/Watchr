@@ -44,9 +44,9 @@ export function CommentsSection({ showId, query }: CommentsSectionProps) {
     addReaction.isPending ||
     removeReaction.isPending;
 
-  const handleCreate = (content: string) => {
+  const handleCreate = (content: string, images?: string[]) => {
     createComment.mutate(
-      { content },
+      { content, images },
       {
         onError: () => showSnackbar(t("screens.comments.addError"), "error"),
       },
@@ -62,9 +62,9 @@ export function CommentsSection({ showId, query }: CommentsSectionProps) {
     );
   };
 
-  const handleEdit = (id: string, content: string) => {
+  const handleEdit = (id: string, content: string, images?: string[]) => {
     updateComment.mutate(
-      { id, content },
+      { id, content, images },
       {
         onError: () => showSnackbar(t("screens.comments.editError"), "error"),
       },

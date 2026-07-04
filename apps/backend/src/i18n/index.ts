@@ -3,6 +3,15 @@ import { translations, normalizeLocale, SupportedLocale, DEFAULT_LOCALE } from "
 export { normalizeLocale, DEFAULT_LOCALE, SUPPORTED_LOCALES } from "./translations.js";
 
 export type I18nKey = keyof typeof translations.en.errors;
+export type NotificationKey = keyof typeof translations.en.notifications;
+export type EmailKey = keyof typeof translations.en.emails;
+
+function interpolate(template: string, params?: Record<string, string | number>): string {
+  if (!params) return template;
+  return template.replace(/\{\{(\w+)\}\}/g, (_, key: string) =>
+    key in params ? String(params[key]) : `{{${key}}}`,
+  );
+}
 
 export function translateError(
   code: string,
@@ -21,3 +30,26 @@ export function translate(
   const pack = translations[locale] ?? translations[DEFAULT_LOCALE];
   return pack.errors[key as I18nKey] ?? translations[DEFAULT_LOCALE].errors[key as I18nKey] ?? key;
 }
+
+export function translateNotification(
+  key: NotificationKey,
+  language: SupportedLocale | string | undefined,
+  params?: Record<string, string | number>,
+): string {
+  const locale = normalizeLocale(language);
+  const pack = translations[locale] ?? translations[DEFAULT_LOCALE];
+  const template = pack.notifications[key] ?? translations[DEFAULT_LOCALE].notifications[key] ?? key;
+  return interpolate(template, params);
+}
+
+export function translateEmail(
+  key: EmailKey,
+  language: SupportedLocale | string | undefined,
+  params?: Record<string, string | number>,
+): string {
+  const locale = normalizeLocale(language);
+  const pack = translations[locale] ?? translations[DEFAULT_LOCALE];
+  const template = pack.emails[key] ?? translations[DEFAULT_LOCALE].emails[key] ?? key;
+  return interpolate(template, params);
+}
+

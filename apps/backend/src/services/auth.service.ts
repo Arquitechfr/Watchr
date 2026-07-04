@@ -5,10 +5,14 @@ import { env } from "../config/env.js";
 import { firebaseAuth } from "../config/firebaseAdmin.js";
 import { User } from "../models/user.model.js";
 import { generateRefreshToken, hashToken } from "../lib/hashToken.js";
+import { generateUniqueUsername } from "../lib/usernameGenerator.js";
+import { uploadAvatar as uploadAvatarToS3 } from "../services/upload.service.js";
+import { EmailService } from "../services/email.service.js";
 import { ApiError } from "../middleware/error.middleware.js";
 
 const ACCESS_TOKEN_TTL_SECONDS = 15 * 60;
 const REFRESH_TOKEN_TTL_DAYS = 30;
+const PASSWORD_RESET_TOKEN_TTL_SECONDS = 15 * 60;
 
 export interface TokenPair {
   accessToken: string;
@@ -22,7 +26,13 @@ export async function registerUser(email: string, password: string): Promise<Tok
   }
 
   const passwordHash = await bcrypt.hash(password, 12);
-  const user = await User.create({ email, passwordHash });
+  const username = await generateUniqueUsername();
+  const user = await User.create({ email, passwordHash, username });
+
+  EmailService.sendWelcomeEmail(user.email, user.username, user.preferredLanguage).catch((err) =>
+    console.error("Failed to send welcome email:", err),
+  );
+
   return await issueTokenPair(user._id.toString());
 }
 
@@ -57,7 +67,8 @@ export async function loginWithFirebase(idToken: string): Promise<TokenPair> {
   let user = await User.findOne({ email });
 
   if (!user) {
-    user = await User.create({ email, firebaseUid: decoded.uid });
+    const username = await generateUniqueUsername();
+    user = await User.create({ email, firebaseUid: decoded.uid, username });
   } else if (!user.firebaseUid) {
     user.firebaseUid = decoded.uid;
     await user.save();
@@ -118,13 +129,16 @@ export function verifyAccessToken(token: string): { sub: string } {
 }
 
 export async function getMe(userId: string) {
-  const user = await User.findById(userId).select("email preferredLanguage createdAt").lean();
+  const user = await User.findById(userId).select("email username usernameChanged avatarUrl preferredLanguage createdAt").lean();
   if (!user) {
     throw new ApiError(404, "USER_NOT_FOUND", "User not found");
   }
   return {
     id: user._id.toString(),
     email: user.email,
+    username: user.username,
+    usernameChanged: user.usernameChanged,
+    avatarUrl: user.avatarUrl,
     preferredLanguage: user.preferredLanguage,
     createdAt: user.createdAt.toISOString(),
   };
@@ -140,4 +154,109 @@ export async function updateLanguage(userId: string, language: string) {
     throw new ApiError(404, "USER_NOT_FOUND", "User not found");
   }
   return { preferredLanguage: user.preferredLanguage };
+}
+
+export async function updateAvatar(userId: string, buffer: Buffer, mimeType: string): Promise<string> {
+  const url = await uploadAvatarToS3(userId, buffer, mimeType);
+  const user = await User.findByIdAndUpdate(
+    userId,
+    { avatarUrl: url },
+    { new: true },
+  ).select("avatarUrl").lean();
+  if (!user) {
+    throw new ApiError(404, "USER_NOT_FOUND", "User not found");
+  }
+  return user.avatarUrl!;
+}
+
+export async function updateUsername(userId: string, newUsername: string): Promise<{ username: string; usernameChanged: boolean }> {
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new ApiError(404, "USER_NOT_FOUND", "User not found");
+  }
+  if (user.usernameChanged) {
+    throw new ApiError(403, "USERNAME_ALREADY_CHANGED", "Username can only be changed once");
+  }
+  const existing = await User.findOne({ username: newUsername, _id: { $ne: userId } }).lean();
+  if (existing) {
+    throw new ApiError(409, "USERNAME_TAKEN", "This username is already taken");
+  }
+  user.username = newUsername;
+  user.usernameChanged = true;
+  await user.save();
+  return { username: user.username, usernameChanged: true };
+}
+
+export async function requestPasswordReset(email: string): Promise<void> {
+  const user = await User.findOne({ email: email.toLowerCase().trim() });
+  if (!user) {
+    return;
+  }
+
+  const resetToken = jwt.sign(
+    { sub: user._id.toString(), type: "password_reset" },
+    env.JWT_REFRESH_SECRET,
+    { expiresIn: PASSWORD_RESET_TOKEN_TTL_SECONDS },
+  );
+
+  const resetUrl = `watchr://reset-password?token=${resetToken}`;
+
+  await EmailService.sendResetPasswordEmail(user.email, resetUrl, user.preferredLanguage);
+}
+
+export async function resetPassword(token: string, newPassword: string): Promise<void> {
+  let payload: { sub: string; type: string };
+  try {
+    payload = jwt.verify(token, env.JWT_REFRESH_SECRET) as { sub: string; type: string };
+  } catch {
+    throw new ApiError(401, "INVALID_TOKEN", "Invalid or expired reset token");
+  }
+
+  if (payload.type !== "password_reset") {
+    throw new ApiError(401, "INVALID_TOKEN", "Invalid reset token");
+  }
+
+  const passwordHash = await bcrypt.hash(newPassword, 12);
+  const result = await User.updateOne({ _id: payload.sub }, { $set: { passwordHash } });
+  if (result.matchedCount === 0) {
+    throw new ApiError(404, "USER_NOT_FOUND", "User not found");
+  }
+}
+
+export async function registerPushToken(userId: string, token: string): Promise<void> {
+  await User.updateOne({ _id: userId }, { $set: { expoPushToken: token } });
+}
+
+export async function unregisterPushToken(userId: string): Promise<void> {
+  await User.updateOne({ _id: userId }, { $unset: { expoPushToken: "" } });
+}
+
+export async function updateNotificationPreferences(
+  userId: string,
+  prefs: Partial<{
+    pushEnabled: boolean;
+    emailEnabled: boolean;
+    newReleases: boolean;
+    commentReplies: boolean;
+    commentReactions: boolean;
+    commentLikes: boolean;
+  }>,
+): Promise<{ notificationPreferences: unknown }> {
+  const user = await User.findByIdAndUpdate(
+    userId,
+    { $set: { "notificationPreferences": prefs } },
+    { new: true },
+  ).select("notificationPreferences").lean();
+  if (!user) {
+    throw new ApiError(404, "USER_NOT_FOUND", "User not found");
+  }
+  return { notificationPreferences: user.notificationPreferences };
+}
+
+export async function getNotificationPreferences(userId: string): Promise<{ notificationPreferences: unknown }> {
+  const user = await User.findById(userId).select("notificationPreferences").lean();
+  if (!user) {
+    throw new ApiError(404, "USER_NOT_FOUND", "User not found");
+  }
+  return { notificationPreferences: user.notificationPreferences };
 }

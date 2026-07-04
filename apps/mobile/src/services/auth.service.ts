@@ -53,6 +53,9 @@ export async function refreshAccessToken(refreshToken: string): Promise<AuthToke
 export interface Me {
   id: string;
   email: string;
+  username: string;
+  usernameChanged: boolean;
+  avatarUrl?: string;
   preferredLanguage?: string;
   createdAt: string;
 }
@@ -64,5 +67,54 @@ export async function getMe(): Promise<Me> {
 
 export async function updateLanguage(language: string): Promise<{ preferredLanguage: string }> {
   const response = await api.patch<{ preferredLanguage: string }>("/auth/me/language", { language });
+  return response.data;
+}
+
+export async function uploadAvatar(file: { uri: string; type: string; name: string }): Promise<{ avatarUrl: string }> {
+  const formData = new FormData();
+  formData.append("avatar", file as unknown as Blob);
+  const response = await api.post<{ avatarUrl: string }>("/auth/me/avatar", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return response.data;
+}
+
+export async function updateUsername(username: string): Promise<{ username: string; usernameChanged: boolean }> {
+  const response = await api.patch<{ username: string; usernameChanged: boolean }>("/auth/me/username", { username });
+  return response.data;
+}
+
+export async function requestPasswordReset(email: string): Promise<void> {
+  await api.post("/auth/forgot-password", { email });
+}
+
+export async function resetPassword(token: string, newPassword: string): Promise<void> {
+  await api.post("/auth/reset-password", { token, newPassword });
+}
+
+export async function registerPushToken(token: string): Promise<void> {
+  await api.post("/auth/me/push-token", { token });
+}
+
+export async function unregisterPushToken(): Promise<void> {
+  await api.delete("/auth/me/push-token");
+}
+
+export interface NotificationPreferences {
+  pushEnabled: boolean;
+  emailEnabled: boolean;
+  newReleases: boolean;
+  commentReplies: boolean;
+  commentReactions: boolean;
+  commentLikes: boolean;
+}
+
+export async function getNotificationPreferences(): Promise<{ notificationPreferences: NotificationPreferences }> {
+  const response = await api.get<{ notificationPreferences: NotificationPreferences }>("/auth/me/notification-preferences");
+  return response.data;
+}
+
+export async function updateNotificationPreferences(prefs: Partial<NotificationPreferences>): Promise<{ notificationPreferences: NotificationPreferences }> {
+  const response = await api.patch<{ notificationPreferences: NotificationPreferences }>("/auth/me/notification-preferences", prefs);
   return response.data;
 }

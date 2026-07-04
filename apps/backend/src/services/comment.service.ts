@@ -5,16 +5,20 @@ import { CommentReaction } from "../models/commentReaction.model.js";
 import { Show } from "../models/show.model.js";
 import { User } from "../models/user.model.js";
 import { ApiError } from "../middleware/error.middleware.js";
+import { PushNotificationService } from "./pushNotification.service.js";
+import { getShowTitle } from "../models/show.model.js";
 
 export interface CreateCommentInput {
   showId: string;
   episodeRef?: { season: number; episode: number };
   parentId?: string;
   content: string;
+  images?: string[];
 }
 
 export interface UpdateCommentInput {
   content: string;
+  images?: string[];
 }
 
 export interface ListCommentsQuery {
@@ -33,7 +37,10 @@ export interface ReactionItem {
 export interface CommentItem {
   id: string;
   userId: string;
+  authorUsername: string;
+  authorAvatarUrl?: string;
   content: string;
+  images: string[];
   likesCount: number;
   likedByMe: boolean;
   reactions: ReactionItem[];
@@ -137,15 +144,42 @@ async function getReactionsForComments(
   return map;
 }
 
+interface UserInfo {
+  username: string;
+  avatarUrl?: string;
+}
+
+async function getUserInfoMap(userIds: string[]): Promise<Map<string, UserInfo>> {
+  if (userIds.length === 0) {
+    return new Map();
+  }
+  const users = await User.find({
+    _id: { $in: userIds.map((id) => new Types.ObjectId(id)) },
+  }).select("username avatarUrl").lean();
+  const map = new Map<string, UserInfo>();
+  for (const user of users) {
+    map.set(user._id.toString(), {
+      username: user.username,
+      avatarUrl: user.avatarUrl,
+    });
+  }
+  return map;
+}
+
 function buildCommentItem(
   comment: IComment,
   likedIds: Set<string>,
   reactionMap: Map<string, ReactionItem[]>,
+  userMap: Map<string, UserInfo>,
 ): CommentItem {
+  const userInfo = userMap.get(comment.userId.toString());
   return {
     id: comment._id.toString(),
     userId: comment.userId.toString(),
+    authorUsername: userInfo?.username ?? "Unknown",
+    authorAvatarUrl: userInfo?.avatarUrl,
     content: comment.content,
+    images: comment.images ?? [],
     likesCount: comment.likesCount,
     likedByMe: likedIds.has(comment._id.toString()),
     reactions: reactionMap.get(comment._id.toString()) ?? [],
@@ -169,7 +203,28 @@ export async function createComment(userId: string, input: CreateCommentInput) {
     episodeRef: input.episodeRef,
     parentId: input.parentId ? new Types.ObjectId(input.parentId) : undefined,
     content: input.content,
+    images: input.images ?? [],
   });
+
+  if (input.parentId) {
+    const parentComment = await Comment.findById(input.parentId).select("userId").lean();
+    if (parentComment && parentComment.userId.toString() !== userId) {
+      const [replier, show] = await Promise.all([
+        User.findById(userId).select("username").lean(),
+        Show.findById(input.showId).select("title translations").lean(),
+      ]);
+      if (replier && show) {
+        const showTitle = getShowTitle(show, "en");
+        PushNotificationService.notifyCommentReply(
+          parentComment.userId.toString(),
+          replier.username,
+          showTitle,
+          input.showId,
+          undefined,
+        ).catch((err) => console.error("Failed to send comment reply notification:", err));
+      }
+    }
+  }
 
   return {
     id: comment._id.toString(),
@@ -178,6 +233,7 @@ export async function createComment(userId: string, input: CreateCommentInput) {
     episodeRef: comment.episodeRef,
     parentId: comment.parentId?.toString(),
     content: comment.content,
+    images: comment.images,
     likesCount: comment.likesCount,
     createdAt: comment.createdAt.toISOString(),
     updatedAt: comment.updatedAt.toISOString(),
@@ -187,6 +243,7 @@ export async function createComment(userId: string, input: CreateCommentInput) {
 export async function updateComment(userId: string, commentId: string, input: UpdateCommentInput) {
   const comment = await validateCommentAccess(commentId, userId);
   comment.content = input.content;
+  comment.images = input.images ?? [];
   await comment.save();
 
   return {
@@ -196,6 +253,7 @@ export async function updateComment(userId: string, commentId: string, input: Up
     episodeRef: comment.episodeRef,
     parentId: comment.parentId?.toString(),
     content: comment.content,
+    images: comment.images,
     likesCount: comment.likesCount,
     createdAt: comment.createdAt.toISOString(),
     updatedAt: comment.updatedAt.toISOString(),
@@ -254,9 +312,16 @@ export async function listCommentsForShow(
     ...topLevelComments.map((c) => c._id.toString()),
     ...replies.map((c) => c._id.toString()),
   ];
-  const [likedIds, reactionMap] = await Promise.all([
+  const allUserIds = [
+    ...new Set([
+      ...topLevelComments.map((c) => c.userId.toString()),
+      ...replies.map((c) => c.userId.toString()),
+    ]),
+  ];
+  const [likedIds, reactionMap, userMap] = await Promise.all([
     getLikedCommentIds(userId, allCommentIds),
     getReactionsForComments(userId, allCommentIds),
+    getUserInfoMap(allUserIds),
   ]);
 
   const replyMap = new Map<string, CommentItem[]>();
@@ -265,14 +330,14 @@ export async function listCommentsForShow(
     if (!parentId || !topLevelIds.includes(parentId)) {
       continue;
     }
-    const item = buildCommentItem(reply, likedIds, reactionMap);
+    const item = buildCommentItem(reply, likedIds, reactionMap, userMap);
     const list = replyMap.get(parentId) || [];
     list.push(item);
     replyMap.set(parentId, list);
   }
 
   const comments = topLevelComments.map((comment) => {
-    const item = buildCommentItem(comment, likedIds, reactionMap);
+    const item = buildCommentItem(comment, likedIds, reactionMap, userMap);
     item.replies = replyMap.get(comment._id.toString()) || [];
     return item;
   });
@@ -304,11 +369,27 @@ export async function likeComment(userId: string, commentId: string) {
     comment.likesCount += 1;
     await comment.save();
   } catch (err) {
-    // Duplicate key error means already liked; ignore.
     if (err && typeof err === "object" && "code" in err && err.code === 11000) {
       return;
     }
     throw err;
+  }
+
+  if (comment.userId.toString() !== userId) {
+    const [liker, show] = await Promise.all([
+      User.findById(userId).select("username").lean(),
+      Show.findById(comment.showId).select("title translations").lean(),
+    ]);
+    if (liker && show) {
+      const showTitle = getShowTitle(show, "en");
+      PushNotificationService.notifyCommentLike(
+        comment.userId.toString(),
+        liker.username,
+        showTitle,
+        comment.showId.toString(),
+        undefined,
+      ).catch((err) => console.error("Failed to send comment like notification:", err));
+    }
   }
 }
 
@@ -346,6 +427,24 @@ export async function addReaction(userId: string, commentId: string, emoji: stri
       return;
     }
     throw err;
+  }
+
+  if (comment.userId.toString() !== userId) {
+    const [reactor, show] = await Promise.all([
+      User.findById(userId).select("username").lean(),
+      Show.findById(comment.showId).select("title translations").lean(),
+    ]);
+    if (reactor && show) {
+      const showTitle = getShowTitle(show, "en");
+      PushNotificationService.notifyCommentReaction(
+        comment.userId.toString(),
+        reactor.username,
+        emoji,
+        showTitle,
+        comment.showId.toString(),
+        undefined,
+      ).catch((err) => console.error("Failed to send comment reaction notification:", err));
+    }
   }
 }
 

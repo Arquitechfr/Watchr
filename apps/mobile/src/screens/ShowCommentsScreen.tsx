@@ -62,9 +62,9 @@ export function ShowCommentsScreen() {
   const subtitle = season !== undefined && episode !== undefined ? `S${season}E${episode}` : title;
   const headerTitle = `${t("screens.showDetail.comments")} · ${subtitle}`;
 
-  const handleCreate = (content: string) => {
+  const handleCreate = (content: string, images?: string[]) => {
     createComment.mutate(
-      { content },
+      { content, images },
       { onError: () => showSnackbar(t("screens.comments.addError"), "error") },
     );
   };
@@ -76,9 +76,9 @@ export function ShowCommentsScreen() {
     );
   };
 
-  const handleEdit = (id: string, content: string) => {
+  const handleEdit = (id: string, content: string, images?: string[]) => {
     updateComment.mutate(
-      { id, content },
+      { id, content, images },
       { onError: () => showSnackbar(t("screens.comments.editError"), "error") },
     );
   };

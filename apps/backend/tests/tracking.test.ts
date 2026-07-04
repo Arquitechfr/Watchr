@@ -14,6 +14,7 @@ const app = createApp();
 async function getAuthUser() {
   const user = await User.create({
     email: "track@example.com",
+    username: "TestUser01",
     passwordHash: await bcrypt.hash("password123", 12),
   });
   const token = jwt.sign({ sub: user._id.toString() }, env.JWT_ACCESS_SECRET, {

@@ -3,42 +3,51 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import * as SecureStore from "expo-secure-store";
+import { useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "../store/authStore";
 import { useUIStore } from "../store/uiStore";
 import { ScreenContainer } from "../components/ScreenContainer";
+import { Avatar } from "../components/Avatar";
 import { useErrorMessage } from "../services/api";
-import { logout, updateLanguage } from "../services/auth.service";
+import { logout, getMe } from "../services/auth.service";
 import { log } from "../utils/logger";
 import { RootStackParamList } from "../navigation/RootNavigator";
 import { colors } from "../theme/colors";
 import { useState } from "react";
 import { useI18n } from "../i18n/useI18n";
-import { useLocaleStore } from "../store/localeStore";
 
-type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Auth" | "Import">;
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+
+interface MenuCardProps {
+  icon: keyof typeof Ionicons.glyphMap;
+  label: string;
+  onPress: () => void;
+}
+
+function MenuCard({ icon, label, onPress }: MenuCardProps) {
+  return (
+    <TouchableOpacity
+      className="flex-row items-center rounded-lg p-4 mb-3"
+      style={{ backgroundColor: colors.surface }}
+      onPress={onPress}
+      activeOpacity={0.7}
+    >
+      <Ionicons name={icon} size={22} color={colors.primary} />
+      <Text className="text-text text-base flex-1 ml-3">{label}</Text>
+      <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
+    </TouchableOpacity>
+  );
+}
 
 export function ProfileScreen() {
   const navigation = useNavigation<NavigationProp>();
   const { logout: clearAuth } = useAuthStore();
   const { showSnackbar } = useUIStore();
-  const { t, locale } = useI18n();
-  const setLocale = useLocaleStore((state) => state.setLocale);
+  const { t } = useI18n();
   const getErrorMessage = useErrorMessage();
   const [isLoading, setIsLoading] = useState(false);
-  const [languageLoading, setLanguageLoading] = useState(false);
 
-  async function changeLanguage(next: "en" | "fr") {
-    if (next === locale) return;
-    setLanguageLoading(true);
-    try {
-      await updateLanguage(next);
-    } catch (err) {
-      log("ProfileScreen", "update language error", err);
-    } finally {
-      setLocale(next);
-      setLanguageLoading(false);
-    }
-  }
+  const { data: me } = useQuery({ queryKey: ["me"], queryFn: getMe });
 
   async function handleLogout() {
     log("Logout", "start");
@@ -64,43 +73,47 @@ export function ProfileScreen() {
   }
 
   return (
-    <ScreenContainer className="px-4 pt-4 justify-center" edges={["top", "left", "right"]}>
-      <Text className="text-3xl font-bold text-primary mb-2 text-center">Watchr</Text>
-      <Text className="text-text-muted text-center mb-8">
-        {t("screens.profile.title")}
-      </Text>
-
-      <View className="bg-surface rounded-lg p-4 mb-4 border border-border">
-        <Text className="text-text font-semibold mb-3">{t("screens.profile.language")}</Text>
-        <View className="flex-row">
-          <TouchableOpacity
-            className={`flex-1 py-2 rounded-lg items-center mr-2 ${locale === "fr" ? "bg-primary" : "bg-surface-light"}`}
-            onPress={() => changeLanguage("fr")}
-            disabled={languageLoading}
-          >
-            <Text className={locale === "fr" ? "text-background font-semibold" : "text-text"}>Français</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            className={`flex-1 py-2 rounded-lg items-center ml-2 ${locale === "en" ? "bg-primary" : "bg-surface-light"}`}
-            onPress={() => changeLanguage("en")}
-            disabled={languageLoading}
-          >
-            <Text className={locale === "en" ? "text-background font-semibold" : "text-text"}>English</Text>
-          </TouchableOpacity>
-        </View>
-        {languageLoading && <ActivityIndicator className="mt-3" color={colors.primary} />}
+    <ScreenContainer className="px-4 pt-6" edges={["top", "left", "right"]}>
+      <View className="items-center mb-8">
+        <Avatar url={me?.avatarUrl} size={80} />
+        <Text className="text-text text-lg font-bold mt-3">{me?.username ?? "..."}</Text>
+        <Text className="text-text-muted text-sm">{me?.email}</Text>
       </View>
 
-      <TouchableOpacity
-        className="bg-surface py-4 rounded-lg items-center mb-4 border border-border flex-row justify-center"
+      <MenuCard
+        icon="person-circle"
+        label={t("screens.profile.editProfile")}
+        onPress={() => navigation.navigate("EditProfile")}
+      />
+      <MenuCard
+        icon="language"
+        label={t("screens.profile.language")}
+        onPress={() => navigation.navigate("ProfileLanguage")}
+      />
+      <MenuCard
+        icon="library"
+        label={t("screens.profile.library")}
+        onPress={() => navigation.navigate("Library")}
+      />
+      <MenuCard
+        icon="download"
+        label={t("screens.profile.importTvTime")}
         onPress={() => navigation.navigate("Import")}
-      >
-        <Ionicons name="download" size={20} color={colors.text} style={{ marginRight: 8 }} />
-        <Text className="text-text font-semibold">{t("screens.profile.importTvTime")}</Text>
-      </TouchableOpacity>
+      />
+      <MenuCard
+        icon="notifications"
+        label={t("screens.profile.notifications")}
+        onPress={() => navigation.navigate("ProfileNotifications")}
+      />
+      <MenuCard
+        icon="information-circle"
+        label={t("screens.profile.about")}
+        onPress={() => navigation.navigate("ProfileAbout")}
+      />
 
       <TouchableOpacity
-        className="bg-danger py-4 rounded-lg items-center"
+        className="py-4 rounded-lg items-center mt-4"
+        style={{ backgroundColor: colors.danger }}
         onPress={handleLogout}
         disabled={isLoading}
       >

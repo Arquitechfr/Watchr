@@ -12,7 +12,7 @@ interface CommentsListProps {
   refreshing?: boolean;
   onRefresh?: () => void;
   onReply?: (content: string, parentId: string) => void;
-  onEdit?: (id: string, content: string) => void;
+  onEdit?: (id: string, content: string, images?: string[]) => void;
   onDelete?: (id: string) => void;
   onLike?: (id: string) => void;
   onUnlike?: (id: string) => void;

@@ -67,5 +67,26 @@ module.exports = {
       min_uptime: '10s',
       restart_delay: 4500,
     },
+    {
+      name: 'watchr-notification-worker',
+      script: 'dist/src/workers/startNotificationWorker.js',
+      instances: 1,
+      env: {
+        NODE_ENV: 'production',
+      },
+      env_development: {
+        NODE_ENV: 'development',
+      },
+      error_file: './logs/notification-worker-error.log',
+      out_file: './logs/notification-worker-out.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+      merge_logs: true,
+      autorestart: true,
+      max_memory_restart: '500M',
+      watch: false,
+      max_restarts: 10,
+      min_uptime: '10s',
+      restart_delay: 4500,
+    },
   ],
 };

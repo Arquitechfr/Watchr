@@ -16,6 +16,7 @@ import importRoutes from "./routes/import.routes.js";
 import imageRoutes from "./routes/image.routes.js";
 import commentRoutes from "./routes/comment.routes.js";
 import newsRoutes from "./routes/news.routes.js";
+import uploadRoutes from "./routes/upload.routes.js";
 
 const allowedOrigins = process.env.CORS_ORIGINS?.split(",").map((o) => o.trim()) || ["*"];
 
@@ -331,6 +332,7 @@ export function createApp(): Application {
   app.use("/api/images", imageRoutes);
   app.use("/api/comments", commentRoutes);
   app.use("/api/news", newsRoutes);
+  app.use("/api/uploads", uploadRoutes);
 
   app.use((req: Request, res: Response) => {
     res.status(404).json({

@@ -14,6 +14,7 @@ const app = createApp();
 async function getAuthUser(email: string) {
   const user = await User.create({
     email,
+    username: `TestUser${Math.floor(Math.random() * 9000) + 1000}`,
     passwordHash: await bcrypt.hash("password123", 12),
   });
   const token = jwt.sign({ sub: user._id.toString() }, env.JWT_ACCESS_SECRET, {

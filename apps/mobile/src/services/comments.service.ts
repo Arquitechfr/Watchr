@@ -15,7 +15,10 @@ export interface Reaction {
 export interface Comment {
   id: string;
   userId: string;
+  authorUsername: string;
+  authorAvatarUrl?: string;
   content: string;
+  images: string[];
   likesCount: number;
   likedByMe: boolean;
   reactions: Reaction[];
@@ -29,11 +32,13 @@ export interface CreateCommentInput {
   episodeRef?: EpisodeRef;
   parentId?: string;
   content: string;
+  images?: string[];
 }
 
 export interface UpdateCommentInput {
   id: string;
   content: string;
+  images?: string[];
 }
 
 export interface ListCommentsResult {
@@ -82,7 +87,7 @@ export async function createComment(input: CreateCommentInput): Promise<Comment>
 
 export async function updateComment(input: UpdateCommentInput): Promise<Comment> {
   log("CommentsService", "update", { id: input.id, content: input.content });
-  const response = await api.patch<Comment>(`/comments/${input.id}`, { content: input.content });
+  const response = await api.patch<Comment>(`/comments/${input.id}`, { content: input.content, images: input.images });
   log("CommentsService", "update response", { id: response.data.id });
   return response.data;
 }

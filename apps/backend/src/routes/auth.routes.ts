@@ -1,5 +1,6 @@
 import { Router, Request, Response } from "express";
 import rateLimit from "express-rate-limit";
+import multer from "multer";
 import {
   loginUser,
   loginWithFirebase,
@@ -8,6 +9,14 @@ import {
   revokeRefreshToken,
   getMe,
   updateLanguage,
+  updateAvatar,
+  updateUsername,
+  requestPasswordReset,
+  resetPassword,
+  registerPushToken,
+  unregisterPushToken,
+  updateNotificationPreferences,
+  getNotificationPreferences,
 } from "../services/auth.service.js";
 import {
   buildGoogleAuthUrl,
@@ -20,6 +29,10 @@ import {
   logoutSchema,
   refreshSchema,
   registerSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
+  pushTokenSchema,
+  notificationPreferencesSchema,
 } from "../validators/auth.validator.js";
 import { validateRequest } from "../validators/validateRequest.js";
 import { asyncHandler } from "../lib/asyncHandler.js";
@@ -29,6 +42,15 @@ import { translate } from "../i18n/index.js";
 
 const updateLanguageSchema = z.object({
   language: z.string().min(2).max(5),
+});
+
+const updateUsernameSchema = z.object({
+  username: z.string().min(3).max(20).regex(/^[a-zA-Z0-9_]+$/),
+});
+
+const avatarUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
 });
 
 const router: Router = Router();
@@ -151,6 +173,28 @@ router.post(
   }),
 );
 
+router.post(
+  "/forgot-password",
+  authRateLimiter,
+  validateRequest(forgotPasswordSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { email } = req.body;
+    await requestPasswordReset(email);
+    res.json({ success: true });
+  }),
+);
+
+router.post(
+  "/reset-password",
+  authRateLimiter,
+  validateRequest(resetPasswordSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { token, newPassword } = req.body;
+    await resetPassword(token, newPassword);
+    res.json({ success: true });
+  }),
+);
+
 router.use("/me", requireAuth);
 
 router.get(
@@ -167,6 +211,64 @@ router.patch(
   asyncHandler(async (req: Request, res: Response) => {
     const { language } = req.body as { language: string };
     const result = await updateLanguage(req.userId!, language);
+    res.json(result);
+  }),
+);
+
+router.patch(
+  "/me/username",
+  validateRequest(updateUsernameSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { username } = req.body as { username: string };
+    const result = await updateUsername(req.userId!, username);
+    res.json(result);
+  }),
+);
+
+router.post(
+  "/me/avatar",
+  avatarUpload.single("avatar"),
+  asyncHandler(async (req: Request, res: Response) => {
+    if (!req.file) {
+      res.status(400).json({ error: { code: "NO_FILE", message: "No file uploaded" } });
+      return;
+    }
+    const url = await updateAvatar(req.userId!, req.file.buffer, req.file.mimetype);
+    res.json({ avatarUrl: url });
+  }),
+);
+
+router.post(
+  "/me/push-token",
+  validateRequest(pushTokenSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { token } = req.body;
+    await registerPushToken(req.userId!, token);
+    res.json({ success: true });
+  }),
+);
+
+router.delete(
+  "/me/push-token",
+  asyncHandler(async (req: Request, res: Response) => {
+    await unregisterPushToken(req.userId!);
+    res.json({ success: true });
+  }),
+);
+
+router.get(
+  "/me/notification-preferences",
+  asyncHandler(async (req: Request, res: Response) => {
+    const result = await getNotificationPreferences(req.userId!);
+    res.json(result);
+  }),
+);
+
+router.patch(
+  "/me/notification-preferences",
+  validateRequest(notificationPreferencesSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const result = await updateNotificationPreferences(req.userId!, req.body);
     res.json(result);
   }),
 );

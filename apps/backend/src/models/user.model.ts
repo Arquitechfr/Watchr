@@ -6,12 +6,26 @@ export interface RefreshTokenEntry {
   createdAt: Date;
 }
 
+export interface NotificationPreferences {
+  pushEnabled: boolean;
+  emailEnabled: boolean;
+  newReleases: boolean;
+  commentReplies: boolean;
+  commentReactions: boolean;
+  commentLikes: boolean;
+}
+
 export interface IUser extends Document {
   email: string;
+  username: string;
+  usernameChanged: boolean;
+  avatarUrl?: string;
   passwordHash?: string;
   firebaseUid?: string;
   refreshTokens: RefreshTokenEntry[];
   preferredLanguage?: string;
+  notificationPreferences: NotificationPreferences;
+  expoPushToken?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -56,6 +70,45 @@ const userSchema = new Schema<IUser>(
       default: [],
     },
     preferredLanguage: {
+      type: String,
+      required: false,
+    },
+    username: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+      minlength: 3,
+      maxlength: 20,
+      index: true,
+    },
+    usernameChanged: {
+      type: Boolean,
+      default: false,
+    },
+    avatarUrl: {
+      type: String,
+      required: false,
+    },
+    notificationPreferences: {
+      type: {
+        pushEnabled: { type: Boolean, default: true },
+        emailEnabled: { type: Boolean, default: true },
+        newReleases: { type: Boolean, default: true },
+        commentReplies: { type: Boolean, default: true },
+        commentReactions: { type: Boolean, default: true },
+        commentLikes: { type: Boolean, default: true },
+      },
+      default: () => ({
+        pushEnabled: true,
+        emailEnabled: true,
+        newReleases: true,
+        commentReplies: true,
+        commentReactions: true,
+        commentLikes: true,
+      }),
+    },
+    expoPushToken: {
       type: String,
       required: false,
     },

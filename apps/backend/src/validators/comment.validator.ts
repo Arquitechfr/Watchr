@@ -12,10 +12,12 @@ export const createCommentSchema = z.object({
   episodeRef: episodeRefSchema,
   parentId: z.string().optional(),
   content: z.string().min(1, "Content is required").max(2000, "Content is too long"),
+  images: z.array(z.string().url()).max(3).optional(),
 });
 
 export const updateCommentSchema = z.object({
   content: z.string().min(1, "Content is required").max(2000, "Content is too long"),
+  images: z.array(z.string().url()).max(3).optional(),
 });
 
 export const commentParamsSchema = z.object({

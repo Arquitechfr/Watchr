@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
-import { ActivityIndicator } from "react-native";
-import { NavigationContainer } from "@react-navigation/native";
+import { useEffect, useState, useRef } from "react";
+import { ActivityIndicator, Linking } from "react-native";
+import { NavigationContainer, LinkingOptions } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import * as Notifications from "expo-notifications";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { useAuthStore } from "../store/authStore";
 import { colors } from "../theme/colors";
@@ -12,6 +13,13 @@ import { ShowCommentsScreen } from "../screens/ShowCommentsScreen";
 import { EpisodeDetailScreen } from "../screens/EpisodeDetailScreen";
 import { ImportScreen } from "../screens/ImportScreen";
 import { LibraryScreen } from "../screens/LibraryScreen";
+import { EditProfileScreen } from "../screens/profile/EditProfileScreen";
+import { ProfileLanguageScreen } from "../screens/profile/ProfileLanguageScreen";
+import { ProfileNotificationsScreen } from "../screens/profile/ProfileNotificationsScreen";
+import { ProfileAboutScreen } from "../screens/profile/ProfileAboutScreen";
+import { usePushNotifications } from "../hooks/usePushNotifications";
+import { log } from "../utils/logger";
+import { ResetPasswordScreen } from "../screens/auth/ResetPasswordScreen";
 
 export type RootStackParamList = {
   Auth: undefined;
@@ -21,6 +29,11 @@ export type RootStackParamList = {
   EpisodeDetail: { showId: string; tmdbId: number; season: number; episodeNumber: number; title?: string };
   Import: undefined;
   Library: undefined;
+  EditProfile: undefined;
+  ProfileLanguage: undefined;
+  ProfileNotifications: undefined;
+  ProfileAbout: undefined;
+  ResetPassword: { token: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -28,6 +41,9 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 export function RootNavigator() {
   const { isHydrated, isAuthenticated, hydrate } = useAuthStore();
   const [isReady, setIsReady] = useState(false);
+  const navigationRef = useRef<any>(null);
+
+  usePushNotifications();
 
   useEffect(() => {
     async function init() {
@@ -36,6 +52,49 @@ export function RootNavigator() {
     }
     init();
   }, [hydrate]);
+
+  useEffect(() => {
+    const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
+      const data = response.notification.request.content.data as {
+        screen?: string;
+        showId?: string;
+        tmdbId?: number;
+        season?: number;
+        episode?: number;
+      };
+      log("RootNavigator", "push notification tapped", { data });
+
+      if (!data?.screen || !navigationRef.current) return;
+
+      if (data.screen === "comments" && data.showId) {
+        navigationRef.current.navigate("ShowComments", {
+          showId: data.showId,
+          title: "",
+          season: data.season,
+          episode: data.episode,
+        });
+      } else if (data.screen === "show" && data.tmdbId) {
+        navigationRef.current.navigate("ShowDetail", {
+          tmdbId: data.tmdbId,
+          title: "",
+        });
+      }
+    });
+
+    return () => subscription.remove();
+  }, [isAuthenticated]);
+
+  const linking: LinkingOptions<RootStackParamList> = {
+    prefixes: ["watchr://"],
+    config: {
+      screens: {
+        Auth: "",
+        ResetPassword: "reset-password",
+        ShowDetail: "show",
+        ShowComments: "comments",
+      },
+    },
+  };
 
   if (!isReady || !isHydrated) {
     return (
@@ -46,7 +105,7 @@ export function RootNavigator() {
   }
 
   return (
-    <NavigationContainer>
+    <NavigationContainer linking={linking} ref={navigationRef as any}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {isAuthenticated ? (
           <>
@@ -56,6 +115,11 @@ export function RootNavigator() {
             <Stack.Screen name="EpisodeDetail" component={EpisodeDetailScreen} />
             <Stack.Screen name="Import" component={ImportScreen} />
             <Stack.Screen name="Library" component={LibraryScreen} />
+            <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+            <Stack.Screen name="ProfileLanguage" component={ProfileLanguageScreen} />
+            <Stack.Screen name="ProfileNotifications" component={ProfileNotificationsScreen} />
+            <Stack.Screen name="ProfileAbout" component={ProfileAboutScreen} />
+            <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
           </>
         ) : (
           <Stack.Screen name="Auth" component={AuthStack} />

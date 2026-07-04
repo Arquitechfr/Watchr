@@ -18,6 +18,16 @@ const envSchema = z.object({
   GOOGLE_WEB_CLIENT_ID: z.string().min(1, "GOOGLE_WEB_CLIENT_ID is required"),
   GOOGLE_WEB_CLIENT_SECRET: z.string().min(1, "GOOGLE_WEB_CLIENT_SECRET is required"),
   PUBLIC_URL: z.string().min(1, "PUBLIC_URL is required (e.g. https://api.watchr.app)"),
+  MINIO_S3_BUCKET: z.string().min(1, "MINIO_S3_BUCKET is required"),
+  MINIO_S3_ENDPOINT: z.string().min(1, "MINIO_S3_ENDPOINT is required"),
+  MINIO_S3_REGION: z.string().min(1, "MINIO_S3_REGION is required"),
+  MINIO_S3_ACCESS_KEY: z.string().min(1, "MINIO_S3_ACCESS_KEY is required"),
+  MINIO_S3_SECRET_KEY: z.string().min(1, "MINIO_S3_SECRET_KEY is required"),
+  S3_FORCE_PATH_STYLE: z.coerce.boolean().default(true),
+  BREVO_API_KEY: z.string().optional(),
+  BREVO_SENDER_EMAIL: z.string().optional(),
+  BREVO_SENDER_NAME: z.string().default("Watchr"),
+  EXPO_ACCESS_TOKEN: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);

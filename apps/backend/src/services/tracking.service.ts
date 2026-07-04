@@ -22,6 +22,7 @@ function calculateWatchStatus(
   if (entry.status === "dropped") return "dropped";
 
   if (show.type !== "tv") {
+    if (entry.status === "completed") return "completed";
     return entry.watchedEpisodes.length > 0 ? "completed" : "plan_to_watch";
   }
 
@@ -544,13 +545,9 @@ export async function getUnwatched(
   type?: "tv" | "movie",
   language = "en",
 ): Promise<UnwatchedResult> {
-  const filter: { userId: Types.ObjectId; status?: { $ne: WatchStatus } } = {
+  const filter: { userId: Types.ObjectId } = {
     userId: new Types.ObjectId(userId),
   };
-
-  if (type === "movie") {
-    filter.status = { $ne: "completed" };
-  }
 
   log("TrackingService", "getUnwatched filter", { userId, type, language, filter });
 

@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   listCommentsForShow,
+  getCommentCount,
   createComment,
   updateComment,
   deleteComment,
@@ -30,6 +31,15 @@ export function useCommentsForShow(showId: string, query?: ListCommentsQuery) {
   });
 }
 
+export function useCommentCount(showId: string, query?: { season?: number; episode?: number }) {
+  const isHydrated = useAuthStore((state) => state.isHydrated);
+  return useQuery({
+    queryKey: ["comments", "count", showId, query?.season, query?.episode],
+    queryFn: () => getCommentCount(showId, query),
+    enabled: isHydrated && Boolean(showId),
+  });
+}
+
 export function useCreateComment(showId: string, query?: ListCommentsQuery) {
   const queryClient = useQueryClient();
 
@@ -41,6 +51,7 @@ export function useCreateComment(showId: string, query?: ListCommentsQuery) {
     onSuccess: () => {
       log("useComments", "create success", { showId });
       queryClient.invalidateQueries({ queryKey: getCommentsQueryKey(showId, query) });
+      queryClient.invalidateQueries({ queryKey: ["comments", "count", showId] });
     },
     onError: (err) => {
       log("useComments", "create error", { showId, err });
@@ -77,6 +88,7 @@ export function useDeleteComment(showId: string, query?: ListCommentsQuery) {
     onSuccess: () => {
       log("useComments", "delete success", { showId });
       queryClient.invalidateQueries({ queryKey: getCommentsQueryKey(showId, query) });
+      queryClient.invalidateQueries({ queryKey: ["comments", "count", showId] });
     },
     onError: (err) => {
       log("useComments", "delete error", { showId, err });

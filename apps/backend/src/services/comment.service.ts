@@ -349,6 +349,24 @@ export async function addReaction(userId: string, commentId: string, emoji: stri
   }
 }
 
+export async function getCommentCount(
+  showId: string,
+  episodeRef?: { season: number; episode: number },
+): Promise<{ total: number }> {
+  await validateShowExists(showId);
+
+  const filter: { showId: Types.ObjectId; episodeRef?: { season: number; episode: number } } = {
+    showId: new Types.ObjectId(showId),
+  };
+
+  if (episodeRef) {
+    filter.episodeRef = episodeRef;
+  }
+
+  const total = await Comment.countDocuments(filter);
+  return { total };
+}
+
 export async function removeReaction(userId: string, commentId: string, emoji: string) {
   const comment = await Comment.findById(commentId);
   if (!comment) {

@@ -199,6 +199,30 @@ describe("Tracking", () => {
     expect(resumedRes.body.status).toBe("plan_to_watch");
   });
 
+  it("should keep movie status as completed when marked as watched", async () => {
+    const { token } = await getAuthUser();
+    const movie = await Show.create({
+      tmdbId: 999,
+      type: "movie",
+      title: "Test Movie",
+    });
+
+    const upsertRes = await request(app)
+      .post(`/api/tracking/${movie._id.toString()}`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({ status: "completed" });
+
+    expect(upsertRes.status).toBe(200);
+    expect(upsertRes.body.status).toBe("completed");
+
+    const getRes = await request(app)
+      .get(`/api/tracking/${movie._id.toString()}`)
+      .set("Authorization", `Bearer ${token}`);
+
+    expect(getRes.status).toBe(200);
+    expect(getRes.body.status).toBe("completed");
+  });
+
   it("should list unwatched episodes with localized translations", async () => {
     const { token } = await getAuthUser();
     const show = await Show.create({

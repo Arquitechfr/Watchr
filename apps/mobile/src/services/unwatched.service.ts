@@ -24,7 +24,7 @@ export interface UnwatchedMovie {
   tmdbId: number;
   title: string;
   posterPath?: string;
-  status: string;
+  status: "watching" | "completed" | "plan_to_watch" | "dropped";
   type: "movie";
 }
 

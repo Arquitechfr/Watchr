@@ -23,5 +23,5 @@ export function cacheResponse(ttlSeconds: number) {
 }
 
 export function cacheKey(req: Request): string {
-  return `api:${req.method}:${req.originalUrl || req.url}`;
+  return `api:${req.method}:${req.originalUrl || req.url}:${req.language ?? "en"}`;
 }

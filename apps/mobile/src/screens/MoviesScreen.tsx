@@ -12,14 +12,26 @@ import { UnwatchedMovie } from "../services/unwatched.service";
 import { getPosterUrl } from "../services/shows.service";
 import { colors } from "../theme/colors";
 import { useI18n } from "../i18n/useI18n";
+import { WatchStatus } from "../services/tracking.service";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "ShowDetail">;
+
+function getStatusLabel(t: ReturnType<typeof useI18n>["t"], status: WatchStatus): string {
+  switch (status) {
+    case "watching":
+      return t("screens.showDetail.inProgress");
+    case "completed":
+      return t("screens.showDetail.completed");
+    case "plan_to_watch":
+      return t("screens.showDetail.planToWatch");
+    case "dropped":
+      return t("screens.showDetail.dropped");
+  }
+}
 
 function MovieCard({ movie, onPress }: { movie: UnwatchedMovie; onPress: () => void }) {
   const { t } = useI18n();
   const posterUrl = movie.posterPath ? getPosterUrl(movie.posterPath, 200) : null;
-
-  const isWatched = movie.status === "completed";
 
   return (
     <TouchableOpacity
@@ -43,7 +55,7 @@ function MovieCard({ movie, onPress }: { movie: UnwatchedMovie; onPress: () => v
           {movie.title}
         </Text>
         <Text className="text-text-muted text-sm mb-1">
-          {isWatched ? t("screens.showDetail.markWatched") : t("screens.showDetail.markUnwatched")}
+          {getStatusLabel(t, movie.status)}
         </Text>
         <Text className="text-text-muted text-xs">{t("common.movie")}</Text>
       </View>
@@ -86,36 +98,37 @@ export function MoviesScreen() {
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]}>
       <Text className="text-3xl font-bold text-text mb-4">{t("navigation.movies")}</Text>
 
-      <FlatList
-        data={movies}
-        keyExtractor={(item) => item.showId}
-        renderItem={({ item }) => (
-          <MovieCard
-            movie={item}
-            onPress={() => {
-              if (!item.tmdbId) return;
-              navigation.navigate("ShowDetail", { tmdbId: item.tmdbId, title: item.title });
-            }}
-          />
-        )}
-        refreshControl={<RefreshControl refreshing={isLoading} onRefresh={() => throttledRefresh(refetch)} tintColor={colors.primary} />}
-        contentContainerStyle={{ paddingBottom: 24 }}
-        ListEmptyComponent={
-          <EmptyState
-            icon="film-outline"
-            title={t("screens.list.empty")}
-            subtitle={t("screens.list.addFromSearch")}
-          />
-        }
-        ListFooterComponent={
-          <TouchableOpacity
-            onPress={handleViewLibrary}
-            className="bg-card rounded-lg p-4 mt-4 items-center"
-          >
-            <Text className="text-primary font-semibold">{t("screens.movies.viewAll")}</Text>
-          </TouchableOpacity>
-        }
-      />
+      <View className="flex-1">
+        <FlatList
+          data={movies}
+          keyExtractor={(item) => item.showId}
+          renderItem={({ item }) => (
+            <MovieCard
+              movie={item}
+              onPress={() => {
+                if (!item.tmdbId) return;
+                navigation.navigate("ShowDetail", { tmdbId: item.tmdbId, title: item.title });
+              }}
+            />
+          )}
+          refreshControl={<RefreshControl refreshing={isLoading} onRefresh={() => throttledRefresh(refetch)} tintColor={colors.primary} />}
+          contentContainerStyle={{ paddingBottom: 24 }}
+          ListEmptyComponent={
+            <EmptyState
+              icon="film-outline"
+              title={t("screens.movies.empty")}
+              subtitle={t("screens.movies.addFromSearch")}
+            />
+          }
+        />
+      </View>
+
+      <TouchableOpacity
+        onPress={handleViewLibrary}
+        className="bg-card rounded-lg p-4 mb-4 items-center"
+      >
+        <Text className="text-primary font-semibold">{t("screens.movies.viewAll")}</Text>
+      </TouchableOpacity>
     </ScreenContainer>
   );
 }

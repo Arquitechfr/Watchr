@@ -52,6 +52,18 @@ export interface ListCommentsQuery {
   limit?: number;
 }
 
+export async function getCommentCount(
+  showId: string,
+  query?: { season?: number; episode?: number },
+): Promise<{ total: number }> {
+  log("CommentsService", "count", { showId, query });
+  const response = await api.get<{ total: number }>(`/comments/show/${showId}/count`, {
+    params: query,
+  });
+  log("CommentsService", "count response", { total: response.data.total });
+  return response.data;
+}
+
 export async function listCommentsForShow(showId: string, query?: ListCommentsQuery): Promise<ListCommentsResult> {
   log("CommentsService", "list", { showId, query });
   const response = await api.get<ListCommentsResult>(`/comments/show/${showId}`, {

@@ -117,14 +117,12 @@ function UnwatchedList({
   isLoading,
   refetch,
   onShowPress,
-  onViewLibrary,
 }: {
   shows: UnwatchedShow[];
   upcomingShowIds: Set<string>;
   isLoading: boolean;
   refetch: () => void;
   onShowPress: (show: UnwatchedShow) => void;
-  onViewLibrary: () => void;
 }) {
   const { t } = useI18n();
   if (shows.length === 0) {
@@ -173,14 +171,6 @@ function UnwatchedList({
       }}
       refreshControl={<RefreshControl refreshing={isLoading} onRefresh={() => refetch()} tintColor={colors.primary} />}
       contentContainerStyle={{ paddingBottom: 24 }}
-      ListFooterComponent={
-        <TouchableOpacity
-          onPress={onViewLibrary}
-          className="bg-card rounded-lg p-4 mt-4 items-center"
-        >
-          <Text className="text-primary font-semibold">{t("screens.series.viewAll")}</Text>
-        </TouchableOpacity>
-      }
     />
   );
 }
@@ -337,7 +327,6 @@ export function SeriesScreen() {
               isLoading={isUnwatchedLoading}
               refetch={() => throttledRefreshUnwatched(refetchUnwatched)}
               onShowPress={handleShowPress}
-              onViewLibrary={handleViewLibrary}
             />
           )}
         </View>
@@ -354,6 +343,13 @@ export function SeriesScreen() {
           />
         </View>
       )}
+
+      <TouchableOpacity
+        onPress={handleViewLibrary}
+        className="bg-card rounded-lg p-4 mb-4 items-center"
+      >
+        <Text className="text-primary font-semibold">{t("screens.series.viewAll")}</Text>
+      </TouchableOpacity>
     </ScreenContainer>
   );
 }

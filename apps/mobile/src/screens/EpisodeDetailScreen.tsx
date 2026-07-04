@@ -356,6 +356,11 @@ export function EpisodeDetailScreen() {
             >
               <Ionicons name="chatbubbles-outline" size={18} color={colors.primary} />
               <Text className="font-semibold ml-2 text-text">{t("screens.showDetail.comments")}</Text>
+              {commentsData && commentsData.total > 0 && (
+                <View className="ml-2 bg-primary/20 rounded-full px-2 py-0.5">
+                  <Text className="text-primary text-xs font-semibold">{commentsData.total}</Text>
+                </View>
+              )}
             </TouchableOpacity>
           </View>
 
@@ -377,7 +382,14 @@ export function EpisodeDetailScreen() {
 
           <View className="mb-6">
             <View className="flex-row items-center justify-between mb-2">
-              <Text className="text-lg font-semibold text-text">{t("screens.showDetail.comments")}</Text>
+              <View className="flex-row items-center">
+                <Text className="text-lg font-semibold text-text">{t("screens.showDetail.comments")}</Text>
+                {commentsData && commentsData.total > 0 && (
+                  <View className="ml-2 bg-primary/20 rounded-full px-2 py-0.5">
+                    <Text className="text-primary text-xs font-semibold">{commentsData.total}</Text>
+                  </View>
+                )}
+              </View>
               <TouchableOpacity onPress={handleOpenComments} activeOpacity={0.7}>
                 <Text className="text-primary text-sm font-semibold">{t("common.seeAll")}</Text>
               </TouchableOpacity>

@@ -15,6 +15,7 @@ import {
   updateComment,
   deleteComment,
   listCommentsForShow,
+  getCommentCount,
   likeComment,
   unlikeComment,
   addReaction,
@@ -24,6 +25,24 @@ import {
 const router: Router = Router();
 
 router.use(requireAuth);
+
+router.get(
+  "/show/:showId/count",
+  validateRequest(undefined, listCommentsQuerySchema, showCommentsParamsSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { showId } = req.params;
+    const query = req.query as {
+      season?: string;
+      episode?: string;
+    };
+    const episodeRef =
+      query.season !== undefined && query.episode !== undefined
+        ? { season: Number(query.season), episode: Number(query.episode) }
+        : undefined;
+    const result = await getCommentCount(showId, episodeRef);
+    res.json(result);
+  }),
+);
 
 router.get(
   "/show/:showId",

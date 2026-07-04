@@ -13,6 +13,7 @@ interface FixedTrackingButtonProps {
   onPress: () => void;
   disabled?: boolean;
   onToggleWatched?: () => void;
+  onToggleDropped?: () => void;
 }
 
 export function FixedTrackingButton({
@@ -22,6 +23,7 @@ export function FixedTrackingButton({
   onPress,
   disabled,
   onToggleWatched,
+  onToggleDropped,
 }: FixedTrackingButtonProps) {
   const { t } = useI18n();
   const insets = useSafeAreaInsets();
@@ -59,19 +61,56 @@ export function FixedTrackingButton({
     );
   }
 
+  // Pour les séries TV suivies, afficher Abandonner/Reprendre
+  const isTvTracked = show.type === "tv" && trackingEntry && onToggleDropped;
+  const isDropped = trackingEntry?.status === "dropped";
+
   let label = t("screens.showDetail.addToList");
-  if (trackingEntry) {
+  if (isTvTracked) {
+    label = isDropped
+      ? t("screens.showDetail.resumeShow")
+      : t("screens.showDetail.dropShow");
+  } else if (trackingEntry) {
     if (isCompleted) {
       label = t("screens.showDetail.completed");
-    } else if (show.type === "tv" && trackingEntry.currentSeason && trackingEntry.currentEpisode) {
-      label = t("screens.showDetail.continueSeason", {
-        season: trackingEntry.currentSeason,
-        episode: trackingEntry.currentEpisode,
-      });
     } else {
       label = t("screens.showDetail.inProgress");
     }
   }
+
+  const buttonClassName = isTvTracked
+    ? isDropped
+      ? "bg-surface border border-primary"
+      : "bg-danger"
+    : trackingEntry
+      ? "bg-surface border border-primary"
+      : "bg-primary";
+
+  const iconName = isTvTracked
+    ? isDropped
+      ? "play"
+      : "trash-outline"
+    : trackingEntry
+      ? "play"
+      : "add";
+
+  const iconColor = isTvTracked
+    ? isDropped
+      ? colors.primary
+      : colors.background
+    : trackingEntry
+      ? colors.primary
+      : colors.background;
+
+  const textColor = isTvTracked
+    ? isDropped
+      ? "text-primary"
+      : "text-background"
+    : trackingEntry
+      ? "text-primary"
+      : "text-background";
+
+  const handlePress = isTvTracked ? onToggleDropped! : onPress;
 
   return (
     <View
@@ -79,20 +118,18 @@ export function FixedTrackingButton({
       style={{ paddingBottom: Math.max(insets.bottom, 12) }}
     >
       <TouchableOpacity
-        className={`flex-row items-center justify-center py-3 rounded-lg ${
-          trackingEntry ? "bg-surface border border-primary" : "bg-primary"
-        }`}
-        onPress={onPress}
+        className={`flex-row items-center justify-center py-3 rounded-lg ${buttonClassName}`}
+        onPress={handlePress}
         disabled={disabled}
       >
         <Ionicons
-          name={trackingEntry ? "play" : "add"}
+          name={iconName}
           size={20}
-          color={trackingEntry ? colors.primary : colors.background}
+          color={iconColor}
           style={{ marginRight: 8 }}
         />
         <Text
-          className={`font-semibold ${trackingEntry ? "text-primary" : "text-background"}`}
+          className={`font-semibold ${textColor}`}
         >
           {label}
         </Text>

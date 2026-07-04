@@ -1,11 +1,12 @@
 import { useEffect, useState, useMemo } from "react";
-import { View, Text, Image, ScrollView, TouchableOpacity, RefreshControl } from "react-native";
+import { View, Text, Image, ScrollView, TouchableOpacity, RefreshControl, Alert } from "react-native";
 import { useRoute, useNavigation, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useShowDetails } from "../hooks/useShowDetails";
 import { useTrackingEntry } from "../hooks/useTrackingEntry";
 import { useUpsertTracking, useToggleEpisode, useMarkUpTo, useToggleDropped } from "../hooks/useTracking";
 import { useRatingsForShow, useUpsertRating } from "../hooks/useRatings";
+import { useCommentCount } from "../hooks/useComments";
 import { useRefreshRateLimit } from "../hooks/useRefreshRateLimit";
 import { LazyEpisodeGrid } from "../components/LazyEpisodeGrid";
 import { RatingStars } from "../components/RatingStars";
@@ -39,6 +40,13 @@ function getStatusLabel(t: ReturnType<typeof useI18n>["t"], status: WatchStatus)
   }
 }
 
+function getTmdbStatusLabel(t: ReturnType<typeof useI18n>["t"], status: string): string {
+  const key = status.replace(/\s+/g, "").replace(/-/g, "");
+  const lowerKey = key.charAt(0).toLowerCase() + key.slice(1);
+  const translation = t(`tmdbStatus.${lowerKey}`);
+  return translation !== `tmdbStatus.${lowerKey}` ? translation : status;
+}
+
 export function ShowDetailScreen() {
   const route = useRoute<ShowDetailRouteProp>();
   const navigation = useNavigation<ShowDetailNavigationProp>();
@@ -56,6 +64,7 @@ export function ShowDetailScreen() {
   const markUpTo = useMarkUpTo(show?.id ?? "");
   const upsertRating = useUpsertRating(show?.id ?? "");
   const toggleDropped = useToggleDropped(show?.id ?? "");
+  const { data: commentCountData } = useCommentCount(show?.id ?? "");
 
   const [trackingModalVisible, setTrackingModalVisible] = useState(false);
 
@@ -149,11 +158,33 @@ export function ShowDetailScreen() {
   const handleToggleDropped = () => {
     if (!show) return;
     const nextDropped = trackingEntry?.status !== "dropped";
-    log("ShowDetail", "toggle dropped", { showId: show.id, dropped: nextDropped });
-    toggleDropped.mutate(nextDropped, {
-      onSuccess: () => showSnackbar(nextDropped ? t("screens.showDetail.droppedStatus") : t("screens.showDetail.resumedStatus"), "success"),
-      onError: () => showSnackbar(t("screens.showDetail.statusError"), "error"),
-    });
+
+    if (nextDropped) {
+      Alert.alert(
+        t("screens.showDetail.dropConfirmTitle"),
+        t("screens.showDetail.dropConfirmMessage"),
+        [
+          { text: t("common.cancel"), style: "cancel" },
+          {
+            text: t("common.confirm"),
+            style: "destructive",
+            onPress: () => {
+              log("ShowDetail", "toggle dropped", { showId: show.id, dropped: true });
+              toggleDropped.mutate(true, {
+                onSuccess: () => showSnackbar(t("screens.showDetail.droppedStatus"), "success"),
+                onError: () => showSnackbar(t("screens.showDetail.statusError"), "error"),
+              });
+            },
+          },
+        ],
+      );
+    } else {
+      log("ShowDetail", "toggle dropped", { showId: show.id, dropped: false });
+      toggleDropped.mutate(false, {
+        onSuccess: () => showSnackbar(t("screens.showDetail.resumedStatus"), "success"),
+        onError: () => showSnackbar(t("screens.showDetail.statusError"), "error"),
+      });
+    }
   };
 
   const handleToggleWatched = () => {
@@ -226,11 +257,12 @@ export function ShowDetailScreen() {
         contentContainerStyle={{ paddingBottom: 100 }}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={() => throttledRefresh(handleRefresh)} tintColor={colors.primary} />}
       >
-        <View className="relative">
+        <View className="w-full h-80 overflow-hidden bg-surface-light">
           {posterUrl ? (
             <Image
               source={{ uri: posterUrl }}
-              className="w-full h-80 bg-surface-light"
+              className="w-full"
+              style={{ aspectRatio: 2 / 3 }}
               resizeMode="cover"
             />
           ) : (
@@ -238,10 +270,9 @@ export function ShowDetailScreen() {
               <Text className="text-text-muted">{t("common.noImage")}</Text>
             </View>
           )}
-          <View className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background to-transparent h-24" />
         </View>
 
-        <View className="px-4 -mt-8">
+        <View className="px-4">
           <Text className="text-3xl font-bold text-text mb-2">{show.title}</Text>
           <Text className="text-text-muted mb-4">
             {show.firstAirDate ? new Date(show.firstAirDate).getFullYear().toString() : "—"}
@@ -285,7 +316,7 @@ export function ShowDetailScreen() {
               {show.status && (
                 <View className="w-1/2 mb-3 pr-2">
                   <Text className="text-text-muted text-xs uppercase tracking-wider">{t("screens.showDetail.status")}</Text>
-                  <Text className="text-text font-medium">{show.status}</Text>
+                  <Text className="text-text font-medium">{getTmdbStatusLabel(t, show.status)}</Text>
                 </View>
               )}
               {show.type === "tv" && show.numberOfSeasons !== undefined && (
@@ -345,33 +376,43 @@ export function ShowDetailScreen() {
             </View>
           )}
 
-          <TouchableOpacity
-            onPress={() => navigation.navigate("ShowComments", { showId: show.id, title: show.title })}
-            className="flex-row items-center justify-between bg-surface rounded-lg p-4 mb-6"
-            activeOpacity={0.7}
-          >
-            <Text className="text-text font-semibold">{t("screens.showDetail.comments")}</Text>
-            <Ionicons name="chatbubbles-outline" size={20} color={colors.primary} />
-          </TouchableOpacity>
-
-
-          {trackingEntry && (
+          {show.type === "tv" && trackingEntry ? (
             <TouchableOpacity
-              onPress={handleToggleDropped}
-              className={`flex-row items-center justify-between rounded-lg p-4 mb-6 ${
-                trackingEntry.status === "dropped" ? "bg-surface border border-primary" : "bg-surface"
-              }`}
+              onPress={() => navigation.navigate("ShowComments", { showId: show.id, title: show.title })}
+              className="flex-row items-center justify-between bg-surface rounded-xl p-4 mb-6"
               activeOpacity={0.7}
-              disabled={toggleDropped.isPending}
             >
-              <Text className="text-text font-semibold">
-                {trackingEntry.status === "dropped" ? t("screens.showDetail.resumeShow") : t("screens.showDetail.dropShow")}
-              </Text>
-              <Ionicons
-                name={trackingEntry.status === "dropped" ? "play-outline" : "trash-outline"}
-                size={20}
-                color={trackingEntry.status === "dropped" ? colors.primary : colors.danger}
-              />
+              <View className="flex-row items-center">
+                <View className="w-10 h-10 rounded-full bg-primary/15 items-center justify-center mr-3">
+                  <Ionicons name="chatbubbles-outline" size={20} color={colors.primary} />
+                </View>
+                <Text className="text-text font-semibold">{t("screens.showDetail.comments")}</Text>
+                {commentCountData && commentCountData.total > 0 && (
+                  <View className="ml-2 bg-primary/20 rounded-full px-2 py-0.5">
+                    <Text className="text-primary text-xs font-semibold">{commentCountData.total}</Text>
+                  </View>
+                )}
+              </View>
+              <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              onPress={() => navigation.navigate("ShowComments", { showId: show.id, title: show.title })}
+              className="flex-row items-center justify-between bg-surface rounded-xl p-4 mb-6"
+              activeOpacity={0.7}
+            >
+              <View className="flex-row items-center">
+                <View className="w-10 h-10 rounded-full bg-primary/15 items-center justify-center mr-3">
+                  <Ionicons name="chatbubbles-outline" size={20} color={colors.primary} />
+                </View>
+                <Text className="text-text font-semibold">{t("screens.showDetail.comments")}</Text>
+                {commentCountData && commentCountData.total > 0 && (
+                  <View className="ml-2 bg-primary/20 rounded-full px-2 py-0.5">
+                    <Text className="text-primary text-xs font-semibold">{commentCountData.total}</Text>
+                  </View>
+                )}
+              </View>
+              <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
             </TouchableOpacity>
           )}
 
@@ -396,8 +437,9 @@ export function ShowDetailScreen() {
         trackingEntry={trackingEntry}
         progress={progress}
         onPress={() => setTrackingModalVisible(true)}
-        disabled={isAnyPending}
+        disabled={isAnyPending || toggleDropped.isPending}
         onToggleWatched={show.type === "movie" ? handleToggleWatched : undefined}
+        onToggleDropped={show.type === "tv" ? handleToggleDropped : undefined}
       />
 
       <TrackingActionModal

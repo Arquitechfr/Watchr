@@ -17,6 +17,7 @@ import {
 import {
   addToWatchlistByTmdbParamsSchema,
   addToWatchlistByTmdbSchema,
+  librarySchema,
   listTrackingSchema,
   markUpToSchema,
   toggleDroppedSchema,
@@ -57,13 +58,13 @@ router.get(
 
 router.get(
   "/library",
-  validateRequest(undefined, listTrackingSchema),
+  validateRequest(undefined, librarySchema),
   asyncHandler(async (req: Request, res: Response) => {
-    const { page, limit } = req.query as unknown as {
+    const { page, limit, type } = req.query as unknown as {
       page: number;
       limit: number;
+      type?: "tv" | "movie";
     };
-    const { type } = req.query as { type?: "tv" | "movie" };
     const result = await listLibrary(req.userId!, page, limit, type, req.language);
     res.json(result);
   }),

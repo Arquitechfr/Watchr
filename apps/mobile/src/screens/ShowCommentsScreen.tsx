@@ -119,7 +119,7 @@ export function ShowCommentsScreen() {
         <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.7} className="p-1">
           <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text className="text-text font-semibold text-lg" numberOfLines={1}>
+        <Text className="text-text font-semibold text-lg flex-1 text-center mx-2" numberOfLines={1}>
           {headerTitle}
         </Text>
         <View className="w-8" />

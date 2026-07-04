@@ -12,6 +12,7 @@ interface FixedTrackingButtonProps {
   progress?: number;
   onPress: () => void;
   disabled?: boolean;
+  onToggleWatched?: () => void;
 }
 
 export function FixedTrackingButton({
@@ -20,11 +21,43 @@ export function FixedTrackingButton({
   progress,
   onPress,
   disabled,
+  onToggleWatched,
 }: FixedTrackingButtonProps) {
   const { t } = useI18n();
   const insets = useSafeAreaInsets();
   const hasProgress = progress !== undefined && progress > 0 && progress < 1;
   const isCompleted = progress === 1;
+
+  // Pour les films, utiliser le bouton de toggle vu/non vu
+  if (show.type === "movie" && trackingEntry && onToggleWatched) {
+    const isWatched = trackingEntry.status === "completed";
+    return (
+      <View
+        className="absolute bottom-0 left-0 right-0 bg-background/90 border-t border-border px-4 pt-3"
+        style={{ paddingBottom: Math.max(insets.bottom, 12) }}
+      >
+        <TouchableOpacity
+          className={`flex-row items-center justify-center py-3 rounded-lg ${
+            isWatched ? "bg-surface border border-primary" : "bg-primary"
+          }`}
+          onPress={onToggleWatched}
+          disabled={disabled}
+        >
+          <Ionicons
+            name={isWatched ? "close-circle-outline" : "checkmark-circle-outline"}
+            size={20}
+            color={isWatched ? colors.primary : colors.background}
+            style={{ marginRight: 8 }}
+          />
+          <Text
+            className={`font-semibold ${isWatched ? "text-primary" : "text-background"}`}
+          >
+            {isWatched ? t("screens.showDetail.markUnwatched") : t("screens.showDetail.markWatched")}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   let label = t("screens.showDetail.addToList");
   if (trackingEntry) {

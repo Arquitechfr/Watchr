@@ -69,3 +69,12 @@ export async function invalidateRedisPattern(pattern: string): Promise<void> {
     logError("Redis", "invalidate failed", err);
   }
 }
+
+export async function deleteRedisKey(key: string): Promise<void> {
+  if (!redisAvailable) return;
+  try {
+    await redisClient.del(key);
+  } catch (err) {
+    logError("Redis", "delete failed", err);
+  }
+}

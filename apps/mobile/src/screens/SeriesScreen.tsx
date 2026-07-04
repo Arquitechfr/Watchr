@@ -2,7 +2,7 @@ import { View, Text, FlatList, RefreshControl, Image, TouchableOpacity } from "r
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { TopTabs, TopTab } from "../components/TopTabs";
 import { UpcomingEpisodeRow } from "../components/UpcomingEpisodeRow";
@@ -19,6 +19,7 @@ import { UpcomingEpisode } from "../services/upcoming.service";
 import { getPosterUrl } from "../services/shows.service";
 import { colors } from "../theme/colors";
 import { useI18n } from "../i18n/useI18n";
+import { log } from "../utils/logger";
 
 function getStatusLabel(t: ReturnType<typeof useI18n>["t"], status: UnwatchedShow["status"]): string {
   switch (status) {
@@ -54,6 +55,14 @@ function UnwatchedShowCard({
   const posterUrl = getPosterUrl(show.posterPath, 200);
   const episodeCount = show.unwatchedEpisodes.length;
   const isActive = show.status === "watching" && episodeCount > 0;
+
+  log("SeriesScreen:UnwatchedShowCard", "render", {
+    title: show.title,
+    status: show.status,
+    isEnded: show.isEnded,
+    episodeCount,
+    isActive,
+  });
 
   return (
     <TouchableOpacity
@@ -104,14 +113,18 @@ function UnwatchedShowCard({
 
 function UnwatchedList({
   shows,
+  upcomingShowIds,
   isLoading,
   refetch,
   onShowPress,
+  onViewLibrary,
 }: {
   shows: UnwatchedShow[];
+  upcomingShowIds: Set<string>;
   isLoading: boolean;
   refetch: () => void;
   onShowPress: (show: UnwatchedShow) => void;
+  onViewLibrary: () => void;
 }) {
   const { t } = useI18n();
   if (shows.length === 0) {
@@ -124,13 +137,19 @@ function UnwatchedList({
     );
   }
 
+  log("SeriesScreen:UnwatchedList", "input shows", shows.map((s) => ({ showId: s.showId, title: s.title, status: s.status, isEnded: s.isEnded, unwatchedCount: s.unwatchedEpisodes.length })));
+  log("SeriesScreen:UnwatchedList", "upcomingShowIds", Array.from(upcomingShowIds));
+
   const activeShows = shows
-    .filter((s) => s.status === "watching" && s.unwatchedEpisodes.length > 0)
+    .filter((s) => s.status === "watching" && (s.unwatchedEpisodes.length > 0 || upcomingShowIds.has(s.showId)))
     .sort((a, b) => b.unwatchedEpisodes.length - a.unwatchedEpisodes.length);
 
   const otherShows = shows
-    .filter((s) => !(s.status === "watching" && s.unwatchedEpisodes.length > 0))
+    .filter((s) => !(s.status === "watching" && (s.unwatchedEpisodes.length > 0 || upcomingShowIds.has(s.showId))) && s.unwatchedEpisodes.length > 0)
     .sort((a, b) => b.unwatchedEpisodes.length - a.unwatchedEpisodes.length);
+
+  log("SeriesScreen:UnwatchedList", "activeShows", activeShows.map((s) => ({ title: s.title, unwatchedCount: s.unwatchedEpisodes.length, hasUpcoming: upcomingShowIds.has(s.showId) })));
+  log("SeriesScreen:UnwatchedList", "otherShows", otherShows.map((s) => ({ title: s.title, status: s.status, isEnded: s.isEnded, unwatchedCount: s.unwatchedEpisodes.length })));
 
   const rows: { type: "header" | "show"; title?: string; show?: UnwatchedShow }[] = [];
   if (activeShows.length > 0) {
@@ -154,6 +173,14 @@ function UnwatchedList({
       }}
       refreshControl={<RefreshControl refreshing={isLoading} onRefresh={() => refetch()} tintColor={colors.primary} />}
       contentContainerStyle={{ paddingBottom: 24 }}
+      ListFooterComponent={
+        <TouchableOpacity
+          onPress={onViewLibrary}
+          className="bg-card rounded-lg p-4 mt-4 items-center"
+        >
+          <Text className="text-primary font-semibold">{t("screens.series.viewAll")}</Text>
+        </TouchableOpacity>
+      }
     />
   );
 }
@@ -245,12 +272,35 @@ export function SeriesScreen() {
   const throttledRefreshUnwatched = useRefreshRateLimit();
   const throttledRefreshUpcoming = useRefreshRateLimit();
 
+  const upcomingShowIds = useMemo(() => {
+    if (!upcomingData) return new Set<string>();
+    const all = [
+      ...upcomingData.today,
+      ...upcomingData.thisWeek,
+      ...upcomingData.nextWeek,
+      ...upcomingData.later,
+    ];
+    return new Set(all.map((ep) => ep.showId));
+  }, [upcomingData]);
+
+  log("SeriesScreen", "state", {
+    activeTab,
+    unwatchedCount: unwatchedData?.shows.length ?? 0,
+    isUnwatchedLoading,
+    isUnwatchedError,
+    upcomingKeys: upcomingData ? Object.keys(upcomingData) : null,
+  });
+
   function handleShowPress(show: UnwatchedShow) {
     if (!show.tmdbId) return;
     navigation.navigate("ShowDetail", {
       tmdbId: show.tmdbId,
       title: show.title,
     });
+  }
+
+  function handleViewLibrary() {
+    navigation.navigate("Library");
   }
 
   function handleUpcomingPress(episode: UpcomingEpisode) {
@@ -265,7 +315,10 @@ export function SeriesScreen() {
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]}>
       <Text className="text-3xl font-bold text-text mb-4">{t("navigation.series")}</Text>
 
-      <TopTabs tabs={tabs} active={activeTab} onChange={setActiveTab} />
+      <TopTabs tabs={tabs} active={activeTab} onChange={(tab) => {
+        log("SeriesScreen", "tab changed", tab);
+        setActiveTab(tab);
+      }} />
 
       {activeTab === "unwatched" && (
         <View className="flex-1">
@@ -280,9 +333,11 @@ export function SeriesScreen() {
           ) : (
             <UnwatchedList
               shows={unwatchedData?.shows ?? []}
+              upcomingShowIds={upcomingShowIds}
               isLoading={isUnwatchedLoading}
               refetch={() => throttledRefreshUnwatched(refetchUnwatched)}
               onShowPress={handleShowPress}
+              onViewLibrary={handleViewLibrary}
             />
           )}
         </View>

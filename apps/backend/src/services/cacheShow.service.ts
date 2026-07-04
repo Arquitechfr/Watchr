@@ -12,7 +12,7 @@ import {
   TmdbShowDetails,
   tmdbService,
 } from "./tmdb.service.js";
-import { invalidateRedisPattern } from "../lib/redis.js";
+import { invalidateRedisPattern, setRedisValue, getRedisValue, deleteRedisKey } from "../lib/redis.js";
 import { log, logError } from "../lib/logger.js";
 
 export type ShowDocument = HydratedDocument<IShow>;
@@ -192,7 +192,6 @@ export async function upsertShowFromTmdb(
       show.cast = translation.cast;
       show.crew = translation.crew;
       show.seasons = translation.seasons ?? show.seasons;
-      show.lastEpisodesSyncedAt = new Date();
     }
     if (tvdbId && !show.tvdbId) {
       show.tvdbId = tvdbId;
@@ -212,7 +211,6 @@ export async function upsertShowFromTmdb(
       crew: translation.crew,
       seasons: translation.seasons ?? [],
       tvdbId,
-      lastEpisodesSyncedAt: new Date(),
       translations: { [normalizedLanguage]: translation },
     });
     await newShow.save();
@@ -232,63 +230,97 @@ export async function syncEpisodesForShow(show: ShowDocument, language = "en-US"
   if (show.type !== "tv") return show;
 
   const normalizedLanguage = language.split("-")[0];
-  const seasonNumbers = show.seasons
-    .filter((season) => season.seasonNumber > 0)
-    .map((season) => season.seasonNumber);
+  const lockKey = `episode-sync-lock:${show.tmdbId}`;
+  const lockValue = Date.now().toString();
 
-  log("CacheShowService", "syncEpisodes start", { tmdbId: show.tmdbId, seasonCount: seasonNumbers.length, language: normalizedLanguage });
-
-  for (const seasonNumber of seasonNumbers) {
-    try {
-      const tmdbSeason = await tmdbService.getTvSeason(show.tmdbId, seasonNumber, language);
-      log("CacheShowService", "syncEpisodes tmdb season", {
-        tmdbId: show.tmdbId,
-        seasonNumber,
-        tmdbEpisodeCount: tmdbSeason.episodes?.length ?? 0,
-      });
-      const existingSeason = show.seasons.find((s) => s.seasonNumber === seasonNumber);
-      const mapped = mapTmdbSeasonToSeason(tmdbSeason);
-      if (existingSeason) {
-        existingSeason.episodes = mapped.episodes;
-        existingSeason.episodeCount = mapped.episodeCount;
-      } else {
-        show.seasons.push(mapped);
+  // Try to acquire lock
+  const existingLock = await getRedisValue(lockKey);
+  if (existingLock) {
+    log("CacheShowService", "syncEpisodes lock already held", { tmdbId: show.tmdbId, lockKey });
+    // Wait for lock to be released (max 5s)
+    for (let i = 0; i < 10; i++) {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      const lockStillHeld = await getRedisValue(lockKey);
+      if (!lockStillHeld) {
+        // Lock released, reload show from DB
+        const reloaded = await Show.findOne({ tmdbId: show.tmdbId });
+        if (reloaded) {
+          log("CacheShowService", "syncEpisodes lock released, reloaded", { tmdbId: show.tmdbId });
+          return reloaded;
+        }
       }
-    } catch (err) {
-      logError("CacheShowService", "syncEpisodes season failed", err, { tmdbId: show.tmdbId, seasonNumber });
     }
+    log("CacheShowService", "syncEpisodes lock timeout", { tmdbId: show.tmdbId });
+    return show;
   }
 
-  log("CacheShowService", "syncEpisodes done", { tmdbId: show.tmdbId, seasons: show.seasons.map((s) => ({ seasonNumber: s.seasonNumber, episodeCount: s.episodes.length })) });
+  // Acquire lock with 30s TTL
+  await setRedisValue(lockKey, lockValue, 30);
 
   try {
-    const details = await tmdbService.getTvDetails(show.tmdbId, language);
-    const nextEpisode = details.next_episode_to_air;
-    if (nextEpisode) {
-      const airDate = parseDate(nextEpisode.air_date);
-      if (airDate) {
-        show.nextEpisodeToAir = {
-          season: nextEpisode.season_number,
-          episode: nextEpisode.episode_number,
-          airDate,
-        };
+    // Reload show from DB to get latest version
+    const freshShow = await Show.findById(show._id);
+    if (!freshShow) {
+      logError("CacheShowService", "syncEpisodes show not found", null, { tmdbId: show.tmdbId });
+      return show;
+    }
+
+    const seasonNumbers = freshShow.seasons
+      .filter((season) => season.seasonNumber > 0)
+      .map((season) => season.seasonNumber);
+
+    log("CacheShowService", "syncEpisodes start", { tmdbId: freshShow.tmdbId, seasonCount: seasonNumbers.length, language: normalizedLanguage });
+
+    for (const seasonNumber of seasonNumbers) {
+      try {
+        const tmdbSeason = await tmdbService.getTvSeason(freshShow.tmdbId, seasonNumber, language);
+        log("CacheShowService", "syncEpisodes tmdb season", {
+          tmdbId: freshShow.tmdbId,
+          seasonNumber,
+          tmdbEpisodeCount: tmdbSeason.episodes?.length ?? 0,
+        });
+        const existingSeason = freshShow.seasons.find((s) => s.seasonNumber === seasonNumber);
+        const mapped = mapTmdbSeasonToSeason(tmdbSeason);
+        if (existingSeason) {
+          existingSeason.episodes = mapped.episodes;
+          existingSeason.episodeCount = mapped.episodeCount;
+        } else {
+          freshShow.seasons.push(mapped);
+        }
+      } catch (err) {
+        logError("CacheShowService", "syncEpisodes season failed", err, { tmdbId: freshShow.tmdbId, seasonNumber });
       }
     }
-    const translation = mapTmdbDetailsToTranslation("tv", details);
-    if (translation.seasons) {
-      show.translations?.set(normalizedLanguage, {
-        ...(show.translations?.get(normalizedLanguage) ?? {}),
-        ...translation,
-        seasons: translation.seasons,
-      });
+
+    log("CacheShowService", "syncEpisodes done", { tmdbId: freshShow.tmdbId, seasons: freshShow.seasons.map((s) => ({ seasonNumber: s.seasonNumber, episodeCount: s.episodes.length })) });
+
+    try {
+      const details = await tmdbService.getTvDetails(freshShow.tmdbId, language);
+      const nextEpisode = details.next_episode_to_air;
+      if (nextEpisode) {
+        const airDate = parseDate(nextEpisode.air_date);
+        if (airDate) {
+          freshShow.nextEpisodeToAir = {
+            season: nextEpisode.season_number,
+            episode: nextEpisode.episode_number,
+            airDate,
+          };
+        }
+      }
+    } catch {
+      // Keep existing nextEpisodeToAir if the call fails.
     }
-  } catch {
-    // Keep existing nextEpisodeToAir if the call fails.
+
+    freshShow.lastEpisodesSyncedAt = new Date();
+    await freshShow.save();
+  } finally {
+    // Release lock
+    await deleteRedisKey(lockKey);
   }
 
-  show.lastEpisodesSyncedAt = new Date();
-  await show.save();
-  return show;
+  // Reload again to return latest version
+  const finalShow = await Show.findById(show._id);
+  return finalShow || show;
 }
 
 export async function refreshShowFromTmdb(tmdbId: number, language = "en-US"): Promise<ShowDocument | null> {

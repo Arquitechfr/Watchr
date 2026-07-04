@@ -11,6 +11,7 @@ import { ImportJob } from "../models/importJob.model.js";
 import { sleep } from "../lib/rateLimiter.js";
 import { ApiError } from "../middleware/error.middleware.js";
 import { ShowDocument } from "./cacheShow.service.js";
+import { scheduleShowRefresh } from "../workers/episodeSync.worker.js";
 
 export interface ImportResult {
   total: number;
@@ -157,6 +158,9 @@ async function findOrCreateShow(tmdbId: number, type: "tv" | "movie"): Promise<S
         : await tmdbService.getMovieDetails(tmdbId);
     const { upsertShowFromTmdb } = await import("./cacheShow.service.js");
     show = await upsertShowFromTmdb(type, details);
+    if (type === "tv") {
+      await scheduleShowRefresh(tmdbId);
+    }
   }
   return show;
 }

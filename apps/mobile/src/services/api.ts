@@ -6,7 +6,7 @@ import { useAuthStore, waitForHydration } from "../store/authStore";
 import { useLocaleStore } from "../store/localeStore";
 import { useI18n } from "../i18n/useI18n";
 
-const API_URL = (Constants.expoConfig?.extra?.apiUrl as string | undefined) ?? "http://localhost:4000";
+const API_URL = (Constants.expoConfig?.extra?.apiUrl as string | undefined) ?? "http://localhost:4500";
 
 export const api = axios.create({
   baseURL: `${API_URL}/api`,

@@ -37,6 +37,7 @@ export interface PaginatedTracking {
 export interface UpsertTrackingInput {
   currentSeason?: number;
   currentEpisode?: number;
+  status?: WatchStatus;
 }
 
 export interface ToggleEpisodeInput {

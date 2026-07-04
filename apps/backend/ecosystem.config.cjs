@@ -3,16 +3,16 @@ module.exports = {
   apps: [
     {
       name: 'watchr-api',
-      script: 'dist/server.js',
+      script: 'dist/src/server.js',
       instances: 2,
       exec_mode: 'cluster',
       env: {
         NODE_ENV: 'production',
-        PORT: 4000,
+        PORT: 4500,
       },
       env_development: {
         NODE_ENV: 'development',
-        PORT: 4000,
+        PORT: 4500,
       },
       error_file: './logs/api-error.log',
       out_file: './logs/api-out.log',
@@ -23,11 +23,11 @@ module.exports = {
       watch: false,
       max_restarts: 10,
       min_uptime: '10s',
-      restart_delay: 4000,
+      restart_delay: 4500,
     },
     {
       name: 'watchr-import-worker',
-      script: 'dist/workers/startImportWorker.js',
+      script: 'dist/src/workers/startImportWorker.js',
       instances: 1,
       env: {
         NODE_ENV: 'production',
@@ -44,11 +44,11 @@ module.exports = {
       watch: false,
       max_restarts: 10,
       min_uptime: '10s',
-      restart_delay: 4000,
+      restart_delay: 4500,
     },
     {
       name: 'watchr-episode-sync-worker',
-      script: 'dist/workers/startEpisodeSyncWorker.js',
+      script: 'dist/src/workers/startEpisodeSyncWorker.js',
       instances: 1,
       env: {
         NODE_ENV: 'production',
@@ -65,7 +65,7 @@ module.exports = {
       watch: false,
       max_restarts: 10,
       min_uptime: '10s',
-      restart_delay: 4000,
+      restart_delay: 4500,
     },
   ],
 };

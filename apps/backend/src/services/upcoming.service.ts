@@ -8,8 +8,7 @@ import {
 } from "date-fns";
 import { Types } from "mongoose";
 import { WatchEntry } from "../models/watchEntry.model.js";
-import { IShow } from "../models/show.model.js";
-import { getShowTitle } from "../models/show.model.js";
+import { IShow, getShowTitle, getTranslationValue } from "../models/show.model.js";
 
 export interface UpcomingEpisode {
   showId: string;
@@ -46,7 +45,7 @@ export async function getUpcomingEpisodes(userId: string, language = "en"): Prom
     if (!show || !show.seasons) continue;
 
     const title = getShowTitle(show, language);
-    const translation = show.translations?.get(language);
+    const translation = getTranslationValue(show.translations, language);
     const seasons = translation?.seasons ?? show.seasons;
 
     const watchedKeys = new Set(

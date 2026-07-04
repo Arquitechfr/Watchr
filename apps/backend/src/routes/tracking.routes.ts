@@ -7,6 +7,7 @@ import {
   getTrackedTmdbIds,
   getTrackingEntry,
   getUnwatched,
+  listLibrary,
   listTracking,
   markEpisodesUpTo,
   toggleDropped,
@@ -50,6 +51,20 @@ router.get(
   asyncHandler(async (req: Request, res: Response) => {
     const { type } = req.query as { type?: "tv" | "movie" };
     const result = await getUnwatched(req.userId!, type, req.language);
+    res.json(result);
+  }),
+);
+
+router.get(
+  "/library",
+  validateRequest(undefined, listTrackingSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { page, limit } = req.query as unknown as {
+      page: number;
+      limit: number;
+    };
+    const { type } = req.query as { type?: "tv" | "movie" };
+    const result = await listLibrary(req.userId!, page, limit, type, req.language);
     res.json(result);
   }),
 );

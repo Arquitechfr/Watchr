@@ -1,5 +1,5 @@
 process.env.NODE_ENV = "test";
-process.env.PORT = "4000";
+process.env.PORT = "4500";
 process.env.MONGO_URI = "mongodb://[REDACTED_MONGO_URI]";
 process.env.REDIS_HOST = "[REDACTED_IP]";
 process.env.REDIS_PORT = "6379";

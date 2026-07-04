@@ -13,9 +13,26 @@ async function startServer() {
 
     await connectRedis();
 
-    app.listen(env.PORT, () => {
+    const server = app.listen(env.PORT, () => {
       console.log(`Server running on port ${env.PORT} in ${env.NODE_ENV} mode`);
     });
+
+    const gracefulShutdown = async (signal: string) => {
+      console.log(`\n${signal} received, shutting down gracefully...`);
+      server.close(async () => {
+        await mongoose.disconnect();
+        console.log("MongoDB disconnected");
+        process.exit(0);
+      });
+
+      setTimeout(() => {
+        console.error("Forced shutdown after timeout");
+        process.exit(1);
+      }, 10000);
+    };
+
+    process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
+    process.on("SIGINT", () => gracefulShutdown("SIGINT"));
   } catch (err) {
     console.error("Failed to start server:", err);
     process.exit(1);

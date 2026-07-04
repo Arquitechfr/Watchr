@@ -4,8 +4,8 @@
     "strict": true,
     "jsx": "react-jsx",
     "jsxImportSource": "nativewind",
-    "module": "esnext",
-    "ignoreDeprecations": "6.0",
+    "module": "es2022",
+    "ignoreDeprecations": "5.0",
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]

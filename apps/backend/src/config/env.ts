@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const envSchema = z.object({
-  PORT: z.coerce.number().int().positive().default(4000),
+  PORT: z.coerce.number().int().positive().default(4500),
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
   MONGO_URI: z.string().min(1, "MONGO_URI is required"),
   REDIS_HOST: z.string().min(1, "REDIS_HOST is required"),

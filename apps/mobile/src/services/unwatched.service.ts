@@ -39,7 +39,17 @@ export interface UnwatchedMovieResponse {
 export async function getUnwatchedShows(): Promise<UnwatchedTvResponse> {
   log("UnwatchedService", "fetch shows");
   const response = await api.get<UnwatchedTvResponse>("/tracking/unwatched", { params: { type: "tv" } });
-  log("UnwatchedService", "shows response", { count: response.data.shows.length });
+  log("UnwatchedService", "shows response", {
+    count: response.data.shows.length,
+    shows: response.data.shows.map((s) => ({
+      showId: s.showId,
+      title: s.title,
+      status: s.status,
+      isEnded: s.isEnded,
+      unwatchedCount: s.unwatchedEpisodes.length,
+      lastUnwatched: s.unwatchedEpisodes[0] ?? null,
+    })),
+  });
   return response.data;
 }
 

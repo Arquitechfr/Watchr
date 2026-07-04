@@ -198,4 +198,63 @@ describe("Tracking", () => {
     expect(resumedRes.status).toBe(200);
     expect(resumedRes.body.status).toBe("plan_to_watch");
   });
+
+  it("should list unwatched episodes with localized translations", async () => {
+    const { token } = await getAuthUser();
+    const show = await Show.create({
+      tmdbId: 789,
+      type: "tv",
+      title: "English Show",
+      status: "Ended",
+      seasons: [
+        {
+          seasonNumber: 1,
+          episodeCount: 2,
+          episodes: [
+            { episodeNumber: 1, airDate: new Date("2020-01-01") },
+            { episodeNumber: 2, airDate: new Date("2020-01-02") },
+          ],
+        },
+      ],
+      translations: new Map([
+        [
+          "fr",
+          {
+            title: "Série en français",
+            seasons: [
+              {
+                seasonNumber: 1,
+                episodeCount: 2,
+                episodes: [
+                  { episodeNumber: 1, name: "Épisode 1", airDate: new Date("2020-01-01") },
+                  { episodeNumber: 2, name: "Épisode 2", airDate: new Date("2020-01-02") },
+                ],
+              },
+            ],
+          },
+        ],
+      ]),
+    });
+
+    await request(app)
+      .post(`/api/tracking/${show._id.toString()}`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({ status: "watching" });
+
+    await request(app)
+      .patch(`/api/tracking/${show._id.toString()}/episodes`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({ season: 1, episode: 1, watched: true });
+
+    const res = await request(app)
+      .get("/api/tracking/unwatched?type=tv")
+      .set("Authorization", `Bearer ${token}`)
+      .set("Accept-Language", "fr");
+
+    expect(res.status).toBe(200);
+    expect(res.body.shows).toHaveLength(1);
+    expect(res.body.shows[0].title).toBe("Série en français");
+    expect(res.body.shows[0].unwatchedEpisodes).toHaveLength(1);
+    expect(res.body.shows[0].unwatchedEpisodes[0].episode).toBe(2);
+  });
 });

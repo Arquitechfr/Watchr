@@ -286,8 +286,24 @@ export type LocalizedShow = Omit<IShow, "translations"> & {
   overview?: string;
 };
 
+export function getTranslationValue(
+  translations: Map<string, ShowTranslation> | Record<string, ShowTranslation> | undefined,
+  language: string,
+): ShowTranslation | undefined {
+  if (!translations) return undefined;
+  const baseLanguage = language.split("-")[0];
+  if (translations instanceof Map) {
+    return translations.get(language) ?? translations.get(baseLanguage);
+  }
+  if (typeof translations === "object") {
+    return (translations as Record<string, ShowTranslation>)[language] ??
+      (translations as Record<string, ShowTranslation>)[baseLanguage];
+  }
+  return undefined;
+}
+
 export function getLocalizedShow(show: IShow, language: string): LocalizedShow {
-  const translation = show.translations?.get(language) ?? show.translations?.get(language.split("-")[0]);
+  const translation = getTranslationValue(show.translations, language);
   const base: LocalizedShow = {
     ...show.toObject(),
     title: show.title,
@@ -311,7 +327,10 @@ export function getLocalizedShow(show: IShow, language: string): LocalizedShow {
   };
 }
 
-export function getShowTitle(show: IShow, language: string): string {
-  const translation = show.translations?.get(language) ?? show.translations?.get(language.split("-")[0]);
+export function getShowTitle(
+  show: { title: string; translations?: Map<string, ShowTranslation> | Record<string, ShowTranslation> | undefined },
+  language: string,
+): string {
+  const translation = getTranslationValue(show.translations, language);
   return translation?.title ?? show.title;
 }

@@ -9,6 +9,7 @@
     "assetBundlePatterns": [
       "**/*"
     ],
+
     "ios": {
       "infoPlist": {
         "NSAppTransportSecurity": {
@@ -18,11 +19,25 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.watchr.app"
     },
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff",
+      "imageWidth": 449
+    },
     "android": {
-      "package": "com.watchr.app"
+      "package": "com.watchr.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
     },
     "extra": {
-      "apiUrl": "http://192.168.1.20:4000",
+      "apiUrl": "https://watchr.arquitech.fr",
       "firebase": {
         "apiKey": "AIzaSyB9mfMDceZpn9Q93CUicDgOijy0RhA7d38",
         "authDomain": "watchr-37257.firebaseapp.com",

@@ -326,20 +326,27 @@ export async function getSeasonDetails(tmdbId: number, seasonNumber: number, loc
     throw new ApiError(404, "SEASON_NOT_FOUND", "Season not found");
   }
 
-  const translation = show.translations?.get(normalizedLocale);
-  let season = translation?.seasons?.find((s) => s.seasonNumber === seasonNumber) ??
-    show.seasons.find((s) => s.seasonNumber === seasonNumber);
+  let season = show.seasons.find((s) => s.seasonNumber === seasonNumber);
   const isMissingEpisodes = !season || season.episodes.length === 0;
-  const translationNeedsEpisodes = !translation?.seasons?.some((s) => s.seasonNumber === seasonNumber && s.episodes.length > 0);
 
-  if (isMissingEpisodes || isEpisodesCacheStale(show) || translationNeedsEpisodes) {
+  if (isMissingEpisodes || isEpisodesCacheStale(show)) {
     try {
       show = await syncEpisodesForShow(show, tmdbLanguage);
-      season = show.translations?.get(normalizedLocale)?.seasons?.find((s) => s.seasonNumber === seasonNumber) ??
-        show.seasons.find((s) => s.seasonNumber === seasonNumber);
+      season = show.seasons.find((s) => s.seasonNumber === seasonNumber);
       await invalidateRedisPattern(`api:GET:/api/shows/${tmdbId}*`);
     } catch (syncErr) {
       logError("ShowService", "season episode sync failed", syncErr, { tmdbId, seasonNumber });
+      // Retry once on version conflict
+      show = await Show.findOne({ tmdbId });
+      if (show) {
+        try {
+          show = await syncEpisodesForShow(show, tmdbLanguage);
+          season = show.seasons.find((s) => s.seasonNumber === seasonNumber);
+          await invalidateRedisPattern(`api:GET:/api/shows/${tmdbId}*`);
+        } catch (retryErr) {
+          logError("ShowService", "season episode sync retry failed", retryErr, { tmdbId, seasonNumber });
+        }
+      }
     }
   }
 

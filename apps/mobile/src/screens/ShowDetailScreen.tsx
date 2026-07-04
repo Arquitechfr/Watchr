@@ -156,6 +156,23 @@ export function ShowDetailScreen() {
     });
   };
 
+  const handleToggleWatched = () => {
+    if (!show) return;
+    const isWatched = trackingEntry?.status === "completed";
+    const nextStatus = isWatched ? "plan_to_watch" : "completed";
+    log("ShowDetail", "toggle watched", { showId: show.id, nextStatus });
+    upsertTracking.mutate(
+      { status: nextStatus },
+      {
+        onSuccess: () => {
+          showSnackbar(isWatched ? t("screens.showDetail.markUnwatched") : t("screens.showDetail.markWatched"), "success");
+          refetchTrackingEntry();
+        },
+        onError: () => showSnackbar(t("screens.showDetail.statusError"), "error"),
+      },
+    );
+  };
+
   const handleOpenEpisodeDetail = (season: number, episode: Episode) => {
     if (!show) return;
     navigation.navigate("EpisodeDetail", {
@@ -337,6 +354,7 @@ export function ShowDetailScreen() {
             <Ionicons name="chatbubbles-outline" size={20} color={colors.primary} />
           </TouchableOpacity>
 
+
           {trackingEntry && (
             <TouchableOpacity
               onPress={handleToggleDropped}
@@ -379,6 +397,7 @@ export function ShowDetailScreen() {
         progress={progress}
         onPress={() => setTrackingModalVisible(true)}
         disabled={isAnyPending}
+        onToggleWatched={show.type === "movie" ? handleToggleWatched : undefined}
       />
 
       <TrackingActionModal

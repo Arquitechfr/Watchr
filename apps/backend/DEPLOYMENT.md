@@ -1,12 +1,13 @@
 # Plan de déploiement PM2 - Backend Watchr
 
-## Prérequis
+## Prérequis serveur
 
-- Node.js 20+
-- pnpm installé globalement
-- MongoDB accessible
-- Redis accessible
-- PM2 installé globalement : `pnpm add -g pm2` ou `npm install -g pm2`
+- Node.js 20+ installé sur le serveur
+- pnpm installé globalement sur le serveur : `npm install -g pnpm`
+- MongoDB accessible (local ou distant)
+- Redis accessible (local ou distant)
+- PM2 installé globalement sur le serveur : `npm install -g pm2`
+- Accès SSH au serveur
 
 ## Configuration des variables d'environnement
 
@@ -14,7 +15,7 @@ Créer un fichier `.env` dans `apps/backend/` avec les variables suivantes :
 
 ```env
 NODE_ENV=production
-PORT=4000
+PORT=4500
 MONGO_URI=mongodb://localhost:27017/watchr
 REDIS_HOST=localhost
 REDIS_PORT=6379
@@ -28,9 +29,15 @@ FIREBASE_SERVICE_ACCOUNT_KEY=your_firebase_key
 CORS_ORIGINS=https://your-frontend-domain.com,https://another-domain.com
 ```
 
+**Important** : Ne jamais commit le fichier `.env`. Ajoutez-le au `.gitignore`.
+
 ## Processus de déploiement
 
-### 1. Build du projet
+### Méthode recommandée : Build local + transfert
+
+Cette méthode est la plus simple et la plus fiable pour la production.
+
+#### 1. Build du projet (en local)
 
 ```bash
 # À la racine du workspace
@@ -38,14 +45,87 @@ pnpm install
 pnpm --filter backend build
 ```
 
-### 2. Démarrage avec PM2
+#### 2. Fichiers à transférer sur le serveur
+
+Transférer uniquement ces fichiers/dossiers vers `/var/www/watchr/backend/` (ou votre chemin) :
+
+**Fichiers requis :**
+- `package.json` - Dépendances
+- `package-lock.yaml` - Versions exactes des dépendances
+- `ecosystem.config.cjs` - Configuration PM2 (extension .cjs car le projet est en ESM)
+- `.env` - Variables d'environnement (créé manuellement sur le serveur)
+- `dist/` - Dossier contenant le code compilé (tout le dossier)
+
+**Dossiers optionnels mais recommandés :**
+- `uploads/` - Dossier pour les uploads (créer avec permissions d'écriture)
+- `logs/` - Dossier pour les logs PM2 (créer avec permissions d'écriture)
+
+**Ne PAS transférer :**
+- `node_modules/` - Installé sur le serveur
+- `src/` - Code source (non compilé)
+- `tests/` - Tests (inutiles en prod)
+- `scripts/` - Scripts de dev/diagnostic (inutiles en prod)
+- `dist/scripts/` - Scripts compilés (inutiles en prod)
+- `dist/tests/` - Tests compilés (inutiles en prod)
+- `.cache/` - Cache de build
+- `tsconfig.json` - Config TypeScript (inutile en prod)
+
+#### 3. Nettoyage du dossier dist (optionnel mais recommandé)
 
 ```bash
-# Dans apps/backend/
-pm2 start ecosystem.config.js --env production
+# Supprimer les dossiers inutiles avant transfert
+rm -rf apps/backend/dist/scripts
+rm -rf apps/backend/dist/tests
 ```
 
-### 3. Vérification de l'état
+#### 4. Transfert via SCP (exemple)
+
+```bash
+# Depuis votre machine locale
+scp -r apps/backend/dist user@your-server:/var/www/watchr/backend/
+scp apps/backend/package.json user@your-server:/var/www/watchr/backend/
+scp apps/backend/package-lock.yaml user@your-server:/var/www/watchr/backend/
+scp apps/backend/ecosystem.config.cjs user@your-server:/var/www/watchr/backend/
+
+# Créer les dossiers nécessaires sur le serveur
+ssh user@your-server
+mkdir -p /var/www/watchr/backend/uploads
+mkdir -p /var/www/watchr/backend/logs
+```
+
+#### 4. Installation des dépendances (sur le serveur)
+
+```bash
+# SSH sur le serveur
+ssh user@your-server
+cd /var/www/watchr/backend
+
+# Installer les dépendances
+pnpm install --prod
+```
+
+#### 5. Création du fichier .env (sur le serveur)
+
+```bash
+# Créer le fichier .env avec les variables de production
+nano .env
+# ou vim .env
+```
+
+#### 6. Démarrage avec PM2 (sur le serveur)
+
+```bash
+# Démarrer les processus
+pm2 start ecosystem.config.js --env production
+
+# Sauvegarder la configuration
+pm2 save
+
+# Configurer le démarrage automatique
+pm2 startup
+```
+
+### 7. Vérification de l'état
 
 ```bash
 # Voir tous les processus
@@ -60,32 +140,35 @@ pm2 logs watchr-import-worker
 pm2 logs watchr-episode-sync-worker
 ```
 
-### 4. Sauvegarde de la configuration PM2
-
-```bash
-pm2 save
-pm2 startup
-```
-
 ## Processus de mise à jour
 
 ### Méthode recommandée : Zero-downtime reload
 
 ```bash
-# Build
+# 1. Build en local
 pnpm --filter backend build
 
-# Reload gracieux (sans arrêt)
+# 2. Transférer le dossier dist sur le serveur
+scp -r apps/backend/dist user@your-server:/var/www/watchr/backend/
+
+# 3. Reload gracieux sur le serveur (sans arrêt)
+ssh user@your-server
+cd /var/www/watchr/backend
 pm2 reload ecosystem.config.js --env production
 ```
 
 ### Méthode alternative : Redémarrage complet
 
 ```bash
-# Build
+# 1. Build en local
 pnpm --filter backend build
 
-# Arrêt et redémarrage
+# 2. Transférer le dossier dist sur le serveur
+scp -r apps/backend/dist user@your-server:/var/www/watchr/backend/
+
+# 3. Arrêt et redémarrage sur le serveur
+ssh user@your-server
+cd /var/www/watchr/backend
 pm2 stop ecosystem.config.js
 pm2 start ecosystem.config.js --env production
 pm2 save
@@ -93,7 +176,7 @@ pm2 save
 
 ## Gestion des logs
 
-Les logs sont stockés dans `apps/backend/logs/` :
+Les logs sont stockés dans `/var/www/watchr/backend/logs/` (sur le serveur) :
 
 - `api-error.log` - Erreurs de l'API
 - `api-out.log` - Sortie standard de l'API
@@ -161,8 +244,15 @@ Le fichier `ecosystem.config.js` définit 3 processus :
 
 ## Déploiement en environnement de développement
 
+Pour le développement, utilisez plutôt `pnpm --filter backend dev` qui utilise tsx en watch mode.
+
+Si vous voulez tout de même utiliser PM2 en dev :
+
 ```bash
-# Sans build (utilise tsx en watch)
+# Build (optionnel en dev, tsx peut compiler à la volée)
+pnpm --filter backend build
+
+# Démarrage avec PM2 en mode dev
 pm2 start ecosystem.config.js --env development
 ```
 

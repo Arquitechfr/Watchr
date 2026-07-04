@@ -39,6 +39,7 @@ const fr = {
     news: "Actus",
     unwatched: "À voir",
     upcoming: "À venir",
+    library: "Bibliothèque",
   },
   auth: {
     loginTitle: "Connexion",
@@ -82,6 +83,15 @@ const fr = {
       empty: "Aucune série",
       addFromSearch: "Ajoute des séries depuis l'onglet Recherche.",
     },
+    series: {
+      viewAll: "Voir toutes mes séries",
+    },
+    movies: {
+      viewAll: "Voir tous mes films",
+    },
+    library: {
+      emptyTitle: "Aucune série ou film",
+    },
     profile: {
       title: "Gère ton compte et tes préférences.",
       language: "Langue",
@@ -124,6 +134,7 @@ const fr = {
       droppedStatus: "Série marquée comme abandonnée",
       resumedStatus: "Série reprise",
       statusError: "Impossible de modifier le statut",
+      episodesWatched: "{{count}} épisodes regardés",
     },
     comments: {
       title: "Commentaires",
@@ -249,6 +260,7 @@ const en = {
     news: "News",
     unwatched: "Unwatched",
     upcoming: "Upcoming",
+    library: "Library",
   },
   auth: {
     loginTitle: "Login",
@@ -292,6 +304,15 @@ const en = {
       empty: "No series",
       addFromSearch: "Add shows from the Search tab.",
     },
+    series: {
+      viewAll: "View all my series",
+    },
+    movies: {
+      viewAll: "View all my movies",
+    },
+    library: {
+      emptyTitle: "No series or movies",
+    },
     profile: {
       title: "Manage your account and preferences.",
       language: "Language",
@@ -334,6 +355,7 @@ const en = {
       droppedStatus: "Show marked as dropped",
       resumedStatus: "Show resumed",
       statusError: "Unable to change status",
+      episodesWatched: "{{count}} episodes watched",
     },
     comments: {
       title: "Comments",

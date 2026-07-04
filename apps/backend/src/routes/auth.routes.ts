@@ -10,6 +10,11 @@ import {
   updateLanguage,
 } from "../services/auth.service.js";
 import {
+  buildGoogleAuthUrl,
+  createOAuthState,
+  handleGoogleCallback,
+} from "../services/googleOAuth.service.js";
+import {
   firebaseLoginSchema,
   loginSchema,
   logoutSchema,
@@ -71,6 +76,56 @@ router.post(
     const { idToken } = req.body;
     const tokens = await loginWithFirebase(idToken);
     res.json(tokens);
+  }),
+);
+
+const googleInitSchema = z.object({
+  appRedirect: z.string().min(1),
+});
+
+router.post(
+  "/google/init",
+  authRateLimiter,
+  validateRequest(googleInitSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { appRedirect } = req.body as { appRedirect: string };
+    const state = await createOAuthState(appRedirect);
+    const authUrl = buildGoogleAuthUrl(state);
+    res.json({ authUrl });
+  }),
+);
+
+router.get(
+  "/google/callback",
+  authRateLimiter,
+  asyncHandler(async (req: Request, res: Response) => {
+    const { code, state, error } = req.query as {
+      code?: string;
+      state?: string;
+      error?: string;
+    };
+
+    if (error) {
+      res.status(400).json({
+        error: { code: "GOOGLE_OAUTH_ERROR", message: String(error) },
+      });
+      return;
+    }
+
+    if (!code || !state) {
+      res.status(400).json({
+        error: { code: "MISSING_PARAMS", message: "Missing code or state" },
+      });
+      return;
+    }
+
+    const result = await handleGoogleCallback(code, state);
+
+    const redirectUrl = new URL(result.appRedirect);
+    redirectUrl.searchParams.set("accessToken", result.accessToken);
+    redirectUrl.searchParams.set("refreshToken", result.refreshToken);
+
+    res.redirect(302, redirectUrl.toString());
   }),
 );
 

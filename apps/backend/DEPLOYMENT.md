@@ -24,6 +24,9 @@ JWT_ACCESS_SECRET=your_access_secret
 JWT_REFRESH_SECRET=your_refresh_secret
 TMDB_API_KEY=your_tmdb_key
 FIREBASE_SERVICE_ACCOUNT_KEY=your_firebase_key
+GOOGLE_WEB_CLIENT_ID=your_google_web_client_id
+GOOGLE_WEB_CLIENT_SECRET=your_google_web_client_secret
+PUBLIC_URL=https://api.watchr.app
 CORS_ORIGINS=https://your-frontend-domain.com,https://another-domain.com
 ```
 

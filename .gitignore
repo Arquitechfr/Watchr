@@ -38,3 +38,7 @@ tmp/
 
 # Backend cache
 .cache/
+
+# Google Services (Firebase)
+apps/mobile/GoogleService-Info.plist
+apps/mobile/google-services.json

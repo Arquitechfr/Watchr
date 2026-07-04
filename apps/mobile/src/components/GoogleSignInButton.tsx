@@ -1,7 +1,6 @@
 import { useCallback, useState } from "react";
 import { Text, TouchableOpacity, ActivityIndicator } from "react-native";
-import { useGoogleAuthRequest } from "../services/googleAuth.service";
-import { loginWithGoogle } from "../services/auth.service";
+import { useGoogleAuth, type AuthTokens } from "../services/googleAuth.service";
 import { useAuthStore } from "../store/authStore";
 import { useUIStore } from "../store/uiStore";
 import { useErrorMessage } from "../services/api";
@@ -21,11 +20,9 @@ export function GoogleSignInButton({ label }: GoogleSignInButtonProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSuccess = useCallback(
-    async (idToken: string) => {
+    async (tokens: AuthTokens) => {
       setIsSubmitting(true);
       try {
-        log("GoogleSignInButton", "backend login");
-        const tokens = await loginWithGoogle(idToken);
         await setTokens(tokens.accessToken, tokens.refreshToken);
         log("GoogleSignInButton", "tokens persisted");
         showSnackbar(t("auth.connectedWithGoogle"), "success");
@@ -47,7 +44,7 @@ export function GoogleSignInButton({ label }: GoogleSignInButtonProps) {
     [showSnackbar],
   );
 
-  const { prompt, isLoading } = useGoogleAuthRequest(handleSuccess, handleError);
+  const { prompt, isLoading } = useGoogleAuth(handleSuccess, handleError);
   const disabled = isLoading || isSubmitting;
 
   return (

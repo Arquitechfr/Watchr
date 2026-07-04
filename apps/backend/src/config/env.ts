@@ -15,6 +15,9 @@ const envSchema = z.object({
   JWT_REFRESH_SECRET: z.string().min(1, "JWT_REFRESH_SECRET is required"),
   TMDB_API_KEY: z.string().min(1, "TMDB_API_KEY is required"),
   FIREBASE_SERVICE_ACCOUNT_KEY: z.string().min(1, "FIREBASE_SERVICE_ACCOUNT_KEY is required"),
+  GOOGLE_WEB_CLIENT_ID: z.string().min(1, "GOOGLE_WEB_CLIENT_ID is required"),
+  GOOGLE_WEB_CLIENT_SECRET: z.string().min(1, "GOOGLE_WEB_CLIENT_SECRET is required"),
+  PUBLIC_URL: z.string().min(1, "PUBLIC_URL is required (e.g. https://api.watchr.app)"),
 });
 
 const parsed = envSchema.safeParse(process.env);

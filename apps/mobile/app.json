@@ -32,16 +32,6 @@
       "favicon": "./assets/favicon.png"
     },
     "extra": {
-      "apiUrl": "http://192.168.1.20:4500",
-      "firebase": {
-        "apiKey": "AIzaSyB9mfMDceZpn9Q93CUicDgOijy0RhA7d38",
-        "authDomain": "watchr-37257.firebaseapp.com",
-        "projectId": "watchr-37257",
-        "storageBucket": "watchr-37257.firebasestorage.app",
-        "messagingSenderId": "419719991485",
-        "appId": "1:419719991485:web:8320dfd85d8c4b8bc6a7d4",
-        "clientId": "419719991485-39v3i34o5mmnbp4g5aujfu6mcglepm08.apps.googleusercontent.com"
-      },
       "eas": {
         "projectId": "326c4789-7383-4a4c-9cd7-202f4bc90faf"
       }

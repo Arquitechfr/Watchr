@@ -1,24 +1,12 @@
-import Constants from "expo-constants";
 import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { auth } from "../config/firebase";
 import { log } from "../utils/logger";
 
-interface FirebaseConfig {
-  apiKey: string;
-  authDomain: string;
-  projectId: string;
-  storageBucket: string;
-  messagingSenderId: string;
-  appId: string;
-  clientId: string;
-}
-
 function getWebClientId(): string {
-  const config = Constants.expoConfig?.extra?.firebase as FirebaseConfig | undefined;
-  const clientId = config?.clientId;
+  const clientId = process.env.EXPO_PUBLIC_FIREBASE_CLIENT_ID;
   if (!clientId) {
-    throw new Error("Missing Google Web client ID in app.json extra.firebase.clientId");
+    throw new Error("Missing EXPO_PUBLIC_FIREBASE_CLIENT_ID in .env");
   }
   return clientId;
 }

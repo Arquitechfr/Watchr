@@ -2,8 +2,9 @@ import { useState, useCallback } from "react";
 import Constants from "expo-constants";
 import { log } from "../utils/logger";
 import { loginWithGoogle } from "./auth.service";
-import { signInWithGoogleNative } from "./googleSignInNative.service";
 import { signInWithGoogleWeb } from "./googleAuthWeb.service";
+
+declare const require: (id: string) => { signInWithGoogleNative: () => Promise<string> };
 
 export interface AuthTokens {
   accessToken: string;
@@ -34,6 +35,7 @@ export function useGoogleAuth(
         onSuccess(tokens);
       } else {
         log("GoogleAuth", "using native flow (dev build)");
+        const { signInWithGoogleNative } = require("./googleSignInNative.service");
         const idToken = await signInWithGoogleNative();
         const tokens = await loginWithGoogle(idToken);
         onSuccess(tokens);

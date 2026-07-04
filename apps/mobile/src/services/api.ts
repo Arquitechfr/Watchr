@@ -1,12 +1,11 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
-import Constants from "expo-constants";
 import * as SecureStore from "expo-secure-store";
 import { log } from "../utils/logger";
 import { useAuthStore, waitForHydration } from "../store/authStore";
 import { useLocaleStore } from "../store/localeStore";
 import { useI18n } from "../i18n/useI18n";
 
-const API_URL = (Constants.expoConfig?.extra?.apiUrl as string | undefined) ?? "http://localhost:4500";
+const API_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:4500";
 
 export const api = axios.create({
   baseURL: `${API_URL}/api`,

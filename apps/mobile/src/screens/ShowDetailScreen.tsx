@@ -7,6 +7,7 @@ import { useTrackingEntry } from "../hooks/useTrackingEntry";
 import { useUpsertTracking, useToggleEpisode, useMarkUpTo, useToggleDropped } from "../hooks/useTracking";
 import { useRatingsForShow, useUpsertRating } from "../hooks/useRatings";
 import { useCommentCount } from "../hooks/useComments";
+import { useShowDetailsRealtime } from "../hooks/useShowDetailsRealtime";
 import { useRefreshRateLimit } from "../hooks/useRefreshRateLimit";
 import { LazyEpisodeGrid } from "../components/LazyEpisodeGrid";
 import { RatingStars } from "../components/RatingStars";
@@ -65,6 +66,8 @@ export function ShowDetailScreen() {
   const upsertRating = useUpsertRating(show?.id ?? "");
   const toggleDropped = useToggleDropped(show?.id ?? "");
   const { data: commentCountData } = useCommentCount(show?.id ?? "");
+
+  useShowDetailsRealtime(show?.id ?? null);
 
   const [trackingModalVisible, setTrackingModalVisible] = useState(false);
 

@@ -1,4 +1,4 @@
-import { Text, TouchableOpacity, ActivityIndicator, View } from "react-native";
+import { Text, TouchableOpacity, ActivityIndicator, View, ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -74,6 +74,7 @@ export function ProfileScreen() {
 
   return (
     <ScreenContainer className="px-4 pt-6" edges={["top", "left", "right"]}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerClassName="pb-24">
       <View className="items-center mb-8">
         <Avatar url={me?.avatarUrl} size={80} />
         <Text className="text-text text-lg font-bold mt-3">{me?.username ?? "..."}</Text>
@@ -128,6 +129,7 @@ export function ProfileScreen() {
           <Text className="text-text font-semibold">{t("screens.profile.logout")}</Text>
         )}
       </TouchableOpacity>
+      </ScrollView>
     </ScreenContainer>
   );
 }

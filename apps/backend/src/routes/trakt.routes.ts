@@ -3,6 +3,7 @@ import { requireAuth } from "../middleware/requireAuth.middleware.js";
 import { asyncHandler } from "../lib/asyncHandler.js";
 import { ApiError } from "../middleware/error.middleware.js";
 import { env } from "../config/env.js";
+import { log, logError } from "../lib/logger.js";
 import {
   getTraktAuthUrl,
   linkTraktAccount,
@@ -10,6 +11,8 @@ import {
   getTraktLink,
   toggleTraktAutoSync,
   syncFromTrakt,
+  exchangeTraktCode,
+  getTraktUsername,
 } from "../services/trakt.service.js";
 import { z } from "zod";
 import { validateRequest } from "../validators/validateRequest.js";
@@ -38,13 +41,33 @@ router.get(
   "/callback",
   asyncHandler(async (req: Request, res: Response) => {
     const { code, state } = req.query as { code?: string; state?: string };
+    log("TraktCallback", "received", {
+      query: req.query,
+      originalUrl: req.originalUrl,
+      headers: { host: req.headers.host, referer: req.headers.referer },
+    });
     if (!code) {
+      logError("TraktCallback", "missing code", "No code in query", { query: req.query });
       res.status(400).send("Missing authorization code");
       return;
     }
     const userId = state;
     if (!userId) {
-      res.status(400).send("Missing state parameter");
+      log("TraktCallback", "no state — assuming Trakt test authorize", { code });
+      try {
+        const tokens = await exchangeTraktCode(code);
+        const username = await getTraktUsername(tokens.access_token);
+        log("TraktCallback", "test authorize success", { username });
+        res.status(200).send(
+          `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Trakt OAuth Test</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0a0a0a;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}.container{background:#1a1a1a;border-radius:12px;max-width:500px;width:100%;padding:40px;text-align:center}.icon{font-size:3rem;margin-bottom:16px}h1{font-size:1.5rem;margin-bottom:8px}.detail{color:#888;margin-top:12px;font-size:0.9rem}</style></head><body><div class="container"><div class="icon">&#9989;</div><h1>Trakt OAuth Test Successful</h1><p>Redirect URI and credentials are valid.</p><p class="detail">Authenticated as: <strong>${username}</strong></p></div></body></html>`,
+        );
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Unknown error";
+        logError("TraktCallback", "test authorize failed", message, { code });
+        res.status(200).send(
+          `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Trakt OAuth Test</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0a0a0a;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}.container{background:#1a1a1a;border-radius:12px;max-width:500px;width:100%;padding:40px;text-align:center}.icon{font-size:3rem;margin-bottom:16px}h1{font-size:1.5rem;margin-bottom:8px}.detail{color:#888;margin-top:12px;font-size:0.9rem}</style></head><body><div class="container"><div class="icon">&#10060;</div><h1>Trakt OAuth Test Failed</h1><p class="detail">${message}</p></div></body></html>`,
+        );
+      }
       return;
     }
     try {
@@ -52,6 +75,7 @@ router.get(
       res.redirect(302, `watchr://trakt/callback?username=${encodeURIComponent(link.traktUsername)}`);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Unknown error";
+      logError("TraktCallback", "link failed", message, { userId });
       res.redirect(302, `watchr://trakt/callback?error=${encodeURIComponent(message)}`);
     }
   }),

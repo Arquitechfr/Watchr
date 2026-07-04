@@ -2,7 +2,6 @@ import { useEffect, useState, useRef } from "react";
 import { ActivityIndicator, Linking } from "react-native";
 import { NavigationContainer, LinkingOptions } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import * as Notifications from "expo-notifications";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { useAuthStore } from "../store/authStore";
 import { colors } from "../theme/colors";
@@ -20,6 +19,7 @@ import { ProfileNotificationsScreen } from "../screens/profile/ProfileNotificati
 import { ProfileAboutScreen } from "../screens/profile/ProfileAboutScreen";
 import { usePushNotifications } from "../hooks/usePushNotifications";
 import { log } from "../utils/logger";
+import { isStandaloneBuild } from "../utils/platform";
 import { ResetPasswordScreen } from "../screens/auth/ResetPasswordScreen";
 
 export type RootStackParamList = {
@@ -30,7 +30,7 @@ export type RootStackParamList = {
   EpisodeDetail: { showId: string; tmdbId: number; season: number; episodeNumber: number; title?: string };
   Import: undefined;
   Export: undefined;
-  Library: undefined;
+  Library: { tab?: "tv" | "movie" } | undefined;
   EditProfile: undefined;
   ProfileLanguage: undefined;
   ProfileNotifications: undefined;
@@ -56,34 +56,41 @@ export function RootNavigator() {
   }, [hydrate]);
 
   useEffect(() => {
-    const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
-      const data = response.notification.request.content.data as {
-        screen?: string;
-        showId?: string;
-        tmdbId?: number;
-        season?: number;
-        episode?: number;
-      };
-      log("RootNavigator", "push notification tapped", { data });
+    if (!isStandaloneBuild()) return;
 
-      if (!data?.screen || !navigationRef.current) return;
+    let subscription: import("expo-notifications").Subscription | undefined;
 
-      if (data.screen === "comments" && data.showId) {
-        navigationRef.current.navigate("ShowComments", {
-          showId: data.showId,
-          title: "",
-          season: data.season,
-          episode: data.episode,
-        });
-      } else if (data.screen === "show" && data.tmdbId) {
-        navigationRef.current.navigate("ShowDetail", {
-          tmdbId: data.tmdbId,
-          title: "",
-        });
-      }
-    });
+    (async () => {
+      const Notifications = await import("expo-notifications");
+      subscription = Notifications.addNotificationResponseReceivedListener((response) => {
+        const data = response.notification.request.content.data as {
+          screen?: string;
+          showId?: string;
+          tmdbId?: number;
+          season?: number;
+          episode?: number;
+        };
+        log("RootNavigator", "push notification tapped", { data });
 
-    return () => subscription.remove();
+        if (!data?.screen || !navigationRef.current) return;
+
+        if (data.screen === "comments" && data.showId) {
+          navigationRef.current.navigate("ShowComments", {
+            showId: data.showId,
+            title: "",
+            season: data.season,
+            episode: data.episode,
+          });
+        } else if (data.screen === "show" && data.tmdbId) {
+          navigationRef.current.navigate("ShowDetail", {
+            tmdbId: data.tmdbId,
+            title: "",
+          });
+        }
+      });
+    })();
+
+    return () => subscription?.remove();
   }, [isAuthenticated]);
 
   const linking: LinkingOptions<RootStackParamList> = {

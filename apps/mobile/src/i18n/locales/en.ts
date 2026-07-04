@@ -306,6 +306,15 @@ const en = {
     serverError: "Oops, something went wrong",
     serverErrorSubtitle: "The server encountered an error. Please try again in a moment.",
   },
+  websocket: {
+    reconnecting: "Reconnecting…",
+    connected: "Connected",
+    disconnected: "Disconnected",
+  },
+  notifications: {
+    newNotification: "New notification",
+    newArticlesAvailable: "New articles available",
+  },
 };
 
 export default en;

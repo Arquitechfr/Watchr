@@ -304,6 +304,15 @@ const fr = {
     serverError: "Oups, un problème est survenu",
     serverErrorSubtitle: "Le serveur a rencontré une erreur. Réessaie dans un moment.",
   },
+  websocket: {
+    reconnecting: "Reconnexion…",
+    connected: "Connecté",
+    disconnected: "Déconnecté",
+  },
+  notifications: {
+    newNotification: "Nouvelle notification",
+    newArticlesAvailable: "Nouveaux articles disponibles",
+  },
 };
 
 export default fr;

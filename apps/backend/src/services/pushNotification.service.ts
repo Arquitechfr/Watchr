@@ -5,6 +5,7 @@ import { User } from "../models/user.model.js";
 import { NotificationPreferences } from "../models/user.model.js";
 import { translateNotification } from "../i18n/index.js";
 import { SupportedLocale, DEFAULT_LOCALE } from "../i18n/translations.js";
+import { wsEvents } from "../lib/wsEvents.js";
 
 const EXPO_PUSH_URL = "https://exp.host/--/api/v2/push/send";
 
@@ -121,10 +122,14 @@ export const PushNotificationService = {
     const title = translateNotification("commentReplyTitle", resolvedLocale);
     const body = translateNotification("commentReplyBody", resolvedLocale, { author: replyAuthor, show: showTitle });
 
-    await sendToUser(parentUserId, title, body, {
-      screen: "comments",
-      showId,
+    const data = { screen: "comments", showId };
+
+    wsEvents.emit("notification:new", {
+      userId: parentUserId,
+      notification: { type: "commentReply", title, body, data, createdAt: new Date().toISOString() },
     });
+
+    await sendToUser(parentUserId, title, body, data);
   },
 
   async notifyCommentReaction(
@@ -146,10 +151,14 @@ export const PushNotificationService = {
       show: showTitle,
     });
 
-    await sendToUser(commentOwnerId, title, body, {
-      screen: "comments",
-      showId,
+    const data = { screen: "comments", showId };
+
+    wsEvents.emit("notification:new", {
+      userId: commentOwnerId,
+      notification: { type: "commentReaction", title, body, data, createdAt: new Date().toISOString() },
     });
+
+    await sendToUser(commentOwnerId, title, body, data);
   },
 
   async notifyCommentLike(
@@ -169,10 +178,14 @@ export const PushNotificationService = {
       show: showTitle,
     });
 
-    await sendToUser(commentOwnerId, title, body, {
-      screen: "comments",
-      showId,
+    const data = { screen: "comments", showId };
+
+    wsEvents.emit("notification:new", {
+      userId: commentOwnerId,
+      notification: { type: "commentLike", title, body, data, createdAt: new Date().toISOString() },
     });
+
+    await sendToUser(commentOwnerId, title, body, data);
   },
 
   async notifyNewEpisode(
@@ -195,13 +208,14 @@ export const PushNotificationService = {
       episode,
     });
 
-    await sendToUser(userId, title, body, {
-      screen: "show",
-      tmdbId,
-      showId,
-      season,
-      episode,
+    const data = { screen: "show", tmdbId, showId, season, episode };
+
+    wsEvents.emit("notification:new", {
+      userId,
+      notification: { type: "newEpisode", title, body, data, createdAt: new Date().toISOString() },
     });
+
+    await sendToUser(userId, title, body, data);
   },
 
   async notifyNewRelease(
@@ -218,10 +232,13 @@ export const PushNotificationService = {
     const title = translateNotification("newReleaseTitle", resolvedLocale);
     const body = translateNotification("newReleaseBody", resolvedLocale, { show: showTitle });
 
-    await sendToUser(userId, title, body, {
-      screen: "show",
-      tmdbId,
-      showId,
+    const data = { screen: "show", tmdbId, showId };
+
+    wsEvents.emit("notification:new", {
+      userId,
+      notification: { type: "newRelease", title, body, data, createdAt: new Date().toISOString() },
     });
+
+    await sendToUser(userId, title, body, data);
   },
 };

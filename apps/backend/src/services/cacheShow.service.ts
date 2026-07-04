@@ -14,6 +14,7 @@ import {
 } from "./tmdb.service.js";
 import { invalidateRedisPattern, setRedisValue, getRedisValue, deleteRedisKey } from "../lib/redis.js";
 import { log, logError } from "../lib/logger.js";
+import { wsEvents } from "../lib/wsEvents.js";
 
 export type ShowDocument = HydratedDocument<IShow>;
 
@@ -339,6 +340,11 @@ export async function refreshShowFromTmdb(tmdbId: number, language = "en-US"): P
   if (show.type === "tv") {
     await syncEpisodesForShow(show, language);
   }
+
+  wsEvents.emit("show:updated", {
+    showId: show._id.toString(),
+    updatedAt: new Date().toISOString(),
+  });
 
   return show;
 }

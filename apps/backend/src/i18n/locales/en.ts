@@ -42,6 +42,8 @@ const en = {
     newEpisodeBody: "{{show}} — S{{season}}E{{episode}} is now available",
     newReleaseTitle: "New release",
     newReleaseBody: "{{show}} is now available",
+    newNotification: "New notification",
+    newArticlesAvailable: "New articles available",
   },
   emails: {
     welcomeSubject: "Welcome to Watchr!",
@@ -53,6 +55,11 @@ const en = {
     resetPasswordBody: "You requested a password reset. Click the button below to choose a new password. This link expires in 15 minutes.",
     resetPasswordCta: "Reset password",
     resetPasswordFooter: "If you didn't request this reset, ignore this email.",
+  },
+  websocket: {
+    reconnecting: "Reconnecting…",
+    connected: "Connected",
+    disconnected: "Disconnected",
   },
 };
 

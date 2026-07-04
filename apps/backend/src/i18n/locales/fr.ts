@@ -42,6 +42,8 @@ const fr = {
     newEpisodeBody: "{{show}} — S{{season}}E{{episode}} est maintenant disponible",
     newReleaseTitle: "Nouvelle sortie",
     newReleaseBody: "{{show}} est maintenant disponible",
+    newNotification: "Nouvelle notification",
+    newArticlesAvailable: "Nouveaux articles disponibles",
   },
   emails: {
     welcomeSubject: "Bienvenue sur Watchr !",
@@ -53,6 +55,11 @@ const fr = {
     resetPasswordBody: "Vous avez demandé à réinitialiser votre mot de passe. Cliquez sur le bouton ci-dessous pour choisir un nouveau mot de passe. Ce lien expire dans 15 minutes.",
     resetPasswordCta: "Réinitialiser le mot de passe",
     resetPasswordFooter: "Si vous n'avez pas demandé cette réinitialisation, ignorez cet email.",
+  },
+  websocket: {
+    reconnecting: "Reconnexion…",
+    connected: "Connecté",
+    disconnected: "Déconnecté",
   },
 };
 

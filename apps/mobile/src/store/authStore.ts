@@ -54,9 +54,13 @@ export const useAuthStore = create<AuthState>((set) => ({
     const userId = decodeJwtUserId(accessToken);
     set({ accessToken, userId, isAuthenticated: true });
     log("AuthStore", "tokens saved");
+    const { websocketService } = await import("../services/websocket.service");
+    websocketService.connect();
   },
 
   logout: async () => {
+    const { websocketService } = await import("../services/websocket.service");
+    websocketService.disconnect();
     await SecureStore.deleteItemAsync("accessToken");
     await SecureStore.deleteItemAsync("refreshToken");
     set({ accessToken: null, userId: null, isAuthenticated: false });
@@ -76,6 +80,10 @@ export const useAuthStore = create<AuthState>((set) => ({
         isAuthenticated,
         isHydrated: true,
       });
+      if (isAuthenticated) {
+        const { websocketService } = await import("../services/websocket.service");
+        websocketService.connect();
+      }
     } catch (err) {
       log("AuthStore", "hydrate error", err);
       set({ accessToken: null, userId: null, isAuthenticated: false, isHydrated: true });

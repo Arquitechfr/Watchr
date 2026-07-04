@@ -333,10 +333,17 @@ export function createApp(): Application {
   app.use("/api/import", importRoutes);
   app.use("/api/export", exportRoutes);
   app.use("/api/trakt", traktRoutes);
+  app.use("/import/trakt", traktRoutes);
   app.use("/api/images", imageRoutes);
   app.use("/api/comments", commentRoutes);
   app.use("/api/news", newsRoutes);
   app.use("/api/uploads", uploadRoutes);
+
+  app.get("/metrics", async (_req: Request, res: Response) => {
+    const { getMetrics, getMetricsContentType } = await import("./lib/wsMetrics.js");
+    res.set("Content-Type", getMetricsContentType());
+    res.send(await getMetrics());
+  });
 
   app.use((req: Request, res: Response) => {
     res.status(404).json({

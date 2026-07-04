@@ -20,6 +20,7 @@ import {
   useAddReaction,
   useRemoveReaction,
 } from "../hooks/useComments";
+import { useCommentsRealtime } from "../hooks/useCommentsRealtime";
 import { RootStackParamList } from "../navigation/RootNavigator";
 import { log } from "../utils/logger";
 import { useI18n } from "../i18n/useI18n";
@@ -34,6 +35,8 @@ export function ShowCommentsScreen() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const { showSnackbar } = useUIStore();
   const { t } = useI18n();
+
+  useCommentsRealtime(showId);
 
   const query = season !== undefined && episode !== undefined ? { season, episode } : undefined;
   const { data, isLoading, refetch } = useCommentsForShow(showId, query);

@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import { env } from "./config/env.js";
 import { createApp } from "./app.js";
 import { connectRedis } from "./lib/redis.js";
+import { createWsServer } from "./lib/wsServer.js";
 
 const app = createApp();
 
@@ -17,8 +18,17 @@ async function startServer() {
       console.log(`Server running on port ${env.PORT} in ${env.NODE_ENV} mode`);
     });
 
+    const io = createWsServer(server);
+    console.log("WebSocket server initialized");
+
+    const { createWsHealthcheckRouter } = await import("./lib/wsHealthcheck.js");
+    app.use("/health", createWsHealthcheckRouter(io));
+
     const gracefulShutdown = async (signal: string) => {
       console.log(`\n${signal} received, shutting down gracefully...`);
+      io.close(() => {
+        console.log("WebSocket server closed");
+      });
       server.close(async () => {
         await mongoose.disconnect();
         console.log("MongoDB disconnected");

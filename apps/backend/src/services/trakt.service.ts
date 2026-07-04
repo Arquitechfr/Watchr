@@ -54,7 +54,7 @@ interface TraktWatchlistEntry {
 
 export function getTraktAuthUrl(state: string): string {
   const clientId = env.TRAKT_CLIENT_ID;
-  const redirectUri = `${env.PUBLIC_URL}/import/trakt/callback`;
+  const redirectUri = `${env.PUBLIC_URL}/api/trakt/callback`;
   const params = new URLSearchParams({
     response_type: "code",
     client_id: clientId ?? "",
@@ -65,7 +65,7 @@ export function getTraktAuthUrl(state: string): string {
 }
 
 export async function exchangeTraktCode(code: string): Promise<TraktTokenResponse> {
-  const redirectUri = `${env.PUBLIC_URL}/import/trakt/callback`;
+  const redirectUri = `${env.PUBLIC_URL}/api/trakt/callback`;
   const response = await axios.post<TraktTokenResponse>(
     `${TRAKT_OAUTH_BASE}/token`,
     {

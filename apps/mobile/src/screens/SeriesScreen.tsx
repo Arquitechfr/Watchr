@@ -171,7 +171,7 @@ function UnwatchedList({
     .sort((a, b) => b.unwatchedEpisodes.length - a.unwatchedEpisodes.length);
 
   const otherShows = shows
-    .filter((s) => !(s.status === "watching" && (s.unwatchedEpisodes.length > 0 || upcomingShowIds.has(s.showId))) && s.unwatchedEpisodes.length > 0)
+    .filter((s) => !(s.status === "watching" && (s.unwatchedEpisodes.length > 0 || upcomingShowIds.has(s.showId))))
     .sort((a, b) => b.unwatchedEpisodes.length - a.unwatchedEpisodes.length);
 
   log("SeriesScreen:UnwatchedList", "activeShows", activeShows.map((s) => ({ title: s.title, unwatchedCount: s.unwatchedEpisodes.length, hasUpcoming: upcomingShowIds.has(s.showId) })));

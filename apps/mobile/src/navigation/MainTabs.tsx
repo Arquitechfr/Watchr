@@ -1,6 +1,6 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
-import { View } from "react-native";
+import { View, Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { SeriesScreen } from "../screens/SeriesScreen";
 import { MoviesScreen } from "../screens/MoviesScreen";
@@ -9,6 +9,10 @@ import { NewsScreen } from "../screens/NewsScreen";
 import { ProfileScreen } from "../screens/ProfileScreen";
 import { colors } from "../theme/colors";
 import { useI18n } from "../i18n/useI18n";
+import { useRealtimeNotifications } from "../hooks/useRealtimeNotifications";
+import { useTrackingRealtime } from "../hooks/useTrackingRealtime";
+import { useUpcomingRealtime } from "../hooks/useUpcomingRealtime";
+import { useNotificationStore } from "../store/notificationStore";
 
 export type MainTabsParamList = {
   Series: undefined;
@@ -45,6 +49,36 @@ export function MainTabs() {
   const { t } = useI18n();
   const insets = useSafeAreaInsets();
   const tabBarHeight = 64 + insets.bottom;
+
+  useRealtimeNotifications();
+  useTrackingRealtime();
+  useUpcomingRealtime();
+  const unreadCount = useNotificationStore((s) => s.unreadCount);
+
+  function NotificationBadge() {
+    if (unreadCount === 0) return null;
+    return (
+      <View
+        style={{
+          position: "absolute",
+          top: 4,
+          right: 10,
+          backgroundColor: colors.primary,
+          borderRadius: 10,
+          minWidth: 20,
+          height: 20,
+          paddingHorizontal: 4,
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Text style={{ color: colors.background, fontSize: 11, fontWeight: "700" }}>
+          {unreadCount > 99 ? "99+" : unreadCount}
+        </Text>
+      </View>
+    );
+  }
+
   return (
     <Tab.Navigator
       initialRouteName="Series"
@@ -101,7 +135,12 @@ export function MainTabs() {
         component={ProfileScreen}
         options={{
           tabBarLabel: t("navigation.profile"),
-          tabBarIcon: ({ color, size }) => <Ionicons name="person" size={size} color={color} />,
+          tabBarIcon: ({ color, size }) => (
+            <View>
+              <Ionicons name="person" size={size} color={color} />
+              <NotificationBadge />
+            </View>
+          ),
         }}
       />
     </Tab.Navigator>

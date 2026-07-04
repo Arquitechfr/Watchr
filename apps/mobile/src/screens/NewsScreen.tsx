@@ -5,6 +5,7 @@ import { EmptyState } from "../components/EmptyState";
 import { NetworkError } from "../components/NetworkError";
 import { Skeleton } from "../components/Skeleton";
 import { useNews, useNewsSources } from "../hooks/useNews";
+import { useNewsRealtime } from "../hooks/useNewsRealtime";
 import { useRefreshRateLimit } from "../hooks/useRefreshRateLimit";
 import { NewsSource } from "../services/news.service";
 import { colors } from "../theme/colors";
@@ -17,6 +18,8 @@ export function NewsScreen() {
   const [selectedSource, setSelectedSource] = useState("allocine-news");
   const { data, isLoading, isError, error, refetch } = useNews(selectedSource);
   const throttledRefresh = useRefreshRateLimit();
+
+  useNewsRealtime();
 
   return (
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]}>

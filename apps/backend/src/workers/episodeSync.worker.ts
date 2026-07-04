@@ -6,6 +6,7 @@ import { WatchEntry } from "../models/watchEntry.model.js";
 import { Show } from "../models/show.model.js";
 import { refreshShowFromTmdb, syncEpisodesForShow } from "../services/cacheShow.service.js";
 import { tmdbService } from "../services/tmdb.service.js";
+import { wsEvents } from "../lib/wsEvents.js";
 
 export const episodeSyncQueue = new Queue("episode-sync", { connection: redisConnection });
 
@@ -101,5 +102,12 @@ export async function syncEpisodesForShowById(showId: Types.ObjectId): Promise<v
     throw new Error("Show not found");
   }
   await syncEpisodesForShow(show);
+
+  const userIds = await WatchEntry.distinct("userId", { showId });
+  wsEvents.emit("upcoming:updated", { userIds: userIds.map(String) });
+  wsEvents.emit("show:updated", {
+    showId: show._id.toString(),
+    updatedAt: new Date().toISOString(),
+  });
 }
 

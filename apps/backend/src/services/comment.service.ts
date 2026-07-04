@@ -6,6 +6,7 @@ import { Show } from "../models/show.model.js";
 import { User } from "../models/user.model.js";
 import { ApiError } from "../middleware/error.middleware.js";
 import { PushNotificationService } from "./pushNotification.service.js";
+import { wsEvents } from "../lib/wsEvents.js";
 import { getShowTitle } from "../models/show.model.js";
 
 export interface CreateCommentInput {
@@ -226,6 +227,22 @@ export async function createComment(userId: string, input: CreateCommentInput) {
     }
   }
 
+  wsEvents.emit("comment:created", {
+    showId: input.showId,
+    comment: {
+      id: comment._id.toString(),
+      userId: comment.userId.toString(),
+      showId: comment.showId.toString(),
+      episodeRef: comment.episodeRef,
+      parentId: comment.parentId?.toString(),
+      content: comment.content,
+      images: comment.images,
+      likesCount: comment.likesCount,
+      createdAt: comment.createdAt.toISOString(),
+      updatedAt: comment.updatedAt.toISOString(),
+    },
+  });
+
   return {
     id: comment._id.toString(),
     userId: comment.userId.toString(),
@@ -245,6 +262,16 @@ export async function updateComment(userId: string, commentId: string, input: Up
   comment.content = input.content;
   comment.images = input.images ?? [];
   await comment.save();
+
+  wsEvents.emit("comment:updated", {
+    showId: comment.showId.toString(),
+    comment: {
+      id: comment._id.toString(),
+      content: comment.content,
+      images: comment.images,
+      updatedAt: comment.updatedAt.toISOString(),
+    },
+  });
 
   return {
     id: comment._id.toString(),
@@ -268,6 +295,11 @@ export async function deleteComment(userId: string, commentId: string) {
 
   await CommentLike.deleteMany({ commentId: { $in: allIds } });
   await Comment.deleteMany({ _id: { $in: allIds } });
+
+  wsEvents.emit("comment:deleted", {
+    showId: comment.showId.toString(),
+    commentId: commentId,
+  });
 }
 
 export async function listCommentsForShow(
@@ -368,6 +400,11 @@ export async function likeComment(userId: string, commentId: string) {
     });
     comment.likesCount += 1;
     await comment.save();
+    wsEvents.emit("comment:liked", {
+      showId: comment.showId.toString(),
+      commentId,
+      likesCount: comment.likesCount,
+    });
   } catch (err) {
     if (err && typeof err === "object" && "code" in err && err.code === 11000) {
       return;
@@ -407,6 +444,11 @@ export async function unlikeComment(userId: string, commentId: string) {
   if (result.deletedCount > 0) {
     comment.likesCount = Math.max(0, comment.likesCount - 1);
     await comment.save();
+    wsEvents.emit("comment:liked", {
+      showId: comment.showId.toString(),
+      commentId,
+      likesCount: comment.likesCount,
+    });
   }
 }
 
@@ -421,6 +463,11 @@ export async function addReaction(userId: string, commentId: string, emoji: stri
       userId: new Types.ObjectId(userId),
       commentId: new Types.ObjectId(commentId),
       emoji,
+    });
+    wsEvents.emit("comment:reaction", {
+      showId: comment.showId.toString(),
+      commentId,
+      reactions: { emoji, action: "add" },
     });
   } catch (err) {
     if (err && typeof err === "object" && "code" in err && err.code === 11000) {
@@ -476,5 +523,10 @@ export async function removeReaction(userId: string, commentId: string, emoji: s
     userId: new Types.ObjectId(userId),
     commentId: new Types.ObjectId(commentId),
     emoji,
+  });
+  wsEvents.emit("comment:reaction", {
+    showId: comment.showId.toString(),
+    commentId,
+    reactions: { emoji, action: "remove" },
   });
 }

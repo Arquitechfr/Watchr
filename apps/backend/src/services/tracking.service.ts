@@ -6,6 +6,7 @@ import { WatchStatus, WatchedEpisode } from "../models/watchEntry.model.js";
 import { getShowDetails } from "./show.service.js";
 import { getTranslationValue, ShowTranslation, Season } from "../models/show.model.js";
 import { log } from "../lib/logger.js";
+import { wsEvents } from "../lib/wsEvents.js";
 
 function isShowEnded(status?: string): boolean {
   return ["ended", "canceled", "cancelled"].includes(status?.toLowerCase() ?? "");
@@ -384,6 +385,7 @@ export async function upsertTracking(
     { new: true, upsert: true, setDefaultsOnInsert: true },
   );
 
+  wsEvents.emit("tracking:updated", { userId, showId });
   return entry;
 }
 
@@ -429,6 +431,7 @@ export async function toggleEpisode(
 
   entry.updatedAt = new Date();
   await entry.save();
+  wsEvents.emit("tracking:updated", { userId, showId });
   return entry;
 }
 
@@ -495,6 +498,7 @@ export async function markEpisodesUpTo(
     entry.status = calculateWatchStatus(show, entry);
   }
   await entry.save();
+  wsEvents.emit("tracking:updated", { userId, showId });
   return entry;
 }
 
@@ -506,6 +510,7 @@ export async function deleteTracking(userId: string, showId: string) {
   if (result.deletedCount === 0) {
     throw new ApiError(404, "TRACKING_NOT_FOUND", "Tracking entry not found");
   }
+  wsEvents.emit("tracking:updated", { userId, showId });
 }
 
 export interface UnwatchedEpisode {
@@ -734,5 +739,6 @@ export async function toggleDropped(userId: string, showId: string, dropped: boo
     : calculateWatchStatus(show, { watchedEpisodes: entry.watchedEpisodes });
   entry.updatedAt = new Date();
   await entry.save();
+  wsEvents.emit("tracking:updated", { userId, showId });
   return entry;
 }

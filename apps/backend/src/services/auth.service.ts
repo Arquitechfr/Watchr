@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { env } from "../config/env.js";
 import { firebaseAuth } from "../config/firebaseAdmin.js";
-import { User } from "../models/user.model.js";
+import { User, NotificationPreferences } from "../models/user.model.js";
 import { generateRefreshToken, hashToken } from "../lib/hashToken.js";
 import { generateUniqueUsername } from "../lib/usernameGenerator.js";
 import { uploadAvatar as uploadAvatarToS3 } from "../services/upload.service.js";
@@ -231,6 +231,15 @@ export async function unregisterPushToken(userId: string): Promise<void> {
   await User.updateOne({ _id: userId }, { $unset: { expoPushToken: "" } });
 }
 
+const DEFAULT_NOTIFICATION_PREFERENCES: NotificationPreferences = {
+  pushEnabled: true,
+  emailEnabled: true,
+  newReleases: true,
+  commentReplies: true,
+  commentReactions: true,
+  commentLikes: true,
+};
+
 export async function updateNotificationPreferences(
   userId: string,
   prefs: Partial<{
@@ -241,7 +250,7 @@ export async function updateNotificationPreferences(
     commentReactions: boolean;
     commentLikes: boolean;
   }>,
-): Promise<{ notificationPreferences: unknown }> {
+): Promise<{ notificationPreferences: NotificationPreferences }> {
   const user = await User.findByIdAndUpdate(
     userId,
     { $set: { "notificationPreferences": prefs } },
@@ -250,13 +259,13 @@ export async function updateNotificationPreferences(
   if (!user) {
     throw new ApiError(404, "USER_NOT_FOUND", "User not found");
   }
-  return { notificationPreferences: user.notificationPreferences };
+  return { notificationPreferences: user.notificationPreferences ?? DEFAULT_NOTIFICATION_PREFERENCES };
 }
 
-export async function getNotificationPreferences(userId: string): Promise<{ notificationPreferences: unknown }> {
+export async function getNotificationPreferences(userId: string): Promise<{ notificationPreferences: NotificationPreferences }> {
   const user = await User.findById(userId).select("notificationPreferences").lean();
   if (!user) {
     throw new ApiError(404, "USER_NOT_FOUND", "User not found");
   }
-  return { notificationPreferences: user.notificationPreferences };
+  return { notificationPreferences: user.notificationPreferences ?? DEFAULT_NOTIFICATION_PREFERENCES };
 }

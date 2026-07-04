@@ -5,6 +5,7 @@ import { Rating } from "../models/rating.model.js";
 import { ImportJob } from "../models/importJob.model.js";
 import { sleep } from "../lib/rateLimiter.js";
 import { ApiError } from "../middleware/error.middleware.js";
+import { wsEvents } from "../lib/wsEvents.js";
 import { ParsedRecord, ImportResult, ImportSource } from "./import/types.js";
 import { parseFile, detectSource, getParser, matchShow, extractImportFiles } from "./import/parserRegistry.js";
 import { TvTimeParser } from "./import/tvtimeParser.js";
@@ -59,7 +60,7 @@ export async function processImport(
     const allRecords = parseFile(filePath, detectedSource);
 
     result.total = allRecords.length;
-    await updateProgress(jobId, result);
+    await updateProgress(jobId, userId, result);
 
     const parser = detectedSource !== "unknown" ? getParser(detectedSource) : null;
 
@@ -77,7 +78,7 @@ export async function processImport(
         if (!match) {
           result.failed++;
           result.errors.push({ line, reason: `Ambiguous or no match for "${record.title}"` });
-          await updateProgress(jobId, result);
+          await updateProgress(jobId, userId, result);
           continue;
         }
 
@@ -120,7 +121,7 @@ export async function processImport(
         result.errors.push({ line, reason });
       }
 
-      await updateProgress(jobId, result);
+      await updateProgress(jobId, userId, result);
       await sleep(250);
     }
 
@@ -131,11 +132,24 @@ export async function processImport(
       errorLog: result.errors,
     });
 
+    wsEvents.emit("import:progress", {
+      userId,
+      jobId,
+      status: "completed",
+      progress: { total: result.total, processed: result.processed, matched: result.matched, failed: result.failed },
+    });
+
     return result;
   } catch (err) {
     await ImportJob.findByIdAndUpdate(jobId, {
       status: "failed",
       completedAt: new Date(),
+    });
+    wsEvents.emit("import:progress", {
+      userId,
+      jobId,
+      status: "failed",
+      progress: { total: result.total, processed: result.processed, matched: result.matched, failed: result.failed },
     });
     throw new ApiError(500, "IMPORT_FAILED", err instanceof Error ? err.message : "Import failed");
   } finally {
@@ -161,9 +175,10 @@ function normalizeGenericStatus(status?: string): WatchStatus | undefined {
   return mapping[normalized];
 }
 
-async function updateProgress(jobId: string, result: ImportResult): Promise<void> {
+async function updateProgress(jobId: string, userId: string, result: ImportResult): Promise<void> {
+  const status = result.processed >= result.total && result.total > 0 ? "completed" : "processing";
   await ImportJob.findByIdAndUpdate(jobId, {
-    status: result.processed >= result.total && result.total > 0 ? "completed" : "processing",
+    status,
     progress: {
       total: result.total,
       processed: result.processed,
@@ -171,5 +186,16 @@ async function updateProgress(jobId: string, result: ImportResult): Promise<void
       failed: result.failed,
     },
     errorLog: result.errors,
+  });
+  wsEvents.emit("import:progress", {
+    userId,
+    jobId,
+    status,
+    progress: {
+      total: result.total,
+      processed: result.processed,
+      matched: result.matched,
+      failed: result.failed,
+    },
   });
 }

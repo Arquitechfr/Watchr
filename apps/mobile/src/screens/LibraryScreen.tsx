@@ -1,5 +1,5 @@
 import { View, Text, FlatList, RefreshControl, TouchableOpacity, Image } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useState, useEffect } from "react";
 import { ScreenContainer } from "../components/ScreenContainer";
@@ -14,6 +14,7 @@ import { log } from "../utils/logger";
 import { RootStackParamList } from "../navigation/RootNavigator";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "ShowDetail">;
+type LibraryRoute = RouteProp<RootStackParamList, "Library">;
 
 type LibraryTab = "tv" | "movie";
 
@@ -96,8 +97,9 @@ function LibraryItemCard({ item, onPress }: { item: LibraryItem; onPress: () => 
 
 export function LibraryScreen() {
   const navigation = useNavigation<NavigationProp>();
+  const route = useRoute<LibraryRoute>();
   const { t } = useI18n();
-  const [activeTab, setActiveTab] = useState<LibraryTab>("tv");
+  const [activeTab, setActiveTab] = useState<LibraryTab>(route.params?.tab ?? "tv");
   const [data, setData] = useState<LibraryItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);

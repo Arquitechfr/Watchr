@@ -1,38 +1,52 @@
 import { useEffect, useRef } from "react";
 import { Platform } from "react-native";
-import Constants from "expo-constants";
-import * as Notifications from "expo-notifications";
 import { registerPushToken, unregisterPushToken } from "../services/auth.service";
 import { useAuthStore } from "../store/authStore";
 import { log } from "../utils/logger";
+import { isStandaloneBuild } from "../utils/platform";
 
-function isStandaloneBuild(): boolean {
-  return Constants.executionEnvironment === "standalone";
-}
-
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
+type NotificationSubscription = import("expo-notifications").Subscription;
 
 export function usePushNotifications() {
   const { isAuthenticated, logout } = useAuthStore();
-  const notificationListener = useRef<Notifications.Subscription | null>(null);
-  const responseListener = useRef<Notifications.Subscription | null>(null);
+  const notificationListener = useRef<NotificationSubscription | null>(null);
+  const responseListener = useRef<NotificationSubscription | null>(null);
 
   useEffect(() => {
     if (!isAuthenticated) return;
 
-    async function register() {
+    async function setup() {
       if (!isStandaloneBuild()) {
         log("usePushNotifications", "skipped push registration in Expo Go");
         return;
       }
+
+      const Notifications = await import("expo-notifications");
+
+      Notifications.setNotificationHandler({
+        handleNotification: async () => ({
+          shouldShowAlert: true,
+          shouldPlaySound: true,
+          shouldSetBadge: false,
+          shouldShowBanner: true,
+          shouldShowList: true,
+        }),
+      });
+
+      notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
+        log("usePushNotifications", "notification received", { notification });
+      });
+
+      responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
+        const data = response.notification.request.content.data as {
+          screen?: string;
+          showId?: string;
+          tmdbId?: number;
+          season?: number;
+          episode?: number;
+        };
+        log("usePushNotifications", "notification tapped", { data });
+      });
 
       if (Platform.OS === "android") {
         await Notifications.setNotificationChannelAsync("default", {
@@ -63,22 +77,7 @@ export function usePushNotifications() {
       }
     }
 
-    register();
-
-    notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
-      log("usePushNotifications", "notification received", { notification });
-    });
-
-    responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
-      const data = response.notification.request.content.data as {
-        screen?: string;
-        showId?: string;
-        tmdbId?: number;
-        season?: number;
-        episode?: number;
-      };
-      log("usePushNotifications", "notification tapped", { data });
-    });
+    setup();
 
     return () => {
       notificationListener.current?.remove();

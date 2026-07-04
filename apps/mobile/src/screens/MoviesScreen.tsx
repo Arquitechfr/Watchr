@@ -1,4 +1,5 @@
-import { Text, FlatList, RefreshControl, TouchableOpacity, View, Image } from "react-native";
+import { Text, FlatList, RefreshControl, TouchableOpacity, View, Image, ActivityIndicator } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { ScreenContainer } from "../components/ScreenContainer";
@@ -6,7 +7,9 @@ import { EmptyState } from "../components/EmptyState";
 import { NetworkError } from "../components/NetworkError";
 import { Skeleton } from "../components/Skeleton";
 import { useUnwatchedMovies } from "../hooks/useUnwatched";
+import { useQuickMarkMovieWatched } from "../hooks/useTracking";
 import { useRefreshRateLimit } from "../hooks/useRefreshRateLimit";
+import { useUIStore } from "../store/uiStore";
 import { RootStackParamList } from "../navigation/RootNavigator";
 import { UnwatchedMovie } from "../services/unwatched.service";
 import { getPosterUrl } from "../services/shows.service";
@@ -29,14 +32,14 @@ function getStatusLabel(t: ReturnType<typeof useI18n>["t"], status: WatchStatus)
   }
 }
 
-function MovieCard({ movie, onPress }: { movie: UnwatchedMovie; onPress: () => void }) {
+function MovieCard({ movie, onPress, onMarkWatched, isMarking }: { movie: UnwatchedMovie; onPress: () => void; onMarkWatched?: () => void; isMarking?: boolean }) {
   const { t } = useI18n();
   const posterUrl = movie.posterPath ? getPosterUrl(movie.posterPath, 200) : null;
 
   return (
     <TouchableOpacity
       onPress={onPress}
-      className="flex-row bg-card rounded-lg p-3 mb-3"
+      className="flex-row items-center bg-card rounded-lg p-3 mb-3"
       style={{ gap: 12 }}
     >
       {posterUrl ? (
@@ -59,6 +62,22 @@ function MovieCard({ movie, onPress }: { movie: UnwatchedMovie; onPress: () => v
         </Text>
         <Text className="text-text-muted text-xs">{t("common.movie")}</Text>
       </View>
+      {onMarkWatched && (
+        <TouchableOpacity
+          onPress={(e) => {
+            e.stopPropagation();
+            onMarkWatched();
+          }}
+          className="ml-2 p-1"
+          disabled={isMarking}
+        >
+          {isMarking ? (
+            <ActivityIndicator size="small" color={colors.primary} />
+          ) : (
+            <Ionicons name="checkmark-circle-outline" size={28} color={colors.primary} />
+          )}
+        </TouchableOpacity>
+      )}
     </TouchableOpacity>
   );
 }
@@ -66,9 +85,25 @@ function MovieCard({ movie, onPress }: { movie: UnwatchedMovie; onPress: () => v
 export function MoviesScreen() {
   const navigation = useNavigation<NavigationProp>();
   const { t } = useI18n();
+  const showSnackbar = useUIStore((state) => state.showSnackbar);
   const { data, isLoading, isError, error, refetch } = useUnwatchedMovies();
+  const quickMarkMovie = useQuickMarkMovieWatched();
   const throttledRefresh = useRefreshRateLimit();
   const movies = data?.movies ?? [];
+
+  const markingMovieId = quickMarkMovie.isPending && quickMarkMovie.variables
+    ? quickMarkMovie.variables.showId
+    : undefined;
+
+  function handleMarkMovieWatched(movie: UnwatchedMovie) {
+    quickMarkMovie.mutate(
+      { showId: movie.showId },
+      {
+        onSuccess: () => showSnackbar(t("screens.movies.markedWatched"), "success"),
+        onError: () => showSnackbar(t("screens.movies.markError"), "error"),
+      },
+    );
+  }
 
   function handleViewLibrary() {
     navigation.navigate("Library");
@@ -109,6 +144,8 @@ export function MoviesScreen() {
                 if (!item.tmdbId) return;
                 navigation.navigate("ShowDetail", { tmdbId: item.tmdbId, title: item.title });
               }}
+              onMarkWatched={() => handleMarkMovieWatched(item)}
+              isMarking={markingMovieId === item.showId}
             />
           )}
           refreshControl={<RefreshControl refreshing={isLoading} onRefresh={() => throttledRefresh(refetch)} tintColor={colors.primary} />}

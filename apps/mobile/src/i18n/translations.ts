@@ -100,6 +100,8 @@ const fr = {
     },
     movies: {
       viewAll: "Voir tous mes films",
+      markedWatched: "Film marqué comme vu",
+      markError: "Impossible de marquer le film",
     },
     library: {
       emptyTitle: "Aucune série ou film",
@@ -187,6 +189,8 @@ const fr = {
       later: "Plus tard",
       empty: "Rien de prévu",
       emptySubtitle: "Ajoute des séries en cours pour voir les prochains épisodes.",
+      markedWatched: "Épisode marqué comme vu",
+      markError: "Impossible de marquer l'épisode",
     },
     news: {
       empty: "Aucune actualité",
@@ -337,6 +341,8 @@ const en = {
       viewAll: "View all my movies",
       empty: "No movies",
       addFromSearch: "Add movies from the Search tab.",
+      markedWatched: "Movie marked as watched",
+      markError: "Unable to mark movie",
     },
     library: {
       emptyTitle: "No series or movies",
@@ -424,6 +430,8 @@ const en = {
       later: "Later",
       empty: "Nothing planned",
       emptySubtitle: "Add ongoing shows to see upcoming episodes.",
+      markedWatched: "Episode marked as watched",
+      markError: "Unable to mark episode",
     },
     episode: {
       title: "Episode {{episode}}",

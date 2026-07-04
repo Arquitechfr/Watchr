@@ -185,6 +185,47 @@ export function useQuickAddToWatchlist() {
   });
 }
 
+export function useQuickMarkWatched() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ showId, season, episode }: { showId: string; season: number; episode: number }) =>
+      toggleEpisode(showId, { season, episode, watched: true }),
+    onMutate: ({ showId, season, episode }) => {
+      log("useTracking", "quickMarkWatched mutate", { showId, season, episode });
+    },
+    onSuccess: () => {
+      log("useTracking", "quickMarkWatched success");
+      queryClient.invalidateQueries({ queryKey: ["upcoming"] });
+      queryClient.invalidateQueries({ queryKey: ["unwatched"] });
+      queryClient.invalidateQueries({ queryKey: [TRACKING_QUERY_KEY] });
+    },
+    onError: (err) => {
+      log("useTracking", "quickMarkWatched error", { err });
+    },
+  });
+}
+
+export function useQuickMarkMovieWatched() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ showId }: { showId: string }) =>
+      upsertTracking(showId, { status: "completed" }),
+    onMutate: ({ showId }) => {
+      log("useTracking", "quickMarkMovieWatched mutate", { showId });
+    },
+    onSuccess: () => {
+      log("useTracking", "quickMarkMovieWatched success");
+      queryClient.invalidateQueries({ queryKey: ["unwatched"] });
+      queryClient.invalidateQueries({ queryKey: [TRACKING_QUERY_KEY] });
+    },
+    onError: (err) => {
+      log("useTracking", "quickMarkMovieWatched error", { err });
+    },
+  });
+}
+
 export function useTrackedTmdbIds() {
   const isHydrated = useAuthStore((state) => state.isHydrated);
   return useQuery({

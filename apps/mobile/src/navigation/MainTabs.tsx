@@ -85,7 +85,7 @@ export function MainTabs() {
         component={SearchScreen}
         options={{
           tabBarIcon: ({ focused }) => <SearchTabIcon focused={focused} />,
-          tabBarShowLabel: false,
+          tabBarLabel: "",
         }}
       />
       <Tab.Screen

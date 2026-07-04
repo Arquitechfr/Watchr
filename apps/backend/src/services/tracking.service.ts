@@ -428,9 +428,6 @@ export async function toggleEpisode(
   }
 
   entry.updatedAt = new Date();
-  if (entry.status !== "dropped") {
-    entry.status = calculateWatchStatus(show, entry);
-  }
   await entry.save();
   return entry;
 }

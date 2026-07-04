@@ -1,4 +1,4 @@
-import { View, Text, FlatList, RefreshControl, Image, TouchableOpacity } from "react-native";
+import { View, Text, FlatList, RefreshControl, Image, TouchableOpacity, ActivityIndicator } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -12,7 +12,9 @@ import { NetworkError } from "../components/NetworkError";
 import { Skeleton } from "../components/Skeleton";
 import { useUnwatchedShows } from "../hooks/useUnwatched";
 import { useUpcomingEpisodes } from "../hooks/useUpcomingEpisodes";
+import { useQuickMarkWatched } from "../hooks/useTracking";
 import { useRefreshRateLimit } from "../hooks/useRefreshRateLimit";
+import { useUIStore } from "../store/uiStore";
 import { RootStackParamList } from "../navigation/RootNavigator";
 import { UnwatchedShow } from "../services/unwatched.service";
 import { UpcomingEpisode } from "../services/upcoming.service";
@@ -47,14 +49,19 @@ function useTabs() {
 function UnwatchedShowCard({
   show,
   onPress,
+  onMarkWatched,
+  isMarking,
 }: {
   show: UnwatchedShow;
   onPress: () => void;
+  onMarkWatched?: () => void;
+  isMarking?: boolean;
 }) {
   const { t } = useI18n();
   const posterUrl = getPosterUrl(show.posterPath, 200);
   const episodeCount = show.unwatchedEpisodes.length;
   const isActive = show.status === "watching" && episodeCount > 0;
+  const canMarkWatched = episodeCount > 0 && show.unwatchedEpisodes.length > 0;
 
   log("SeriesScreen:UnwatchedShowCard", "render", {
     title: show.title,
@@ -106,7 +113,24 @@ function UnwatchedShowCard({
           <Text className="text-text-muted text-sm">{getStatusLabel(t, show.status)}</Text>
         )}
       </View>
-      <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
+      {canMarkWatched && onMarkWatched ? (
+        <TouchableOpacity
+          onPress={(e) => {
+            e.stopPropagation();
+            onMarkWatched();
+          }}
+          className="ml-2 p-1"
+          disabled={isMarking}
+        >
+          {isMarking ? (
+            <ActivityIndicator size="small" color={colors.primary} />
+          ) : (
+            <Ionicons name="checkmark-circle-outline" size={28} color={colors.primary} />
+          )}
+        </TouchableOpacity>
+      ) : (
+        <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
+      )}
     </TouchableOpacity>
   );
 }
@@ -117,12 +141,16 @@ function UnwatchedList({
   isLoading,
   refetch,
   onShowPress,
+  onMarkWatched,
+  markingShowId,
 }: {
   shows: UnwatchedShow[];
   upcomingShowIds: Set<string>;
   isLoading: boolean;
   refetch: () => void;
   onShowPress: (show: UnwatchedShow) => void;
+  onMarkWatched?: (show: UnwatchedShow) => void;
+  markingShowId?: string;
 }) {
   const { t } = useI18n();
   if (shows.length === 0) {
@@ -167,7 +195,14 @@ function UnwatchedList({
         if (item.type === "header") {
           return <WeekSectionHeader title={item.title ?? ""} />;
         }
-        return <UnwatchedShowCard show={item.show!} onPress={() => onShowPress(item.show!)} />;
+        return (
+          <UnwatchedShowCard
+            show={item.show!}
+            onPress={() => onShowPress(item.show!)}
+            onMarkWatched={onMarkWatched ? () => onMarkWatched(item.show!) : undefined}
+            isMarking={markingShowId === item.show?.showId}
+          />
+        );
       }}
       refreshControl={<RefreshControl refreshing={isLoading} onRefresh={() => refetch()} tintColor={colors.primary} />}
       contentContainerStyle={{ paddingBottom: 24 }}
@@ -181,12 +216,16 @@ function UpcomingList({
   error,
   refetch,
   onEpisodePress,
+  onMarkWatched,
+  markingEpisodeKey,
 }: {
   data: { today: UpcomingEpisode[]; thisWeek: UpcomingEpisode[]; nextWeek: UpcomingEpisode[]; later: UpcomingEpisode[] } | undefined;
   isLoading: boolean;
   error: Error | null;
   refetch: () => void;
   onEpisodePress: (episode: UpcomingEpisode) => void;
+  onMarkWatched?: (episode: UpcomingEpisode) => void;
+  markingEpisodeKey?: string;
 }) {
   const { t } = useI18n();
   if (isLoading) {
@@ -239,10 +278,14 @@ function UpcomingList({
         if (item.type === "header") {
           return <WeekSectionHeader title={item.title ?? ""} />;
         }
+        const ep = item.episode!;
+        const epKey = `${ep.showId}-${ep.season}-${ep.episode}`;
         return (
           <UpcomingEpisodeRow
-            episode={item.episode!}
-            onPress={() => onEpisodePress(item.episode!)}
+            episode={ep}
+            onPress={() => onEpisodePress(ep)}
+            onMarkWatched={onMarkWatched ? () => onMarkWatched(ep) : undefined}
+            isMarking={markingEpisodeKey === epKey}
           />
         );
       }}
@@ -255,12 +298,21 @@ function UpcomingList({
 export function SeriesScreen() {
   const navigation = useNavigation<NavigationProp>();
   const { t } = useI18n();
+  const showSnackbar = useUIStore((state) => state.showSnackbar);
   const tabs = useTabs();
   const [activeTab, setActiveTab] = useState<TopTab>("unwatched");
   const { data: unwatchedData, isLoading: isUnwatchedLoading, isError: isUnwatchedError, error: unwatchedError, refetch: refetchUnwatched } = useUnwatchedShows();
   const { data: upcomingData, isLoading: isUpcomingLoading, isError: _isUpcomingError, error: upcomingError, refetch: refetchUpcoming } = useUpcomingEpisodes();
+  const quickMarkWatched = useQuickMarkWatched();
   const throttledRefreshUnwatched = useRefreshRateLimit();
   const throttledRefreshUpcoming = useRefreshRateLimit();
+
+  const markingEpisodeKey = quickMarkWatched.isPending && quickMarkWatched.variables
+    ? `${quickMarkWatched.variables.showId}-${quickMarkWatched.variables.season}-${quickMarkWatched.variables.episode}`
+    : undefined;
+  const markingShowId = quickMarkWatched.isPending && quickMarkWatched.variables
+    ? quickMarkWatched.variables.showId
+    : undefined;
 
   const upcomingShowIds = useMemo(() => {
     if (!upcomingData) return new Set<string>();
@@ -291,6 +343,28 @@ export function SeriesScreen() {
 
   function handleViewLibrary() {
     navigation.navigate("Library");
+  }
+
+  function handleMarkUpcomingWatched(episode: UpcomingEpisode) {
+    quickMarkWatched.mutate(
+      { showId: episode.showId, season: episode.season, episode: episode.episode },
+      {
+        onSuccess: () => showSnackbar(t("screens.upcoming.markedWatched"), "success"),
+        onError: () => showSnackbar(t("screens.upcoming.markError"), "error"),
+      },
+    );
+  }
+
+  function handleMarkUnwatchedWatched(show: UnwatchedShow) {
+    const next = show.unwatchedEpisodes[0];
+    if (!next) return;
+    quickMarkWatched.mutate(
+      { showId: show.showId, season: next.season, episode: next.episode },
+      {
+        onSuccess: () => showSnackbar(t("screens.upcoming.markedWatched"), "success"),
+        onError: () => showSnackbar(t("screens.upcoming.markError"), "error"),
+      },
+    );
   }
 
   function handleUpcomingPress(episode: UpcomingEpisode) {
@@ -327,6 +401,8 @@ export function SeriesScreen() {
               isLoading={isUnwatchedLoading}
               refetch={() => throttledRefreshUnwatched(refetchUnwatched)}
               onShowPress={handleShowPress}
+              onMarkWatched={handleMarkUnwatchedWatched}
+              markingShowId={markingShowId}
             />
           )}
         </View>
@@ -340,6 +416,8 @@ export function SeriesScreen() {
             error={upcomingError}
             refetch={() => throttledRefreshUpcoming(refetchUpcoming)}
             onEpisodePress={handleUpcomingPress}
+            onMarkWatched={handleMarkUpcomingWatched}
+            markingEpisodeKey={markingEpisodeKey}
           />
         </View>
       )}

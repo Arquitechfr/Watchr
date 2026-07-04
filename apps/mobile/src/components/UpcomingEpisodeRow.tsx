@@ -1,15 +1,19 @@
-import { View, Text, Image, TouchableOpacity } from "react-native";
+import { View, Text, Image, TouchableOpacity, ActivityIndicator } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { format } from "date-fns";
 import { UpcomingEpisode } from "../services/upcoming.service";
 import { getPosterUrl } from "../services/shows.service";
 import { useI18n } from "../i18n/useI18n";
+import { colors } from "../theme/colors";
 
 interface UpcomingEpisodeRowProps {
   episode: UpcomingEpisode;
   onPress: () => void;
+  onMarkWatched?: () => void;
+  isMarking?: boolean;
 }
 
-export function UpcomingEpisodeRow({ episode, onPress }: UpcomingEpisodeRowProps) {
+export function UpcomingEpisodeRow({ episode, onPress, onMarkWatched, isMarking }: UpcomingEpisodeRowProps) {
   const { t, dateFnsLocale } = useI18n();
   const posterUrl = getPosterUrl(episode.posterPath, 200);
 
@@ -41,6 +45,22 @@ export function UpcomingEpisodeRow({ episode, onPress }: UpcomingEpisodeRowProps
           {format(new Date(episode.airDate), "EEE d MMM", { locale: dateFnsLocale })}
         </Text>
       </View>
+      {onMarkWatched && (
+        <TouchableOpacity
+          onPress={(e) => {
+            e.stopPropagation();
+            onMarkWatched();
+          }}
+          className="ml-2 p-1"
+          disabled={isMarking}
+        >
+          {isMarking ? (
+            <ActivityIndicator size="small" color={colors.primary} />
+          ) : (
+            <Ionicons name="checkmark-circle-outline" size={28} color={colors.primary} />
+          )}
+        </TouchableOpacity>
+      )}
     </TouchableOpacity>
   );
 }

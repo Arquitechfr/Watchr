@@ -18,7 +18,6 @@ const traktLinkSchema = new Schema<ITraktLink>(
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
-      index: true,
     },
     traktUsername: {
       type: String,

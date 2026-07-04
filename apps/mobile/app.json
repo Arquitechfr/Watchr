@@ -9,7 +9,6 @@
     "assetBundlePatterns": [
       "**/*"
     ],
-
     "ios": {
       "infoPlist": {
         "NSAppTransportSecurity": {
@@ -20,12 +19,6 @@
       "bundleIdentifier": "com.watchr.app"
     },
     "icon": "./assets/icon.png",
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff",
-      "imageWidth": 449
-    },
     "android": {
       "package": "com.watchr.app",
       "adaptiveIcon": {

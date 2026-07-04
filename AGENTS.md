@@ -70,7 +70,9 @@ watchr/
 4. **Planification obligatoire** : toute nouvelle feature ou changement architectural doit faire l'objet d'un plan validé avant implémentation.
 5. **Internationalisation (i18n)** : l'application supporte `en` et `fr`.
    - Côté mobile, tout texte UI doit passer par `useI18n` et `t()` (interdiction de laisser du texte en dur dans les composants/écrans).
-   - Les clés de traduction vivent dans `apps/mobile/src/i18n/translations.ts` (FR et EN maintenues en parité).
+   - Les fichiers de traduction sont splités par langue, côté mobile **et** backend :
+     - Mobile : `apps/mobile/src/i18n/locales/<lang>.ts` (agrégés dans `translations.ts`)
+     - Backend : `apps/backend/src/i18n/locales/<lang>.ts` (agrégés dans `translations.ts`)
    - Les dates et formats localisés utilisent `date-fns` avec la locale dynamique fournie par `useI18n` (`dateFnsLocale`).
    - Les messages d'erreur API utilisent le hook `useErrorMessage` ; les messages snackbar utilisent des clés de traduction.
-   - Toute nouvelle clé doit être ajoutée dans les deux langues supportées avant de considérer la tâche terminée.
+   - **Synchronisation obligatoire** : toute nouvelle clé ou modification de traduction doit être répercutée dans **tous** les fichiers de locale (`en.ts`, `fr.ts`, et toute autre langue supportée) côté mobile **et** backend. Les fichiers doivent rester en parité parfaite. Une tâche n'est pas terminée tant que toutes les langues ne sont pas à jour.

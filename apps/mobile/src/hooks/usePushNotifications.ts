@@ -1,8 +1,14 @@
 import { useEffect, useRef } from "react";
+import { Platform } from "react-native";
+import Constants from "expo-constants";
 import * as Notifications from "expo-notifications";
 import { registerPushToken, unregisterPushToken } from "../services/auth.service";
 import { useAuthStore } from "../store/authStore";
 import { log } from "../utils/logger";
+
+function isStandaloneBuild(): boolean {
+  return Constants.executionEnvironment === "standalone";
+}
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -23,6 +29,20 @@ export function usePushNotifications() {
     if (!isAuthenticated) return;
 
     async function register() {
+      if (!isStandaloneBuild()) {
+        log("usePushNotifications", "skipped push registration in Expo Go");
+        return;
+      }
+
+      if (Platform.OS === "android") {
+        await Notifications.setNotificationChannelAsync("default", {
+          name: "default",
+          importance: Notifications.AndroidImportance.MAX,
+          vibrationPattern: [0, 250, 250, 250],
+          lightColor: "#FF231FDC",
+        });
+      }
+
       try {
         const { status: existingStatus } = await Notifications.getPermissionsAsync();
         let finalStatus = existingStatus;

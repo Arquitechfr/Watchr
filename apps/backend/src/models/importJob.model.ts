@@ -1,6 +1,7 @@
 import { Schema, model, Document } from "mongoose";
 
 export type ImportJobStatus = "pending" | "processing" | "completed" | "failed";
+export type ImportJobSource = "tvtime" | "trakt" | "imdb" | "letterboxd" | "watchr" | "unknown";
 
 export interface ImportError {
   line: number;
@@ -17,6 +18,7 @@ export interface ImportProgress {
 export interface IImportJob extends Document {
   userId: Schema.Types.ObjectId;
   status: ImportJobStatus;
+  source: ImportJobSource;
   sourceFile: string;
   progress: ImportProgress;
   errorLog: ImportError[];
@@ -56,6 +58,11 @@ const importJobSchema = new Schema<IImportJob>(
       enum: ["pending", "processing", "completed", "failed"],
       default: "pending",
       index: true,
+    },
+    source: {
+      type: String,
+      enum: ["tvtime", "trakt", "imdb", "letterboxd", "watchr", "unknown"],
+      default: "unknown",
     },
     sourceFile: {
       type: String,

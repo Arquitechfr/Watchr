@@ -62,7 +62,7 @@ export async function processEpisodeNotifications(): Promise<void> {
       );
     }
 
-    await redisClient.set(notifiedKey, "1", "EX", 48 * 60 * 60);
+    await redisClient.set(notifiedKey, "1", { EX: 48 * 60 * 60 });
     console.log(`[NotificationWorker] Notified ${userIds.length} users about ${show.title} S${show.nextEpisodeToAir.season}E${show.nextEpisodeToAir.episode}`);
   }
 }

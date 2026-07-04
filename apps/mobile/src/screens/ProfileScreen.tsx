@@ -97,8 +97,13 @@ export function ProfileScreen() {
       />
       <MenuCard
         icon="download"
-        label={t("screens.profile.importTvTime")}
+        label={t("screens.profile.importData")}
         onPress={() => navigation.navigate("Import")}
+      />
+      <MenuCard
+        icon="cloud-upload-outline"
+        label={t("screens.profile.exportData")}
+        onPress={() => navigation.navigate("Export")}
       />
       <MenuCard
         icon="notifications"

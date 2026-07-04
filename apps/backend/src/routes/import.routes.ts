@@ -9,6 +9,8 @@ import { validateRequest } from "../validators/validateRequest.js";
 import { asyncHandler } from "../lib/asyncHandler.js";
 import { ApiError } from "../middleware/error.middleware.js";
 import { translate } from "../i18n/index.js";
+import { detectSource } from "../services/import/parserRegistry.js";
+import { ImportSource } from "../services/import/types.js";
 
 const router: Router = Router();
 
@@ -40,19 +42,28 @@ router.post(
       throw new ApiError(400, "MISSING_FILE", "No file uploaded");
     }
 
+    const sourceParam = (req.body.source ?? req.query.source) as string | undefined;
+    let source: ImportSource = "unknown";
+    if (sourceParam && ["tvtime", "trakt", "imdb", "letterboxd", "watchr"].includes(sourceParam)) {
+      source = sourceParam as ImportSource;
+    } else {
+      source = detectSource(req.file.path);
+    }
+
     const job = await ImportJob.create({
       userId: req.userId,
       status: "pending",
+      source,
       sourceFile: req.file.path,
     });
 
     await getImportQueue().add(
       "import",
-      { userId: req.userId, jobId: job._id.toString(), sourceFile: req.file.path },
+      { userId: req.userId, jobId: job._id.toString(), sourceFile: req.file.path, source },
       { jobId: `import-${job._id.toString()}`, attempts: 3, backoff: { type: "exponential", delay: 5000 } },
     );
 
-    res.status(202).json({ jobId: job._id.toString() });
+    res.status(202).json({ jobId: job._id.toString(), source });
   }),
 );
 

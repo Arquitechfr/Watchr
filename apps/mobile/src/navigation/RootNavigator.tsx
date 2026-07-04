@@ -12,6 +12,7 @@ import { ShowDetailScreen } from "../screens/ShowDetailScreen";
 import { ShowCommentsScreen } from "../screens/ShowCommentsScreen";
 import { EpisodeDetailScreen } from "../screens/EpisodeDetailScreen";
 import { ImportScreen } from "../screens/ImportScreen";
+import { ExportScreen } from "../screens/ExportScreen";
 import { LibraryScreen } from "../screens/LibraryScreen";
 import { EditProfileScreen } from "../screens/profile/EditProfileScreen";
 import { ProfileLanguageScreen } from "../screens/profile/ProfileLanguageScreen";
@@ -28,6 +29,7 @@ export type RootStackParamList = {
   ShowComments: { showId: string; title: string; season?: number; episode?: number };
   EpisodeDetail: { showId: string; tmdbId: number; season: number; episodeNumber: number; title?: string };
   Import: undefined;
+  Export: undefined;
   Library: undefined;
   EditProfile: undefined;
   ProfileLanguage: undefined;
@@ -114,6 +116,7 @@ export function RootNavigator() {
             <Stack.Screen name="ShowComments" component={ShowCommentsScreen} />
             <Stack.Screen name="EpisodeDetail" component={EpisodeDetailScreen} />
             <Stack.Screen name="Import" component={ImportScreen} />
+            <Stack.Screen name="Export" component={ExportScreen} />
             <Stack.Screen name="Library" component={LibraryScreen} />
             <Stack.Screen name="EditProfile" component={EditProfileScreen} />
             <Stack.Screen name="ProfileLanguage" component={ProfileLanguageScreen} />

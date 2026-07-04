@@ -13,6 +13,8 @@ import trackingRoutes from "./routes/tracking.routes.js";
 import ratingRoutes from "./routes/rating.routes.js";
 import upcomingRoutes from "./routes/upcoming.routes.js";
 import importRoutes from "./routes/import.routes.js";
+import exportRoutes from "./routes/export.routes.js";
+import traktRoutes from "./routes/trakt.routes.js";
 import imageRoutes from "./routes/image.routes.js";
 import commentRoutes from "./routes/comment.routes.js";
 import newsRoutes from "./routes/news.routes.js";
@@ -329,6 +331,8 @@ export function createApp(): Application {
   app.use("/api/ratings", ratingRoutes);
   app.use("/api/upcoming", upcomingRoutes);
   app.use("/api/import", importRoutes);
+  app.use("/api/export", exportRoutes);
+  app.use("/api/trakt", traktRoutes);
   app.use("/api/images", imageRoutes);
   app.use("/api/comments", commentRoutes);
   app.use("/api/news", newsRoutes);

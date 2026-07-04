@@ -28,6 +28,8 @@ const envSchema = z.object({
   BREVO_SENDER_EMAIL: z.string().optional(),
   BREVO_SENDER_NAME: z.string().default("Watchr"),
   EXPO_ACCESS_TOKEN: z.string().optional(),
+  TRAKT_CLIENT_ID: z.string().optional(),
+  TRAKT_CLIENT_SECRET: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);

@@ -39,7 +39,7 @@ Ces règles s'appliquent à tout agent (Devin/Cascade) travaillant sur ce repo.
 - **Aucune lib nécessitant du code natif custom** ou un dev client non standard. Vérifier la compatibilité Expo Go avant d'ajouter une dépendance.
 - Pas de `Context` pour l'état complexe (utiliser Zustand). Pas de prop drilling au-delà de 2 niveaux.
 - États de chargement et d'erreur obligatoires sur tout écran consommant une query réseau (pas de "flash" d'écran vide).
-- **Internationalisation** : tout texte UI dans les composants/écrans mobile passe par `useI18n`/`t()`. Les dates utilisent `dateFnsLocale`. Les messages d'erreur API passent par `useErrorMessage`. Les nouvelles clés sont ajoutées en FR et EN dans `apps/mobile/src/i18n/translations.ts`.
+- **Internationalisation** : tout texte UI dans les composants/écrans mobile passe par `useI18n`/`t()`. Les dates utilisent `dateFnsLocale`. Les messages d'erreur API passent par `useErrorMessage`. Les traductions sont splitées par langue dans `apps/mobile/src/i18n/locales/<lang>.ts` (mobile) et `apps/backend/src/i18n/locales/<lang>.ts` (backend). **Toute nouvelle clé ou modification doit être répercutée dans tous les fichiers de locale de chaque côté** — les fichiers `en.ts` et `fr.ts` (et toute autre langue supportée) doivent rester en parité parfaite. Une tâche n'est pas terminée tant que toutes les langues ne sont pas synchronisées.
 
 ## 6. Definition of Done
 

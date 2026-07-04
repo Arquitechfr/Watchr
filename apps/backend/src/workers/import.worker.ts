@@ -1,6 +1,7 @@
 import { Queue, Worker } from "bullmq";
 import { redisConnection } from "../config/env.js";
 import { processImport } from "../services/importParser.service.js";
+import { ImportSource } from "../services/import/types.js";
 
 let importQueue: Queue | null = null;
 
@@ -15,14 +16,15 @@ export interface ImportJobData {
   userId: string;
   jobId: string;
   sourceFile: string;
+  source?: ImportSource;
 }
 
 export function createImportWorker(): Worker {
   return new Worker(
     "import",
     async (job) => {
-      const { userId, jobId, sourceFile } = job.data as ImportJobData;
-      await processImport(userId, jobId, sourceFile);
+      const { userId, jobId, sourceFile, source } = job.data as ImportJobData;
+      await processImport(userId, jobId, sourceFile, source);
     },
     {
       connection: redisConnection,

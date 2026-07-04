@@ -35,7 +35,6 @@ export function ShowCard({ show, onPress }: ShowCardProps) {
           {show.firstAirDate ? new Date(show.firstAirDate).getFullYear() : "—"}
           {" · "}
           {show.type === "tv" ? t("common.tv") : t("common.movie")}
-          {show.source === "tvdb" ? " · TVDB" : ""}
         </Text>
       </View>
     </TouchableOpacity>

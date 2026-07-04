@@ -105,12 +105,12 @@ export function LibraryScreen() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
 
-  const fetchLibrary = async (pageNum = 1, isRefresh = false) => {
+  const fetchLibrary = async (tab: LibraryTab, pageNum = 1, isRefresh = false) => {
     setIsLoading(true);
     setIsError(false);
     setError(null);
     try {
-      const response = await getLibrary(activeTab === "tv" ? "tv" : "movie", pageNum, 20);
+      const response = await getLibrary(tab, pageNum, 20);
       if (isRefresh || pageNum === 1) {
         setData(response.data);
       } else {
@@ -128,12 +128,12 @@ export function LibraryScreen() {
   };
 
   const handleRefresh = () => {
-    fetchLibrary(1, true);
+    fetchLibrary(activeTab, 1, true);
   };
 
   const handleLoadMore = () => {
     if (!isLoading && hasMore) {
-      fetchLibrary(page + 1, false);
+      fetchLibrary(activeTab, page + 1, false);
     }
   };
 
@@ -147,12 +147,12 @@ export function LibraryScreen() {
       setData([]);
       setPage(1);
       setHasMore(true);
-      fetchLibrary(1, true);
+      fetchLibrary(tab, 1, true);
     }
   };
 
   useEffect(() => {
-    fetchLibrary(1, true);
+    fetchLibrary(activeTab, 1, true);
   }, []);
 
   return (

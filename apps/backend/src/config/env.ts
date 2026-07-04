@@ -14,8 +14,6 @@ const envSchema = z.object({
   JWT_ACCESS_SECRET: z.string().min(1, "JWT_ACCESS_SECRET is required"),
   JWT_REFRESH_SECRET: z.string().min(1, "JWT_REFRESH_SECRET is required"),
   TMDB_API_KEY: z.string().min(1, "TMDB_API_KEY is required"),
-  TVDB_API_KEY: z.string().min(1, "TVDB_API_KEY is required"),
-  TVDB_PIN: z.string().optional(),
   FIREBASE_SERVICE_ACCOUNT_KEY: z.string().min(1, "FIREBASE_SERVICE_ACCOUNT_KEY is required"),
 });
 

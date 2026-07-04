@@ -2,7 +2,6 @@ import { Show, getLocalizedShow } from "../models/show.model.js";
 import { ApiError } from "../middleware/error.middleware.js";
 import { tmdbService, TmdbSearchResult } from "./tmdb.service.js";
 import { normalizeLocale } from "../i18n/index.js";
-import { tvdbService } from "./tvdb.service.js";
 import {
   isShowCacheStale,
   isEpisodesCacheStale,
@@ -20,20 +19,14 @@ export function toTmdbLanguage(locale: string): string {
   return `${base}-${region}`;
 }
 
-export function toTvdbLanguage(locale: string): string {
-  const base = normalizeLocale(locale);
-  return base === "fr" ? "fra" : "eng";
-}
-
 export interface SearchResultItem {
   tmdbId?: number;
-  tvdbId?: number;
   type: "tv" | "movie";
   title: string;
   posterPath?: string;
   overview?: string;
   firstAirDate?: string;
-  source: "tmdb" | "tvdb";
+  source: "tmdb";
 }
 
 export interface DiscoverSection {
@@ -47,10 +40,9 @@ export interface DiscoverResult {
   sections: DiscoverSection[];
 }
 
-export async function searchShows(query: string, locale = "en"): Promise<{ tmdb: SearchResultItem[]; tvdb: SearchResultItem[] }> {
+export async function searchShows(query: string, locale = "en"): Promise<SearchResultItem[]> {
   log("ShowService", "search start", { query, locale });
   const tmdbLanguage = toTmdbLanguage(locale);
-  const tvdbLanguage = toTvdbLanguage(locale);
 
   let tmdbError: Error | null = null;
   const tmdbTvPromise = tmdbService.searchShows(query, tmdbLanguage).catch((err: Error) => {
@@ -66,46 +58,18 @@ export async function searchShows(query: string, locale = "en"): Promise<{ tmdb:
 
   const [tmdbTv, tmdbMovies] = await Promise.all([tmdbTvPromise, tmdbMoviePromise]);
 
-  const tmdbResults: SearchResultItem[] = [
+  const results: SearchResultItem[] = [
     ...tmdbTv.map((item) => mapTmdbResult(item, "tv")),
     ...tmdbMovies.map((item) => mapTmdbResult(item, "movie")),
   ];
 
-  log("ShowService", "search tmdb results", { query, count: tmdbResults.length, tmdbError: Boolean(tmdbError) });
+  log("ShowService", "search results", { query, count: results.length, tmdbError: Boolean(tmdbError) });
 
-  let tvdbResults: SearchResultItem[] = [];
-  if (tmdbResults.length === 0) {
-    log("ShowService", "search falling back to tvdb", { query, locale });
-    let tvdbError: Error | null = null;
-    try {
-      const [tvdbTv, tvdbMovies] = await Promise.all([
-        tvdbService.searchShows(query, tvdbLanguage).catch((err: Error) => {
-          logError("ShowService", "tvdb tv search failed", err, { query });
-          tvdbError = err;
-          return [];
-        }),
-        tvdbService.searchMovies(query, tvdbLanguage).catch((err: Error) => {
-          logError("ShowService", "tvdb movie search failed", err, { query });
-          tvdbError = err;
-          return [];
-        }),
-      ]);
-      tvdbResults = [
-        ...tvdbTv.map((item) => mapTvdbResult(item, "tv")),
-        ...tvdbMovies.map((item) => mapTvdbResult(item, "movie")),
-      ];
-      log("ShowService", "search tvdb results", { query, count: tvdbResults.length, tvdbError: Boolean(tvdbError) });
-    } catch (err) {
-      logError("ShowService", "tvdb fallback failed", err, { query });
-      tvdbError = err instanceof Error ? err : new Error(String(err));
-    }
-
-    if (tmdbError && tvdbError) {
-      throw new ApiError(502, "EXTERNAL_SERVICES_DOWN", "TMDB and TVDB are unavailable");
-    }
+  if (tmdbError) {
+    throw new ApiError(502, "EXTERNAL_SERVICES_DOWN", "TMDB is unavailable");
   }
 
-  return { tmdb: tmdbResults, tvdb: tvdbResults };
+  return results;
 }
 
 export async function getDiscoverSections(locale = "en"): Promise<DiscoverResult> {
@@ -191,7 +155,7 @@ export async function getShowDetails(tmdbId: number, locale = "en"): Promise<Ret
         crewCount: tmdbDetails.credits?.crew?.length ?? 0,
         createdByCount: tmdbDetails.created_by?.length ?? 0,
       });
-      show = await upsertShowFromTmdb("tv", tmdbDetails, undefined, normalizedLocale);
+      show = await upsertShowFromTmdb("tv", tmdbDetails, normalizedLocale);
       metadataRefreshed = true;
       log("ShowService", "details upserted tv", { tmdbId, title: show.title, castCount: show.cast?.length, crewCount: show.crew?.length });
     } catch (tvErr) {
@@ -199,7 +163,7 @@ export async function getShowDetails(tmdbId: number, locale = "en"): Promise<Ret
       if (!show) {
         try {
           const movieDetails = await tmdbService.getMovieDetails(tmdbId, tmdbLanguage);
-          show = await upsertShowFromTmdb("movie", movieDetails, undefined, normalizedLocale);
+          show = await upsertShowFromTmdb("movie", movieDetails, normalizedLocale);
           metadataRefreshed = true;
           log("ShowService", "details upserted movie", { tmdbId, title: show.title });
         } catch (movieErr) {
@@ -248,7 +212,6 @@ export function showToResponse(show: ShowDocument, locale = "en") {
   const response = {
     id: show._id.toString(),
     tmdbId: show.tmdbId,
-    tvdbId: show.tvdbId,
     type: show.type,
     title: localized.title,
     posterPath: show.posterPath,
@@ -311,11 +274,11 @@ export async function getSeasonDetails(tmdbId: number, seasonNumber: number, loc
   if (!show) {
     try {
       const tmdbDetails = await tmdbService.getTvDetails(tmdbId, tmdbLanguage);
-      show = await upsertShowFromTmdb("tv", tmdbDetails, undefined, normalizedLocale);
+      show = await upsertShowFromTmdb("tv", tmdbDetails, normalizedLocale);
     } catch {
       try {
         const movieDetails = await tmdbService.getMovieDetails(tmdbId, tmdbLanguage);
-        show = await upsertShowFromTmdb("movie", movieDetails, undefined, normalizedLocale);
+        show = await upsertShowFromTmdb("movie", movieDetails, normalizedLocale);
       } catch {
         throw new ApiError(502, "EXTERNAL_SERVICES_DOWN", "TMDB is unavailable and this show is not cached");
       }
@@ -384,18 +347,6 @@ function mapTmdbResult(item: TmdbSearchResult, type: "tv" | "movie"): SearchResu
     overview: item.overview,
     firstAirDate: item.first_air_date || item.release_date,
     source: "tmdb",
-  };
-}
-
-function mapTvdbResult(item: { id: number; name?: string; image?: string | null; overview?: string; firstAired?: string }, type: "tv" | "movie"): SearchResultItem {
-  return {
-    tvdbId: item.id,
-    type,
-    title: (item.name || "Unknown").trim(),
-    posterPath: item.image || undefined,
-    overview: item.overview,
-    firstAirDate: item.firstAired,
-    source: "tvdb",
   };
 }
 

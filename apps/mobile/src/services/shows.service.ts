@@ -4,8 +4,7 @@ import { api } from "./api";
 const API_BASE_URL = api.defaults.baseURL ?? "";
 
 export interface SearchResult {
-  tmdb: SearchResultItem[];
-  tvdb: SearchResultItem[];
+  results: SearchResultItem[];
 }
 
 export interface DiscoverSection {
@@ -21,19 +20,17 @@ export interface DiscoverResult {
 
 export interface SearchResultItem {
   tmdbId?: number;
-  tvdbId?: number;
   type: "tv" | "movie";
   title: string;
   posterPath?: string;
   overview?: string;
   firstAirDate?: string;
-  source: "tmdb" | "tvdb";
+  source: "tmdb";
 }
 
 export interface ShowDetails {
   id: string;
   tmdbId: number;
-  tvdbId?: number;
   type: "tv" | "movie";
   title: string;
   posterPath?: string;
@@ -117,7 +114,7 @@ export interface ProductionCompany {
 export async function searchShows(query: string): Promise<SearchResult> {
   log("ShowsService", "search", { query });
   const response = await api.get<SearchResult>("/shows/search", { params: { q: query } });
-  log("ShowsService", "search results", { tmdb: response.data.tmdb.length, tvdb: response.data.tvdb.length });
+  log("ShowsService", "search results", { count: response.data.results.length });
   return response.data;
 }
 

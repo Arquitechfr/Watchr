@@ -148,7 +148,6 @@ export function mapTmdbDetailsToTranslation(
 export async function upsertShowFromTmdb(
   type: "tv" | "movie",
   tmdbDetails: TmdbShowDetails,
-  tvdbId?: number,
   language = "en",
 ): Promise<ShowDocument> {
   const normalizedLanguage = language.split("-")[0];
@@ -193,9 +192,6 @@ export async function upsertShowFromTmdb(
       show.crew = translation.crew;
       show.seasons = translation.seasons ?? show.seasons;
     }
-    if (tvdbId && !show.tvdbId) {
-      show.tvdbId = tvdbId;
-    }
     await show.save();
   } else {
     const newShow = new Show({
@@ -210,7 +206,6 @@ export async function upsertShowFromTmdb(
       cast: translation.cast,
       crew: translation.crew,
       seasons: translation.seasons ?? [],
-      tvdbId,
       translations: { [normalizedLanguage]: translation },
     });
     await newShow.save();
@@ -339,7 +334,7 @@ export async function refreshShowFromTmdb(tmdbId: number, language = "en-US"): P
     }
   }
 
-  const show = await upsertShowFromTmdb(type, details, undefined, language);
+  const show = await upsertShowFromTmdb(type, details, language);
 
   if (show.type === "tv") {
     await syncEpisodesForShow(show, language);

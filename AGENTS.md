@@ -66,7 +66,7 @@ watchr/
 
 1. **Aucun module natif custom côté mobile.** Toute lib doit fonctionner en Expo Go ou avoir un config plugin Expo officiel. Si une lib nécessite du code natif custom, le signaler avant de l'ajouter — ne pas prebuild.
 2. **pnpm uniquement**, jamais npm/yarn/bun dans les commandes ou la doc.
-3. **Sources de données** : TMDB et TheTVDB peuvent être utilisées selon les besoins. Le parser d'import GDPR TV Time reste tolérant (détection de colonnes par header) et produit un rapport d'erreurs ligne par ligne.
+3. **Sources de données** : TMDB est la source de données principale. Le parser d'import GDPR TV Time reste tolérant (détection de colonnes par header) et produit un rapport d'erreurs ligne par ligne.
 4. **Planification obligatoire** : toute nouvelle feature ou changement architectural doit faire l'objet d'un plan validé avant implémentation.
 5. **Internationalisation (i18n)** : l'application supporte `en` et `fr`.
    - Côté mobile, tout texte UI doit passer par `useI18n` et `t()` (interdiction de laisser du texte en dur dans les composants/écrans).

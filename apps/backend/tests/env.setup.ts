@@ -7,7 +7,6 @@ process.env.REDIS_PASSWORD = "[REDACTED_REDIS_PASSWORD]";
 process.env.JWT_ACCESS_SECRET = "test_access_secret";
 process.env.JWT_REFRESH_SECRET = "test_refresh_secret";
 process.env.TMDB_API_KEY = "test_tmdb_key";
-process.env.TVDB_API_KEY = "test_tvdb_key";
 process.env.FIREBASE_SERVICE_ACCOUNT_KEY = JSON.stringify({
   type: "service_account",
   project_id: "watchr-test",

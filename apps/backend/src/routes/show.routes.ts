@@ -17,7 +17,7 @@ router.get(
   asyncHandler(async (req: Request, res: Response) => {
     const { q } = req.query as { q: string };
     const results = await searchShows(q, req.language);
-    res.json(results);
+    res.json({ results });
   }),
 );
 

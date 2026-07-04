@@ -1,6 +1,7 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
 import { View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { SeriesScreen } from "../screens/SeriesScreen";
 import { MoviesScreen } from "../screens/MoviesScreen";
 import { SearchScreen } from "../screens/SearchScreen";
@@ -42,6 +43,8 @@ function SearchTabIcon({ focused: _focused }: { focused: boolean }) {
 
 export function MainTabs() {
   const { t } = useI18n();
+  const insets = useSafeAreaInsets();
+  const tabBarHeight = 64 + insets.bottom;
   return (
     <Tab.Navigator
       initialRouteName="Series"
@@ -50,8 +53,8 @@ export function MainTabs() {
         tabBarStyle: {
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
-          height: 64,
-          paddingBottom: 8,
+          height: tabBarHeight,
+          paddingBottom: 8 + insets.bottom,
         },
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textMuted,

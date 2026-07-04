@@ -62,7 +62,7 @@ export function SearchScreen() {
     return () => clearTimeout(timer);
   }, [query]);
 
-  const allResults = data ? [...data.tmdb, ...data.tvdb] : [];
+  const allResults = data ? data.results : [];
   const hasResults = allResults.length > 0;
   const showEmpty = !isLoading && !isError && debouncedQuery.length > 0 && !hasResults;
   const isSearching = debouncedQuery.length > 0;

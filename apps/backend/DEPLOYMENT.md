@@ -23,8 +23,6 @@ REDIS_PASSWORD=your_redis_password
 JWT_ACCESS_SECRET=your_access_secret
 JWT_REFRESH_SECRET=your_refresh_secret
 TMDB_API_KEY=your_tmdb_key
-TVDB_API_KEY=your_tvdb_key
-TVDB_PIN=your_tvdb_pin
 FIREBASE_SERVICE_ACCOUNT_KEY=your_firebase_key
 CORS_ORIGINS=https://your-frontend-domain.com,https://another-domain.com
 ```
@@ -240,7 +238,7 @@ Le fichier `ecosystem.config.js` définit 3 processus :
 
 3. **watchr-episode-sync-worker** (1 instance)
    - Worker BullMQ pour la synchronisation des épisodes
-   - Planifie et exécute les syncs TMDB/TheTVDB
+   - Planifie et exécute les syncs TMDB
 
 ## Déploiement en environnement de développement
 

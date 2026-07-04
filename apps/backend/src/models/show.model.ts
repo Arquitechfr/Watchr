@@ -68,7 +68,6 @@ export interface ShowTranslation {
 
 export interface IShow extends Document {
   tmdbId: number;
-  tvdbId?: number;
   type: "tv" | "movie";
   title: string;
   posterPath?: string;
@@ -193,10 +192,6 @@ const showSchema = new Schema<IShow>(
       required: true,
       unique: true,
       index: true,
-    },
-    tvdbId: {
-      type: Number,
-      sparse: true,
     },
     type: {
       type: String,

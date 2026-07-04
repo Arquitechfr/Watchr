@@ -52,6 +52,7 @@
     "@babel/core": "^7.24.7",
     "@eslint/js": "^9.5.0",
     "@types/react": "^19.2.17",
+    "babel-preset-expo": "~12.0.0",
     "eslint": "^9.5.0",
     "globals": "^15.6.0",
     "prettier": "^3.3.2",

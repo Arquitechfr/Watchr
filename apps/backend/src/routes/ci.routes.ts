@@ -65,7 +65,18 @@ router.post(
       ContentType: req.file.mimetype,
     });
 
-    await s3Client.send(command);
+    try {
+      await s3Client.send(command);
+    } catch (s3Err) {
+      console.error("S3 upload failed for CI upload:", s3Err);
+      res.status(502).json({
+        error: {
+          code: "S3_UPLOAD_FAILED",
+          message: `S3 upload failed: ${s3Err instanceof Error ? s3Err.message : "unknown error"}`,
+        },
+      });
+      return;
+    }
     const url = buildPublicUrl(key);
 
     res.status(201).json({ url, key });

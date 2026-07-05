@@ -91,9 +91,13 @@ function getUserLocale(preferredLanguage?: string): SupportedLocale {
   return (base === "fr" || base === "en") ? base as SupportedLocale : DEFAULT_LOCALE;
 }
 
+type BooleanPrefKey = {
+  [K in keyof NotificationPreferences]: NotificationPreferences[K] extends boolean ? K : never;
+}[keyof NotificationPreferences];
+
 async function checkPreference(
   userId: string,
-  prefKey: keyof NotificationPreferences,
+  prefKey: BooleanPrefKey,
 ): Promise<{ allowed: boolean; locale: SupportedLocale }> {
   const user = await User.findById(userId).select("notificationPreferences preferredLanguage").lean();
   if (!user) return { allowed: false, locale: DEFAULT_LOCALE };

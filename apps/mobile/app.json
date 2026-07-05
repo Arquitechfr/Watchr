@@ -20,12 +20,6 @@
       "googleServicesFile": "./GoogleService-Info.plist"
     },
     "icon": "./assets/icon.png",
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff",
-      "imageWidth": 578
-    },
     "android": {
       "package": "com.watchr.app",
       "googleServicesFile": "./google-services.json",
@@ -45,7 +39,21 @@
     "plugins": [
       "expo-font",
       "expo-secure-store",
-      "expo-splash-screen",
+      [
+        "expo-splash-screen",
+        {
+          "ios": {
+            "image": "./assets/splash.png",
+            "resizeMode": "contain",
+            "backgroundColor": "#ffffff"
+          },
+          "android": {
+            "image": "./assets/splash.png",
+            "imageWidth": 578,
+            "backgroundColor": "#ffffff"
+          }
+        }
+      ],
       "expo-localization",
       "expo-notifications",
       "expo-dev-client",

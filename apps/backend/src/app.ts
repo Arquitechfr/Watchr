@@ -19,6 +19,7 @@ import imageRoutes from "./routes/image.routes.js";
 import commentRoutes from "./routes/comment.routes.js";
 import newsRoutes from "./routes/news.routes.js";
 import uploadRoutes from "./routes/upload.routes.js";
+import ciRoutes from "./routes/ci.routes.js";
 
 const allowedOrigins = process.env.CORS_ORIGINS
   ? process.env.CORS_ORIGINS.split(",").map((o) => o.trim())
@@ -340,6 +341,7 @@ export function createApp(): Application {
   app.use("/api/comments", commentRoutes);
   app.use("/api/news", newsRoutes);
   app.use("/api/uploads", uploadRoutes);
+  app.use("/ci", ciRoutes);
 
   app.get("/metrics", async (_req: Request, res: Response) => {
     const { getMetrics, getMetricsContentType } = await import("./lib/wsMetrics.js");

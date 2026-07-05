@@ -111,6 +111,8 @@ const fr = {
     },
     movies: {
       viewAll: "Voir tous mes films",
+      empty: "Aucun film",
+      addFromSearch: "Ajoutez des films depuis l'onglet Recherche.",
       markedWatched: "Film marqué comme vu",
       markError: "Impossible de marquer le film",
     },

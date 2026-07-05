@@ -42,3 +42,6 @@ tmp/
 # Google Services (Firebase)
 apps/mobile/GoogleService-Info.plist
 apps/mobile/google-services.json
+apps/mobile/credentials.json
+.gitignore
+apps/mobile/credentials/android/keystore.jks

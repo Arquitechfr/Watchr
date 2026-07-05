@@ -65,13 +65,21 @@ export async function loginWithFirebase(idToken: string): Promise<TokenPair> {
 
   const email = decoded.email.toLowerCase();
   let user = await User.findOne({ email });
+  let isNewUser = false;
 
   if (!user) {
     const username = await generateUniqueUsername();
     user = await User.create({ email, firebaseUid: decoded.uid, username });
+    isNewUser = true;
   } else if (!user.firebaseUid) {
     user.firebaseUid = decoded.uid;
     await user.save();
+  }
+
+  if (isNewUser) {
+    EmailService.sendWelcomeEmail(user.email, user.username, user.preferredLanguage).catch((err) =>
+      console.error("Failed to send welcome email:", err),
+    );
   }
 
   return await issueTokenPair(user._id.toString());

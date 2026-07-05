@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import { BrevoClient } from "@getbrevo/brevo";
 import { env } from "../config/env.js";
 import { SupportedLocale } from "../i18n/translations.js";
 import { welcomeTemplate, resetPasswordTemplate } from "./emailTemplates.js";
@@ -9,25 +10,22 @@ interface SendEmailParams {
   html: string;
 }
 
-let brevoClient: any = null;
+let brevoClient: BrevoClient | null = null;
 
-async function getBrevoClient(): Promise<any> {
+function getBrevoClient(): BrevoClient | null {
   if (!env.BREVO_API_KEY) {
     return null;
   }
 
   if (!brevoClient) {
-    const Brevo = await import("@getbrevo/brevo");
-    const apiInstance = new Brevo.TransactionalEmailsApi();
-    apiInstance.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, env.BREVO_API_KEY);
-    brevoClient = apiInstance;
+    brevoClient = new BrevoClient({ apiKey: env.BREVO_API_KEY });
   }
 
   return brevoClient;
 }
 
 async function sendEmail(params: SendEmailParams): Promise<boolean> {
-  const client = await getBrevoClient();
+  const client = getBrevoClient();
 
   if (!client) {
     console.warn("[EmailService] BREVO_API_KEY not configured — skipping email send");
@@ -35,17 +33,15 @@ async function sendEmail(params: SendEmailParams): Promise<boolean> {
   }
 
   try {
-    const Brevo = await import("@getbrevo/brevo");
-    const sendSmtpEmail = new Brevo.SendSmtpEmail();
-    sendSmtpEmail.sender = {
-      email: env.BREVO_SENDER_EMAIL ?? "noreply@watchr.app",
-      name: env.BREVO_SENDER_NAME,
-    };
-    sendSmtpEmail.to = [{ email: params.to }];
-    sendSmtpEmail.subject = params.subject;
-    sendSmtpEmail.htmlContent = params.html;
-
-    await client.sendTransacEmail(sendSmtpEmail);
+    await client.transactionalEmails.sendTransacEmail({
+      sender: {
+        email: env.BREVO_SENDER_EMAIL ?? "noreply@watchr.app",
+        name: env.BREVO_SENDER_NAME,
+      },
+      to: [{ email: params.to }],
+      subject: params.subject,
+      htmlContent: params.html,
+    });
     console.log(`[EmailService] Email sent to ${params.to}: ${params.subject}`);
     return true;
   } catch (err) {

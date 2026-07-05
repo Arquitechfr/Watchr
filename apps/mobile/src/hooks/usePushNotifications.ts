@@ -4,7 +4,7 @@ import { registerPushToken, unregisterPushToken } from "../services/auth.service
 import { useAuthStore } from "../store/authStore";
 import { useThemeColors } from "../theme/useThemeColors";
 import { log } from "../utils/logger";
-import { isStandaloneBuild } from "../utils/platform";
+import Constants from "expo-constants";
 
 type NotificationSubscription = import("expo-notifications").Subscription;
 
@@ -18,11 +18,6 @@ export function usePushNotifications() {
     if (!isAuthenticated) return;
 
     async function setup() {
-      if (!isStandaloneBuild()) {
-        log("usePushNotifications", "skipped push registration in Expo Go");
-        return;
-      }
-
       const Notifications = await import("expo-notifications");
 
       Notifications.setNotificationHandler({
@@ -71,7 +66,8 @@ export function usePushNotifications() {
           return;
         }
 
-        const token = (await Notifications.getExpoPushTokenAsync()).data;
+        const projectId = Constants.expoConfig?.extra?.eas?.projectId;
+        const token = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
         log("usePushNotifications", "got push token", { token });
         await registerPushToken(token);
       } catch (err) {

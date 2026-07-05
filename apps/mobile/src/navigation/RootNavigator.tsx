@@ -25,7 +25,6 @@ import { ProfileAppearanceScreen } from "../screens/profile/ProfileAppearanceScr
 import { usePushNotifications } from "../hooks/usePushNotifications";
 import { useThemeSync } from "../hooks/useThemeSync";
 import { log } from "../utils/logger";
-import { isStandaloneBuild } from "../utils/platform";
 import { ResetPasswordScreen } from "../screens/auth/ResetPasswordScreen";
 import { NewsArticleDetailScreen } from "../screens/NewsArticleDetailScreen";
 import { getMe, Me, completeOnboarding } from "../services/auth.service";
@@ -81,8 +80,6 @@ export function RootNavigator() {
   }, [hydrate]);
 
   useEffect(() => {
-    if (!isStandaloneBuild()) return;
-
     let subscription: import("expo-notifications").Subscription | undefined;
 
     (async () => {

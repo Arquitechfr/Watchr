@@ -20,6 +20,12 @@
       "googleServicesFile": "./GoogleService-Info.plist"
     },
     "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff",
+      "imageWidth": 578
+    },
     "android": {
       "package": "com.watchr.app",
       "googleServicesFile": "./google-services.json",
@@ -42,6 +48,7 @@
       "expo-splash-screen",
       "expo-localization",
       "expo-notifications",
+      "expo-dev-client",
       "@react-native-google-signin/google-signin"
     ],
     "owner": "arquitech"

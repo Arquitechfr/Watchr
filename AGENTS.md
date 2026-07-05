@@ -18,7 +18,7 @@ Délai : livraison MVP avant le 15/07/2026.
 | BDD | MongoDB + Mongoose |
 | Auth | JWT (access + refresh) |
 | Validation | Zod (backend et frontend) |
-| Mobile | React Native + Expo (managed workflow, **sans prebuild**) |
+| Mobile | React Native + Expo (dev client, **prebuild autorisé**) |
 | État mobile | Zustand + TanStack Query |
 | Navigation mobile | React Navigation (native-stack, bottom-tabs) |
 | Réseau mobile | Axios |
@@ -60,11 +60,11 @@ watchr/
 
 - Install : `pnpm install` (à la racine, workspace)
 - Backend dev : `pnpm --filter backend dev`
-- Mobile dev : `pnpm --filter mobile start` (Expo Go, pas de dev client custom sauf accord explicite)
+- Mobile dev : `pnpm --filter mobile start` (dev client Expo, prebuild autorisé)
 
 ## Contraintes et principes actifs
 
-1. **Aucun module natif custom côté mobile.** Toute lib doit fonctionner en Expo Go ou avoir un config plugin Expo officiel. Si une lib nécessite du code natif custom, le signaler avant de l'ajouter — ne pas prebuild.
+1. **Modules natifs côté mobile.** Les libs nécessitant du code natif doivent avoir un config plugin Expo officiel. Le prebuild est autorisé (dev client Expo). Signaler avant d'ajouter une lib nécessitant du code natif custom.
 2. **pnpm uniquement**, jamais npm/yarn/bun dans les commandes ou la doc.
 3. **Sources de données** : TMDB est la source de données principale. Le parser d'import GDPR TV Time reste tolérant (détection de colonnes par header) et produit un rapport d'erreurs ligne par ligne.
 4. **Planification obligatoire** : toute nouvelle feature ou changement architectural doit faire l'objet d'un plan validé avant implémentation.

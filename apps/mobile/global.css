@@ -15,6 +15,19 @@
   --color-border: #D4C9BE;
 }
 
+.light {
+  --color-background: #FAF6F2;
+  --color-surface: #F0EAE3;
+  --color-surface-light: #E5DDD4;
+  --color-primary: #C65D3A;
+  --color-primary-dark: #A84A2E;
+  --color-text: #2A2018;
+  --color-text-muted: #7A6B5E;
+  --color-danger: #D63B3B;
+  --color-success: #3D8B4E;
+  --color-border: #D4C9BE;
+}
+
 .dark {
   --color-background: #1A1614;
   --color-surface: #252019;

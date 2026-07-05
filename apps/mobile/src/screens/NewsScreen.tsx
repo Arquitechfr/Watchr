@@ -11,13 +11,19 @@ import { NewsSource } from "../services/news.service";
 import { useThemeColors } from "../theme/useThemeColors";
 import { useState, useEffect } from "react";
 import { useI18n } from "../i18n/useI18n";
+import { useLocaleStore } from "../store/localeStore";
 
 export function NewsScreen() {
   const { t } = useI18n();
   const colors = useThemeColors();
+  const locale = useLocaleStore((state) => state.locale);
   const { data: sources } = useNewsSources();
   const [selectedSource, setSelectedSource] = useState<string | null>(null);
   const { data, isLoading, isError, error, refetch } = useNews(selectedSource);
+
+  useEffect(() => {
+    setSelectedSource(null);
+  }, [locale]);
 
   useEffect(() => {
     if (sources && sources.length > 0 && selectedSource === null) {

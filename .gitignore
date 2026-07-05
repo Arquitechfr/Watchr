@@ -45,3 +45,4 @@ apps/mobile/google-services.json
 apps/mobile/credentials.json
 .gitignore
 apps/mobile/credentials/android/keystore.jks
+apps/backend/scripts/*

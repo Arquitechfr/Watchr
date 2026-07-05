@@ -12,7 +12,10 @@ import {
   markUpTo,
   toggleDropped,
   addToWatchlistByTmdb,
+  addToWatchlistBatch,
   getTrackedTmdbIds,
+  BatchAddItem,
+  BatchAddResult,
   WatchStatus,
   UpsertTrackingInput,
   ToggleEpisodeInput,
@@ -233,5 +236,24 @@ export function useTrackedTmdbIds() {
     queryFn: () => getTrackedTmdbIds(),
     enabled: isHydrated,
     staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useAddToWatchlistBatch() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (items: BatchAddItem[]) => addToWatchlistBatch(items),
+    onMutate: (items) => {
+      log("useTracking", "batchAdd mutate", { itemCount: items.length });
+    },
+    onSuccess: (data) => {
+      log("useTracking", "batchAdd success", { added: data.added, failed: data.failed });
+      queryClient.invalidateQueries({ queryKey: [TRACKING_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: [TRACKING_QUERY_KEY, "tmdb-ids"] });
+    },
+    onError: (err) => {
+      log("useTracking", "batchAdd error", { err });
+    },
   });
 }

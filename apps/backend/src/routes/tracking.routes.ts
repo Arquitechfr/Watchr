@@ -3,6 +3,7 @@ import { requireAuth } from "../middleware/requireAuth.middleware.js";
 import { ApiError } from "../middleware/error.middleware.js";
 import {
   addToWatchlistByTmdb,
+  addToWatchlistBatch,
   deleteTracking,
   getTrackedTmdbIds,
   getTrackingEntry,
@@ -17,6 +18,7 @@ import {
 import {
   addToWatchlistByTmdbParamsSchema,
   addToWatchlistByTmdbSchema,
+  batchAddToWatchlistSchema,
   librarySchema,
   listTrackingSchema,
   markUpToSchema,
@@ -86,6 +88,16 @@ router.post(
     const { type } = req.body as { type: "tv" | "movie" };
     const entry = await addToWatchlistByTmdb(req.userId!, Number(tmdbId), type, req.language);
     res.status(201).json(entry);
+  }),
+);
+
+router.post(
+  "/batch-by-tmdb",
+  validateRequest(batchAddToWatchlistSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { items } = req.body as { items: { tmdbId: number; type: "tv" | "movie" }[] };
+    const result = await addToWatchlistBatch(req.userId!, items, req.language);
+    res.json(result);
   }),
 );
 

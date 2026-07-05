@@ -334,6 +334,38 @@ export async function addToWatchlistByTmdb(
   return entry;
 }
 
+export async function addToWatchlistBatch(
+  userId: string,
+  items: { tmdbId: number; type: "tv" | "movie" }[],
+  language = "en",
+): Promise<{ added: number; failed: number; failedIds: string[] }> {
+  log("TrackingService", "addToWatchlistBatch start", { userId, itemCount: items.length });
+
+  const results = await Promise.allSettled(
+    items.map((item) => addToWatchlistByTmdb(userId, item.tmdbId, item.type, language)),
+  );
+
+  let added = 0;
+  let failed = 0;
+  const failedIds: string[] = [];
+
+  results.forEach((result, index) => {
+    if (result.status === "fulfilled") {
+      added++;
+    } else {
+      failed++;
+      failedIds.push(String(items[index].tmdbId));
+      log("TrackingService", "batch item failed", {
+        tmdbId: items[index].tmdbId,
+        error: result.reason instanceof Error ? result.reason.message : String(result.reason),
+      });
+    }
+  });
+
+  log("TrackingService", "addToWatchlistBatch done", { added, failed });
+  return { added, failed, failedIds };
+}
+
 export async function getTrackedTmdbIds(userId: string): Promise<number[]> {
   log("TrackingService", "getTrackedTmdbIds start", { userId });
 

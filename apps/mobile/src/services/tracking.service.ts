@@ -120,3 +120,24 @@ export async function getTrackedTmdbIds(): Promise<number[]> {
   log("TrackingService", "getTrackedTmdbIds response", { count: response.data.tmdbIds.length });
   return response.data.tmdbIds;
 }
+
+export interface BatchAddItem {
+  tmdbId: number;
+  type: "tv" | "movie";
+}
+
+export interface BatchAddResult {
+  added: number;
+  failed: number;
+  failedIds: string[];
+}
+
+export async function addToWatchlistBatch(items: BatchAddItem[]): Promise<BatchAddResult> {
+  log("TrackingService", "addToWatchlistBatch", { itemCount: items.length });
+  const response = await api.post<BatchAddResult>("/tracking/batch-by-tmdb", { items });
+  log("TrackingService", "addToWatchlistBatch response", {
+    added: response.data.added,
+    failed: response.data.failed,
+  });
+  return response.data;
+}

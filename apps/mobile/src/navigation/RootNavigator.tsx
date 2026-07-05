@@ -2,11 +2,14 @@ import { useEffect, useState, useRef } from "react";
 import { ActivityIndicator, Linking } from "react-native";
 import { NavigationContainer, LinkingOptions } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { useQuery } from "@tanstack/react-query";
 import { ScreenContainer } from "../components/ScreenContainer";
+import { NetworkError } from "../components/NetworkError";
 import { useAuthStore } from "../store/authStore";
 import { useThemeColors } from "../theme/useThemeColors";
 import { AuthStack } from "./AuthStack";
 import { MainTabs } from "./MainTabs";
+import { OnboardingStack } from "./OnboardingStack";
 import { ShowDetailScreen } from "../screens/ShowDetailScreen";
 import { ShowCommentsScreen } from "../screens/ShowCommentsScreen";
 import { EpisodeDetailScreen } from "../screens/EpisodeDetailScreen";
@@ -25,10 +28,12 @@ import { log } from "../utils/logger";
 import { isStandaloneBuild } from "../utils/platform";
 import { ResetPasswordScreen } from "../screens/auth/ResetPasswordScreen";
 import { NewsArticleDetailScreen } from "../screens/NewsArticleDetailScreen";
+import { getMe, Me, completeOnboarding } from "../services/auth.service";
 
 export type RootStackParamList = {
   Auth: undefined;
   Main: undefined;
+  Onboarding: undefined;
   ShowDetail: { tmdbId: number; title: string };
   ShowComments: { showId: string; title: string; season?: number; episode?: number };
   EpisodeDetail: { showId: string; tmdbId: number; season: number; episodeNumber: number; title?: string };
@@ -52,6 +57,17 @@ export function RootNavigator() {
   const colors = useThemeColors();
   const [isReady, setIsReady] = useState(false);
   const navigationRef = useRef<any>(null);
+
+  const meQuery = useQuery<Me>({
+    queryKey: ["me"],
+    queryFn: getMe,
+    enabled: isAuthenticated,
+    staleTime: Infinity,
+  });
+
+  const me = meQuery.data;
+  const isMeLoading = meQuery.isLoading;
+  const isMeError = meQuery.isError;
 
   usePushNotifications();
   useThemeSync();
@@ -122,12 +138,47 @@ export function RootNavigator() {
     );
   }
 
+  if (isAuthenticated && isMeLoading && !me) {
+    return (
+      <ScreenContainer className="items-center justify-center">
+        <ActivityIndicator size="large" color={colors.primary} />
+      </ScreenContainer>
+    );
+  }
+
+  if (isAuthenticated && isMeError && !me) {
+    return (
+      <ScreenContainer>
+        <NetworkError onRetry={() => meQuery.refetch()} />
+      </ScreenContainer>
+    );
+  }
+
+  const showOnboarding = isAuthenticated && me && !me.hasCompletedOnboarding;
+
   return (
     <NavigationContainer linking={linking} ref={navigationRef as any}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {isAuthenticated ? (
           <>
-            <Stack.Screen name="Main" component={MainTabs} />
+            {showOnboarding ? (
+              <Stack.Screen name="Onboarding">
+                {() => (
+                  <OnboardingStack
+                    onComplete={() => {
+                      meQuery.refetch();
+                    }}
+                    onSkip={() => {
+                      completeOnboarding()
+                        .then(() => meQuery.refetch())
+                        .catch(() => meQuery.refetch());
+                    }}
+                  />
+                )}
+              </Stack.Screen>
+            ) : (
+              <Stack.Screen name="Main" component={MainTabs} />
+            )}
             <Stack.Screen name="ShowDetail" component={ShowDetailScreen} />
             <Stack.Screen name="ShowComments" component={ShowCommentsScreen} />
             <Stack.Screen name="EpisodeDetail" component={EpisodeDetailScreen} />

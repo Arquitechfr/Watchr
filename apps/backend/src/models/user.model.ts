@@ -27,6 +27,7 @@ export interface IUser extends Document {
   themePreference: "system" | "light" | "dark";
   notificationPreferences: NotificationPreferences;
   expoPushToken?: string;
+  hasCompletedOnboarding: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -117,6 +118,10 @@ const userSchema = new Schema<IUser>(
     expoPushToken: {
       type: String,
       required: false,
+    },
+    hasCompletedOnboarding: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true },

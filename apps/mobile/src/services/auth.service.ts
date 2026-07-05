@@ -58,6 +58,7 @@ export interface Me {
   avatarUrl?: string;
   preferredLanguage?: string;
   themePreference: "system" | "light" | "dark";
+  hasCompletedOnboarding: boolean;
   createdAt: string;
 }
 
@@ -122,5 +123,12 @@ export async function updateNotificationPreferences(prefs: Partial<NotificationP
 
 export async function updateThemePreference(pref: "system" | "light" | "dark"): Promise<{ themePreference: string }> {
   const response = await api.patch<{ themePreference: string }>("/auth/me/theme-preference", { themePreference: pref });
+  return response.data;
+}
+
+export async function completeOnboarding(): Promise<{ hasCompletedOnboarding: boolean }> {
+  log("AuthService", "completeOnboarding request");
+  const response = await api.patch<{ hasCompletedOnboarding: boolean }>("/auth/me/onboarding", {});
+  log("AuthService", "completeOnboarding response", { status: response.status });
   return response.data;
 }

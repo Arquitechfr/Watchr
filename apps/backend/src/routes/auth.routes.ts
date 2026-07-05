@@ -18,6 +18,7 @@ import {
   updateNotificationPreferences,
   getNotificationPreferences,
   updateThemePreference,
+  completeOnboarding,
 } from "../services/auth.service.js";
 import {
   buildGoogleAuthUrl,
@@ -35,6 +36,7 @@ import {
   pushTokenSchema,
   notificationPreferencesSchema,
   themePreferenceSchema,
+  onboardingCompleteSchema,
 } from "../validators/auth.validator.js";
 import { validateRequest } from "../validators/validateRequest.js";
 import { asyncHandler } from "../lib/asyncHandler.js";
@@ -281,6 +283,15 @@ router.patch(
   validateRequest(notificationPreferencesSchema),
   asyncHandler(async (req: Request, res: Response) => {
     const result = await updateNotificationPreferences(req.userId!, req.body);
+    res.json(result);
+  }),
+);
+
+router.patch(
+  "/me/onboarding",
+  validateRequest(onboardingCompleteSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const result = await completeOnboarding(req.userId!);
     res.json(result);
   }),
 );

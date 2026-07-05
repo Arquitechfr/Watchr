@@ -54,3 +54,15 @@ export const addToWatchlistByTmdbSchema = z.object({
 export const addToWatchlistByTmdbParamsSchema = z.object({
   tmdbId: z.coerce.number().int().positive(),
 });
+
+export const batchAddToWatchlistSchema = z.object({
+  items: z
+    .array(
+      z.object({
+        tmdbId: z.number().int().positive(),
+        type: z.enum(["tv", "movie"]),
+      }),
+    )
+    .min(1)
+    .max(50),
+});

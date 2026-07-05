@@ -47,3 +47,5 @@ export const notificationPreferencesSchema = z.object({
   commentReactions: z.boolean().optional(),
   commentLikes: z.boolean().optional(),
 });
+
+export const onboardingCompleteSchema = z.object({}).strict();

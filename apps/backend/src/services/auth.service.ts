@@ -129,7 +129,7 @@ export function verifyAccessToken(token: string): { sub: string } {
 }
 
 export async function getMe(userId: string) {
-  const user = await User.findById(userId).select("email username usernameChanged avatarUrl preferredLanguage themePreference createdAt").lean();
+  const user = await User.findById(userId).select("email username usernameChanged avatarUrl preferredLanguage themePreference hasCompletedOnboarding createdAt").lean();
   if (!user) {
     throw new ApiError(404, "USER_NOT_FOUND", "User not found");
   }
@@ -141,6 +141,7 @@ export async function getMe(userId: string) {
     avatarUrl: user.avatarUrl,
     preferredLanguage: user.preferredLanguage,
     themePreference: user.themePreference ?? "system",
+    hasCompletedOnboarding: user.hasCompletedOnboarding ?? false,
     createdAt: user.createdAt.toISOString(),
   };
 }
@@ -284,4 +285,16 @@ export async function getNotificationPreferences(userId: string): Promise<{ noti
     throw new ApiError(404, "USER_NOT_FOUND", "User not found");
   }
   return { notificationPreferences: user.notificationPreferences ?? DEFAULT_NOTIFICATION_PREFERENCES };
+}
+
+export async function completeOnboarding(userId: string): Promise<{ hasCompletedOnboarding: boolean }> {
+  const user = await User.findByIdAndUpdate(
+    userId,
+    { $set: { hasCompletedOnboarding: true } },
+    { new: true },
+  ).select("hasCompletedOnboarding").lean();
+  if (!user) {
+    throw new ApiError(404, "USER_NOT_FOUND", "User not found");
+  }
+  return { hasCompletedOnboarding: user.hasCompletedOnboarding ?? true };
 }

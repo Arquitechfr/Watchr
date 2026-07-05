@@ -65,7 +65,8 @@
           "organization": "arquitech-fq",
           "project": "watchr-expo"
         }
-      ]
+      ],
+      "@sentry/react-native"
     ],
     "owner": "arquitech"
   }

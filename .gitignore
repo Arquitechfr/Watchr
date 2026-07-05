@@ -46,3 +46,4 @@ apps/mobile/credentials.json
 .gitignore
 apps/mobile/credentials/android/keystore.jks
 apps/backend/scripts/*
+apps/mobile/app-debug.apk

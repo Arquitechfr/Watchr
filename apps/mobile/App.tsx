@@ -21,8 +21,16 @@ import { RootNavigator } from "./src/navigation/RootNavigator";
 import { Snackbar } from "./src/components/Snackbar";
 import { View } from "react-native";
 import { useLocaleStore } from "./src/store/localeStore";
+import { useThemeStore } from "./src/store/themeStore";
+import { ThemeProvider } from "./src/theme/ThemeProvider";
+import { useTheme } from "./src/theme/useTheme";
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
+
+function StatusBarContent() {
+  const { mode } = useTheme();
+  return <StatusBar style={mode === "dark" ? "light" : "dark"} />;
+}
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -48,6 +56,7 @@ export default function App() {
 
   useEffect(() => {
     useLocaleStore.getState().hydrate();
+    useThemeStore.getState().hydrate();
   }, []);
 
   useEffect(() => {
@@ -64,11 +73,13 @@ export default function App() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryClientProvider client={queryClient}>
         <SafeAreaProvider>
-          <StatusBar style="light" />
-          <View style={{ flex: 1, position: "relative" }}>
-            <RootNavigator />
-            <Snackbar />
-          </View>
+          <ThemeProvider>
+            <StatusBarContent />
+            <View style={{ flex: 1, position: "relative" }}>
+              <RootNavigator />
+              <Snackbar />
+            </View>
+          </ThemeProvider>
         </SafeAreaProvider>
       </QueryClientProvider>
     </GestureHandlerRootView>

@@ -36,7 +36,7 @@ import {
   CastMember,
 } from "../services/shows.service";
 import { Comment } from "../services/comments.service";
-import { colors } from "../theme/colors";
+import { useThemeColors } from "../theme/useThemeColors";
 import { log } from "../utils/logger";
 import { useI18n } from "../i18n/useI18n";
 
@@ -49,6 +49,7 @@ export function EpisodeDetailScreen() {
   const { showId, tmdbId, season, episodeNumber, title } = route.params;
   const { showSnackbar } = useUIStore();
   const { t, dateFnsLocale } = useI18n();
+  const colors = useThemeColors();
 
   const { data: show, isLoading: isLoadingShow, isError: isErrorShow, refetch: refetchShow } = useShowDetails(tmdbId);
   const {
@@ -435,6 +436,7 @@ export function EpisodeDetailScreen() {
 
 function CastMemberCard({ member }: { member: CastMember }) {
   const { t } = useI18n();
+  const colors = useThemeColors();
   const profileUrl = getProfileUrl(member.profilePath, 200);
   return (
     <View className="mr-3 items-center" style={{ width: 80 }}>

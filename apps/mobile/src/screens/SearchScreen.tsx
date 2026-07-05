@@ -22,7 +22,7 @@ import { EmptyState } from "../components/EmptyState";
 import { NetworkError } from "../components/NetworkError";
 import { ShowCardSkeleton, Skeleton } from "../components/Skeleton";
 import { ScreenContainer } from "../components/ScreenContainer";
-import { colors } from "../theme/colors";
+import { useThemeColors } from "../theme/useThemeColors";
 import { RootStackParamList } from "../navigation/RootNavigator";
 import { SearchResultItem, DiscoverSection } from "../services/shows.service";
 import { useUIStore } from "../store/uiStore";
@@ -35,6 +35,7 @@ export function SearchScreen() {
   const navigation = useNavigation<NavigationProp>();
   const { showSnackbar } = useUIStore();
   const { t } = useI18n();
+  const colors = useThemeColors();
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const { data, isLoading, isError, error, refetch } = useShowSearch(debouncedQuery);

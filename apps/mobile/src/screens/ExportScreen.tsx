@@ -3,7 +3,7 @@ import { useState } from "react";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { useUIStore } from "../store/uiStore";
 import { useErrorMessage } from "../services/api";
-import { colors } from "../theme/colors";
+import { useThemeColors } from "../theme/useThemeColors";
 import { useI18n } from "../i18n/useI18n";
 import { log } from "../utils/logger";
 import { downloadAndShareExport, ExportFormat } from "../services/export.service";
@@ -17,6 +17,7 @@ interface ExportOptionProps {
 }
 
 function ExportOption({ icon, label, description, onPress, disabled }: ExportOptionProps) {
+  const colors = useThemeColors();
   return (
     <TouchableOpacity
       className="flex-row items-center rounded-lg p-4 mb-3"
@@ -35,6 +36,7 @@ function ExportOption({ icon, label, description, onPress, disabled }: ExportOpt
 }
 
 export function ExportScreen() {
+  const colors = useThemeColors();
   const { showSnackbar } = useUIStore();
   const { t } = useI18n();
   const getErrorMessage = useErrorMessage();

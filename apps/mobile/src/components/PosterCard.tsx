@@ -1,7 +1,7 @@
-import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, Image, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { SearchResultItem, getPosterUrl } from "../services/shows.service";
-import { colors } from "../theme/colors";
+import { useThemeColors } from "../theme/useThemeColors";
 import { useI18n } from "../i18n/useI18n";
 
 interface PosterCardProps {
@@ -15,66 +15,73 @@ interface PosterCardProps {
 const CARD_WIDTH = 128;
 const CARD_HEIGHT = 192;
 
-const styles = StyleSheet.create({
-  card: {
-    width: CARD_WIDTH,
-    marginRight: 12,
-  },
-  posterContainer: {
-    width: CARD_WIDTH,
-    height: CARD_HEIGHT,
-    borderRadius: 8,
-    backgroundColor: colors.surfaceLight,
-    overflow: "hidden",
-  },
-  posterImage: {
-    width: CARD_WIDTH,
-    height: CARD_HEIGHT,
-  },
-  placeholder: {
-    width: CARD_WIDTH,
-    height: CARD_HEIGHT,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  addButton: {
-    position: "absolute",
-    top: 8,
-    right: 8,
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: colors.surface,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
-
 export function PosterCard({ show, onPress, onAdd, isAdding, isAdded }: PosterCardProps) {
   const { t } = useI18n();
+  const colors = useThemeColors();
   const posterUrl = getPosterUrl(show.posterPath, 200);
   const year = show.firstAirDate ? new Date(show.firstAirDate).getFullYear() : null;
 
   return (
-    <View style={styles.card}>
-      <TouchableOpacity style={styles.posterContainer} onPress={onPress} activeOpacity={0.7}>
+    <View style={{ width: CARD_WIDTH, marginRight: 12 }}>
+      <TouchableOpacity
+        style={{
+          width: CARD_WIDTH,
+          height: CARD_HEIGHT,
+          borderRadius: 8,
+          backgroundColor: colors.surfaceLight,
+          overflow: "hidden",
+        }}
+        onPress={onPress}
+        activeOpacity={0.7}
+      >
         {posterUrl ? (
-          <Image source={{ uri: posterUrl }} style={styles.posterImage} resizeMode="cover" />
+          <Image
+            source={{ uri: posterUrl }}
+            style={{ width: CARD_WIDTH, height: CARD_HEIGHT }}
+            resizeMode="cover"
+          />
         ) : (
-          <View style={styles.placeholder}>
+          <View style={{ width: CARD_WIDTH, height: CARD_HEIGHT, alignItems: "center", justifyContent: "center" }}>
             <Text className="text-text-muted text-xs">{t("common.noImage")}</Text>
           </View>
         )}
       </TouchableOpacity>
 
       {onAdd && !isAdded && (
-        <TouchableOpacity style={styles.addButton} onPress={onAdd} disabled={isAdding} activeOpacity={0.7}>
+        <TouchableOpacity
+          style={{
+            position: "absolute",
+            top: 8,
+            right: 8,
+            width: 32,
+            height: 32,
+            borderRadius: 16,
+            backgroundColor: colors.surface,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+          onPress={onAdd}
+          disabled={isAdding}
+          activeOpacity={0.7}
+        >
           <Ionicons name="add" size={20} color={colors.primary} />
         </TouchableOpacity>
       )}
 
       {isAdded && (
-        <View style={styles.addButton}>
+        <View
+          style={{
+            position: "absolute",
+            top: 8,
+            right: 8,
+            width: 32,
+            height: 32,
+            borderRadius: 16,
+            backgroundColor: colors.surface,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
           <Ionicons name="checkmark" size={20} color={colors.success} />
         </View>
       )}

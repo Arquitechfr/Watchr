@@ -1,8 +1,12 @@
-import { View, Text, Image, TouchableOpacity, Linking } from "react-native";
+import { View, Text, Image, TouchableOpacity } from "react-native";
 import { format } from "date-fns";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { NewsArticle } from "../services/news.service";
-import { log } from "../utils/logger";
+import { RootStackParamList } from "../navigation/RootNavigator";
 import { useI18n } from "../i18n/useI18n";
+
+type NewsCardNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 interface NewsCardProps {
   article: NewsArticle;
@@ -10,18 +14,11 @@ interface NewsCardProps {
 
 export function NewsCard({ article }: NewsCardProps) {
   const { dateFnsLocale } = useI18n();
-  async function handlePress() {
+  const navigation = useNavigation<NewsCardNavigationProp>();
+
+  function handlePress() {
     if (!article.link) return;
-    try {
-      const supported = await Linking.canOpenURL(article.link);
-      if (supported) {
-        await Linking.openURL(article.link);
-      } else {
-        log("NewsCard", "cannot open url", { link: article.link });
-      }
-    } catch (err) {
-      log("NewsCard", "open url error", err);
-    }
+    navigation.navigate("NewsArticleDetail", { link: article.link, title: article.title });
   }
 
   const pubDate = article.pubDate ? new Date(article.pubDate) : undefined;

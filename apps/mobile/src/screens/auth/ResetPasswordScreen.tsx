@@ -4,7 +4,7 @@ import { RouteProp } from "@react-navigation/native";
 import { resetPassword } from "../../services/auth.service";
 import { useUIStore } from "../../store/uiStore";
 import { useErrorMessage } from "../../services/api";
-import { colors } from "../../theme/colors";
+import { useThemeColors } from "../../theme/useThemeColors";
 import { ScreenContainer } from "../../components/ScreenContainer";
 import { useI18n } from "../../i18n/useI18n";
 import { AuthStackParamList } from "../../navigation/AuthStack";
@@ -19,6 +19,7 @@ export function ResetPasswordScreen({ route }: ResetPasswordScreenProps) {
   const { token } = route.params;
   const { showSnackbar } = useUIStore();
   const { t } = useI18n();
+  const colors = useThemeColors();
   const getErrorMessage = useErrorMessage();
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");

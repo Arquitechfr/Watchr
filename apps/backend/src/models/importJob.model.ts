@@ -13,6 +13,7 @@ export interface ImportProgress {
   processed: number;
   matched: number;
   failed: number;
+  pendingReview?: number;
 }
 
 export interface IImportJob extends Document {
@@ -41,6 +42,7 @@ const importProgressSchema = new Schema<ImportProgress>(
     processed: { type: Number, default: 0 },
     matched: { type: Number, default: 0 },
     failed: { type: Number, default: 0 },
+    pendingReview: { type: Number, default: 0 },
   },
   { _id: false },
 );

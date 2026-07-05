@@ -14,12 +14,12 @@ export function useNewsSources() {
   });
 }
 
-export function useNews(sourceId: string = "allocine-news") {
+export function useNews(sourceId: string | null) {
   const isHydrated = useAuthStore((state) => state.isHydrated);
   return useQuery({
     queryKey: [NEWS_QUERY_KEY, { sourceId }],
-    queryFn: () => getNews(sourceId),
+    queryFn: () => getNews(sourceId ?? undefined),
     staleTime: 15 * 60 * 1000,
-    enabled: isHydrated,
+    enabled: isHydrated && !!sourceId,
   });
 }

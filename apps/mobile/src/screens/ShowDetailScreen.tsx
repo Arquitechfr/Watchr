@@ -19,7 +19,7 @@ import { TrackingActionModal } from "../components/TrackingActionModal";
 import { RootStackParamList } from "../navigation/RootNavigator";
 import { getPosterUrl, getProfileUrl, Episode, CastMember, CrewMember, Genre, Network } from "../services/shows.service";
 import { Ionicons } from "@expo/vector-icons";
-import { colors } from "../theme/colors";
+import { useThemeColors } from "../theme/useThemeColors";
 import { WatchStatus } from "../services/tracking.service";
 import { useUIStore } from "../store/uiStore";
 import { log } from "../utils/logger";
@@ -54,6 +54,7 @@ export function ShowDetailScreen() {
   const { tmdbId, title } = route.params;
   const { showSnackbar } = useUIStore();
   const { t } = useI18n();
+  const colors = useThemeColors();
   const isValidTmdbId = Number.isFinite(tmdbId) && tmdbId > 0;
 
   const { data: show, isLoading, isError, refetch } = useShowDetails(tmdbId);
@@ -460,6 +461,7 @@ export function ShowDetailScreen() {
 
 function CastMemberCard({ member }: { member: CastMember }) {
   const { t } = useI18n();
+  const colors = useThemeColors();
   const profileUrl = getProfileUrl(member.profilePath, 200);
   return (
     <View className="mr-3 items-center" style={{ width: 80 }}>
@@ -488,6 +490,7 @@ function CastMemberCard({ member }: { member: CastMember }) {
 
 function CrewMemberCard({ member }: { member: CrewMember }) {
   const { t } = useI18n();
+  const colors = useThemeColors();
   const profileUrl = getProfileUrl(member.profilePath, 200);
   return (
     <View className="mr-3 items-center" style={{ width: 80 }}>

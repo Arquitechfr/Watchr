@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { colors } from "../theme/colors";
+import { useThemeColors } from "../theme/useThemeColors";
 
 interface EmptyStateProps {
   icon: keyof typeof Ionicons.glyphMap;
@@ -11,6 +11,7 @@ interface EmptyStateProps {
 }
 
 export function EmptyState({ icon, title, subtitle, actionLabel, onAction }: EmptyStateProps) {
+  const colors = useThemeColors();
   return (
     <View className="flex-1 items-center justify-center px-6">
       <Ionicons name={icon} size={48} color={colors.textMuted} className="mb-4" />

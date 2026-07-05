@@ -57,6 +57,7 @@ export interface Me {
   usernameChanged: boolean;
   avatarUrl?: string;
   preferredLanguage?: string;
+  themePreference: "system" | "light" | "dark";
   createdAt: string;
 }
 
@@ -116,5 +117,10 @@ export async function getNotificationPreferences(): Promise<{ notificationPrefer
 
 export async function updateNotificationPreferences(prefs: Partial<NotificationPreferences>): Promise<{ notificationPreferences: NotificationPreferences }> {
   const response = await api.patch<{ notificationPreferences: NotificationPreferences }>("/auth/me/notification-preferences", prefs);
+  return response.data;
+}
+
+export async function updateThemePreference(pref: "system" | "light" | "dark"): Promise<{ themePreference: string }> {
+  const response = await api.patch<{ themePreference: string }>("/auth/me/theme-preference", { themePreference: pref });
   return response.data;
 }

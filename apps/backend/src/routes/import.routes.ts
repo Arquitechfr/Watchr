@@ -4,13 +4,15 @@ import rateLimit from "express-rate-limit";
 import { requireAuth } from "../middleware/requireAuth.middleware.js";
 import { getImportQueue } from "../workers/import.worker.js";
 import { ImportJob } from "../models/importJob.model.js";
-import { jobIdParamSchema } from "../validators/import.validator.js";
+import { PendingImportReview } from "../models/pendingImportReview.model.js";
+import { jobIdParamSchema, reviewIdParamSchema, resolveReviewBodySchema } from "../validators/import.validator.js";
 import { validateRequest } from "../validators/validateRequest.js";
 import { asyncHandler } from "../lib/asyncHandler.js";
 import { ApiError } from "../middleware/error.middleware.js";
 import { translate } from "../i18n/index.js";
 import { detectSource } from "../services/import/parserRegistry.js";
 import { ImportSource } from "../services/import/types.js";
+import { resolvePendingReview } from "../services/import/tvtime/tvtimeImport.service.js";
 
 const router: Router = Router();
 
@@ -105,6 +107,61 @@ router.get(
       errors: job.errorLog,
       total: job.errorLog.length,
     });
+  }),
+);
+
+router.get(
+  "/:jobId/review",
+  validateRequest(undefined, undefined, jobIdParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { jobId } = req.params;
+    const job = await ImportJob.findById(jobId).lean();
+    if (!job) {
+      throw new ApiError(404, "JOB_NOT_FOUND", "Import job not found");
+    }
+    if (job.userId.toString() !== req.userId) {
+      throw new ApiError(403, "FORBIDDEN", "Not authorized to view this job");
+    }
+
+    const page = Math.max(1, Number(req.query.page) || 1);
+    const limit = Math.min(50, Math.max(1, Number(req.query.limit) || 20));
+
+    const [reviews, total] = await Promise.all([
+      PendingImportReview.find({ importJobId: job._id, status: "pending" })
+        .sort({ createdAt: 1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .lean(),
+      PendingImportReview.countDocuments({ importJobId: job._id, status: "pending" }),
+    ]);
+
+    res.json({
+      reviews,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    });
+  }),
+);
+
+router.post(
+  "/:jobId/review/:reviewId/resolve",
+  validateRequest(resolveReviewBodySchema, undefined, reviewIdParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { jobId, reviewId } = req.params;
+    const job = await ImportJob.findById(jobId).lean();
+    if (!job) {
+      throw new ApiError(404, "JOB_NOT_FOUND", "Import job not found");
+    }
+    if (job.userId.toString() !== req.userId) {
+      throw new ApiError(403, "FORBIDDEN", "Not authorized to view this job");
+    }
+
+    const { tmdbId, skip } = req.body;
+    await resolvePendingReview(reviewId, req.userId!, tmdbId ?? null, skip === true);
+
+    res.json({ resolved: true });
   }),
 );
 

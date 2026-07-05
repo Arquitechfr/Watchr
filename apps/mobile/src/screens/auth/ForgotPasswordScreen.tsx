@@ -5,7 +5,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { requestPasswordReset } from "../../services/auth.service";
 import { useUIStore } from "../../store/uiStore";
 import { useErrorMessage } from "../../services/api";
-import { colors } from "../../theme/colors";
+import { useThemeColors } from "../../theme/useThemeColors";
 import { ScreenContainer } from "../../components/ScreenContainer";
 import { AuthStackParamList } from "../../navigation/AuthStack";
 import { useI18n } from "../../i18n/useI18n";
@@ -16,6 +16,7 @@ export function ForgotPasswordScreen() {
   const navigation = useNavigation<NavigationProp>();
   const { showSnackbar } = useUIStore();
   const { t } = useI18n();
+  const colors = useThemeColors();
   const getErrorMessage = useErrorMessage();
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);

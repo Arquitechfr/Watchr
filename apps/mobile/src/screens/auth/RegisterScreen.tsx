@@ -7,7 +7,7 @@ import { useAuthStore } from "../../store/authStore";
 import { useUIStore } from "../../store/uiStore";
 import { useErrorMessage } from "../../services/api";
 import { log } from "../../utils/logger";
-import { colors } from "../../theme/colors";
+import { useThemeColors } from "../../theme/useThemeColors";
 import { ScreenContainer } from "../../components/ScreenContainer";
 import { GoogleSignInButton } from "../../components/GoogleSignInButton";
 import { AuthStackParamList } from "../../navigation/AuthStack";
@@ -20,6 +20,7 @@ export function RegisterScreen() {
   const { setTokens } = useAuthStore();
   const { showSnackbar } = useUIStore();
   const { t } = useI18n();
+  const colors = useThemeColors();
   const getErrorMessage = useErrorMessage();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

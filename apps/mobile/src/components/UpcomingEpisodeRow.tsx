@@ -4,7 +4,7 @@ import { format } from "date-fns";
 import { UpcomingEpisode } from "../services/upcoming.service";
 import { getPosterUrl } from "../services/shows.service";
 import { useI18n } from "../i18n/useI18n";
-import { colors } from "../theme/colors";
+import { useThemeColors } from "../theme/useThemeColors";
 
 interface UpcomingEpisodeRowProps {
   episode: UpcomingEpisode;
@@ -15,6 +15,7 @@ interface UpcomingEpisodeRowProps {
 
 export function UpcomingEpisodeRow({ episode, onPress, onMarkWatched, isMarking }: UpcomingEpisodeRowProps) {
   const { t, dateFnsLocale } = useI18n();
+  const colors = useThemeColors();
   const posterUrl = getPosterUrl(episode.posterPath, 200);
 
   return (

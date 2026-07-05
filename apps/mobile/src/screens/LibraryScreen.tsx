@@ -8,7 +8,7 @@ import { NetworkError } from "../components/NetworkError";
 import { Skeleton } from "../components/Skeleton";
 import { getLibrary, LibraryItem } from "../services/library.service";
 import { getPosterUrl } from "../services/shows.service";
-import { colors } from "../theme/colors";
+import { useThemeColors } from "../theme/useThemeColors";
 import { useI18n } from "../i18n/useI18n";
 import { log } from "../utils/logger";
 import { RootStackParamList } from "../navigation/RootNavigator";
@@ -99,6 +99,7 @@ export function LibraryScreen() {
   const navigation = useNavigation<NavigationProp>();
   const route = useRoute<LibraryRoute>();
   const { t } = useI18n();
+  const colors = useThemeColors();
   const [activeTab, setActiveTab] = useState<LibraryTab>(route.params?.tab ?? "tv");
   const [data, setData] = useState<LibraryItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);

@@ -1,6 +1,6 @@
 import { View, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { colors } from "../theme/colors";
+import { useThemeColors } from "../theme/useThemeColors";
 
 interface AvatarProps {
   url?: string;
@@ -8,6 +8,7 @@ interface AvatarProps {
 }
 
 export function Avatar({ url, size = 48 }: AvatarProps) {
+  const colors = useThemeColors();
   if (url) {
     return (
       <Image

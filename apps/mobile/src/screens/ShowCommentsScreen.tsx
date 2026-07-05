@@ -9,7 +9,7 @@ import { useUIStore } from "../store/uiStore";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { CommentsList } from "../components/Comments/CommentsList";
 import { CommentInput } from "../components/Comments/CommentInput";
-import { colors } from "../theme/colors";
+import { useThemeColors } from "../theme/useThemeColors";
 import {
   useCommentsForShow,
   useCreateComment,
@@ -35,6 +35,7 @@ export function ShowCommentsScreen() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const { showSnackbar } = useUIStore();
   const { t } = useI18n();
+  const colors = useThemeColors();
 
   useCommentsRealtime(showId);
 

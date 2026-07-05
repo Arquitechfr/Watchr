@@ -12,7 +12,7 @@ import { useErrorMessage } from "../services/api";
 import { logout, getMe } from "../services/auth.service";
 import { log } from "../utils/logger";
 import { RootStackParamList } from "../navigation/RootNavigator";
-import { colors } from "../theme/colors";
+import { useThemeColors } from "../theme/useThemeColors";
 import { useState } from "react";
 import { useI18n } from "../i18n/useI18n";
 
@@ -25,6 +25,7 @@ interface MenuCardProps {
 }
 
 function MenuCard({ icon, label, onPress }: MenuCardProps) {
+  const colors = useThemeColors();
   return (
     <TouchableOpacity
       className="flex-row items-center rounded-lg p-4 mb-3"
@@ -44,6 +45,7 @@ export function ProfileScreen() {
   const { logout: clearAuth } = useAuthStore();
   const { showSnackbar } = useUIStore();
   const { t } = useI18n();
+  const colors = useThemeColors();
   const getErrorMessage = useErrorMessage();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -90,6 +92,11 @@ export function ProfileScreen() {
         icon="language"
         label={t("screens.profile.language")}
         onPress={() => navigation.navigate("ProfileLanguage")}
+      />
+      <MenuCard
+        icon="color-palette"
+        label={t("screens.profile.appearance")}
+        onPress={() => navigation.navigate("ProfileAppearance")}
       />
       <MenuCard
         icon="library"

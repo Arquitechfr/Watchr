@@ -1,7 +1,8 @@
 /* eslint-disable no-console */
 import { Queue, Worker } from "bullmq";
 import { redisConnection } from "../config/env.js";
-import { getNews, NEWS_SOURCES, NewsArticle } from "../services/news.service.js";
+import { getNews, NewsArticle } from "../services/news.service.js";
+import { NewsSource } from "../models/newsSource.model.js";
 import { wsEvents } from "../lib/wsEvents.js";
 
 export const newsSyncQueue = new Queue("news-sync", { connection: redisConnection });
@@ -27,7 +28,9 @@ export function createNewsSyncWorker(): Worker {
 
       const newArticles: NewsArticle[] = [];
 
-      for (const source of NEWS_SOURCES) {
+      const sources = await NewsSource.find({ isActive: true }).lean();
+
+      for (const source of sources) {
         try {
           const articles = await getNews(source.id, 30);
           for (const article of articles) {

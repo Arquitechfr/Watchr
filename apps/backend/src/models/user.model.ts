@@ -24,6 +24,7 @@ export interface IUser extends Document {
   firebaseUid?: string;
   refreshTokens: RefreshTokenEntry[];
   preferredLanguage?: string;
+  themePreference: "system" | "light" | "dark";
   notificationPreferences: NotificationPreferences;
   expoPushToken?: string;
   createdAt: Date;
@@ -72,6 +73,11 @@ const userSchema = new Schema<IUser>(
     preferredLanguage: {
       type: String,
       required: false,
+    },
+    themePreference: {
+      type: String,
+      enum: ["system", "light", "dark"],
+      default: "system",
     },
     username: {
       type: String,

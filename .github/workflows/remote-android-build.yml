@@ -1,0 +1,217 @@
+name: Remote Android Build
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Watchr — Build Android (dev + production)
+#
+# Secrets repo (Settings → Actions → Secrets) :
+#   EXPO_PUBLIC_API_URL             → URL du backend (ex: https://api.watchr.app)
+#   EXPO_PUBLIC_FIREBASE_API_KEY    → Firebase API key
+#   EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN → Firebase auth domain
+#   EXPO_PUBLIC_FIREBASE_PROJECT_ID  → Firebase project ID
+#   EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET → Firebase storage bucket
+#   EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID → Firebase messaging sender ID
+#   EXPO_PUBLIC_FIREBASE_APP_ID     → Firebase app ID
+#   EXPO_PUBLIC_FIREBASE_CLIENT_ID  → Google Sign-In web client ID
+#   GOOGLE_SERVICES_JSON            → Contenu du fichier google-services.json (base64)
+#   CI_UPLOAD_TOKEN                 → Token d'auth pour l'endpoint /ci/upload-apk
+#   BACKEND_URL                     → URL base du backend pour l'upload CI (ex: https://api.watchr.app)
+#
+# Keystore production (optionnel pour l'instant — build non signé si absent) :
+#   Variable : ANDROID_KEYSTORE_PATH (défaut /opt/watchr/keys/keystore.jks)
+#   Secrets  : ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD
+# ─────────────────────────────────────────────────────────────────────────────
+
+on:
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: 'Build profile'
+        required: true
+        default: 'development'
+        type: choice
+        options:
+          - development
+          - production
+      variant:
+        description: 'Gradle variant'
+        required: true
+        default: 'assembleDebug'
+        type: choice
+        options:
+          - assembleDebug
+          - assembleRelease
+          - bundleRelease
+
+jobs:
+  build:
+    runs-on: [self-hosted, android-build]
+
+    env:
+      APP_NAME: watchr
+      MOBILE_DIR: apps/mobile
+      TERM: dumb
+      GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.configureondemand=true
+      EXPO_PUBLIC_API_URL: ${{ secrets.EXPO_PUBLIC_API_URL }}
+      EXPO_PUBLIC_FIREBASE_API_KEY: ${{ secrets.EXPO_PUBLIC_FIREBASE_API_KEY }}
+      EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ secrets.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN }}
+      EXPO_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.EXPO_PUBLIC_FIREBASE_PROJECT_ID }}
+      EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{ secrets.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET }}
+      EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
+      EXPO_PUBLIC_FIREBASE_APP_ID: ${{ secrets.EXPO_PUBLIC_FIREBASE_APP_ID }}
+      EXPO_PUBLIC_FIREBASE_CLIENT_ID: ${{ secrets.EXPO_PUBLIC_FIREBASE_CLIENT_ID }}
+      ANDROID_KEYSTORE_PATH: ${{ vars.ANDROID_KEYSTORE_PATH || '/opt/watchr/keys/keystore.jks' }}
+
+    steps:
+      # ── 1. Validation des inputs ──────────────────────────────────────────
+      - name: Validate inputs
+        run: |
+          PROFILE="${{ github.event.inputs.profile }}"
+          VARIANT="${{ github.event.inputs.variant }}"
+
+          if [ "$PROFILE" = "development" ] && [ "$VARIANT" != "assembleDebug" ]; then
+            echo "❌ development profile only supports assembleDebug (got $VARIANT)"
+            exit 1
+          fi
+
+          echo "✅ Valid combination: profile=$PROFILE, variant=$VARIANT"
+
+      # ── 2. Checkout ───────────────────────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          clean: true
+          fetch-depth: 0
+
+      # ── 3. pnpm + Node ────────────────────────────────────────────────────
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.2
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      # ── 4. Dépendances ────────────────────────────────────────────────────
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # ── 5. Restore google-services.json ──────────────────────────────────
+      - name: Restore google-services.json
+        working-directory: ${{ env.MOBILE_DIR }}
+        run: |
+          if [ -n "${{ secrets.GOOGLE_SERVICES_JSON }}" ]; then
+            echo "${{ secrets.GOOGLE_SERVICES_JSON }}" | base64 -d > google-services.json
+            echo "✅ google-services.json restored"
+          else
+            echo "⚠️  GOOGLE_SERVICES_JSON secret not set — Firebase/Google Sign-In may not work"
+          fi
+
+      # ── 6. Expo prebuild ──────────────────────────────────────────────────
+      - name: Expo prebuild (Android)
+        run: npx expo prebuild --clean -p android
+        working-directory: ${{ env.MOBILE_DIR }}
+
+      # ── 7. Cache Gradle ───────────────────────────────────────────────────
+      - name: Cache Gradle
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            ${{ env.MOBILE_DIR }}/android/.gradle
+          key: gradle-${{ runner.os }}-${{ hashFiles(format('{0}/android/gradle/wrapper/gradle-wrapper.properties', env.MOBILE_DIR), format('{0}/android/**/*.gradle*', env.MOBILE_DIR)) }}
+          restore-keys: |
+            gradle-${{ runner.os }}-
+
+      # ── 8. Gradle build ─────────────────────────────────────────────────────
+      # Production : signé si keystore présent, sinon build non signé (debug signing)
+      # Development : toujours debug
+      - name: Gradle build
+        run: |
+          cd ${{ env.MOBILE_DIR }}/android
+          KEYSTORE="${{ env.ANDROID_KEYSTORE_PATH }}"
+
+          if [ "${{ github.event.inputs.profile }}" = "production" ] && [ -f "$KEYSTORE" ] && [ -n "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" ]; then
+            echo "🔐 Build production signé avec keystore: $KEYSTORE"
+            ./gradlew ${{ github.event.inputs.variant }} \
+              -Pandroid.injected.signing.store.file="$KEYSTORE" \
+              -Pandroid.injected.signing.store.password="${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" \
+              -Pandroid.injected.signing.key.alias="${{ secrets.ANDROID_KEY_ALIAS }}" \
+              -Pandroid.injected.signing.key.password="${{ secrets.ANDROID_KEY_PASSWORD }}"
+          else
+            if [ "${{ github.event.inputs.profile }}" = "production" ]; then
+              echo "⚠️  Keystore non configuré — build production non signé (debug signing)"
+            fi
+            ./gradlew ${{ github.event.inputs.variant }}
+          fi
+
+      # ── 9. Fallback local artifact on runner ──────────────────────────────
+      - name: Copy build outputs to runner output directory
+        if: always()
+        run: |
+          OUTPUT_DIR="${{ vars.ANDROID_OUTPUT_DIR || '/opt/watchr/builds' }}"
+          RUN_NAME="watchr-${{ github.event.inputs.profile }}-${{ github.run_number }}"
+          DEST_DIR="$OUTPUT_DIR/$RUN_NAME"
+          mkdir -p "$DEST_DIR"
+
+          find ${{ env.MOBILE_DIR }}/android/app/build/outputs -type f \( -name '*.apk' -o -name '*.aab' \) -exec cp {} "$DEST_DIR/" \;
+
+          echo "📦 Local artifacts copied to: $DEST_DIR"
+          ls -lh "$DEST_DIR"
+
+      # ── 10. Upload APK/AAB vers S3 MinIO via backend ─────────────────────
+      - name: Upload APK/AAB to S3 via backend
+        if: always()
+        env:
+          BACKEND_URL: ${{ secrets.BACKEND_URL }}
+          CI_UPLOAD_TOKEN: ${{ secrets.CI_UPLOAD_TOKEN }}
+        run: |
+          if [ -z "$BACKEND_URL" ] || [ -z "$CI_UPLOAD_TOKEN" ]; then
+            echo "⚠️  BACKEND_URL or CI_UPLOAD_TOKEN not set — skipping S3 upload"
+            exit 0
+          fi
+
+          PROFILE="${{ github.event.inputs.profile }}"
+          RUN_NUMBER="${{ github.run_number }}"
+          OUTPUT_DIR="${{ env.MOBILE_DIR }}/android/app/build/outputs"
+
+          # Find all APK and AAB files
+          FILES=$(find "$OUTPUT_DIR" -type f \( -name '*.apk' -o -name '*.aab' \) 2>/dev/null)
+
+          if [ -z "$FILES" ]; then
+            echo "⚠️  No APK/AAB files found — skipping S3 upload"
+            exit 0
+          fi
+
+          for FILE in $FILES; do
+            FILENAME=$(basename "$FILE")
+            echo "📤 Uploading $FILENAME to S3..."
+
+            HTTP_CODE=$(curl -s -o /tmp/ci-upload-response.json -w "%{http_code}" \
+              -X POST \
+              "${BACKEND_URL}/ci/upload-apk" \
+              -H "X-CI-Token: ${CI_UPLOAD_TOKEN}" \
+              -F "profile=${PROFILE}" \
+              -F "runNumber=${RUN_NUMBER}" \
+              -F "apk=@${FILE};type=application/vnd.android.package-archive")
+
+            echo "  HTTP $HTTP_CODE"
+            cat /tmp/ci-upload-response.json
+            echo ""
+
+            if [ "$HTTP_CODE" != "201" ]; then
+              echo "❌ Failed to upload $FILENAME (HTTP $HTTP_CODE)"
+              exit 1
+            fi
+
+            echo "✅ $FILENAME uploaded successfully"
+          done
+
+      # ── 11. Cleanup ──────────────────────────────────────────────────────
+      - name: Cleanup build outputs
+        if: always()
+        run: rm -rf ${{ env.MOBILE_DIR }}/android/app/build/outputs

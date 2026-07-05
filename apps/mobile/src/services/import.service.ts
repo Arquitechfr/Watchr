@@ -8,6 +8,7 @@ export interface ImportProgress {
   processed: number;
   matched: number;
   failed: number;
+  pendingReview?: number;
 }
 
 export interface ImportJob {
@@ -97,4 +98,39 @@ export async function unlinkTrakt(): Promise<void> {
 export async function toggleTraktAutoSync(enabled: boolean): Promise<TraktStatus> {
   const response = await api.put<TraktStatus>("/trakt/auto-sync", { enabled });
   return response.data;
+}
+
+export interface ImportReviewCandidate {
+  tmdbId: number;
+  title: string;
+  year: number | null;
+  posterPath: string | null;
+  confidenceScore: number;
+}
+
+export interface ImportReviewItem {
+  id: string;
+  sourceType: "series" | "movie";
+  sourceTitle: string;
+  sourceYear: number | null;
+  candidates: ImportReviewCandidate[];
+}
+
+export interface ImportReviewsResponse {
+  reviews: ImportReviewItem[];
+  total: number;
+  pending: number;
+}
+
+export async function getImportReviews(jobId: string): Promise<ImportReviewsResponse> {
+  const response = await api.get<ImportReviewsResponse>(`/import/${jobId}/reviews`);
+  return response.data;
+}
+
+export async function resolveImportReview(
+  reviewId: string,
+  tmdbId: number | null,
+  skip: boolean,
+): Promise<void> {
+  await api.post(`/import/reviews/${reviewId}/resolve`, { tmdbId, skip });
 }

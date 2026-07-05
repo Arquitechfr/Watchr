@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { Platform } from "react-native";
 import { registerPushToken, unregisterPushToken } from "../services/auth.service";
 import { useAuthStore } from "../store/authStore";
+import { useThemeColors } from "../theme/useThemeColors";
 import { log } from "../utils/logger";
 import { isStandaloneBuild } from "../utils/platform";
 
@@ -9,6 +10,7 @@ type NotificationSubscription = import("expo-notifications").Subscription;
 
 export function usePushNotifications() {
   const { isAuthenticated, logout } = useAuthStore();
+  const colors = useThemeColors();
   const notificationListener = useRef<NotificationSubscription | null>(null);
   const responseListener = useRef<NotificationSubscription | null>(null);
 
@@ -53,7 +55,7 @@ export function usePushNotifications() {
           name: "default",
           importance: Notifications.AndroidImportance.MAX,
           vibrationPattern: [0, 250, 250, 250],
-          lightColor: "#FF231FDC",
+          lightColor: colors.primary,
         });
       }
 

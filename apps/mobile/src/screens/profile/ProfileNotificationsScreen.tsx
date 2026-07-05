@@ -1,7 +1,7 @@
 import { View, Text, Switch, ActivityIndicator } from "react-native";
 import { ScreenContainer } from "../../components/ScreenContainer";
 import { useI18n } from "../../i18n/useI18n";
-import { colors } from "../../theme/colors";
+import { useThemeColors } from "../../theme/useThemeColors";
 import {
   useNotificationPreferences,
   useUpdateNotificationPreferences,
@@ -10,6 +10,7 @@ import { NotificationPreferences } from "../../services/auth.service";
 
 export function ProfileNotificationsScreen() {
   const { t } = useI18n();
+  const colors = useThemeColors();
   const { data: prefs, isLoading } = useNotificationPreferences();
   const updateMutation = useUpdateNotificationPreferences();
 

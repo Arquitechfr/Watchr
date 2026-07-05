@@ -1,8 +1,7 @@
 import * as fs from "fs";
-import * as path from "path";
-import AdmZip from "adm-zip";
 import { BaseParser } from "./baseParser.js";
 import { ParsedRecord, ImportSource } from "./types.js";
+import { parseTrackingRecordsV2 } from "./tvtime/parseTvTimeExport.js";
 
 export class TvTimeParser extends BaseParser {
   readonly source: ImportSource = "tvtime";
@@ -14,77 +13,61 @@ export class TvTimeParser extends BaseParser {
     return (
       header.includes("tracking-prod-records") ||
       header.includes("records-v2") ||
+      header.includes("user-series-") ||
+      header.includes("watch-episode-") ||
+      header.includes("rewatch-episode-") ||
       (header.includes("title") &&
         (header.includes("status") || header.includes("watched") || header.includes("rating")))
     );
   }
 
   parse(filePath: string): ParsedRecord[] {
-    const files = filePath.endsWith(".zip") ? this.extractZip(filePath) : [filePath];
-    const allRecords: ParsedRecord[] = [];
-
-    for (const file of files) {
-      if (!file.endsWith(".csv")) continue;
-      const variant = this.detectCsvVariant(file);
-      if (variant === "unknown") continue;
-      const records = this.parseCsv(file);
-      allRecords.push(...records);
+    // This synchronous method is kept for IParser compatibility.
+    // The full async pipeline is handled by tvtimeImport.service.ts via the worker.
+    // For the registry's synchronous path, we do a best-effort parse from the CSV directly.
+    if (filePath.endsWith(".zip")) {
+      // Can't do async zip extraction in sync context — return empty.
+      // The worker handles zip files via processTvTimeImport.
+      return [];
     }
 
-    return allRecords;
-  }
+    try {
+      const buffer = fs.readFileSync(filePath);
+      const parsed = parseTrackingRecordsV2(buffer);
+      const records: ParsedRecord[] = [];
 
-  private extractZip(zipPath: string): string[] {
-    const zip = new AdmZip(zipPath);
-    const entries = zip.getEntries();
-    const tempDir = fs.mkdtempSync(path.join(process.env.TEMP || "/tmp", "watchr-import-"));
-
-    for (const entry of entries) {
-      if (entry.entryName.endsWith(".csv")) {
-        zip.extractEntryTo(entry, tempDir, false, true);
+      for (const s of parsed.series) {
+        records.push({
+          title: s.title,
+          year: s.year ?? undefined,
+          status: s.isFollowed ? "watching" : s.isForLater ? "plan_to_watch" : undefined,
+          type: "tv",
+        });
       }
+
+      for (const m of parsed.movies) {
+        records.push({
+          title: m.title,
+          year: m.year ?? undefined,
+          status: "completed",
+          type: "movie",
+        });
+      }
+
+      for (const ep of parsed.episodes) {
+        records.push({
+          title: ep.title,
+          year: ep.year ?? undefined,
+          season: ep.seasonNumber,
+          episode: ep.episodeNumber,
+          watchedAt: ep.createdAt.toISOString(),
+          type: "tv",
+        });
+      }
+
+      return records;
+    } catch {
+      return [];
     }
-
-    return fs
-      .readdirSync(tempDir)
-      .filter((name) => name.endsWith(".csv"))
-      .map((name) => path.join(tempDir, name));
-  }
-
-  private detectCsvVariant(filePath: string): "tracking" | "tracking-v2" | "unknown" {
-    const header = this.getFirstLine(filePath).toLowerCase();
-    if (header.includes("tracking-prod-records") || header.includes("records-v2")) {
-      return "tracking-v2";
-    }
-    if (
-      header.includes("title") &&
-      (header.includes("status") || header.includes("watched") || header.includes("rating"))
-    ) {
-      return "tracking";
-    }
-    return "unknown";
-  }
-
-  private parseCsv(filePath: string): ParsedRecord[] {
-    const rows = this.readCsv(filePath);
-    return rows.map((row) => {
-      const title = row["title"] || row["show_name"] || row["name"] || "";
-      const year = row["year"] || row["release_year"] || row["first_air_year"] || "";
-      const status = row["status"] || row["watch_status"] || row["tracking_status"] || "";
-      const rating = row["rating"] || row["your_rating"] || row["score"] || "";
-      const season = row["season"] || row["season_number"] || "";
-      const episode = row["episode"] || row["episode_number"] || "";
-      const watchedAt = row["watched_at"] || row["updated_at"] || row["date"] || "";
-
-      return {
-        title: title.trim(),
-        year: year ? Number(year) : undefined,
-        status: status.trim() || undefined,
-        rating: rating ? Number(rating) : undefined,
-        season: season ? Number(season) : undefined,
-        episode: episode ? Number(episode) : undefined,
-        watchedAt: watchedAt.trim() || undefined,
-      };
-    });
   }
 }

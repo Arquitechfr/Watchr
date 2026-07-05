@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Linking, Switch, Alert } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import * as DocumentPicker from "expo-document-picker";
 import { useImportPolling } from "../hooks/useImportPolling";
 import {
@@ -19,7 +20,7 @@ import { NetworkError } from "../components/NetworkError";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { useUIStore } from "../store/uiStore";
 import { useErrorMessage } from "../services/api";
-import { colors } from "../theme/colors";
+import { useThemeColors } from "../theme/useThemeColors";
 import { useI18n } from "../i18n/useI18n";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -32,6 +33,7 @@ interface PlatformCardProps {
 }
 
 function PlatformCard({ icon, name, description, onPress, disabled }: PlatformCardProps) {
+  const colors = useThemeColors();
   return (
     <TouchableOpacity
       className="flex-row items-center rounded-lg p-4 mb-3"
@@ -50,6 +52,8 @@ function PlatformCard({ icon, name, description, onPress, disabled }: PlatformCa
 }
 
 export function ImportScreen() {
+  const colors = useThemeColors();
+  const navigation = useNavigation<any>();
   const { showSnackbar } = useUIStore();
   const { t } = useI18n();
   const getErrorMessage = useErrorMessage();
@@ -299,6 +303,17 @@ export function ImportScreen() {
               </Text>
             ))}
           </View>
+        )}
+
+        {isComplete && job.progress.pendingReview && job.progress.pendingReview > 0 && (
+          <TouchableOpacity
+            className="bg-primary py-4 rounded-lg items-center mb-4"
+            onPress={() => navigation.navigate("ImportReview", { jobId: job.id })}
+          >
+            <Text className="text-background font-semibold">
+              {t("screens.import.reviewPending", { count: job.progress.pendingReview })}
+            </Text>
+          </TouchableOpacity>
         )}
       </ScrollView>
     </ScreenContainer>

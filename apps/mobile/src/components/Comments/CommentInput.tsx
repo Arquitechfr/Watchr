@@ -2,7 +2,7 @@ import { useState } from "react";
 import { View, TextInput, TouchableOpacity, Text, Image, ActivityIndicator } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
-import { colors } from "../../theme/colors";
+import { useThemeColors } from "../../theme/useThemeColors";
 import { useI18n } from "../../i18n/useI18n";
 import { useUIStore } from "../../store/uiStore";
 import { uploadCommentImage } from "../../services/upload.service";
@@ -30,6 +30,7 @@ export function CommentInput({
   onCancel,
 }: CommentInputProps) {
   const { t } = useI18n();
+  const colors = useThemeColors();
   const { showSnackbar } = useUIStore();
   const getErrorMessage = useErrorMessage();
   const [content, setContent] = useState(initialValue);

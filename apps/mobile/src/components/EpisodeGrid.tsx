@@ -4,7 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { format } from "date-fns";
 import { Season, Episode } from "../services/shows.service";
 import { getStillUrl } from "../services/shows.service";
-import { colors } from "../theme/colors";
+import { useThemeColors } from "../theme/useThemeColors";
 import { useI18n } from "../i18n/useI18n";
 
 interface EpisodeGridProps {
@@ -23,6 +23,7 @@ export function EpisodeGrid({
   isPending,
 }: EpisodeGridProps) {
   const { t, dateFnsLocale } = useI18n();
+  const colors = useThemeColors();
   const [collapsedSeasons, setCollapsedSeasons] = useState<Set<number>>(
     () => new Set(seasons.map((s) => s.seasonNumber)),
   );

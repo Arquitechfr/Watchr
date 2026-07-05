@@ -7,7 +7,7 @@ import { MoviesScreen } from "../screens/MoviesScreen";
 import { SearchScreen } from "../screens/SearchScreen";
 import { NewsScreen } from "../screens/NewsScreen";
 import { ProfileScreen } from "../screens/ProfileScreen";
-import { colors } from "../theme/colors";
+import { useThemeColors } from "../theme/useThemeColors";
 import { useI18n } from "../i18n/useI18n";
 import { useRealtimeNotifications } from "../hooks/useRealtimeNotifications";
 import { useTrackingRealtime } from "../hooks/useTrackingRealtime";
@@ -25,6 +25,7 @@ export type MainTabsParamList = {
 const Tab = createBottomTabNavigator<MainTabsParamList>();
 
 function SearchTabIcon({ focused: _focused }: { focused: boolean }) {
+  const colors = useThemeColors();
   return (
     <View
       className="items-center justify-center rounded-full"
@@ -47,6 +48,7 @@ function SearchTabIcon({ focused: _focused }: { focused: boolean }) {
 
 export function MainTabs() {
   const { t } = useI18n();
+  const colors = useThemeColors();
   const insets = useSafeAreaInsets();
   const tabBarHeight = 64 + insets.bottom;
 
@@ -56,6 +58,7 @@ export function MainTabs() {
   const unreadCount = useNotificationStore((s) => s.unreadCount);
 
   function NotificationBadge() {
+    const colors = useThemeColors();
     if (unreadCount === 0) return null;
     return (
       <View

@@ -4,7 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { ShowDetails } from "../services/shows.service";
 import { WatchEntry } from "../services/tracking.service";
 import { RatingStars } from "./RatingStars";
-import { colors } from "../theme/colors";
+import { useThemeColors } from "../theme/useThemeColors";
 import { useI18n } from "../i18n/useI18n";
 
 interface TrackingActionModalProps {
@@ -32,6 +32,7 @@ export function TrackingActionModal({
   isPending,
 }: TrackingActionModalProps) {
   const { t } = useI18n();
+  const colors = useThemeColors();
   const isTv = show.type === "tv";
   const initialSeason = trackingEntry?.currentSeason ?? (show.seasons[0]?.seasonNumber ?? 1);
   const initialEpisode = trackingEntry?.currentEpisode ?? 1;

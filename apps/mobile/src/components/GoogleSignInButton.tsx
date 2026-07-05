@@ -6,7 +6,7 @@ import { useUIStore } from "../store/uiStore";
 import { useErrorMessage } from "../services/api";
 import { useI18n } from "../i18n/useI18n";
 import { log } from "../utils/logger";
-import { colors } from "../theme/colors";
+import { useThemeColors } from "../theme/useThemeColors";
 
 interface GoogleSignInButtonProps {
   label: string;
@@ -16,6 +16,7 @@ export function GoogleSignInButton({ label }: GoogleSignInButtonProps) {
   const { setTokens } = useAuthStore();
   const { showSnackbar } = useUIStore();
   const { t } = useI18n();
+  const colors = useThemeColors();
   const getErrorMessage = useErrorMessage();
   const [isSubmitting, setIsSubmitting] = useState(false);
 

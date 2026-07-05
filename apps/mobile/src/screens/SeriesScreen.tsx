@@ -19,7 +19,7 @@ import { RootStackParamList } from "../navigation/RootNavigator";
 import { UnwatchedShow } from "../services/unwatched.service";
 import { UpcomingEpisode } from "../services/upcoming.service";
 import { getPosterUrl } from "../services/shows.service";
-import { colors } from "../theme/colors";
+import { useThemeColors } from "../theme/useThemeColors";
 import { useI18n } from "../i18n/useI18n";
 import { log } from "../utils/logger";
 
@@ -58,6 +58,7 @@ function UnwatchedShowCard({
   isMarking?: boolean;
 }) {
   const { t } = useI18n();
+  const colors = useThemeColors();
   const posterUrl = getPosterUrl(show.posterPath, 200);
   const episodeCount = show.unwatchedEpisodes.length;
   const isActive = show.status === "watching" && episodeCount > 0;
@@ -153,6 +154,7 @@ function UnwatchedList({
   markingShowId?: string;
 }) {
   const { t } = useI18n();
+  const colors = useThemeColors();
   if (shows.length === 0) {
     return (
       <EmptyState
@@ -228,6 +230,7 @@ function UpcomingList({
   markingEpisodeKey?: string;
 }) {
   const { t } = useI18n();
+  const colors = useThemeColors();
   if (isLoading) {
     return (
       <View>
@@ -342,7 +345,7 @@ export function SeriesScreen() {
   }
 
   function handleViewLibrary() {
-    navigation.navigate("Library");
+    navigation.navigate("Library", { tab: "tv" });
   }
 
   function handleMarkUpcomingWatched(episode: UpcomingEpisode) {

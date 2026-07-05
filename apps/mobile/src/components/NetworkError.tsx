@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { colors } from "../theme/colors";
+import { useThemeColors } from "../theme/useThemeColors";
 import { useI18n } from "../i18n/useI18n";
 
 interface NetworkErrorProps {
@@ -12,6 +12,7 @@ interface NetworkErrorProps {
 
 export function NetworkError({ isOffline, message, subtitle, onRetry }: NetworkErrorProps) {
   const { t } = useI18n();
+  const colors = useThemeColors();
   return (
     <View className="flex-1 items-center justify-center px-6">
       <Ionicons

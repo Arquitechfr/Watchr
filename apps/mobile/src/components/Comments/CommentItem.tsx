@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, Alert, Image, Pressable } from "react-nat
 import { Ionicons } from "@expo/vector-icons";
 import { Comment } from "../../services/comments.service";
 import { useAuthStore } from "../../store/authStore";
-import { colors } from "../../theme/colors";
+import { useThemeColors } from "../../theme/useThemeColors";
 import { Avatar } from "../Avatar";
 import { CommentInput } from "./CommentInput";
 import { useI18n } from "../../i18n/useI18n";
@@ -37,6 +37,7 @@ export function CommentItem({
   onRemoveReaction,
 }: CommentItemProps) {
   const { t, dateFnsLocale } = useI18n();
+  const colors = useThemeColors();
   const userId = useAuthStore((state) => state.userId);
   const isOwn = comment.userId === userId;
   const [isReplying, setIsReplying] = useState(false);

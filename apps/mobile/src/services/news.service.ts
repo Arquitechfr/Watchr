@@ -20,7 +20,7 @@ export async function getNewsSources(): Promise<NewsSource[]> {
   return response.data;
 }
 
-export async function getNews(sourceId: string = "allocine-news", limit: number = 30): Promise<NewsArticle[]> {
+export async function getNews(sourceId?: string, limit: number = 30): Promise<NewsArticle[]> {
   log("NewsService", "fetch", { sourceId, limit });
   const response = await api.get<NewsArticle[]>("/news", { params: { source: sourceId, limit } });
   log("NewsService", "articles", { count: response.data.length });

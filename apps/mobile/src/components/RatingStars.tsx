@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { colors } from "../theme/colors";
+import { useThemeColors } from "../theme/useThemeColors";
 
 interface RatingStarsProps {
   value: number | null;
@@ -10,6 +10,7 @@ interface RatingStarsProps {
 }
 
 export function RatingStars({ value, onChange, size = 20, label }: RatingStarsProps) {
+  const colors = useThemeColors();
   return (
     <View className="flex-row items-center">
       {label && <Text className="text-text-muted mr-3 text-sm">{label}</Text>}

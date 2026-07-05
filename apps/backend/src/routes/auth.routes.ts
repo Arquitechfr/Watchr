@@ -17,6 +17,7 @@ import {
   unregisterPushToken,
   updateNotificationPreferences,
   getNotificationPreferences,
+  updateThemePreference,
 } from "../services/auth.service.js";
 import {
   buildGoogleAuthUrl,
@@ -33,6 +34,7 @@ import {
   resetPasswordSchema,
   pushTokenSchema,
   notificationPreferencesSchema,
+  themePreferenceSchema,
 } from "../validators/auth.validator.js";
 import { validateRequest } from "../validators/validateRequest.js";
 import { asyncHandler } from "../lib/asyncHandler.js";
@@ -253,6 +255,16 @@ router.delete(
   asyncHandler(async (req: Request, res: Response) => {
     await unregisterPushToken(req.userId!);
     res.json({ success: true });
+  }),
+);
+
+router.patch(
+  "/me/theme-preference",
+  validateRequest(themePreferenceSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { themePreference } = req.body as { themePreference: "system" | "light" | "dark" };
+    const result = await updateThemePreference(req.userId!, themePreference);
+    res.json(result);
   }),
 );
 

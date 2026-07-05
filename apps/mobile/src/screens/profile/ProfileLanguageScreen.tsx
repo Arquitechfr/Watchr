@@ -5,12 +5,13 @@ import { useLocaleStore } from "../../store/localeStore";
 import { useUIStore } from "../../store/uiStore";
 import { useErrorMessage } from "../../services/api";
 import { updateLanguage } from "../../services/auth.service";
-import { colors } from "../../theme/colors";
+import { useThemeColors } from "../../theme/useThemeColors";
 import { useState } from "react";
 import { SUPPORTED_LOCALES, type SupportedLocale } from "../../i18n/translations";
 
 export function ProfileLanguageScreen() {
   const { t, locale } = useI18n();
+  const colors = useThemeColors();
   const setLocale = useLocaleStore((state) => state.setLocale);
   const { showSnackbar } = useUIStore();
   const getErrorMessage = useErrorMessage();

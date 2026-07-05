@@ -4,23 +4,27 @@ import { NavigationContainer, LinkingOptions } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { useAuthStore } from "../store/authStore";
-import { colors } from "../theme/colors";
+import { useThemeColors } from "../theme/useThemeColors";
 import { AuthStack } from "./AuthStack";
 import { MainTabs } from "./MainTabs";
 import { ShowDetailScreen } from "../screens/ShowDetailScreen";
 import { ShowCommentsScreen } from "../screens/ShowCommentsScreen";
 import { EpisodeDetailScreen } from "../screens/EpisodeDetailScreen";
 import { ImportScreen } from "../screens/ImportScreen";
+import { ImportReviewScreen } from "../screens/ImportReviewScreen";
 import { ExportScreen } from "../screens/ExportScreen";
 import { LibraryScreen } from "../screens/LibraryScreen";
 import { EditProfileScreen } from "../screens/profile/EditProfileScreen";
 import { ProfileLanguageScreen } from "../screens/profile/ProfileLanguageScreen";
 import { ProfileNotificationsScreen } from "../screens/profile/ProfileNotificationsScreen";
 import { ProfileAboutScreen } from "../screens/profile/ProfileAboutScreen";
+import { ProfileAppearanceScreen } from "../screens/profile/ProfileAppearanceScreen";
 import { usePushNotifications } from "../hooks/usePushNotifications";
+import { useThemeSync } from "../hooks/useThemeSync";
 import { log } from "../utils/logger";
 import { isStandaloneBuild } from "../utils/platform";
 import { ResetPasswordScreen } from "../screens/auth/ResetPasswordScreen";
+import { NewsArticleDetailScreen } from "../screens/NewsArticleDetailScreen";
 
 export type RootStackParamList = {
   Auth: undefined;
@@ -29,23 +33,28 @@ export type RootStackParamList = {
   ShowComments: { showId: string; title: string; season?: number; episode?: number };
   EpisodeDetail: { showId: string; tmdbId: number; season: number; episodeNumber: number; title?: string };
   Import: undefined;
+  ImportReview: { jobId: string };
   Export: undefined;
   Library: { tab?: "tv" | "movie" } | undefined;
   EditProfile: undefined;
   ProfileLanguage: undefined;
   ProfileNotifications: undefined;
   ProfileAbout: undefined;
+  ProfileAppearance: undefined;
   ResetPassword: { token: string };
+  NewsArticleDetail: { link: string; title: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export function RootNavigator() {
   const { isHydrated, isAuthenticated, hydrate } = useAuthStore();
+  const colors = useThemeColors();
   const [isReady, setIsReady] = useState(false);
   const navigationRef = useRef<any>(null);
 
   usePushNotifications();
+  useThemeSync();
 
   useEffect(() => {
     async function init() {
@@ -123,13 +132,16 @@ export function RootNavigator() {
             <Stack.Screen name="ShowComments" component={ShowCommentsScreen} />
             <Stack.Screen name="EpisodeDetail" component={EpisodeDetailScreen} />
             <Stack.Screen name="Import" component={ImportScreen} />
+            <Stack.Screen name="ImportReview" component={ImportReviewScreen} />
             <Stack.Screen name="Export" component={ExportScreen} />
             <Stack.Screen name="Library" component={LibraryScreen} />
             <Stack.Screen name="EditProfile" component={EditProfileScreen} />
             <Stack.Screen name="ProfileLanguage" component={ProfileLanguageScreen} />
             <Stack.Screen name="ProfileNotifications" component={ProfileNotificationsScreen} />
             <Stack.Screen name="ProfileAbout" component={ProfileAboutScreen} />
+            <Stack.Screen name="ProfileAppearance" component={ProfileAppearanceScreen} />
             <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
+            <Stack.Screen name="NewsArticleDetail" component={NewsArticleDetailScreen} />
           </>
         ) : (
           <Stack.Screen name="Auth" component={AuthStack} />

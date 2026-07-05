@@ -20,7 +20,9 @@ import commentRoutes from "./routes/comment.routes.js";
 import newsRoutes from "./routes/news.routes.js";
 import uploadRoutes from "./routes/upload.routes.js";
 
-const allowedOrigins = process.env.CORS_ORIGINS?.split(",").map((o) => o.trim()) || ["*"];
+const allowedOrigins = process.env.CORS_ORIGINS
+  ? process.env.CORS_ORIGINS.split(",").map((o) => o.trim())
+  : true;
 
 export function createApp(): Application {
   const app = express();

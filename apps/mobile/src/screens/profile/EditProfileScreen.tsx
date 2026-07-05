@@ -9,10 +9,11 @@ import { getMe, uploadAvatar, updateUsername } from "../../services/auth.service
 import { useI18n } from "../../i18n/useI18n";
 import { useUIStore } from "../../store/uiStore";
 import { useErrorMessage } from "../../services/api";
-import { colors } from "../../theme/colors";
+import { useThemeColors } from "../../theme/useThemeColors";
 
 export function EditProfileScreen() {
   const { t } = useI18n();
+  const colors = useThemeColors();
   const { showSnackbar } = useUIStore();
   const getErrorMessage = useErrorMessage();
   const queryClient = useQueryClient();

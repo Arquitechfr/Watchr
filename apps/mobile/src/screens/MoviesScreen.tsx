@@ -13,7 +13,7 @@ import { useUIStore } from "../store/uiStore";
 import { RootStackParamList } from "../navigation/RootNavigator";
 import { UnwatchedMovie } from "../services/unwatched.service";
 import { getPosterUrl } from "../services/shows.service";
-import { colors } from "../theme/colors";
+import { useThemeColors } from "../theme/useThemeColors";
 import { useI18n } from "../i18n/useI18n";
 import { WatchStatus } from "../services/tracking.service";
 
@@ -34,6 +34,7 @@ function getStatusLabel(t: ReturnType<typeof useI18n>["t"], status: WatchStatus)
 
 function MovieCard({ movie, onPress, onMarkWatched, isMarking }: { movie: UnwatchedMovie; onPress: () => void; onMarkWatched?: () => void; isMarking?: boolean }) {
   const { t } = useI18n();
+  const colors = useThemeColors();
   const posterUrl = movie.posterPath ? getPosterUrl(movie.posterPath, 200) : null;
 
   return (
@@ -85,6 +86,7 @@ function MovieCard({ movie, onPress, onMarkWatched, isMarking }: { movie: Unwatc
 export function MoviesScreen() {
   const navigation = useNavigation<NavigationProp>();
   const { t } = useI18n();
+  const colors = useThemeColors();
   const showSnackbar = useUIStore((state) => state.showSnackbar);
   const { data, isLoading, isError, error, refetch } = useUnwatchedMovies();
   const quickMarkMovie = useQuickMarkMovieWatched();
@@ -106,7 +108,7 @@ export function MoviesScreen() {
   }
 
   function handleViewLibrary() {
-    navigation.navigate("Library");
+    navigation.navigate("Library", { tab: "movie" });
   }
 
   if (isLoading) {

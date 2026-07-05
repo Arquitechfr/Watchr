@@ -1,7 +1,7 @@
 import { View, Text, FlatList, ActivityIndicator, RefreshControl } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Comment } from "../../services/comments.service";
-import { colors } from "../../theme/colors";
+import { useThemeColors } from "../../theme/useThemeColors";
 import { CommentItem } from "./CommentItem";
 import { useI18n } from "../../i18n/useI18n";
 
@@ -35,6 +35,7 @@ export function CommentsList({
   onRemoveReaction,
 }: CommentsListProps) {
   const { t } = useI18n();
+  const colors = useThemeColors();
   if (isLoading) {
     return (
       <View className="py-8 items-center">

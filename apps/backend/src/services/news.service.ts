@@ -2,6 +2,8 @@ import axios from "axios";
 import { XMLParser } from "fast-xml-parser";
 import { ApiError } from "../middleware/error.middleware.js";
 import { log, logError } from "../lib/logger.js";
+import { NewsSource } from "../models/newsSource.model.js";
+import type { SupportedLocale } from "../i18n/translations.js";
 
 export interface NewsArticle {
   title: string;
@@ -11,17 +13,10 @@ export interface NewsArticle {
   image?: string;
 }
 
-export interface NewsSource {
+export interface NewsSourceDTO {
   id: string;
   name: string;
-  url: string;
 }
-
-export const NEWS_SOURCES: NewsSource[] = [
-  { id: "allocine-news", name: "AlloCiné", url: "https://www.allocine.fr/rss/news.xml" },
-  { id: "allocine-movies", name: "AlloCiné Ciné", url: "https://www.allocine.fr/rss/news-cine.xml" },
-  { id: "allocine-series", name: "AlloCiné Séries", url: "https://www.allocine.fr/rss/news-series.xml" },
-];
 
 const parser = new XMLParser({
   ignoreAttributes: false,
@@ -30,13 +25,28 @@ const parser = new XMLParser({
   parseAttributeValue: false,
 });
 
-export async function getNews(sourceId: string = "allocine-news", limit: number = 30): Promise<NewsArticle[]> {
-  const source = NEWS_SOURCES.find((s) => s.id === sourceId);
+export async function getNewsSourcesByLocale(locale: SupportedLocale): Promise<NewsSourceDTO[]> {
+  const sources = await NewsSource.find({ locale, isActive: true }).sort({ createdAt: 1 }).lean();
+  return sources.map((s) => ({ id: s.id, name: s.name }));
+}
+
+export async function getDefaultSourceId(locale: SupportedLocale): Promise<string | null> {
+  const source = await NewsSource.findOne({ locale, isActive: true }).sort({ createdAt: 1 }).lean();
+  return source?.id ?? null;
+}
+
+export async function getNews(sourceId?: string, limit: number = 30): Promise<NewsArticle[]> {
+  let source = null;
+
+  if (sourceId) {
+    source = await NewsSource.findOne({ id: sourceId, isActive: true }).lean();
+  }
+
   if (!source) {
     throw new ApiError(400, "INVALID_SOURCE", "Invalid news source");
   }
 
-  log("NewsService", "fetch", { sourceId, url: source.url });
+  log("NewsService", "fetch", { sourceId: source.id, url: source.url });
 
   try {
     const response = await axios.get<string>(source.url, {
@@ -81,7 +91,7 @@ export async function getNews(sourceId: string = "allocine-news", limit: number 
     log("NewsService", "articles", { count: articles.length });
     return articles;
   } catch (err) {
-    logError("NewsService", "fetch failed", err, { sourceId });
+    logError("NewsService", "fetch failed", err, { sourceId: source.id });
     throw new ApiError(502, "NEWS_FETCH_ERROR", "Failed to fetch news feed");
   }
 }

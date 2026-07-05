@@ -8,15 +8,22 @@ import { useNews, useNewsSources } from "../hooks/useNews";
 import { useNewsRealtime } from "../hooks/useNewsRealtime";
 import { useRefreshRateLimit } from "../hooks/useRefreshRateLimit";
 import { NewsSource } from "../services/news.service";
-import { colors } from "../theme/colors";
-import { useState } from "react";
+import { useThemeColors } from "../theme/useThemeColors";
+import { useState, useEffect } from "react";
 import { useI18n } from "../i18n/useI18n";
 
 export function NewsScreen() {
   const { t } = useI18n();
+  const colors = useThemeColors();
   const { data: sources } = useNewsSources();
-  const [selectedSource, setSelectedSource] = useState("allocine-news");
+  const [selectedSource, setSelectedSource] = useState<string | null>(null);
   const { data, isLoading, isError, error, refetch } = useNews(selectedSource);
+
+  useEffect(() => {
+    if (sources && sources.length > 0 && selectedSource === null) {
+      setSelectedSource(sources[0].id);
+    }
+  }, [sources, selectedSource]);
   const throttledRefresh = useRefreshRateLimit();
 
   useNewsRealtime();

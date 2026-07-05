@@ -3,7 +3,8 @@ import { Schema, model, Document } from "mongoose";
 export interface WatchedEpisode {
   season: number;
   episode: number;
-  watchedAt: Date;
+  watchedAt?: Date;
+  importedBulk?: boolean;
 }
 
 export type WatchStatus = "watching" | "completed" | "plan_to_watch" | "dropped";
@@ -23,7 +24,8 @@ const watchedEpisodeSchema = new Schema<WatchedEpisode>(
   {
     season: { type: Number, required: true },
     episode: { type: Number, required: true },
-    watchedAt: { type: Date, required: true, default: Date.now },
+    watchedAt: { type: Date, required: false },
+    importedBulk: { type: Boolean, default: false },
   },
   { _id: false },
 );

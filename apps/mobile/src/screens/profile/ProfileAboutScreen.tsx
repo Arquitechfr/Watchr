@@ -1,11 +1,12 @@
 import { View, Text, Linking, TouchableOpacity } from "react-native";
 import { ScreenContainer } from "../../components/ScreenContainer";
 import { useI18n } from "../../i18n/useI18n";
-import { colors } from "../../theme/colors";
+import { useThemeColors } from "../../theme/useThemeColors";
 import Constants from "expo-constants";
 
 export function ProfileAboutScreen() {
   const { t } = useI18n();
+  const colors = useThemeColors();
   const version = Constants.expoConfig?.version ?? "1.0.0";
 
   return (

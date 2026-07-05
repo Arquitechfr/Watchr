@@ -35,6 +35,10 @@ export const pushTokenSchema = z.object({
   token: z.string().min(1, "Push token is required"),
 });
 
+export const themePreferenceSchema = z.object({
+  themePreference: z.enum(["system", "light", "dark"]),
+});
+
 export const notificationPreferencesSchema = z.object({
   pushEnabled: z.boolean().optional(),
   emailEnabled: z.boolean().optional(),

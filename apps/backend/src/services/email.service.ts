@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { BrevoClient } from "@getbrevo/brevo";
+import * as brevo from "@getbrevo/brevo";
 import { env } from "../config/env.js";
 import { SupportedLocale } from "../i18n/translations.js";
 import { welcomeTemplate, resetPasswordTemplate } from "./emailTemplates.js";
@@ -10,15 +10,15 @@ interface SendEmailParams {
   html: string;
 }
 
-let brevoClient: BrevoClient | null = null;
+let brevoClient: brevo.BrevoClient | null = null;
 
-function getBrevoClient(): BrevoClient | null {
+function getBrevoClient(): brevo.BrevoClient | null {
   if (!env.BREVO_API_KEY) {
     return null;
   }
 
   if (!brevoClient) {
-    brevoClient = new BrevoClient({ apiKey: env.BREVO_API_KEY });
+    brevoClient = new brevo.BrevoClient({ apiKey: env.BREVO_API_KEY });
   }
 
   return brevoClient;

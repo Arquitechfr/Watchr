@@ -13,6 +13,7 @@ export interface NotificationPreferences {
   commentReplies: boolean;
   commentReactions: boolean;
   commentLikes: boolean;
+  notificationOffsetMinutes: number;
 }
 
 export interface IUser extends Document {
@@ -105,6 +106,7 @@ const userSchema = new Schema<IUser>(
         commentReplies: { type: Boolean, default: true },
         commentReactions: { type: Boolean, default: true },
         commentLikes: { type: Boolean, default: true },
+        notificationOffsetMinutes: { type: Number, default: 0, min: -180, max: 1440 },
       },
       default: () => ({
         pushEnabled: true,
@@ -113,6 +115,7 @@ const userSchema = new Schema<IUser>(
         commentReplies: true,
         commentReactions: true,
         commentLikes: true,
+        notificationOffsetMinutes: 0,
       }),
     },
     expoPushToken: {

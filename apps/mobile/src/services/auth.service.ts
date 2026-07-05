@@ -109,6 +109,7 @@ export interface NotificationPreferences {
   commentReplies: boolean;
   commentReactions: boolean;
   commentLikes: boolean;
+  notificationOffsetMinutes: number;
 }
 
 export async function getNotificationPreferences(): Promise<{ notificationPreferences: NotificationPreferences }> {

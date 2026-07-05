@@ -46,6 +46,7 @@ export const notificationPreferencesSchema = z.object({
   commentReplies: z.boolean().optional(),
   commentReactions: z.boolean().optional(),
   commentLikes: z.boolean().optional(),
+  notificationOffsetMinutes: z.number().int().min(-180).max(1440).optional(),
 });
 
 export const onboardingCompleteSchema = z.object({}).strict();

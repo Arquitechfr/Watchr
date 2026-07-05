@@ -9,23 +9,31 @@ import { getShowTitle } from "../models/show.model.js";
 
 export const notificationQueue = new Queue("notifications", { connection: redisConnection });
 
+const TICK_MINUTES = 15;
+const MIN_OFFSET_MINUTES = -180;
+const MAX_OFFSET_MINUTES = 1440;
+const NOTIFIED_TTL_SECONDS = 48 * 60 * 60;
+
 export async function scheduleEpisodeNotifications(): Promise<void> {
   await notificationQueue.add(
     "check-upcoming-episodes",
     {},
     {
-      repeat: { pattern: "0 * * * *" },
-      jobId: "hourly-episode-notifications",
+      repeat: { pattern: "*/15 * * * *" },
+      jobId: "fifteen-min-episode-notifications",
     },
   );
 }
 
 export async function processEpisodeNotifications(): Promise<void> {
   const now = new Date();
-  const in24h = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+  const tickMs = TICK_MINUTES * 60 * 1000;
+
+  const earliestAirDate = new Date(now.getTime() + MIN_OFFSET_MINUTES * 60 * 1000);
+  const latestAirDate = new Date(now.getTime() + MAX_OFFSET_MINUTES * 60 * 1000);
 
   const shows = await Show.find({
-    "nextEpisodeToAir.airDate": { $gte: now, $lte: in24h },
+    "nextEpisodeToAir.airDate": { $gte: earliestAirDate, $lte: latestAirDate },
     type: "tv",
   }).select("title translations nextEpisodeToAir tmdbId");
 
@@ -34,36 +42,58 @@ export async function processEpisodeNotifications(): Promise<void> {
   for (const show of shows) {
     if (!show.nextEpisodeToAir) continue;
 
-    const notifiedKey = `notified:${show._id}:S${show.nextEpisodeToAir.season}E${show.nextEpisodeToAir.episode}`;
-
-    const alreadyNotified = await redisClient.get(notifiedKey);
-    if (alreadyNotified) continue;
+    const airDate = new Date(show.nextEpisodeToAir.airDate);
 
     const entries = await WatchEntry.find({
       showId: show._id,
       status: { $in: ["watching", "plan_to_watch"] },
     }).select("userId").lean();
 
+    if (entries.length === 0) continue;
+
     const userIds = entries.map((e) => e.userId.toString());
 
-    for (const userId of userIds) {
-      const user = await User.findById(userId).select("preferredLanguage").lean();
-      const locale = user?.preferredLanguage ?? "en";
-      const showTitle = getShowTitle(show, locale);
+    const users = await User.find({ _id: { $in: userIds } })
+      .select("preferredLanguage notificationPreferences.notificationOffsetMinutes")
+      .lean();
 
-      await PushNotificationService.notifyNewEpisode(
-        userId,
-        showTitle,
-        show.nextEpisodeToAir.season,
-        show.nextEpisodeToAir.episode,
-        show._id.toString(),
-        show.tmdbId,
-        locale,
-      );
+    const userMap = new Map(users.map((u) => [u._id.toString(), u]));
+
+    for (const userId of userIds) {
+      try {
+        const user = userMap.get(userId);
+        if (!user) continue;
+
+        const offsetMinutes = user.notificationPreferences?.notificationOffsetMinutes ?? 0;
+        const notifyAt = new Date(airDate.getTime() + offsetMinutes * 60 * 1000);
+
+        if (now < notifyAt) continue;
+        if (now.getTime() >= notifyAt.getTime() + tickMs) continue;
+
+        const notifiedKey = `notified:${userId}:${show._id}:S${show.nextEpisodeToAir.season}E${show.nextEpisodeToAir.episode}`;
+        const alreadyNotified = await redisClient.get(notifiedKey);
+        if (alreadyNotified) continue;
+
+        const locale = user.preferredLanguage ?? "en";
+        const showTitle = getShowTitle(show, locale);
+
+        await PushNotificationService.notifyNewEpisode(
+          userId,
+          showTitle,
+          show.nextEpisodeToAir.season,
+          show.nextEpisodeToAir.episode,
+          show._id.toString(),
+          show.tmdbId,
+          locale,
+        );
+
+        await redisClient.set(notifiedKey, "1", { EX: NOTIFIED_TTL_SECONDS });
+      } catch (err) {
+        console.error(`[NotificationWorker] Failed to notify user ${userId} about ${show.title} S${show.nextEpisodeToAir.season}E${show.nextEpisodeToAir.episode}:`, err);
+      }
     }
 
-    await redisClient.set(notifiedKey, "1", { EX: 48 * 60 * 60 });
-    console.log(`[NotificationWorker] Notified ${userIds.length} users about ${show.title} S${show.nextEpisodeToAir.season}E${show.nextEpisodeToAir.episode}`);
+    console.log(`[NotificationWorker] Processed ${userIds.length} watchers for ${show.title} S${show.nextEpisodeToAir.season}E${show.nextEpisodeToAir.episode}`);
   }
 }
 

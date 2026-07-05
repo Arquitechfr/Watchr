@@ -255,6 +255,7 @@ const DEFAULT_NOTIFICATION_PREFERENCES: NotificationPreferences = {
   commentReplies: true,
   commentReactions: true,
   commentLikes: true,
+  notificationOffsetMinutes: 0,
 };
 
 export async function updateNotificationPreferences(
@@ -266,6 +267,7 @@ export async function updateNotificationPreferences(
     commentReplies: boolean;
     commentReactions: boolean;
     commentLikes: boolean;
+    notificationOffsetMinutes: number;
   }>,
 ): Promise<{ notificationPreferences: NotificationPreferences }> {
   const user = await User.findByIdAndUpdate(

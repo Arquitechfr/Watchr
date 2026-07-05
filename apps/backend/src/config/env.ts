@@ -31,6 +31,7 @@ const envSchema = z.object({
   TRAKT_CLIENT_ID: z.string().optional(),
   TRAKT_CLIENT_SECRET: z.string().optional(),
   CI_UPLOAD_TOKEN: z.string().optional(),
+  SENTRY_DSN: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);

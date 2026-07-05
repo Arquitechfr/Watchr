@@ -57,7 +57,15 @@
       "expo-localization",
       "expo-notifications",
       "expo-dev-client",
-      "@react-native-google-signin/google-signin"
+      "@react-native-google-signin/google-signin",
+      [
+        "@sentry/react-native/expo",
+        {
+          "dsn": "https://bf2e227cd3abf6f8e316e40c13f874dc@o4511684973428736.ingest.de.sentry.io/4511684992893008",
+          "organization": "arquitech-fq",
+          "project": "watchr-expo"
+        }
+      ]
     ],
     "owner": "arquitech"
   }

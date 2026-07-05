@@ -1,4 +1,5 @@
 import "./global.css";
+import * as Sentry from "@sentry/react-native";
 import { useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { StatusBar } from "expo-status-bar";
@@ -27,6 +28,11 @@ import { useTheme } from "./src/theme/useTheme";
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
+Sentry.init({
+  dsn: "https://bf2e227cd3abf6f8e316e40c13f874dc@o4511684973428736.ingest.de.sentry.io/4511684992893008",
+  debug: __DEV__,
+});
+
 function StatusBarContent() {
   const { mode } = useTheme();
   return <StatusBar style={mode === "dark" ? "light" : "dark"} />;
@@ -41,7 +47,7 @@ const queryClient = new QueryClient({
   },
 });
 
-export default function App() {
+const AppInner = () => {
   const [fontsLoaded] = useFonts({
     Outfit_100Thin,
     Outfit_200ExtraLight,
@@ -84,4 +90,6 @@ export default function App() {
       </QueryClientProvider>
     </GestureHandlerRootView>
   );
-}
+};
+
+export default Sentry.wrap(AppInner);

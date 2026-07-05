@@ -1,4 +1,5 @@
 import express, { Application, Request, Response } from "express";
+import * as Sentry from "@sentry/node";
 import helmet from "helmet";
 import cors from "cors";
 import compression from "compression";
@@ -349,6 +350,14 @@ export function createApp(): Application {
     res.send(await getMetrics());
   });
 
+  app.get("/debug-sentry", function mainHandler(_req: Request, _res: Response) {
+    Sentry.logger.info("User triggered test error", {
+      action: "test_error_endpoint",
+    });
+    Sentry.metrics.count("test_counter", 1);
+    throw new Error("My first Sentry error!");
+  });
+
   app.use((req: Request, res: Response) => {
     res.status(404).json({
       error: {
@@ -357,6 +366,8 @@ export function createApp(): Application {
       },
     });
   });
+
+  Sentry.setupExpressErrorHandler(app);
 
   app.use(errorMiddleware);
 

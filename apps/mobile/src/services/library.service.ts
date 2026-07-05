@@ -13,6 +13,7 @@ export interface LibraryItem {
     title: string;
     posterPath: string | null;
     type: "tv" | "movie";
+    totalEpisodes?: number;
   };
   createdAt: string;
   updatedAt: string;

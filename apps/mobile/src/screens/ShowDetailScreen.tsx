@@ -95,13 +95,10 @@ export function ShowDetailScreen() {
       if (trackingEntry?.status === "completed") return 1;
       return 0;
     }
-    const totalEpisodes = show.seasons.reduce(
-      (sum: number, season: { episodeCount: number }) => sum + (season.episodeCount ?? 0),
-      0,
-    );
-    if (totalEpisodes === 0) return 0;
-    const watchedCount = trackingEntry?.watchedEpisodes.length ?? 0;
-    return Math.min(1, watchedCount / totalEpisodes);
+    if (trackingEntry?.totalEpisodes) {
+      return Math.min(1, (trackingEntry.watchedCount ?? 0) / trackingEntry.totalEpisodes);
+    }
+    return 0;
   }, [show, trackingEntry]);
 
   const isAnyPending =

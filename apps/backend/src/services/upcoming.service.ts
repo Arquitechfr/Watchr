@@ -19,6 +19,9 @@ export interface UpcomingEpisode {
   episode: number;
   name?: string;
   airDate: string;
+  isSeriesPremiere: boolean;
+  isSeasonPremiere: boolean;
+  isFinale: boolean;
 }
 
 export interface UpcomingCalendar {
@@ -53,6 +56,7 @@ export async function getUpcomingEpisodes(userId: string, language = "en"): Prom
     );
 
     for (const season of seasons) {
+      const seasonEpisodeCount = season.episodes?.length ?? season.episodeCount ?? 0;
       for (const episode of season.episodes || []) {
         if (!episode.airDate || episode.airDate < now) continue;
         if (watchedKeys.has(`${season.seasonNumber}-${episode.episodeNumber}`)) continue;
@@ -66,6 +70,12 @@ export async function getUpcomingEpisodes(userId: string, language = "en"): Prom
           episode: episode.episodeNumber,
           name: episode.name,
           airDate: episode.airDate.toISOString(),
+          isSeriesPremiere: season.seasonNumber === 1 && episode.episodeNumber === 1,
+          isSeasonPremiere: season.seasonNumber > 1 && episode.episodeNumber === 1,
+          // NOTE: isFinale depends on TMDB having listed all episodes for the season.
+          // If TMDB hasn't yet listed all episodes of an ongoing season, a mid-season
+          // episode may be temporarily mislabeled as finale. Not fixable without another data source.
+          isFinale: seasonEpisodeCount > 0 && episode.episodeNumber === seasonEpisodeCount,
         });
       }
     }
@@ -73,6 +83,8 @@ export async function getUpcomingEpisodes(userId: string, language = "en"): Prom
     if (show.nextEpisodeToAir && show.nextEpisodeToAir.airDate >= now) {
       const key = `${show.nextEpisodeToAir.season}-${show.nextEpisodeToAir.episode}`;
       if (!watchedKeys.has(key)) {
+        const nextSeason = seasons.find((s) => s.seasonNumber === show.nextEpisodeToAir!.season);
+        const nextSeasonEpisodeCount = nextSeason?.episodes?.length ?? nextSeason?.episodeCount ?? 0;
         allEpisodes.push({
           showId: show._id.toString(),
           tmdbId: show.tmdbId,
@@ -81,6 +93,9 @@ export async function getUpcomingEpisodes(userId: string, language = "en"): Prom
           season: show.nextEpisodeToAir.season,
           episode: show.nextEpisodeToAir.episode,
           airDate: show.nextEpisodeToAir.airDate.toISOString(),
+          isSeriesPremiere: show.nextEpisodeToAir.season === 1 && show.nextEpisodeToAir.episode === 1,
+          isSeasonPremiere: show.nextEpisodeToAir.season > 1 && show.nextEpisodeToAir.episode === 1,
+          isFinale: nextSeasonEpisodeCount > 0 && show.nextEpisodeToAir.episode === nextSeasonEpisodeCount,
         });
       }
     }

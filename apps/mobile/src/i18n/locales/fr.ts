@@ -116,6 +116,8 @@ const fr = {
     },
     library: {
       emptyTitle: "Aucune série ou film",
+      gridView: "Grille",
+      listView: "Liste",
     },
     profile: {
       title: "Gère ton compte et tes préférences.",
@@ -272,6 +274,9 @@ const fr = {
       emptySubtitle: "Ajoute des séries en cours pour voir les prochains épisodes.",
       markedWatched: "Épisode marqué comme vu",
       markError: "Impossible de marquer l'épisode",
+      seriesPremiere: "Première de série",
+      seasonPremiere: "Première de saison",
+      seasonFinale: "Final de saison",
     },
     news: {
       empty: "Aucune actualité",

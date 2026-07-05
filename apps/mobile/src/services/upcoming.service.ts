@@ -10,6 +10,9 @@ export interface UpcomingEpisode {
   episode: number;
   name?: string;
   airDate: string;
+  isSeriesPremiere: boolean;
+  isSeasonPremiere: boolean;
+  isFinale: boolean;
 }
 
 export interface UpcomingResponse {

@@ -45,6 +45,15 @@ export function UpcomingEpisodeRow({ episode, onPress, onMarkWatched, isMarking 
         <Text className="text-primary text-xs mt-1">
           {format(new Date(episode.airDate), "EEE d MMM", { locale: dateFnsLocale })}
         </Text>
+        {(episode.isSeriesPremiere || episode.isSeasonPremiere || episode.isFinale) && (
+          <Text className="text-primary text-xs font-semibold mt-0.5">
+            {episode.isSeriesPremiere
+              ? t("screens.upcoming.seriesPremiere")
+              : episode.isSeasonPremiere
+                ? t("screens.upcoming.seasonPremiere")
+                : t("screens.upcoming.seasonFinale")}
+          </Text>
+        )}
       </View>
       {onMarkWatched && (
         <TouchableOpacity

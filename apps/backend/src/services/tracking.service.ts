@@ -7,6 +7,7 @@ import { getShowDetails } from "./show.service.js";
 import { getTranslationValue, ShowTranslation, Season } from "../models/show.model.js";
 import { log } from "../lib/logger.js";
 import { wsEvents } from "../lib/wsEvents.js";
+import { getAiredEpisodeCount, getAiredWatchedCount } from "../lib/episodeUtils.js";
 
 function isShowEnded(status?: string): boolean {
   return ["ended", "canceled", "cancelled"].includes(status?.toLowerCase() ?? "");
@@ -65,6 +66,7 @@ export interface TrackingListItem {
     title: string;
     posterPath: string | null;
     type: "tv" | "movie";
+    totalEpisodes?: number;
   };
   createdAt: Date;
   updatedAt: Date;
@@ -131,6 +133,7 @@ export async function listTracking(
         title,
         posterPath: populatedShow.posterPath ?? null,
         type: populatedShow.type ?? "tv",
+        totalEpisodes: getAiredEpisodeCount(populatedShow.seasons ?? []),
       },
     } as TrackingListItem;
   });
@@ -229,6 +232,7 @@ export async function listLibrary(
         title,
         posterPath: show.posterPath ?? null,
         type: show.type ?? "tv",
+        totalEpisodes: getAiredEpisodeCount(show.seasons ?? []),
       },
     } as TrackingListItem;
   });
@@ -252,6 +256,8 @@ export interface TrackingEntry {
   watchedEpisodes: WatchedEpisode[];
   currentSeason?: number;
   currentEpisode?: number;
+  totalEpisodes?: number;
+  watchedCount?: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -271,6 +277,8 @@ export async function getTrackingEntry(userId: string, showId: string): Promise<
     seasons?: Season[];
   };
   const status = calculateWatchStatus(populatedShow, entry as { status?: WatchStatus; watchedEpisodes: WatchedEpisode[] });
+  const totalEpisodes = getAiredEpisodeCount(populatedShow.seasons ?? []);
+  const watchedCount = getAiredWatchedCount(entry.watchedEpisodes, populatedShow.seasons ?? []);
   return {
     id: entry._id.toString(),
     userId: entry.userId.toString(),
@@ -279,6 +287,8 @@ export async function getTrackingEntry(userId: string, showId: string): Promise<
     watchedEpisodes: entry.watchedEpisodes,
     currentSeason: entry.currentSeason,
     currentEpisode: entry.currentEpisode,
+    totalEpisodes,
+    watchedCount,
     createdAt: entry.createdAt,
     updatedAt: entry.updatedAt,
   } as TrackingEntry;
@@ -529,6 +539,8 @@ export interface UnwatchedShow {
   status: WatchStatus;
   isEnded: boolean;
   unwatchedEpisodes: UnwatchedEpisode[];
+  watchedCount: number;
+  totalEpisodes: number;
 }
 
 export interface UnwatchedMovie {
@@ -705,10 +717,25 @@ export async function getUnwatched(
       unwatchedEpisodes: unwatchedEpisodes.sort(
         (a, b) => new Date(b.airDate!).getTime() - new Date(a.airDate!).getTime(),
       ),
+      watchedCount: getAiredWatchedCount(entry.watchedEpisodes, localizedSeasons ?? []),
+      totalEpisodes: getAiredEpisodeCount(localizedSeasons ?? []),
     });
   }
 
-  shows.sort((a, b) => b.unwatchedEpisodes.length - a.unwatchedEpisodes.length);
+  const withUnwatched = shows.filter((s) => s.unwatchedEpisodes.length > 0);
+  const upToDate = shows.filter((s) => s.unwatchedEpisodes.length === 0);
+
+  withUnwatched.sort((a, b) => {
+    const aOldest = a.unwatchedEpisodes[a.unwatchedEpisodes.length - 1];
+    const bOldest = b.unwatchedEpisodes[b.unwatchedEpisodes.length - 1];
+    const aDate = aOldest ? new Date(aOldest.airDate!).getTime() : 0;
+    const bDate = bOldest ? new Date(bOldest.airDate!).getTime() : 0;
+    return aDate - bDate;
+  });
+  upToDate.sort((a, b) => a.title.localeCompare(b.title));
+
+  shows.length = 0;
+  shows.push(...withUnwatched, ...upToDate);
 
   log("TrackingService", "getUnwatched shows", { count: shows.length });
   return { shows };

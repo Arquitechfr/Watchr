@@ -17,6 +17,8 @@ export interface UnwatchedShow {
   status: "watching" | "completed" | "plan_to_watch" | "dropped";
   isEnded: boolean;
   unwatchedEpisodes: UnwatchedEpisode[];
+  watchedCount: number;
+  totalEpisodes: number;
 }
 
 export interface UnwatchedMovie {

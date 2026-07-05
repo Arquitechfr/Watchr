@@ -10,6 +10,7 @@ import { WeekSectionHeader } from "../components/WeekSectionHeader";
 import { EmptyState } from "../components/EmptyState";
 import { NetworkError } from "../components/NetworkError";
 import { Skeleton } from "../components/Skeleton";
+import { ProgressBar } from "../components/ProgressBar";
 import { useUnwatchedShows } from "../hooks/useUnwatched";
 import { useUpcomingEpisodes } from "../hooks/useUpcomingEpisodes";
 import { useQuickMarkWatched } from "../hooks/useTracking";
@@ -113,6 +114,9 @@ function UnwatchedShowCard({
         ) : (
           <Text className="text-text-muted text-sm">{getStatusLabel(t, show.status)}</Text>
         )}
+        <View className="mt-2">
+          <ProgressBar watched={show.watchedCount} total={show.totalEpisodes} />
+        </View>
       </View>
       {canMarkWatched && onMarkWatched ? (
         <TouchableOpacity
@@ -168,13 +172,13 @@ function UnwatchedList({
   log("SeriesScreen:UnwatchedList", "input shows", shows.map((s) => ({ showId: s.showId, title: s.title, status: s.status, isEnded: s.isEnded, unwatchedCount: s.unwatchedEpisodes.length })));
   log("SeriesScreen:UnwatchedList", "upcomingShowIds", Array.from(upcomingShowIds));
 
-  const activeShows = shows
-    .filter((s) => s.status === "watching" && (s.unwatchedEpisodes.length > 0 || upcomingShowIds.has(s.showId)))
-    .sort((a, b) => b.unwatchedEpisodes.length - a.unwatchedEpisodes.length);
+  const activeShows = shows.filter(
+    (s) => s.status === "watching" && (s.unwatchedEpisodes.length > 0 || upcomingShowIds.has(s.showId)),
+  );
 
-  const otherShows = shows
-    .filter((s) => !(s.status === "watching" && (s.unwatchedEpisodes.length > 0 || upcomingShowIds.has(s.showId))))
-    .sort((a, b) => b.unwatchedEpisodes.length - a.unwatchedEpisodes.length);
+  const otherShows = shows.filter(
+    (s) => !(s.status === "watching" && (s.unwatchedEpisodes.length > 0 || upcomingShowIds.has(s.showId))),
+  );
 
   log("SeriesScreen:UnwatchedList", "activeShows", activeShows.map((s) => ({ title: s.title, unwatchedCount: s.unwatchedEpisodes.length, hasUpcoming: upcomingShowIds.has(s.showId) })));
   log("SeriesScreen:UnwatchedList", "otherShows", otherShows.map((s) => ({ title: s.title, status: s.status, isEnded: s.isEnded, unwatchedCount: s.unwatchedEpisodes.length })));

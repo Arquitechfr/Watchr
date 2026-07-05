@@ -1,15 +1,19 @@
-import { View, Text, FlatList, RefreshControl, TouchableOpacity, Image } from "react-native";
+import { View, Text, FlatList, RefreshControl, TouchableOpacity, Image, useWindowDimensions } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { EmptyState } from "../components/EmptyState";
 import { NetworkError } from "../components/NetworkError";
 import { Skeleton } from "../components/Skeleton";
+import { PosterCard } from "../components/PosterCard";
+import { ProgressBar } from "../components/ProgressBar";
 import { getLibrary, LibraryItem } from "../services/library.service";
-import { getPosterUrl } from "../services/shows.service";
+import { getPosterUrl, SearchResultItem } from "../services/shows.service";
 import { useThemeColors } from "../theme/useThemeColors";
 import { useI18n } from "../i18n/useI18n";
+import { useUIStore } from "../store/uiStore";
 import { log } from "../utils/logger";
 import { RootStackParamList } from "../navigation/RootNavigator";
 
@@ -90,6 +94,11 @@ function LibraryItemCard({ item, onPress }: { item: LibraryItem; onPress: () => 
             {t("screens.showDetail.episodesWatched", { count: item.watchedEpisodes.length })}
           </Text>
         )}
+        {item.show.type === "tv" && (
+          <View className="mt-2">
+            <ProgressBar watched={item.watchedEpisodes.length} total={item.show.totalEpisodes ?? 0} />
+          </View>
+        )}
       </View>
     </TouchableOpacity>
   );
@@ -100,6 +109,10 @@ export function LibraryScreen() {
   const route = useRoute<LibraryRoute>();
   const { t } = useI18n();
   const colors = useThemeColors();
+  const { width: windowWidth } = useWindowDimensions();
+  const libraryViewMode = useUIStore((state) => state.libraryViewMode);
+  const setLibraryViewMode = useUIStore((state) => state.setLibraryViewMode);
+  const hydrateLibraryViewMode = useUIStore((state) => state.hydrateLibraryViewMode);
   const [activeTab, setActiveTab] = useState<LibraryTab>(route.params?.tab ?? "tv");
   const [data, setData] = useState<LibraryItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -155,12 +168,46 @@ export function LibraryScreen() {
   };
 
   useEffect(() => {
+    hydrateLibraryViewMode();
     fetchLibrary(activeTab, 1, true);
   }, []);
 
+  const toSearchResultItem = useCallback((item: LibraryItem): SearchResultItem => ({
+    tmdbId: item.show.tmdbId,
+    type: item.show.type,
+    title: item.show.title,
+    posterPath: item.show.posterPath ?? undefined,
+    source: "tmdb",
+  }), []);
+
+  const gridNumColumns = 3;
+  const gridGap = 12;
+  const gridPadding = 16;
+  const gridCardWidth = (windowWidth - gridPadding * 2 - gridGap * (gridNumColumns - 1)) / gridNumColumns;
+
   return (
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]}>
-      <Text className="text-3xl font-bold text-text mb-4">{t("navigation.library")}</Text>
+      <View className="flex-row items-center justify-between mb-4">
+        <Text className="text-3xl font-bold text-text">{t("navigation.library")}</Text>
+        <View className="flex-row bg-muted rounded-lg p-1">
+          <TouchableOpacity
+            onPress={() => setLibraryViewMode("list")}
+            className={`p-1.5 rounded-md ${libraryViewMode === "list" ? "bg-primary" : ""}`}
+            accessibilityRole="button"
+            accessibilityLabel={t("screens.library.listView")}
+          >
+            <Ionicons name="list" size={18} color={libraryViewMode === "list" ? colors.background : colors.textMuted} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setLibraryViewMode("grid")}
+            className={`p-1.5 rounded-md ml-1 ${libraryViewMode === "grid" ? "bg-primary" : ""}`}
+            accessibilityRole="button"
+            accessibilityLabel={t("screens.library.gridView")}
+          >
+            <Ionicons name="grid" size={18} color={libraryViewMode === "grid" ? colors.background : colors.textMuted} />
+          </TouchableOpacity>
+        </View>
+      </View>
 
       <LibraryTabs active={activeTab} onChange={handleTabChange} />
 
@@ -177,6 +224,26 @@ export function LibraryScreen() {
           <EmptyState
             icon="film-outline"
             title={t("screens.library.emptyTitle")}
+          />
+        ) : libraryViewMode === "grid" ? (
+          <FlatList
+            data={data}
+            keyExtractor={(item) => item.id}
+            numColumns={gridNumColumns}
+            renderItem={({ item }) => (
+              <View style={{ width: gridCardWidth, marginRight: gridGap, marginBottom: gridGap }}>
+                <PosterCard
+                  show={toSearchResultItem(item)}
+                  onPress={() => handleItemPress(item)}
+                  watched={item.show.type === "tv" ? item.watchedEpisodes.length : undefined}
+                  total={item.show.type === "tv" ? item.show.totalEpisodes : undefined}
+                />
+              </View>
+            )}
+            refreshControl={<RefreshControl refreshing={isLoading && page === 1} onRefresh={handleRefresh} tintColor={colors.primary} />}
+            onEndReached={handleLoadMore}
+            onEndReachedThreshold={0.5}
+            contentContainerStyle={{ paddingBottom: 24 }}
           />
         ) : (
           <FlatList

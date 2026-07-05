@@ -16,6 +16,8 @@ export interface WatchEntry {
   watchedEpisodes: WatchedEpisode[];
   currentSeason?: number;
   currentEpisode?: number;
+  totalEpisodes?: number;
+  watchedCount?: number;
   show: {
     tmdbId: number;
     title: string;

@@ -118,6 +118,8 @@ const en = {
     },
     library: {
       emptyTitle: "No series or movies",
+      gridView: "Grid",
+      listView: "List",
     },
     profile: {
       title: "Manage your account and preferences.",
@@ -274,6 +276,9 @@ const en = {
       emptySubtitle: "Add ongoing shows to see upcoming episodes.",
       markedWatched: "Episode marked as watched",
       markError: "Unable to mark episode",
+      seriesPremiere: "Series premiere",
+      seasonPremiere: "Season premiere",
+      seasonFinale: "Season finale",
     },
     episode: {
       title: "Episode {{episode}}",

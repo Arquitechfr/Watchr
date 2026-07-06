@@ -70,6 +70,34 @@ router.post(
 );
 
 router.get(
+  "/",
+  requireAuth,
+  asyncHandler(async (req: Request, res: Response) => {
+    const limit = Math.min(50, Math.max(1, Number(req.query.limit) || 20));
+
+    const [jobs, total] = await Promise.all([
+      ImportJob.find({ userId: req.userId })
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .lean(),
+      ImportJob.countDocuments({ userId: req.userId }),
+    ]);
+
+    res.json({
+      jobs: jobs.map((job) => ({
+        id: job._id,
+        source: job.source,
+        status: job.status,
+        progress: job.progress,
+        createdAt: job.createdAt,
+        completedAt: job.completedAt,
+      })),
+      total,
+    });
+  }),
+);
+
+router.get(
   "/:jobId",
   validateRequest(undefined, undefined, jobIdParamSchema),
   asyncHandler(async (req: Request, res: Response) => {
@@ -84,6 +112,7 @@ router.get(
     res.json({
       id: job._id,
       status: job.status,
+      source: job.source,
       progress: job.progress,
       createdAt: job.createdAt,
       completedAt: job.completedAt,

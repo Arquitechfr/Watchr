@@ -1,11 +1,13 @@
 import { useState, useCallback } from "react";
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Linking, Switch, Alert } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Linking, Switch } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import * as DocumentPicker from "expo-document-picker";
+import { format } from "date-fns";
 import { useImportPolling } from "../hooks/useImportPolling";
 import {
   uploadImport,
   getImportJobErrors,
+  getImportJobs,
   getTraktAuthUrl,
   getTraktStatus,
   syncTrakt,
@@ -13,16 +15,27 @@ import {
   toggleTraktAutoSync,
   ImportSource,
   TraktStatus,
+  ImportJobSummary,
 } from "../services/import.service";
 import { log } from "../utils/logger";
 import { ImportProgressBar } from "../components/ImportProgressBar";
 import { NetworkError } from "../components/NetworkError";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { useUIStore } from "../store/uiStore";
+import { useImportStore } from "../store/importStore";
 import { useErrorMessage } from "../services/api";
 import { useThemeColors } from "../theme/useThemeColors";
 import { useI18n } from "../i18n/useI18n";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+
+const SOURCE_ICONS: Record<string, string> = {
+  tvtime: "📺",
+  trakt: "🎬",
+  imdb: "⭐",
+  letterboxd: "🎞️",
+  watchr: "📋",
+  unknown: "📦",
+};
 
 interface PlatformCardProps {
   icon: string;
@@ -54,15 +67,22 @@ function PlatformCard({ icon, name, description, onPress, disabled }: PlatformCa
 export function ImportScreen() {
   const colors = useThemeColors();
   const navigation = useNavigation<any>();
-  const { showSnackbar } = useUIStore();
+  const { showSnackbar, showAlert } = useUIStore();
   const { t } = useI18n();
   const getErrorMessage = useErrorMessage();
   const queryClient = useQueryClient();
-  const [jobId, setJobId] = useState<string | null>(null);
+  const activeJobId = useImportStore((state) => state.activeJobId);
+  const setActiveJobId = useImportStore((state) => state.setActiveJobId);
+  const clearActiveJob = useImportStore((state) => state.clearActiveJob);
   const [errors, setErrors] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [isSyncingTrakt, setIsSyncingTrakt] = useState(false);
-  const { data: job } = useImportPolling(jobId);
+  const { data: job } = useImportPolling(activeJobId);
+
+  const { data: importJobsData } = useQuery({
+    queryKey: ["import-jobs"],
+    queryFn: getImportJobs,
+  });
 
   const { data: traktStatus } = useQuery<TraktStatus>({
     queryKey: ["trakt-status"],
@@ -84,7 +104,8 @@ export function ImportScreen() {
         setErrors([]);
         const { jobId: newJobId } = await uploadImport(file.uri, source);
         log("Import", "upload success", { jobId: newJobId });
-        setJobId(newJobId);
+        setActiveJobId(newJobId);
+        queryClient.invalidateQueries({ queryKey: ["import-jobs"] });
         showSnackbar(t("screens.import.started"), "success");
       } catch (err) {
         log("Import", "upload error", err);
@@ -93,7 +114,7 @@ export function ImportScreen() {
         setIsUploading(false);
       }
     },
-    [t, showSnackbar, getErrorMessage],
+    [t, showSnackbar, getErrorMessage, setActiveJobId, queryClient],
   );
 
   async function handleTraktOAuth() {
@@ -123,10 +144,10 @@ export function ImportScreen() {
   }
 
   async function handleTraktUnlink() {
-    Alert.alert(
-      t("screens.import.traktUnlinkTitle"),
-      t("screens.import.traktUnlinkMessage"),
-      [
+    showAlert({
+      title: t("screens.import.traktUnlinkTitle"),
+      message: t("screens.import.traktUnlinkMessage"),
+      buttons: [
         { text: t("common.cancel"), style: "cancel" },
         {
           text: t("common.confirm"),
@@ -142,7 +163,7 @@ export function ImportScreen() {
           },
         },
       ],
-    );
+    });
   }
 
   async function handleToggleAutoSync(enabled: boolean) {
@@ -155,10 +176,10 @@ export function ImportScreen() {
   }
 
   async function viewErrors() {
-    if (!jobId) return;
-    log("Import", "view errors", { jobId });
+    if (!activeJobId) return;
+    log("Import", "view errors", { jobId: activeJobId });
     try {
-      const { errors: jobErrors } = await getImportJobErrors(jobId);
+      const { errors: jobErrors } = await getImportJobErrors(activeJobId);
       log("Import", "errors loaded", { count: jobErrors.length });
       setErrors(jobErrors.map((err) => `${t("screens.import.line")} ${err.line}: ${err.reason}`));
     } catch (err) {
@@ -170,6 +191,8 @@ export function ImportScreen() {
   const isComplete = job?.status === "completed" || job?.status === "failed";
   const isFailed = job?.status === "failed";
   const isTraktLinked = traktStatus?.linked === true;
+  const recentJobs = (importJobsData?.jobs ?? []).filter((j: ImportJobSummary) => j.id !== activeJobId);
+  const { dateFnsLocale } = useI18n();
 
   return (
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]}>
@@ -184,7 +207,7 @@ export function ImportScreen() {
           name="TV Time"
           description={t("screens.import.tvtimeDesc")}
           onPress={() => pickAndUploadFile("tvtime", "application/zip")}
-          disabled={isUploading || Boolean(jobId && !isComplete)}
+          disabled={isUploading || Boolean(activeJobId && !isComplete)}
         />
 
         <PlatformCard
@@ -192,7 +215,7 @@ export function ImportScreen() {
           name="Trakt"
           description={t("screens.import.traktDesc")}
           onPress={() => pickAndUploadFile("trakt", "application/json")}
-          disabled={isUploading || Boolean(jobId && !isComplete)}
+          disabled={isUploading || Boolean(activeJobId && !isComplete)}
         />
 
         <PlatformCard
@@ -200,7 +223,7 @@ export function ImportScreen() {
           name="IMDb"
           description={t("screens.import.imdbDesc")}
           onPress={() => pickAndUploadFile("imdb", "text/csv")}
-          disabled={isUploading || Boolean(jobId && !isComplete)}
+          disabled={isUploading || Boolean(activeJobId && !isComplete)}
         />
 
         <PlatformCard
@@ -208,7 +231,7 @@ export function ImportScreen() {
           name="Letterboxd"
           description={t("screens.import.letterboxdDesc")}
           onPress={() => pickAndUploadFile("letterboxd", "text/csv")}
-          disabled={isUploading || Boolean(jobId && !isComplete)}
+          disabled={isUploading || Boolean(activeJobId && !isComplete)}
         />
 
         {isTraktLinked && (
@@ -278,7 +301,7 @@ export function ImportScreen() {
               <NetworkError
                 isOffline={false}
                 onRetry={() => {
-                  setJobId(null);
+                  clearActiveJob();
                   setErrors([]);
                 }}
               />
@@ -315,7 +338,57 @@ export function ImportScreen() {
             </Text>
           </TouchableOpacity>
         )}
+
+        {recentJobs.length > 0 && (
+          <View className="mb-4">
+            <Text className="text-text font-semibold text-lg mb-3">{t("screens.import.recentImports")}</Text>
+            {recentJobs.map((item: ImportJobSummary) => (
+              <ImportHistoryRow key={item.id} job={item} />
+            ))}
+          </View>
+        )}
       </ScrollView>
     </ScreenContainer>
+  );
+}
+
+interface ImportHistoryRowProps {
+  job: ImportJobSummary;
+}
+
+function ImportHistoryRow({ job }: ImportHistoryRowProps) {
+  const colors = useThemeColors();
+  const navigation = useNavigation<any>();
+  const { t, dateFnsLocale } = useI18n();
+  const icon = SOURCE_ICONS[job.source ?? "unknown"] ?? "📦";
+  const dateStr = format(new Date(job.createdAt), "PP", { locale: dateFnsLocale });
+  const isCompleted = job.status === "completed";
+  const isFailed = job.status === "failed";
+  const hasPendingReview = isCompleted && (job.progress.pendingReview ?? 0) > 0;
+
+  const statusColor = isFailed ? colors.danger : isCompleted ? colors.primary : colors.textMuted;
+
+  return (
+    <TouchableOpacity
+      className="flex-row items-center rounded-lg p-3 mb-2"
+      style={{ backgroundColor: colors.surface }}
+      onPress={() => hasPendingReview && navigation.navigate("ImportReview", { jobId: job.id })}
+      disabled={!hasPendingReview}
+      activeOpacity={0.7}
+    >
+      <Text className="text-xl mr-3">{icon}</Text>
+      <View className="flex-1">
+        <Text className="text-text font-medium text-sm">
+          {job.source ?? "unknown"}
+        </Text>
+        <Text className="text-text-muted text-xs mt-0.5">{dateStr}</Text>
+      </View>
+      <Text style={{ color: statusColor }} className="text-sm font-medium">
+        {job.status === "pending" && t("screens.import.pending")}
+        {job.status === "processing" && t("screens.import.processing")}
+        {job.status === "completed" && t("screens.import.completed")}
+        {job.status === "failed" && t("screens.import.failed")}
+      </Text>
+    </TouchableOpacity>
   );
 }

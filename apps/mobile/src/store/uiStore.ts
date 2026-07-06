@@ -10,10 +10,25 @@ interface SnackbarMessage {
   type: "info" | "success" | "error";
 }
 
+export interface AlertButton {
+  text: string;
+  style?: "default" | "cancel" | "destructive";
+  onPress?: () => void;
+}
+
+export interface AlertConfig {
+  title: string;
+  message?: string;
+  buttons: AlertButton[];
+}
+
 interface UIState {
   snackbar: SnackbarMessage | null;
   showSnackbar: (message: string, type?: SnackbarMessage["type"]) => void;
   hideSnackbar: () => void;
+  alert: AlertConfig | null;
+  showAlert: (config: AlertConfig) => void;
+  hideAlert: () => void;
   libraryViewMode: LibraryViewMode;
   setLibraryViewMode: (mode: LibraryViewMode) => void;
   hydrateLibraryViewMode: () => Promise<void>;
@@ -26,6 +41,13 @@ export const useUIStore = create<UIState>((set, get) => ({
   },
   hideSnackbar: () => {
     set({ snackbar: null });
+  },
+  alert: null,
+  showAlert: (config) => {
+    set({ alert: config });
+  },
+  hideAlert: () => {
+    set({ alert: null });
   },
   libraryViewMode: "list",
   setLibraryViewMode: (mode) => {

@@ -10,6 +10,7 @@ import {
   getUnwatched,
   listLibrary,
   listTracking,
+  markAllAiredEpisodes,
   markEpisodesUpTo,
   toggleDropped,
   toggleEpisode,
@@ -21,6 +22,7 @@ import {
   batchAddToWatchlistSchema,
   librarySchema,
   listTrackingSchema,
+  markAllAiredSchema,
   markUpToSchema,
   toggleDroppedSchema,
   toggleEpisodeSchema,
@@ -152,6 +154,17 @@ router.post(
     const { showId } = req.params;
     const { season, episode, includePrevious } = req.body;
     const entry = await markEpisodesUpTo(req.userId!, showId, season, episode, includePrevious);
+    res.json(entry);
+  }),
+);
+
+router.post(
+  "/:showId/mark-all-aired",
+  validateRequest(markAllAiredSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { showId } = req.params;
+    const { season } = req.body;
+    const entry = await markAllAiredEpisodes(req.userId!, showId, season);
     res.json(entry);
   }),
 );

@@ -237,6 +237,8 @@ const en = {
       traktUnlinkMessage: "Your Trakt data will no longer sync automatically.",
       traktUnlinked: "Trakt account unlinked",
       reviewPending: "Review {{count}} pending matches",
+      recentImports: "Recent imports",
+      noRecentImports: "No recent imports",
     },
     importReview: {
       title: "Review matches",

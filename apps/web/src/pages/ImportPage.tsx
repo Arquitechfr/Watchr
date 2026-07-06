@@ -1,10 +1,13 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { format } from "date-fns";
 import {
   uploadImport,
   getImportJobErrors,
+  getImportJobs,
   type ImportSource,
   type ImportError,
+  type ImportJobSummary,
 } from "../services/import.service";
 import { useImportJob } from "../hooks/useImportJob";
 import { useUIStore } from "../store/uiStore";
@@ -15,6 +18,15 @@ import { ImportProgressBar } from "../components/ImportProgressBar";
 import { InfoBox } from "../components/InfoBox";
 import { LanguageSwitcher } from "../components/LanguageSwitcher";
 import { ThemeToggle } from "../components/ThemeToggle";
+
+const SOURCE_ICONS: Record<string, string> = {
+  tvtime: "📺",
+  trakt: "🎬",
+  imdb: "⭐",
+  letterboxd: "🎞️",
+  watchr: "📋",
+  unknown: "📦",
+};
 
 interface PlatformConfig {
   icon: string;
@@ -34,13 +46,26 @@ const PLATFORMS: PlatformConfig[] = [
 export function ImportPage() {
   const navigate = useNavigate();
   const { showSnackbar } = useUIStore();
-  const { t } = useI18n();
+  const { t, dateFnsLocale } = useI18n();
   const getErrorMessage = useErrorMessage();
-  const [jobId, setJobId] = useState<string | null>(null);
+  const [jobId, setJobId] = useState<string | null>(() => localStorage.getItem("watchr-active-import-job"));
   const [errors, setErrors] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [importJobs, setImportJobs] = useState<ImportJobSummary[]>([]);
   const { job } = useImportJob(jobId);
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+
+  useEffect(() => {
+    if (jobId) {
+      localStorage.setItem("watchr-active-import-job", jobId);
+    } else {
+      localStorage.removeItem("watchr-active-import-job");
+    }
+  }, [jobId]);
+
+  useEffect(() => {
+    getImportJobs().then((data) => setImportJobs(data.jobs)).catch(() => {});
+  }, [jobId, job?.status]);
 
   const handleFileSelect = useCallback(
     async (source: ImportSource, file: File) => {
@@ -166,6 +191,42 @@ export function ImportPage() {
           >
             {t("screens.import.reviewPending", { count: job.progress.pendingReview })}
           </button>
+        )}
+
+        {importJobs.length > 0 && (
+          <div className="mt-4">
+            <h2 className="text-text font-semibold text-lg mb-3">{t("screens.import.recentImports")}</h2>
+            {importJobs
+              .filter((j) => j.id !== jobId)
+              .map((item) => {
+                const icon = SOURCE_ICONS[item.source ?? "unknown"] ?? "📦";
+                const dateStr = format(new Date(item.createdAt), "PP", { locale: dateFnsLocale });
+                const isCompleted = item.status === "completed";
+                const isFailed = item.status === "failed";
+                const hasPendingReview = isCompleted && (item.progress.pendingReview ?? 0) > 0;
+                const statusColor = isFailed ? "text-danger" : isCompleted ? "text-primary" : "text-text-muted";
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => hasPendingReview && navigate(`/import/${item.id}/review`)}
+                    disabled={!hasPendingReview}
+                    className="w-full flex items-center rounded-lg p-3 mb-2 bg-surface hover:bg-surface-light transition-colors text-left disabled:opacity-60"
+                  >
+                    <span className="text-xl mr-3">{icon}</span>
+                    <div className="flex-1">
+                      <p className="text-text font-medium text-sm">{item.source ?? "unknown"}</p>
+                      <p className="text-text-muted text-xs mt-0.5">{dateStr}</p>
+                    </div>
+                    <span className={`${statusColor} text-sm font-medium`}>
+                      {item.status === "pending" && t("screens.import.pending")}
+                      {item.status === "processing" && t("screens.import.processing")}
+                      {item.status === "completed" && t("screens.import.completed")}
+                      {item.status === "failed" && t("screens.import.failed")}
+                    </span>
+                  </button>
+                );
+              })}
+          </div>
         )}
       </div>
     </ScreenContainer>

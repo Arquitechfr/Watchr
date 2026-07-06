@@ -5,24 +5,25 @@ import {
   Image,
   ScrollView,
   TouchableOpacity,
-  Alert,
   Share,
   RefreshControl,
 } from "react-native";
 import { useRoute, useNavigation, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { format } from "date-fns";
 import { useShowDetails } from "../hooks/useShowDetails";
 import { useSeasonDetails } from "../hooks/useSeasonDetails";
 import { useTrackingEntry } from "../hooks/useTrackingEntry";
-import { useToggleEpisode, useMarkUpTo } from "../hooks/useTracking";
+import { useToggleEpisode, useMarkUpTo, useMarkAllAired } from "../hooks/useTracking";
 import { WatchedEpisode } from "../services/tracking.service";
 import { useRatingsForShow, useUpsertRating } from "../hooks/useRatings";
 import { useCommentsForShow } from "../hooks/useComments";
 import { useRefreshRateLimit } from "../hooks/useRefreshRateLimit";
 import { useUIStore } from "../store/uiStore";
 import { ScreenContainer } from "../components/ScreenContainer";
+import { DetailHeader } from "../components/DetailHeader";
 import { NetworkError } from "../components/NetworkError";
 import { Skeleton } from "../components/Skeleton";
 import { RatingStars } from "../components/RatingStars";
@@ -47,9 +48,10 @@ export function EpisodeDetailScreen() {
   const route = useRoute<EpisodeDetailRouteProp>();
   const navigation = useNavigation<EpisodeDetailNavigationProp>();
   const { showId, tmdbId, season, episodeNumber, title } = route.params;
-  const { showSnackbar } = useUIStore();
+  const { showSnackbar, showAlert } = useUIStore();
   const { t, dateFnsLocale } = useI18n();
   const colors = useThemeColors();
+  const insets = useSafeAreaInsets();
 
   const { data: show, isLoading: isLoadingShow, isError: isErrorShow, refetch: refetchShow } = useShowDetails(tmdbId);
   const {
@@ -64,6 +66,7 @@ export function EpisodeDetailScreen() {
   const throttledRefresh = useRefreshRateLimit();
   const toggleEpisode = useToggleEpisode(showId);
   const markUpTo = useMarkUpTo(showId);
+  const markAllAired = useMarkAllAired(showId);
   const upsertRating = useUpsertRating(showId);
 
   const episode = useMemo<Episode | undefined>(() => {
@@ -104,11 +107,6 @@ export function EpisodeDetailScreen() {
   const previewComments = useMemo<Comment[]>(() => (commentsData?.comments ?? []).slice(0, 3), [commentsData]);
 
   useEffect(() => {
-    const headerTitle = title ?? episode?.name ?? `S${season}E${episodeNumber}`;
-    navigation.setOptions({ title: headerTitle });
-  }, [navigation, title, episode, season, episodeNumber]);
-
-  useEffect(() => {
     if (show) {
       log("EpisodeDetail", "show data", {
         tmdbId,
@@ -146,10 +144,10 @@ export function EpisodeDetailScreen() {
       return;
     }
 
-    Alert.alert(
-      t("screens.episode.markPreviousTitle"),
-      t("screens.episode.markPreviousMessage", { count: previousUnwatched.length }),
-      [
+    showAlert({
+      title: t("screens.episode.markPreviousTitle"),
+      message: t("screens.episode.markPreviousMessage", { count: previousUnwatched.length }),
+      buttons: [
         { text: t("common.no"), style: "cancel", onPress: () => toggleEpisode.mutate({ season, episode: episodeNumber, watched: true }) },
         {
           text: t("common.yes"),
@@ -162,7 +160,7 @@ export function EpisodeDetailScreen() {
           },
         },
       ],
-    );
+    });
   };
 
   const handleToggleSeason = () => {
@@ -174,19 +172,30 @@ export function EpisodeDetailScreen() {
         return Array.from({ length: count }, (_, i) => i + 1).map((ep: number) => ({ season: s.seasonNumber, episode: ep }));
       });
     const seasonWatched = seasonEpisodes.every((ep: { season: number; episode: number }) => watchedKeys.has(`${ep.season}-${ep.episode}`));
-    const targetWatched = !seasonWatched;
 
-    if (targetWatched) {
-      const lastEpisode = seasonEpisodes[seasonEpisodes.length - 1];
-      markUpTo.mutate(
-        { season: lastEpisode.season, episode: lastEpisode.episode, includePrevious: true },
-        { onError: () => showSnackbar(t("screens.episode.seasonError"), "error") },
-      );
-    } else {
+    if (seasonWatched) {
       const promises = seasonEpisodes.map((ep: { season: number; episode: number }) =>
         toggleEpisode.mutateAsync({ season: ep.season, episode: ep.episode, watched: false }),
       );
       Promise.all(promises).catch(() => showSnackbar(t("screens.episode.seasonError"), "error"));
+    } else {
+      showAlert({
+        title: t("screens.episode.markSeasonAiredConfirmTitle", { season }),
+        message: t("screens.episode.markSeasonAiredConfirmMessage"),
+        buttons: [
+          { text: t("common.cancel"), style: "cancel" },
+          {
+            text: t("common.confirm"),
+            onPress: () => {
+              log("EpisodeDetail", "mark season aired", { showId, season });
+              markAllAired.mutate(
+                { season },
+                { onError: () => showSnackbar(t("screens.episode.seasonError"), "error") },
+              );
+            },
+          },
+        ],
+      });
     }
   };
 
@@ -238,8 +247,10 @@ export function EpisodeDetailScreen() {
   };
 
   if (isLoading || !show || !seasonDetails) {
+    const headerTitle = title ?? `S${season}E${episodeNumber}`;
     return (
       <ScreenContainer edges={["top", "left", "right"]}>
+        <DetailHeader title={headerTitle} onBack={() => navigation.goBack()} />
         <ScrollView className="flex-1 bg-background">
           <Skeleton width="100%" height={240} borderRadius={0} />
           <View className="px-4 pt-4">
@@ -255,15 +266,20 @@ export function EpisodeDetailScreen() {
   }
 
   if (isError) {
+    const headerTitle = title ?? `S${season}E${episodeNumber}`;
     return (
-      <ScreenContainer>
+      <ScreenContainer edges={["top", "left", "right"]}>
+        <DetailHeader title={headerTitle} onBack={() => navigation.goBack()} />
         <NetworkError onRetry={() => refetch()} />
       </ScreenContainer>
     );
   }
 
+  const headerTitle = title ?? episode?.name ?? `S${season}E${episodeNumber}`;
+
   return (
     <ScreenContainer edges={["top", "left", "right"]}>
+      <DetailHeader title={headerTitle} onBack={() => navigation.goBack()} />
       <ScrollView
         className="flex-1 bg-background"
         contentContainerStyle={{ paddingBottom: 120 }}
@@ -278,15 +294,6 @@ export function EpisodeDetailScreen() {
             </View>
           )}
           <View className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background to-transparent" />
-          <View className="absolute top-4 left-4">
-            <TouchableOpacity
-              onPress={() => navigation.goBack()}
-              className="w-10 h-10 rounded-full bg-black/50 items-center justify-center"
-              activeOpacity={0.7}
-            >
-              <Ionicons name="arrow-back" size={24} color={colors.background} />
-            </TouchableOpacity>
-          </View>
         </View>
 
         <View className="px-4 -mt-6">
@@ -298,9 +305,6 @@ export function EpisodeDetailScreen() {
               </View>
             )}
           </View>
-          <Text className="text-text text-2xl font-bold mb-2">
-            {episode?.name ?? `${t("screens.showDetail.episode")} ${episodeNumber}`}
-          </Text>
           <View className="flex-row flex-wrap items-center mb-4">
             {airDate && !Number.isNaN(airDate.getTime()) && (
               <Text className="text-text-muted text-sm mr-4">
@@ -313,7 +317,10 @@ export function EpisodeDetailScreen() {
           </View>
 
           {episode?.overview ? (
-            <Text className="text-text leading-relaxed mb-6">{episode.overview}</Text>
+            <View className="mb-6">
+              <Text className="text-lg font-semibold text-text mb-2">{t("screens.showDetail.synopsis")}</Text>
+              <Text className="text-text leading-relaxed">{episode.overview}</Text>
+            </View>
           ) : (
             <Text className="text-text-muted italic mb-6">{t("screens.episode.noOverview")}</Text>
           )}
@@ -333,12 +340,12 @@ export function EpisodeDetailScreen() {
 
             <TouchableOpacity
               onPress={handleToggleSeason}
-              disabled={toggleEpisode.isPending || markUpTo.isPending}
+              disabled={toggleEpisode.isPending || markAllAired.isPending}
               className="flex-row items-center px-4 py-3 rounded-lg bg-surface border border-border mr-2 mb-2"
               activeOpacity={0.7}
             >
-              <Ionicons name="albums-outline" size={18} color={colors.primary} />
-              <Text className="font-semibold ml-2 text-text">{t("screens.showDetail.season")}</Text>
+              <Ionicons name="checkmark-done-outline" size={18} color={colors.primary} />
+              <Text className="font-semibold ml-2 text-text">{t("screens.episode.markSeasonAired")}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -410,7 +417,10 @@ export function EpisodeDetailScreen() {
         </View>
       </ScrollView>
 
-      <View className="absolute bottom-0 left-0 right-0 px-4 py-3 bg-background border-t border-border flex-row items-center justify-between">
+      <View
+        className="absolute bottom-0 left-0 right-0 px-4 pt-3 bg-background border-t border-border flex-row items-center justify-between"
+        style={{ paddingBottom: Math.max(insets.bottom, 12) }}
+      >
         <TouchableOpacity
           onPress={() => previousEpisode && handleNavigate(previousEpisode)}
           disabled={!previousEpisode}

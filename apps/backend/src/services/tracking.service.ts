@@ -544,6 +544,67 @@ export async function markEpisodesUpTo(
   return entry;
 }
 
+export async function markAllAiredEpisodes(
+  userId: string,
+  showId: string,
+  season?: number,
+) {
+  const show = await Show.findById(showId);
+  if (!show) {
+    throw new ApiError(404, "SHOW_NOT_FOUND", "Show not found");
+  }
+
+  let entry = await WatchEntry.findOne({
+    userId: new Types.ObjectId(userId),
+    showId: new Types.ObjectId(showId),
+  });
+
+  if (!entry) {
+    entry = await WatchEntry.create({
+      userId: new Types.ObjectId(userId),
+      showId: new Types.ObjectId(showId),
+      status: "watching",
+      watchedEpisodes: [],
+    });
+  }
+
+  const now = new Date();
+  const airedKeys = new Set<string>();
+  for (const s of show.seasons) {
+    if (season !== undefined && s.seasonNumber !== season) continue;
+    if (s.seasonNumber === 0) continue;
+    for (const e of s.episodes) {
+      if (e.airDate && new Date(e.airDate) <= now) {
+        airedKeys.add(`${s.seasonNumber}-${e.episodeNumber}`);
+      }
+    }
+  }
+
+  const existingMap = new Map(
+    entry.watchedEpisodes.map((ep) => [`${ep.season}-${ep.episode}`, ep]),
+  );
+
+  const newWatchedEpisodes: WatchedEpisode[] = [];
+  for (const ep of entry.watchedEpisodes) {
+    newWatchedEpisodes.push({ season: ep.season, episode: ep.episode, watchedAt: ep.watchedAt });
+  }
+
+  for (const key of airedKeys) {
+    if (existingMap.has(key)) continue;
+    const [epSeason, epEpisode] = key.split("-").map(Number);
+    newWatchedEpisodes.push({ season: epSeason, episode: epEpisode, watchedAt: new Date() });
+  }
+
+  entry.watchedEpisodes = newWatchedEpisodes;
+  entry.updatedAt = new Date();
+  if (entry.status !== "dropped") {
+    entry.status = calculateWatchStatus(show, entry);
+  }
+  await entry.save();
+  wsEvents.emit("tracking:updated", { userId, showId });
+  return entry;
+}
+
 export async function deleteTracking(userId: string, showId: string) {
   const result = await WatchEntry.deleteOne({
     userId: new Types.ObjectId(userId),

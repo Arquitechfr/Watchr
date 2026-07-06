@@ -20,6 +20,7 @@ import {
 } from "@expo-google-fonts/outfit";
 import { RootNavigator } from "./src/navigation/RootNavigator";
 import { Snackbar } from "./src/components/Snackbar";
+import { CustomAlert } from "./src/components/CustomAlert";
 import { View } from "react-native";
 import { useLocaleStore } from "./src/store/localeStore";
 import { useThemeStore } from "./src/store/themeStore";
@@ -84,6 +85,7 @@ const AppInner = () => {
             <View style={{ flex: 1, position: "relative" }}>
               <RootNavigator />
               <Snackbar />
+              <CustomAlert />
             </View>
           </ThemeProvider>
         </SafeAreaProvider>

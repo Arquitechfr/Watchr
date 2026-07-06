@@ -108,6 +108,7 @@ const en = {
     },
     series: {
       viewAll: "View all my series",
+      markNextEpisode: "Mark next episode",
     },
     movies: {
       viewAll: "View all my movies",
@@ -160,6 +161,7 @@ const en = {
       library: "My library",
     },
     showDetail: {
+      synopsis: "Synopsis",
       noOverview: "No overview available.",
       seasons: "Seasons",
       episodes: "Episodes",
@@ -190,13 +192,20 @@ const en = {
       dropShow: "Drop show",
       resumeShow: "Resume show",
       dropConfirmTitle: "Drop show?",
-      dropConfirmMessage: "You can resume the show at any time.",
+      dropConfirmMessage: "This show will be removed from your list. You can add it back at any time.",
       updateProgressError: "Unable to update progress",
       updateTrackingError: "Unable to update tracking",
-      droppedStatus: "Show marked as dropped",
+      droppedStatus: "Show removed from your list",
       resumedStatus: "Show resumed",
       statusError: "Unable to change status",
       episodesWatched: "{{count}} episodes watched",
+      markAllAired: "Mark aired",
+      markAllAiredConfirmTitle: "Mark all aired episodes?",
+      markAllAiredConfirmMessage: "All aired episodes will be marked as watched. Unaired ones are skipped.",
+      markAllAiredSuccess: "All aired episodes marked as watched",
+      markAllAiredError: "Unable to mark episodes",
+      markSeasonAiredConfirmTitle: "Mark aired episodes of S{{season}}?",
+      markSeasonAiredConfirmMessage: "All aired episodes of this season will be marked as watched.",
     },
     comments: {
       title: "Comments",
@@ -244,6 +253,8 @@ const en = {
       traktUnlinkMessage: "Your Trakt data will no longer sync automatically.",
       traktUnlinked: "Trakt account unlinked",
       reviewPending: "Review {{count}} pending matches",
+      recentImports: "Recent imports",
+      noRecentImports: "No recent imports",
     },
     importReview: {
       title: "Review matches",
@@ -296,6 +307,9 @@ const en = {
       markError: "Unable to mark episodes",
       seasonError: "Unable to mark season",
       ratingError: "Unable to rate episode",
+      markSeasonAired: "Mark aired",
+      markSeasonAiredConfirmTitle: "Mark aired episodes of S{{season}}?",
+      markSeasonAiredConfirmMessage: "All aired episodes of this season will be marked as watched. Unaired ones are skipped.",
     },
     news: {
       empty: "No news",

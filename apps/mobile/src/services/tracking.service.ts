@@ -54,6 +54,10 @@ export interface MarkUpToInput {
   includePrevious: boolean;
 }
 
+export interface MarkAllAiredInput {
+  season?: number;
+}
+
 export async function listTracking(
   page: number = 1,
   limit: number = 20,
@@ -91,6 +95,13 @@ export async function markUpTo(showId: string, input: MarkUpToInput): Promise<Wa
   log("TrackingService", "markUpTo", { showId, ...input });
   const response = await api.post<WatchEntry>(`/tracking/${showId}/mark-up-to`, input);
   log("TrackingService", "markUpTo response", { status: response.data.status });
+  return response.data;
+}
+
+export async function markAllAired(showId: string, input: MarkAllAiredInput): Promise<WatchEntry> {
+  log("TrackingService", "markAllAired", { showId, ...input });
+  const response = await api.post<WatchEntry>(`/tracking/${showId}/mark-all-aired`, input);
+  log("TrackingService", "markAllAired response", { status: response.data.status });
   return response.data;
 }
 

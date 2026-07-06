@@ -108,6 +108,7 @@ const fr = {
     },
     series: {
       viewAll: "Voir toutes mes séries",
+      markNextEpisode: "Marquer le prochain épisode",
     },
     movies: {
       viewAll: "Voir tous mes films",
@@ -160,6 +161,7 @@ const fr = {
       library: "Ma bibliothèque",
     },
     showDetail: {
+      synopsis: "Synopsis",
       noOverview: "Aucun résumé disponible.",
       seasons: "Saisons",
       episodes: "Épisodes",
@@ -190,13 +192,20 @@ const fr = {
       dropShow: "Abandonner la série",
       resumeShow: "Reprendre la série",
       dropConfirmTitle: "Abandonner la série ?",
-      dropConfirmMessage: "Tu pourras reprendre la série à tout moment.",
+      dropConfirmMessage: "La série sera retirée de ta liste. Tu pourras la rajouter à tout moment.",
       updateProgressError: "Impossible de mettre à jour la progression",
       updateTrackingError: "Impossible de mettre à jour le suivi",
-      droppedStatus: "Série marquée comme abandonnée",
+      droppedStatus: "Série retirée de ta liste",
       resumedStatus: "Série reprise",
       statusError: "Impossible de modifier le statut",
       episodesWatched: "{{count}} épisodes regardés",
+      markAllAired: "Marquer les diffusés",
+      markAllAiredConfirmTitle: "Marquer tous les épisodes diffusés ?",
+      markAllAiredConfirmMessage: "Tous les épisodes diffusés seront marqués comme vus. Ceux non encore diffusés sont ignorés.",
+      markAllAiredSuccess: "Tous les épisodes diffusés ont été marqués comme vus",
+      markAllAiredError: "Impossible de marquer les épisodes",
+      markSeasonAiredConfirmTitle: "Marquer les épisodes diffusés de S{{season}} ?",
+      markSeasonAiredConfirmMessage: "Tous les épisodes diffusés de cette saison seront marqués comme vus.",
     },
     comments: {
       title: "Commentaires",
@@ -244,6 +253,8 @@ const fr = {
       traktUnlinkMessage: "Tes données Trakt ne se synchroniseront plus automatiquement.",
       traktUnlinked: "Compte Trakt délié",
       reviewPending: "Vérifier {{count}} correspondances en attente",
+      recentImports: "Imports récents",
+      noRecentImports: "Aucun import récent",
     },
     importReview: {
       title: "Vérifier les correspondances",
@@ -319,6 +330,9 @@ const fr = {
       markError: "Impossible de marquer les épisodes",
       seasonError: "Impossible de marquer la saison",
       ratingError: "Impossible de noter l'épisode",
+      markSeasonAired: "Marquer les diffusés",
+      markSeasonAiredConfirmTitle: "Marquer les épisodes diffusés de S{{season}} ?",
+      markSeasonAiredConfirmMessage: "Tous les épisodes diffusés de cette saison seront marqués comme vus. Ceux non encore diffusés sont ignorés.",
     },
     onboarding: {
       welcomeTitle: "Bienvenue sur Watchr",

@@ -1,43 +1,36 @@
-import { View, Text, FlatList, RefreshControl, Image, TouchableOpacity, ActivityIndicator } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { View, Text, FlatList, RefreshControl, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useMemo, useState } from "react";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { TopTabs, TopTab } from "../components/TopTabs";
 import { UpcomingEpisodeRow } from "../components/UpcomingEpisodeRow";
+import { UnwatchedEpisodeRow } from "../components/UnwatchedEpisodeRow";
 import { WeekSectionHeader } from "../components/WeekSectionHeader";
 import { EmptyState } from "../components/EmptyState";
 import { NetworkError } from "../components/NetworkError";
 import { Skeleton } from "../components/Skeleton";
-import { ProgressBar } from "../components/ProgressBar";
 import { useUnwatchedShows } from "../hooks/useUnwatched";
 import { useUpcomingEpisodes } from "../hooks/useUpcomingEpisodes";
 import { useQuickMarkWatched } from "../hooks/useTracking";
 import { useRefreshRateLimit } from "../hooks/useRefreshRateLimit";
 import { useUIStore } from "../store/uiStore";
 import { RootStackParamList } from "../navigation/RootNavigator";
-import { UnwatchedShow } from "../services/unwatched.service";
+import { UnwatchedShow, UnwatchedEpisode } from "../services/unwatched.service";
 import { UpcomingEpisode } from "../services/upcoming.service";
-import { getPosterUrl } from "../services/shows.service";
 import { useThemeColors } from "../theme/useThemeColors";
 import { useI18n } from "../i18n/useI18n";
 import { log } from "../utils/logger";
 
-function getStatusLabel(t: ReturnType<typeof useI18n>["t"], status: UnwatchedShow["status"]): string {
-  switch (status) {
-    case "watching":
-      return t("screens.showDetail.inProgress");
-    case "completed":
-      return t("screens.showDetail.completed");
-    case "plan_to_watch":
-      return t("screens.showDetail.planToWatch");
-    case "dropped":
-      return t("screens.showDetail.dropped");
-  }
-}
-
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "ShowDetail" | "EpisodeDetail">;
+
+interface FlattenedEpisode {
+  showId: string;
+  tmdbId: number;
+  title: string;
+  posterPath?: string;
+  episode: UnwatchedEpisode;
+}
 
 function useTabs() {
   const { t } = useI18n();
@@ -47,166 +40,69 @@ function useTabs() {
   ];
 }
 
-function UnwatchedShowCard({
-  show,
-  onPress,
-  onMarkWatched,
-  isMarking,
-}: {
-  show: UnwatchedShow;
-  onPress: () => void;
-  onMarkWatched?: () => void;
-  isMarking?: boolean;
-}) {
-  const { t } = useI18n();
-  const colors = useThemeColors();
-  const posterUrl = getPosterUrl(show.posterPath, 200);
-  const episodeCount = show.unwatchedEpisodes.length;
-  const isActive = show.status === "watching" && episodeCount > 0;
-  const canMarkWatched = episodeCount > 0 && show.unwatchedEpisodes.length > 0;
-
-  log("SeriesScreen:UnwatchedShowCard", "render", {
-    title: show.title,
-    status: show.status,
-    isEnded: show.isEnded,
-    episodeCount,
-    isActive,
-  });
-
-  return (
-    <TouchableOpacity
-      className={`flex-row items-center rounded-lg p-3 mb-3 active:opacity-70 ${
-        isActive ? "bg-surface border-l-4 border-primary" : "bg-surface"
-      }`}
-      onPress={onPress}
-    >
-      {posterUrl ? (
-        <Image
-          source={{ uri: posterUrl }}
-          className="w-14 h-20 rounded-lg bg-surface-light"
-          resizeMode="cover"
-        />
-      ) : (
-        <View className="w-14 h-20 rounded-lg bg-surface-light items-center justify-center">
-          <Text className="text-text-muted text-xs">{t("common.noImage")}</Text>
-        </View>
-      )}
-      <View className="flex-1 ml-3">
-        <Text className="text-text font-semibold mb-1" numberOfLines={1}>
-          {show.title}
-        </Text>
-        {isActive ? (
-          <View className="flex-row items-center">
-            <Ionicons name="play-circle" size={14} color={colors.primary} style={{ marginRight: 4 }} />
-            <Text className="text-primary text-sm font-medium">
-              {episodeCount} {t("screens.showDetail.episodes").toLowerCase()} {t("screens.home.unwatched")}
-            </Text>
-          </View>
-        ) : episodeCount > 0 ? (
-          <Text className="text-text-muted text-sm">
-            {episodeCount} {t("screens.showDetail.episodes").toLowerCase()} {t("screens.home.unwatched")}
-          </Text>
-        ) : show.status === "watching" && !show.isEnded ? (
-          <View>
-            <Text className="text-text font-medium text-sm">{t("screens.showDetail.inProgress")}</Text>
-            <Text className="text-primary text-xs">{t("screens.home.upcoming")}</Text>
-          </View>
-        ) : (
-          <Text className="text-text-muted text-sm">{getStatusLabel(t, show.status)}</Text>
-        )}
-        <View className="mt-2">
-          <ProgressBar watched={show.watchedCount} total={show.totalEpisodes} />
-        </View>
-      </View>
-      {canMarkWatched && onMarkWatched ? (
-        <TouchableOpacity
-          onPress={(e) => {
-            e.stopPropagation();
-            onMarkWatched();
-          }}
-          className="ml-2 p-1"
-          disabled={isMarking}
-        >
-          {isMarking ? (
-            <ActivityIndicator size="small" color={colors.primary} />
-          ) : (
-            <Ionicons name="checkmark-circle-outline" size={28} color={colors.primary} />
-          )}
-        </TouchableOpacity>
-      ) : (
-        <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
-      )}
-    </TouchableOpacity>
-  );
-}
-
 function UnwatchedList({
   shows,
-  upcomingShowIds,
   isLoading,
   refetch,
-  onShowPress,
+  onEpisodePress,
   onMarkWatched,
-  markingShowId,
+  markingEpisodeKey,
 }: {
   shows: UnwatchedShow[];
-  upcomingShowIds: Set<string>;
   isLoading: boolean;
   refetch: () => void;
-  onShowPress: (show: UnwatchedShow) => void;
-  onMarkWatched?: (show: UnwatchedShow) => void;
-  markingShowId?: string;
+  onEpisodePress: (item: FlattenedEpisode) => void;
+  onMarkWatched?: (item: FlattenedEpisode) => void;
+  markingEpisodeKey?: string;
 }) {
   const { t } = useI18n();
   const colors = useThemeColors();
-  if (shows.length === 0) {
+
+  const episodes = useMemo(() => {
+    const flat: FlattenedEpisode[] = shows.flatMap((show) =>
+      show.unwatchedEpisodes.map((ep) => ({
+        showId: show.showId,
+        tmdbId: show.tmdbId,
+        title: show.title,
+        posterPath: show.posterPath,
+        episode: ep,
+      })),
+    );
+    flat.sort((a, b) => {
+      const aDate = a.episode.airDate ? new Date(a.episode.airDate).getTime() : 0;
+      const bDate = b.episode.airDate ? new Date(b.episode.airDate).getTime() : 0;
+      return bDate - aDate;
+    });
+    return flat;
+  }, [shows]);
+
+  if (episodes.length === 0) {
     return (
       <EmptyState
-        icon="tv-outline"
-        title={t("screens.list.empty")}
-        subtitle={t("screens.list.addFromSearch")}
+        icon="checkmark-circle-outline"
+        title={t("screens.home.noUnwatched")}
       />
     );
   }
 
-  log("SeriesScreen:UnwatchedList", "input shows", shows.map((s) => ({ showId: s.showId, title: s.title, status: s.status, isEnded: s.isEnded, unwatchedCount: s.unwatchedEpisodes.length })));
-  log("SeriesScreen:UnwatchedList", "upcomingShowIds", Array.from(upcomingShowIds));
-
-  const activeShows = shows.filter(
-    (s) => s.status === "watching" && (s.unwatchedEpisodes.length > 0 || upcomingShowIds.has(s.showId)),
-  );
-
-  const otherShows = shows.filter(
-    (s) => !(s.status === "watching" && (s.unwatchedEpisodes.length > 0 || upcomingShowIds.has(s.showId))),
-  );
-
-  log("SeriesScreen:UnwatchedList", "activeShows", activeShows.map((s) => ({ title: s.title, unwatchedCount: s.unwatchedEpisodes.length, hasUpcoming: upcomingShowIds.has(s.showId) })));
-  log("SeriesScreen:UnwatchedList", "otherShows", otherShows.map((s) => ({ title: s.title, status: s.status, isEnded: s.isEnded, unwatchedCount: s.unwatchedEpisodes.length })));
-
-  const rows: { type: "header" | "show"; title?: string; show?: UnwatchedShow }[] = [];
-  if (activeShows.length > 0) {
-    rows.push({ type: "header", title: t("screens.showDetail.inProgress") });
-    activeShows.forEach((s) => rows.push({ type: "show", show: s }));
-  }
-  if (otherShows.length > 0) {
-    rows.push({ type: "header", title: t("screens.home.continueWatching") });
-    otherShows.forEach((s) => rows.push({ type: "show", show: s }));
-  }
+  log("SeriesScreen:UnwatchedList", "flattened episodes", { count: episodes.length });
 
   return (
     <FlatList
-      data={rows}
-      keyExtractor={(item, index) => (item.type === "header" ? `header-${index}` : `${item.show?.showId}-${index}`)}
+      data={episodes}
+      keyExtractor={(item, index) => `${item.showId}-${item.episode.season}-${item.episode.episode}-${index}`}
       renderItem={({ item }) => {
-        if (item.type === "header") {
-          return <WeekSectionHeader title={item.title ?? ""} />;
-        }
+        const epKey = `${item.showId}-${item.episode.season}-${item.episode.episode}`;
         return (
-          <UnwatchedShowCard
-            show={item.show!}
-            onPress={() => onShowPress(item.show!)}
-            onMarkWatched={onMarkWatched ? () => onMarkWatched(item.show!) : undefined}
-            isMarking={markingShowId === item.show?.showId}
+          <UnwatchedEpisodeRow
+            showId={item.showId}
+            tmdbId={item.tmdbId}
+            title={item.title}
+            posterPath={item.posterPath}
+            episode={item.episode}
+            onPress={() => onEpisodePress(item)}
+            onMarkWatched={onMarkWatched ? () => onMarkWatched(item) : undefined}
+            isMarking={markingEpisodeKey === epKey}
           />
         );
       }}
@@ -317,20 +213,6 @@ export function SeriesScreen() {
   const markingEpisodeKey = quickMarkWatched.isPending && quickMarkWatched.variables
     ? `${quickMarkWatched.variables.showId}-${quickMarkWatched.variables.season}-${quickMarkWatched.variables.episode}`
     : undefined;
-  const markingShowId = quickMarkWatched.isPending && quickMarkWatched.variables
-    ? quickMarkWatched.variables.showId
-    : undefined;
-
-  const upcomingShowIds = useMemo(() => {
-    if (!upcomingData) return new Set<string>();
-    const all = [
-      ...upcomingData.today,
-      ...upcomingData.thisWeek,
-      ...upcomingData.nextWeek,
-      ...upcomingData.later,
-    ];
-    return new Set(all.map((ep) => ep.showId));
-  }, [upcomingData]);
 
   log("SeriesScreen", "state", {
     activeTab,
@@ -340,11 +222,11 @@ export function SeriesScreen() {
     upcomingKeys: upcomingData ? Object.keys(upcomingData) : null,
   });
 
-  function handleShowPress(show: UnwatchedShow) {
-    if (!show.tmdbId) return;
+  function handleEpisodePress(item: FlattenedEpisode) {
+    if (!item.tmdbId) return;
     navigation.navigate("ShowDetail", {
-      tmdbId: show.tmdbId,
-      title: show.title,
+      tmdbId: item.tmdbId,
+      title: item.title,
     });
   }
 
@@ -362,11 +244,9 @@ export function SeriesScreen() {
     );
   }
 
-  function handleMarkUnwatchedWatched(show: UnwatchedShow) {
-    const next = show.unwatchedEpisodes[0];
-    if (!next) return;
+  function handleMarkUnwatchedEpisode(item: FlattenedEpisode) {
     quickMarkWatched.mutate(
-      { showId: show.showId, season: next.season, episode: next.episode },
+      { showId: item.showId, season: item.episode.season, episode: item.episode.episode },
       {
         onSuccess: () => showSnackbar(t("screens.upcoming.markedWatched"), "success"),
         onError: () => showSnackbar(t("screens.upcoming.markError"), "error"),
@@ -404,12 +284,11 @@ export function SeriesScreen() {
           ) : (
             <UnwatchedList
               shows={unwatchedData?.shows ?? []}
-              upcomingShowIds={upcomingShowIds}
               isLoading={isUnwatchedLoading}
               refetch={() => throttledRefreshUnwatched(refetchUnwatched)}
-              onShowPress={handleShowPress}
-              onMarkWatched={handleMarkUnwatchedWatched}
-              markingShowId={markingShowId}
+              onEpisodePress={handleEpisodePress}
+              onMarkWatched={handleMarkUnwatchedEpisode}
+              markingEpisodeKey={markingEpisodeKey}
             />
           )}
         </View>

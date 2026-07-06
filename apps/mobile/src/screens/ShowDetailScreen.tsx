@@ -1,10 +1,10 @@
 import { useEffect, useState, useMemo } from "react";
-import { View, Text, Image, ScrollView, TouchableOpacity, RefreshControl, Alert } from "react-native";
+import { View, Text, Image, ScrollView, TouchableOpacity, RefreshControl } from "react-native";
 import { useRoute, useNavigation, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useShowDetails } from "../hooks/useShowDetails";
 import { useTrackingEntry } from "../hooks/useTrackingEntry";
-import { useUpsertTracking, useToggleEpisode, useMarkUpTo, useToggleDropped } from "../hooks/useTracking";
+import { useUpsertTracking, useToggleEpisode, useMarkUpTo, useMarkAllAired, useDeleteTracking } from "../hooks/useTracking";
 import { useRatingsForShow, useUpsertRating } from "../hooks/useRatings";
 import { useCommentCount } from "../hooks/useComments";
 import { useShowDetailsRealtime } from "../hooks/useShowDetailsRealtime";
@@ -14,6 +14,7 @@ import { RatingStars } from "../components/RatingStars";
 import { NetworkError } from "../components/NetworkError";
 import { Skeleton } from "../components/Skeleton";
 import { ScreenContainer } from "../components/ScreenContainer";
+import { DetailHeader } from "../components/DetailHeader";
 import { FixedTrackingButton } from "../components/FixedTrackingButton";
 import { TrackingActionModal } from "../components/TrackingActionModal";
 import { RootStackParamList } from "../navigation/RootNavigator";
@@ -52,7 +53,7 @@ export function ShowDetailScreen() {
   const route = useRoute<ShowDetailRouteProp>();
   const navigation = useNavigation<ShowDetailNavigationProp>();
   const { tmdbId, title } = route.params;
-  const { showSnackbar } = useUIStore();
+  const { showSnackbar, showAlert } = useUIStore();
   const { t } = useI18n();
   const colors = useThemeColors();
   const isValidTmdbId = Number.isFinite(tmdbId) && tmdbId > 0;
@@ -64,8 +65,9 @@ export function ShowDetailScreen() {
   const upsertTracking = useUpsertTracking(show?.id ?? "");
   const toggleEpisode = useToggleEpisode(show?.id ?? "");
   const markUpTo = useMarkUpTo(show?.id ?? "");
+  const markAllAired = useMarkAllAired(show?.id ?? "");
   const upsertRating = useUpsertRating(show?.id ?? "");
-  const toggleDropped = useToggleDropped(show?.id ?? "");
+  const deleteTracking = useDeleteTracking(show?.id ?? "");
   const { data: commentCountData } = useCommentCount(show?.id ?? "");
 
   useShowDetailsRealtime(show?.id ?? null);
@@ -74,7 +76,6 @@ export function ShowDetailScreen() {
 
   useEffect(() => {
     log("ShowDetail", "mount", { tmdbId, title });
-    navigation.setOptions({ title });
   }, [navigation, title]);
 
   useEffect(() => {
@@ -102,7 +103,7 @@ export function ShowDetailScreen() {
   }, [show, trackingEntry]);
 
   const isAnyPending =
-    upsertTracking.isPending || markUpTo.isPending || toggleEpisode.isPending || upsertRating.isPending;
+    upsertTracking.isPending || markUpTo.isPending || markAllAired.isPending || toggleEpisode.isPending || upsertRating.isPending;
 
   const handleRefresh = () => {
     refetch();
@@ -156,36 +157,75 @@ export function ShowDetailScreen() {
     toggleEpisode.mutate({ season, episode, watched });
   };
 
+  const handleMarkAllAired = () => {
+    if (!show) return;
+    showAlert({
+      title: t("screens.showDetail.markAllAiredConfirmTitle"),
+      message: t("screens.showDetail.markAllAiredConfirmMessage"),
+      buttons: [
+        { text: t("common.cancel"), style: "cancel" },
+        {
+          text: t("common.confirm"),
+          onPress: () => {
+            log("ShowDetail", "mark all aired", { showId: show.id });
+            markAllAired.mutate(
+              {},
+              {
+                onSuccess: () => showSnackbar(t("screens.showDetail.markAllAiredSuccess"), "success"),
+                onError: () => showSnackbar(t("screens.showDetail.markAllAiredError"), "error"),
+              },
+            );
+          },
+        },
+      ],
+    });
+  };
+
+  const handleMarkSeasonAired = (seasonNumber: number) => {
+    if (!show) return;
+    showAlert({
+      title: t("screens.showDetail.markSeasonAiredConfirmTitle", { season: seasonNumber }),
+      message: t("screens.showDetail.markSeasonAiredConfirmMessage"),
+      buttons: [
+        { text: t("common.cancel"), style: "cancel" },
+        {
+          text: t("common.confirm"),
+          onPress: () => {
+            log("ShowDetail", "mark season aired", { showId: show.id, season: seasonNumber });
+            markAllAired.mutate(
+              { season: seasonNumber },
+              {
+                onSuccess: () => showSnackbar(t("screens.showDetail.markAllAiredSuccess"), "success"),
+                onError: () => showSnackbar(t("screens.showDetail.markAllAiredError"), "error"),
+              },
+            );
+          },
+        },
+      ],
+    });
+  };
+
   const handleToggleDropped = () => {
     if (!show) return;
-    const nextDropped = trackingEntry?.status !== "dropped";
 
-    if (nextDropped) {
-      Alert.alert(
-        t("screens.showDetail.dropConfirmTitle"),
-        t("screens.showDetail.dropConfirmMessage"),
-        [
-          { text: t("common.cancel"), style: "cancel" },
-          {
-            text: t("common.confirm"),
-            style: "destructive",
-            onPress: () => {
-              log("ShowDetail", "toggle dropped", { showId: show.id, dropped: true });
-              toggleDropped.mutate(true, {
-                onSuccess: () => showSnackbar(t("screens.showDetail.droppedStatus"), "success"),
-                onError: () => showSnackbar(t("screens.showDetail.statusError"), "error"),
-              });
-            },
+    showAlert({
+      title: t("screens.showDetail.dropConfirmTitle"),
+      message: t("screens.showDetail.dropConfirmMessage"),
+      buttons: [
+        { text: t("common.cancel"), style: "cancel" },
+        {
+          text: t("common.confirm"),
+          style: "destructive",
+          onPress: () => {
+            log("ShowDetail", "delete tracking (drop)", { showId: show.id });
+            deleteTracking.mutate(undefined, {
+              onSuccess: () => showSnackbar(t("screens.showDetail.droppedStatus"), "success"),
+              onError: () => showSnackbar(t("screens.showDetail.statusError"), "error"),
+            });
           },
-        ],
-      );
-    } else {
-      log("ShowDetail", "toggle dropped", { showId: show.id, dropped: false });
-      toggleDropped.mutate(false, {
-        onSuccess: () => showSnackbar(t("screens.showDetail.resumedStatus"), "success"),
-        onError: () => showSnackbar(t("screens.showDetail.statusError"), "error"),
-      });
-    }
+        },
+      ],
+    });
   };
 
   const handleToggleWatched = () => {
@@ -218,7 +258,8 @@ export function ShowDetailScreen() {
 
   if (!isValidTmdbId) {
     return (
-      <ScreenContainer>
+      <ScreenContainer edges={["top", "left", "right"]}>
+        <DetailHeader title={title} onBack={() => navigation.goBack()} />
         <NetworkError
           message={t("errors.invalidShowId")}
           onRetry={() => navigation.goBack()}
@@ -229,21 +270,25 @@ export function ShowDetailScreen() {
 
   if (isLoading) {
     return (
-      <ScreenContainer className="px-4 pt-4">
-        <Skeleton width="100%" height={240} borderRadius={12} className="mb-4" />
-        <Skeleton width="70%" height={24} className="mb-2" />
-        <Skeleton width="40%" height={16} className="mb-6" />
-        <Skeleton width="100%" height={80} className="mb-6" />
-        {[...Array(3)].map((_, index) => (
-          <Skeleton key={index} width="100%" height={60} className="mb-2" />
-        ))}
+      <ScreenContainer edges={["top", "left", "right"]}>
+        <DetailHeader title={title} onBack={() => navigation.goBack()} />
+        <View className="px-4 pt-4">
+          <Skeleton width="100%" height={384} borderRadius={12} className="mb-4" />
+          <Skeleton width="70%" height={24} className="mb-2" />
+          <Skeleton width="40%" height={16} className="mb-6" />
+          <Skeleton width="100%" height={80} className="mb-6" />
+          {[...Array(3)].map((_, index) => (
+            <Skeleton key={index} width="100%" height={60} className="mb-2" />
+          ))}
+        </View>
       </ScreenContainer>
     );
   }
 
   if (isError || !show) {
     return (
-      <ScreenContainer>
+      <ScreenContainer edges={["top", "left", "right"]}>
+        <DetailHeader title={title} onBack={() => navigation.goBack()} />
         <NetworkError onRetry={() => refetch()} />
       </ScreenContainer>
     );
@@ -253,12 +298,13 @@ export function ShowDetailScreen() {
 
   return (
     <ScreenContainer edges={["top", "left", "right"]}>
+      <DetailHeader title={show.title} onBack={() => navigation.goBack()} />
       <ScrollView
         className="flex-1 bg-background"
         contentContainerStyle={{ paddingBottom: 100 }}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={() => throttledRefresh(handleRefresh)} tintColor={colors.primary} />}
       >
-        <View className="w-full h-80 overflow-hidden bg-surface-light">
+        <View className="w-full h-96 overflow-hidden bg-surface-light">
           {posterUrl ? (
             <Image
               source={{ uri: posterUrl }}
@@ -267,23 +313,34 @@ export function ShowDetailScreen() {
               resizeMode="cover"
             />
           ) : (
-            <View className="w-full h-80 bg-surface-light items-center justify-center">
+            <View className="w-full h-96 bg-surface-light items-center justify-center">
               <Text className="text-text-muted">{t("common.noImage")}</Text>
             </View>
           )}
         </View>
 
         <View className="px-4">
-          <Text className="text-3xl font-bold text-text mb-2">{show.title}</Text>
-          <Text className="text-text-muted mb-4">
-            {show.firstAirDate ? new Date(show.firstAirDate).getFullYear().toString() : "—"}
-            {" · "}
-            {show.type === "tv" ? t("common.tv") : t("common.movie")}
-          </Text>
-
           {show.overview && (
-            <Text className="text-text leading-relaxed mb-6">{show.overview}</Text>
+            <View className="mb-4">
+              <Text className="text-lg font-semibold text-text mb-2">{t("screens.showDetail.synopsis")}</Text>
+              <Text className="text-text leading-relaxed">{show.overview}</Text>
+            </View>
           )}
+
+          <View className="flex-row items-center mb-6">
+            <View className="bg-surface rounded-full px-3 py-1 mr-2">
+              <Text className="text-text text-xs font-medium">
+                {show.type === "tv" ? t("common.tv") : t("common.movie")}
+              </Text>
+            </View>
+            {show.firstAirDate && (
+              <View className="bg-surface rounded-full px-3 py-1">
+                <Text className="text-text text-xs font-medium">
+                  {new Date(show.firstAirDate).getFullYear().toString()}
+                </Text>
+              </View>
+            )}
+          </View>
 
           <View className="mb-6">
             <Text className="text-lg font-semibold text-text mb-2">{t("screens.showDetail.yourRating")}</Text>
@@ -419,14 +476,26 @@ export function ShowDetailScreen() {
 
           {show.type === "tv" && show.seasons.length > 0 && (
             <View className="mb-6">
-              <Text className="text-lg font-semibold text-text mb-2">{t("screens.showDetail.episodes")}</Text>
+              <View className="flex-row items-center justify-between mb-2">
+                <Text className="text-lg font-semibold text-text">{t("screens.showDetail.episodes")}</Text>
+                <TouchableOpacity
+                  onPress={handleMarkAllAired}
+                  disabled={markAllAired.isPending || toggleEpisode.isPending}
+                  className="flex-row items-center bg-surface rounded-lg px-3 py-2"
+                  activeOpacity={0.7}
+                >
+                  <Ionicons name="checkmark-done-outline" size={16} color={colors.primary} />
+                  <Text className="text-primary font-semibold text-sm ml-1.5">{t("screens.showDetail.markAllAired")}</Text>
+                </TouchableOpacity>
+              </View>
               <LazyEpisodeGrid
                 tmdbId={tmdbId}
                 seasons={show.seasons}
                 watchedEpisodes={trackingEntry?.watchedEpisodes ?? []}
                 onToggleEpisode={handleToggleEpisode}
                 onPressEpisode={handleOpenEpisodeDetail}
-                isPending={toggleEpisode.isPending}
+                onMarkSeasonAired={handleMarkSeasonAired}
+                isPending={toggleEpisode.isPending || markAllAired.isPending}
               />
             </View>
           )}
@@ -438,7 +507,7 @@ export function ShowDetailScreen() {
         trackingEntry={trackingEntry}
         progress={progress}
         onPress={() => setTrackingModalVisible(true)}
-        disabled={isAnyPending || toggleDropped.isPending}
+        disabled={isAnyPending || deleteTracking.isPending}
         onToggleWatched={show.type === "movie" ? handleToggleWatched : undefined}
         onToggleDropped={show.type === "tv" ? handleToggleDropped : undefined}
       />

@@ -1,8 +1,10 @@
-import { View, Text, Image, TouchableOpacity } from "react-native";
+import { View, Text, Image, TouchableOpacity, ActivityIndicator } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { format } from "date-fns";
 import { getPosterUrl } from "../services/shows.service";
 import { UnwatchedEpisode } from "../services/unwatched.service";
 import { useI18n } from "../i18n/useI18n";
+import { useThemeColors } from "../theme/useThemeColors";
 
 interface UnwatchedEpisodeRowProps {
   showId: string;
@@ -11,6 +13,8 @@ interface UnwatchedEpisodeRowProps {
   posterPath?: string;
   episode: UnwatchedEpisode;
   onPress: () => void;
+  onMarkWatched?: () => void;
+  isMarking?: boolean;
 }
 
 export function UnwatchedEpisodeRow({
@@ -18,8 +22,11 @@ export function UnwatchedEpisodeRow({
   posterPath,
   episode,
   onPress,
+  onMarkWatched,
+  isMarking,
 }: UnwatchedEpisodeRowProps) {
   const { t, dateFnsLocale } = useI18n();
+  const colors = useThemeColors();
   const posterUrl = getPosterUrl(posterPath, 200);
 
   return (
@@ -42,7 +49,7 @@ export function UnwatchedEpisodeRow({
         <Text className="text-text font-semibold mb-1" numberOfLines={1}>
           {title}
         </Text>
-        <Text className="text-text-muted text-sm">
+        <Text className="text-text-muted text-sm" numberOfLines={1}>
           S{episode.season}E{episode.episode}
           {episode.name ? ` · ${episode.name}` : ""}
         </Text>
@@ -52,6 +59,22 @@ export function UnwatchedEpisodeRow({
           </Text>
         )}
       </View>
+      {onMarkWatched && (
+        <TouchableOpacity
+          onPress={(e) => {
+            e.stopPropagation();
+            onMarkWatched();
+          }}
+          className="ml-2 p-1"
+          disabled={isMarking}
+        >
+          {isMarking ? (
+            <ActivityIndicator size="small" color={colors.primary} />
+          ) : (
+            <Ionicons name="checkmark-circle-outline" size={28} color={colors.primary} />
+          )}
+        </TouchableOpacity>
+      )}
     </TouchableOpacity>
   );
 }

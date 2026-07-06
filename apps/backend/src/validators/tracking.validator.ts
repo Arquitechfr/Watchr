@@ -31,6 +31,10 @@ export const markUpToSchema = z.object({
   includePrevious: z.boolean().default(true),
 });
 
+export const markAllAiredSchema = z.object({
+  season: z.coerce.number().int().min(0).optional(),
+});
+
 export const listTrackingSchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(20),

@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { View, Text, KeyboardAvoidingView, Platform, TouchableOpacity } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRefreshRateLimit } from "../hooks/useRefreshRateLimit";
 import { useRoute, useNavigation, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -36,6 +37,7 @@ export function ShowCommentsScreen() {
   const { showSnackbar } = useUIStore();
   const { t } = useI18n();
   const colors = useThemeColors();
+  const insets = useSafeAreaInsets();
 
   useCommentsRealtime(showId);
 
@@ -156,7 +158,7 @@ export function ShowCommentsScreen() {
             />
           </View>
           {isAuthenticated && (
-            <View className="py-3 border-t border-border">
+            <View className="py-3 border-t border-border" style={{ paddingBottom: Math.max(insets.bottom, 12) }} >
               <CommentInput
                 placeholder={t("screens.comments.placeholder")}
                 onSubmit={handleCreate}

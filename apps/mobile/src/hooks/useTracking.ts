@@ -10,6 +10,7 @@ import {
   toggleEpisode,
   deleteTracking,
   markUpTo,
+  markAllAired,
   toggleDropped,
   addToWatchlistByTmdb,
   addToWatchlistBatch,
@@ -20,9 +21,11 @@ import {
   UpsertTrackingInput,
   ToggleEpisodeInput,
   MarkUpToInput,
+  MarkAllAiredInput,
   WatchEntry,
   WatchedEpisode,
 } from "../services/tracking.service";
+import type { UnwatchedShow } from "../services/unwatched.service";
 import { log } from "../utils/logger";
 import { useAuthStore } from "../store/authStore";
 
@@ -132,6 +135,25 @@ export function useMarkUpTo(showId: string) {
   });
 }
 
+export function useMarkAllAired(showId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (input: MarkAllAiredInput) => markAllAired(showId, input),
+    onMutate: (input) => {
+      log("useTracking", "markAllAired mutate", { showId, ...input });
+    },
+    onSuccess: () => {
+      log("useTracking", "markAllAired success", { showId });
+      queryClient.invalidateQueries({ queryKey: [TRACKING_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: ["shows", "details", showId] });
+    },
+    onError: (err) => {
+      log("useTracking", "markAllAired error", { showId, err });
+    },
+  });
+}
+
 export function useToggleDropped(showId: string) {
   const queryClient = useQueryClient();
 
@@ -162,6 +184,9 @@ export function useDeleteTracking(showId: string) {
     onSuccess: () => {
       log("useTracking", "delete success", { showId });
       queryClient.invalidateQueries({ queryKey: [TRACKING_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: ["unwatched"] });
+      queryClient.invalidateQueries({ queryKey: ["upcoming"] });
+      queryClient.invalidateQueries({ queryKey: ["shows", "details", showId] });
     },
     onError: (err) => {
       log("useTracking", "delete error", { showId, err });
@@ -205,6 +230,37 @@ export function useQuickMarkWatched() {
     },
     onError: (err) => {
       log("useTracking", "quickMarkWatched error", { err });
+    },
+  });
+}
+
+export function useQuickMarkAllAired() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ showId }: { showId: string }) =>
+      markAllAired(showId, {}),
+    onMutate: async ({ showId }) => {
+      log("useTracking", "quickMarkAllAired mutate", { showId });
+      await queryClient.cancelQueries({ queryKey: ["unwatched"] });
+      const previousUnwatched = queryClient.getQueryData<{ shows: UnwatchedShow[] }>(["unwatched", "tv"]);
+      queryClient.setQueryData<{ shows: UnwatchedShow[] } | undefined>(["unwatched", "tv"], (old: { shows: UnwatchedShow[] } | undefined) => {
+        if (!old) return old;
+        return { ...old, shows: old.shows.filter((s) => s.showId !== showId) };
+      });
+      return { previousUnwatched };
+    },
+    onError: (err, _vars, context) => {
+      log("useTracking", "quickMarkAllAired error", { err });
+      if (context?.previousUnwatched) {
+        queryClient.setQueryData(["unwatched", "tv"], context.previousUnwatched);
+      }
+    },
+    onSuccess: () => {
+      log("useTracking", "quickMarkAllAired success");
+      queryClient.invalidateQueries({ queryKey: ["upcoming"] });
+      queryClient.invalidateQueries({ queryKey: ["unwatched"] });
+      queryClient.invalidateQueries({ queryKey: [TRACKING_QUERY_KEY] });
     },
   });
 }

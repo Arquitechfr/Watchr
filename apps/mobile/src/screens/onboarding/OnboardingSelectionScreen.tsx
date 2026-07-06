@@ -1,5 +1,6 @@
 import { useState, useCallback, useMemo } from "react";
 import { View, Text, TextInput, FlatList, ActivityIndicator, TouchableOpacity } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ScreenContainer } from "../../components/ScreenContainer";
 import { NetworkError } from "../../components/NetworkError";
 import { EmptyState } from "../../components/EmptyState";
@@ -27,6 +28,7 @@ interface OnboardingSelectionScreenProps {
 export function OnboardingSelectionScreen({ navigation, onSkip }: OnboardingSelectionScreenProps) {
   const { t } = useI18n();
   const colors = useThemeColors();
+  const insets = useSafeAreaInsets();
   const [searchQuery, setSearchQuery] = useState("");
 
   const { data: discoverData, isLoading: discoverLoading, isError: discoverError, refetch: refetchDiscover } = useDiscoverSections();
@@ -136,8 +138,8 @@ export function OnboardingSelectionScreen({ navigation, onSkip }: OnboardingSele
       )}
 
       <View
-        className="absolute bottom-0 left-0 right-0 flex-row items-center justify-between px-4 pb-4 pt-2"
-        style={{ backgroundColor: colors.background }}
+        className="absolute bottom-0 left-0 right-0 flex-row items-center justify-between px-4 pt-2"
+        style={{ backgroundColor: colors.background, paddingBottom: Math.max(insets.bottom, 16) }}
       >
         <OnboardingSkipButton onPress={onSkip} />
         <TouchableOpacity

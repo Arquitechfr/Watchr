@@ -235,6 +235,8 @@ const fr = {
       traktUnlinkMessage: "Tes données Trakt ne se synchroniseront plus automatiquement.",
       traktUnlinked: "Compte Trakt délié",
       reviewPending: "Vérifier {{count}} correspondances en attente",
+      recentImports: "Imports récents",
+      noRecentImports: "Aucun import récent",
     },
     importReview: {
       title: "Vérifier les correspondances",

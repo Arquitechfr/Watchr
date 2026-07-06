@@ -12,6 +12,7 @@ interface EpisodeGridProps {
   watchedEpisodes: Array<{ season: number; episode: number }>;
   onToggleEpisode: (season: number, episode: number, watched: boolean) => void;
   onPressEpisode?: (season: number, episode: Episode) => void;
+  onMarkSeasonAired?: (seasonNumber: number) => void;
   isPending?: boolean;
 }
 
@@ -20,6 +21,7 @@ export function EpisodeGrid({
   watchedEpisodes,
   onToggleEpisode,
   onPressEpisode,
+  onMarkSeasonAired,
   isPending,
 }: EpisodeGridProps) {
   const { t, dateFnsLocale } = useI18n();
@@ -116,6 +118,19 @@ export function EpisodeGrid({
                 <Text className="text-text-muted text-sm mr-2">
                   {getEpisodes(season).length} {t("screens.showDetail.episodes").toLowerCase()}
                 </Text>
+                {onMarkSeasonAired && (
+                  <TouchableOpacity
+                    onPress={(e) => {
+                      e.stopPropagation?.();
+                      onMarkSeasonAired(season.seasonNumber);
+                    }}
+                    disabled={isPending}
+                    activeOpacity={0.7}
+                    className="mr-2"
+                  >
+                    <Ionicons name="checkmark-done-outline" size={20} color={colors.primary} />
+                  </TouchableOpacity>
+                )}
                 <Ionicons
                   name={isCollapsed ? "chevron-down" : "chevron-up"}
                   size={20}

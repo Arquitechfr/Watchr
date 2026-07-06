@@ -20,6 +20,20 @@ export interface ImportJob {
   completedAt?: string;
 }
 
+export interface ImportJobSummary {
+  id: string;
+  source?: ImportSource;
+  status: "pending" | "processing" | "completed" | "failed";
+  progress: ImportProgress;
+  createdAt: string;
+  completedAt?: string;
+}
+
+export interface ImportJobListResponse {
+  jobs: ImportJobSummary[];
+  total: number;
+}
+
 export interface ImportError {
   line: number;
   reason: string;
@@ -62,6 +76,12 @@ export async function uploadImport(fileUri: string, source?: ImportSource): Prom
 export async function getImportJobStatus(jobId: string): Promise<ImportJob> {
   const response = await api.get<ImportJob>(`/import/${jobId}`);
   log("ImportService", "job status", { jobId, status: response.data.status, progress: response.data.progress });
+  return response.data;
+}
+
+export async function getImportJobs(): Promise<ImportJobListResponse> {
+  const response = await api.get<ImportJobListResponse>("/import");
+  log("ImportService", "job list", { total: response.data.total });
   return response.data;
 }
 

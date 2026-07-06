@@ -1,4 +1,5 @@
 import { View, Text, TouchableOpacity, FlatList, ActivityIndicator, Image } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ScreenContainer } from "../../components/ScreenContainer";
 import { NetworkError } from "../../components/NetworkError";
 import { EmptyState } from "../../components/EmptyState";
@@ -16,6 +17,7 @@ interface OnboardingConfirmationScreenProps {
 export function OnboardingConfirmationScreen({ onComplete }: OnboardingConfirmationScreenProps) {
   const { t } = useI18n();
   const colors = useThemeColors();
+  const insets = useSafeAreaInsets();
   const { selectedItems, reset } = useOnboardingStore();
   const batchMutation = useAddToWatchlistBatch();
   const completeOnboardingMutation = useCompleteOnboarding();
@@ -147,8 +149,8 @@ export function OnboardingConfirmationScreen({ onComplete }: OnboardingConfirmat
       )}
 
       <View
-        className="absolute bottom-0 left-0 right-0 px-4 pb-4 pt-2"
-        style={{ backgroundColor: colors.background }}
+        className="absolute bottom-0 left-0 right-0 px-4 pt-2"
+        style={{ backgroundColor: colors.background, paddingBottom: Math.max(insets.bottom, 16) }}
       >
         <TouchableOpacity
           className="bg-primary py-4 rounded-lg items-center"

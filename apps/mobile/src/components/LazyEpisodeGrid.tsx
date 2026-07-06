@@ -9,6 +9,7 @@ interface LazyEpisodeGridProps {
   watchedEpisodes: Array<{ season: number; episode: number }>;
   onToggleEpisode: (season: number, episode: number, watched: boolean) => void;
   onPressEpisode?: (season: number, episode: Episode) => void;
+  onMarkSeasonAired?: (seasonNumber: number) => void;
   isPending?: boolean;
 }
 
@@ -36,6 +37,7 @@ export function LazyEpisodeGrid({
   watchedEpisodes,
   onToggleEpisode,
   onPressEpisode,
+  onMarkSeasonAired,
   isPending,
 }: LazyEpisodeGridProps) {
   const seasonsWithEpisodes = useSeasonsWithEpisodes(tmdbId, seasons);
@@ -46,6 +48,7 @@ export function LazyEpisodeGrid({
       watchedEpisodes={watchedEpisodes}
       onToggleEpisode={onToggleEpisode}
       onPressEpisode={onPressEpisode}
+      onMarkSeasonAired={onMarkSeasonAired}
       isPending={isPending}
     />
   );

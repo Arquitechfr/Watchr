@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Text, TouchableOpacity, Alert, Image, Pressable } from "react-native";
+import { View, Text, TouchableOpacity, Image, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Comment } from "../../services/comments.service";
 import { useAuthStore } from "../../store/authStore";
@@ -7,6 +7,7 @@ import { useThemeColors } from "../../theme/useThemeColors";
 import { Avatar } from "../Avatar";
 import { CommentInput } from "./CommentInput";
 import { useI18n } from "../../i18n/useI18n";
+import { useUIStore } from "../../store/uiStore";
 import { formatDistanceToNow } from "date-fns";
 
 interface CommentItemProps {
@@ -39,6 +40,7 @@ export function CommentItem({
   const { t, dateFnsLocale } = useI18n();
   const colors = useThemeColors();
   const userId = useAuthStore((state) => state.userId);
+  const showAlert = useUIStore((state) => state.showAlert);
   const isOwn = comment.userId === userId;
   const [isReplying, setIsReplying] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -64,10 +66,14 @@ export function CommentItem({
   };
 
   const handleDelete = () => {
-    Alert.alert(t("screens.comments.deleteConfirmTitle"), t("screens.comments.deleteConfirmMessage"), [
-      { text: t("common.cancel"), style: "cancel" },
-      { text: t("common.delete"), style: "destructive", onPress: () => onDelete?.(comment.id) },
-    ]);
+    showAlert({
+      title: t("screens.comments.deleteConfirmTitle"),
+      message: t("screens.comments.deleteConfirmMessage"),
+      buttons: [
+        { text: t("common.cancel"), style: "cancel" },
+        { text: t("common.delete"), style: "destructive", onPress: () => onDelete?.(comment.id) },
+      ],
+    });
   };
 
   const handleReaction = (emoji: string) => {

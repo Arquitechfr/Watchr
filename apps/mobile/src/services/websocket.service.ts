@@ -111,18 +111,21 @@ class WebSocketService {
 
       const data = (await response.json()) as { accessToken: string; refreshToken: string };
       await useAuthStore.getState().setTokens(data.accessToken, data.refreshToken);
-
-      if (this.socket) {
-        this.socket.disconnect();
-        this.socket = null;
-      }
-      this.isConnecting = false;
-      await this.connect();
     } catch (err) {
       log("WebSocket", "token refresh error", err);
       await useAuthStore.getState().logout();
       this.isConnecting = false;
     }
+  }
+
+  reconnect(): void {
+    if (this.socket) {
+      this.socket.removeAllListeners();
+      this.socket.disconnect();
+      this.socket = null;
+    }
+    this.isConnecting = false;
+    this.connect();
   }
 
   disconnect(): void {

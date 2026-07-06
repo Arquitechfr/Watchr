@@ -2,17 +2,30 @@ import { create } from "zustand";
 import * as SecureStore from "expo-secure-store";
 import { log } from "../utils/logger";
 
-function decodeJwtUserId(token: string): string | null {
+const API_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:4500";
+
+function decodeJwtPayload(token: string): Record<string, unknown> | null {
   try {
     const payload = token.split(".")[1];
     if (!payload) return null;
     const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
     const decoded = atob(normalized);
-    const parsed = JSON.parse(decoded) as { sub?: string };
-    return parsed.sub ?? null;
+    return JSON.parse(decoded);
   } catch {
     return null;
   }
+}
+
+function decodeJwtUserId(token: string): string | null {
+  const payload = decodeJwtPayload(token);
+  return (payload?.sub as string) ?? null;
+}
+
+function isTokenExpired(token: string): boolean {
+  const payload = decodeJwtPayload(token);
+  const exp = payload?.exp as number | undefined;
+  if (!exp) return true;
+  return Date.now() >= (exp - 30) * 1000;
 }
 
 interface AuthState {
@@ -55,7 +68,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ accessToken, userId, isAuthenticated: true });
     log("AuthStore", "tokens saved");
     const { websocketService } = await import("../services/websocket.service");
-    websocketService.connect();
+    websocketService.reconnect();
   },
 
   logout: async () => {
@@ -71,19 +84,47 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       const accessToken = await SecureStore.getItemAsync("accessToken");
       const refreshToken = await SecureStore.getItemAsync("refreshToken");
-      const isAuthenticated = Boolean(accessToken && refreshToken);
-      const userId = accessToken ? decodeJwtUserId(accessToken) : null;
-      log("AuthStore", "hydrate done", { isAuthenticated });
-      set({
-        accessToken,
-        userId,
-        isAuthenticated,
-        isHydrated: true,
-      });
-      if (isAuthenticated) {
-        const { websocketService } = await import("../services/websocket.service");
-        websocketService.connect();
+
+      if (!accessToken || !refreshToken) {
+        log("AuthStore", "hydrate done — no tokens");
+        set({ accessToken: null, userId: null, isAuthenticated: false, isHydrated: true });
+        return;
       }
+
+      let currentAccessToken = accessToken;
+      let currentRefreshToken = refreshToken;
+
+      if (isTokenExpired(accessToken)) {
+        log("AuthStore", "access token expired, refreshing");
+        try {
+          const response = await fetch(`${API_URL}/api/auth/refresh`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ refreshToken }),
+          });
+          if (!response.ok) {
+            throw new Error(`Refresh failed: ${response.status}`);
+          }
+          const data = (await response.json()) as { accessToken: string; refreshToken: string };
+          currentAccessToken = data.accessToken;
+          currentRefreshToken = data.refreshToken;
+          await SecureStore.setItemAsync("accessToken", currentAccessToken);
+          await SecureStore.setItemAsync("refreshToken", currentRefreshToken);
+          log("AuthStore", "hydrate refresh success");
+        } catch (refreshErr) {
+          log("AuthStore", "hydrate refresh failed", refreshErr);
+          await SecureStore.deleteItemAsync("accessToken");
+          await SecureStore.deleteItemAsync("refreshToken");
+          set({ accessToken: null, userId: null, isAuthenticated: false, isHydrated: true });
+          return;
+        }
+      }
+
+      const userId = decodeJwtUserId(currentAccessToken);
+      log("AuthStore", "hydrate done", { isAuthenticated: true });
+      set({ accessToken: currentAccessToken, userId, isAuthenticated: true, isHydrated: true });
+      const { websocketService } = await import("../services/websocket.service");
+      websocketService.connect();
     } catch (err) {
       log("AuthStore", "hydrate error", err);
       set({ accessToken: null, userId: null, isAuthenticated: false, isHydrated: true });

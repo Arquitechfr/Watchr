@@ -29,6 +29,10 @@ function onTokenRefreshed(token: string) {
   refreshSubscribers = [];
 }
 
+function onTokenRefreshFailed() {
+  refreshSubscribers = [];
+}
+
 api.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
   log("API", "request", { method: config.method, url: config.url });
   let token = useAuthStore.getState().accessToken;
@@ -94,7 +98,8 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         log("API", "refresh token failed", refreshError);
-        useAuthStore.getState().logout();
+        onTokenRefreshFailed();
+        await useAuthStore.getState().logout();
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

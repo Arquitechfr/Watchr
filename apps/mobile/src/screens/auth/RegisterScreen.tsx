@@ -40,7 +40,7 @@ export function RegisterScreen() {
       log("Register", "api success, persisting tokens");
       await setTokens(tokens.accessToken, tokens.refreshToken);
       log("Register", "tokens persisted");
-      showSnackbar(t("auth.connectedWithGoogle"), "success");
+      showSnackbar(t("auth.connected"), "success");
     } catch (err) {
       log("Register", "error", err);
       showSnackbar(getErrorMessage(err), "error");

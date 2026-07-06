@@ -42,7 +42,7 @@ export function LoginScreen() {
       log("Login", "api success, persisting tokens");
       await setTokens(tokens.accessToken, tokens.refreshToken);
       log("Login", "tokens persisted");
-      showSnackbar(t("auth.connectedWithGoogle"), "success");
+      showSnackbar(t("auth.connected"), "success");
     } catch (err) {
       log("Login", "error", err);
       showSnackbar(getErrorMessage(err), "error");

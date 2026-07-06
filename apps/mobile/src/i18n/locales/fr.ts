@@ -62,6 +62,7 @@ const fr = {
     loginLink: "Se connecter",
     googleSignIn: "Se connecter avec Google",
     connectedWithGoogle: "Connecté avec Google",
+    connected: "Connecté avec succès",
     invalidCredentials: "Email ou mot de passe incorrect.",
     emailAlreadyUsed: "Cet email est déjà utilisé.",
     networkError: "Vérifie ta connexion internet.",

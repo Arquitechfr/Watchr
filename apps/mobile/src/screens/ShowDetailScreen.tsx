@@ -62,15 +62,15 @@ export function ShowDetailScreen() {
   const { data: trackingEntry, refetch: refetchTrackingEntry } = useTrackingEntry(show?.id ?? "");
   const { data: ratings, refetch: refetchRatings } = useRatingsForShow(show?.id ?? "");
   const throttledRefresh = useRefreshRateLimit();
-  const upsertTracking = useUpsertTracking(show?.id ?? "");
-  const toggleEpisode = useToggleEpisode(show?.id ?? "");
-  const markUpTo = useMarkUpTo(show?.id ?? "");
-  const markAllAired = useMarkAllAired(show?.id ?? "");
+  const upsertTracking = useUpsertTracking(show?.id ?? "", tmdbId);
+  const toggleEpisode = useToggleEpisode(show?.id ?? "", tmdbId);
+  const markUpTo = useMarkUpTo(show?.id ?? "", tmdbId);
+  const markAllAired = useMarkAllAired(show?.id ?? "", tmdbId);
   const upsertRating = useUpsertRating(show?.id ?? "");
-  const deleteTracking = useDeleteTracking(show?.id ?? "");
+  const deleteTracking = useDeleteTracking(show?.id ?? "", tmdbId);
   const { data: commentCountData } = useCommentCount(show?.id ?? "");
 
-  useShowDetailsRealtime(show?.id ?? null);
+  useShowDetailsRealtime(show?.id ?? null, tmdbId);
 
   const [trackingModalVisible, setTrackingModalVisible] = useState(false);
 
@@ -238,7 +238,6 @@ export function ShowDetailScreen() {
       {
         onSuccess: () => {
           showSnackbar(isWatched ? t("screens.showDetail.markUnwatched") : t("screens.showDetail.markWatched"), "success");
-          refetchTrackingEntry();
         },
         onError: () => showSnackbar(t("screens.showDetail.statusError"), "error"),
       },

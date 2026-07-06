@@ -14,6 +14,7 @@ import {
   markEpisodesUpTo,
   toggleDropped,
   toggleEpisode,
+  unmarkSeasonEpisodes,
   upsertTracking,
 } from "../services/tracking.service.js";
 import {
@@ -26,6 +27,7 @@ import {
   markUpToSchema,
   toggleDroppedSchema,
   toggleEpisodeSchema,
+  unmarkSeasonSchema,
   unwatchedSchema,
   upsertTrackingSchema,
 } from "../validators/tracking.validator.js";
@@ -165,6 +167,17 @@ router.post(
     const { showId } = req.params;
     const { season } = req.body;
     const entry = await markAllAiredEpisodes(req.userId!, showId, season);
+    res.json(entry);
+  }),
+);
+
+router.post(
+  "/:showId/unmark-season",
+  validateRequest(unmarkSeasonSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { showId } = req.params;
+    const { season } = req.body;
+    const entry = await unmarkSeasonEpisodes(req.userId!, showId, season);
     res.json(entry);
   }),
 );

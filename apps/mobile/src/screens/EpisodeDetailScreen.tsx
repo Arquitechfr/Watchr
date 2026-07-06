@@ -16,7 +16,7 @@ import { format } from "date-fns";
 import { useShowDetails } from "../hooks/useShowDetails";
 import { useSeasonDetails } from "../hooks/useSeasonDetails";
 import { useTrackingEntry } from "../hooks/useTrackingEntry";
-import { useToggleEpisode, useMarkUpTo, useMarkAllAired } from "../hooks/useTracking";
+import { useToggleEpisode, useMarkUpTo, useMarkAllAired, useUnmarkSeason } from "../hooks/useTracking";
 import { WatchedEpisode } from "../services/tracking.service";
 import { useRatingsForShow, useUpsertRating } from "../hooks/useRatings";
 import { useCommentsForShow } from "../hooks/useComments";
@@ -64,9 +64,10 @@ export function EpisodeDetailScreen() {
   const { data: ratings, refetch: refetchRatings } = useRatingsForShow(showId);
   const { data: commentsData, refetch: refetchComments } = useCommentsForShow(showId, { season, episode: episodeNumber });
   const throttledRefresh = useRefreshRateLimit();
-  const toggleEpisode = useToggleEpisode(showId);
-  const markUpTo = useMarkUpTo(showId);
-  const markAllAired = useMarkAllAired(showId);
+  const toggleEpisode = useToggleEpisode(showId, tmdbId);
+  const markUpTo = useMarkUpTo(showId, tmdbId);
+  const markAllAired = useMarkAllAired(showId, tmdbId);
+  const unmarkSeason = useUnmarkSeason(showId, tmdbId);
   const upsertRating = useUpsertRating(showId);
 
   const episode = useMemo<Episode | undefined>(() => {
@@ -174,10 +175,9 @@ export function EpisodeDetailScreen() {
     const seasonWatched = seasonEpisodes.every((ep: { season: number; episode: number }) => watchedKeys.has(`${ep.season}-${ep.episode}`));
 
     if (seasonWatched) {
-      const promises = seasonEpisodes.map((ep: { season: number; episode: number }) =>
-        toggleEpisode.mutateAsync({ season: ep.season, episode: ep.episode, watched: false }),
-      );
-      Promise.all(promises).catch(() => showSnackbar(t("screens.episode.seasonError"), "error"));
+      unmarkSeason.mutate(season, {
+        onError: () => showSnackbar(t("screens.episode.seasonError"), "error"),
+      });
     } else {
       showAlert({
         title: t("screens.episode.markSeasonAiredConfirmTitle", { season }),
@@ -340,7 +340,7 @@ export function EpisodeDetailScreen() {
 
             <TouchableOpacity
               onPress={handleToggleSeason}
-              disabled={toggleEpisode.isPending || markAllAired.isPending}
+              disabled={toggleEpisode.isPending || markAllAired.isPending || unmarkSeason.isPending}
               className="flex-row items-center px-4 py-3 rounded-lg bg-surface border border-border mr-2 mb-2"
               activeOpacity={0.7}
             >

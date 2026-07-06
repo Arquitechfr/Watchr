@@ -331,6 +331,7 @@ export async function addToWatchlistByTmdb(
   });
 
   log("TrackingService", "watchlist entry created", { tmdbId, showId: show._id.toString() });
+  wsEvents.emit("tracking:updated", { userId, showId: show._id.toString() });
   return entry;
 }
 
@@ -614,6 +615,42 @@ export async function deleteTracking(userId: string, showId: string) {
     throw new ApiError(404, "TRACKING_NOT_FOUND", "Tracking entry not found");
   }
   wsEvents.emit("tracking:updated", { userId, showId });
+}
+
+export async function unmarkSeasonEpisodes(
+  userId: string,
+  showId: string,
+  season: number,
+) {
+  const show = await Show.findById(showId);
+  if (!show) {
+    throw new ApiError(404, "SHOW_NOT_FOUND", "Show not found");
+  }
+
+  let entry = await WatchEntry.findOne({
+    userId: new Types.ObjectId(userId),
+    showId: new Types.ObjectId(showId),
+  });
+
+  if (!entry) {
+    entry = await WatchEntry.create({
+      userId: new Types.ObjectId(userId),
+      showId: new Types.ObjectId(showId),
+      status: "plan_to_watch",
+      watchedEpisodes: [],
+    });
+  }
+
+  entry.watchedEpisodes = entry.watchedEpisodes.filter(
+    (ep) => ep.season !== season,
+  );
+  entry.updatedAt = new Date();
+  if (entry.status !== "dropped") {
+    entry.status = calculateWatchStatus(show, entry);
+  }
+  await entry.save();
+  wsEvents.emit("tracking:updated", { userId, showId });
+  return entry;
 }
 
 export interface UnwatchedEpisode {

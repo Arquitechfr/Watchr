@@ -24,6 +24,7 @@ const fr = {
     unknown: "Inconnu",
     search: "Rechercher",
     minutesShort: "min",
+    refreshRateLimited: "Tu pourras rafraîchir dans {seconds}s",
   },
   tmdbStatus: {
     returningSeries: "Série en cours",

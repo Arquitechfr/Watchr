@@ -3,7 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { websocketService } from "../services/websocket.service";
 import { log } from "../utils/logger";
 
-export function useShowDetailsRealtime(showId: string | null): void {
+export function useShowDetailsRealtime(showId: string | null, tmdbId?: number): void {
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -12,10 +12,14 @@ export function useShowDetailsRealtime(showId: string | null): void {
     const unsub = websocketService.on("show:updated", (payload: unknown) => {
       const data = payload as { showId: string };
       if (data.showId !== showId) return;
-      log("useShowDetailsRealtime", "event", { showId });
-      queryClient.invalidateQueries({ queryKey: ["shows", "details", showId] });
+      log("useShowDetailsRealtime", "event", { showId, tmdbId });
+      if (tmdbId) {
+        queryClient.invalidateQueries({ queryKey: ["shows", "details", tmdbId] });
+      } else {
+        queryClient.invalidateQueries({ queryKey: ["shows", "details"] });
+      }
     });
 
     return unsub;
-  }, [showId, queryClient]);
+  }, [showId, tmdbId, queryClient]);
 }

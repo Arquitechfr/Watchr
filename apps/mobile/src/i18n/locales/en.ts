@@ -24,6 +24,7 @@ const en = {
     unknown: "Unknown",
     search: "Search",
     minutesShort: "min",
+    refreshRateLimited: "You can refresh in {seconds}s",
   },
   tmdbStatus: {
     returningSeries: "Returning Series",

@@ -9,12 +9,12 @@ import { NetworkError } from "../components/NetworkError";
 import { Skeleton } from "../components/Skeleton";
 import { PosterCard } from "../components/PosterCard";
 import { ProgressBar } from "../components/ProgressBar";
-import { getLibrary, LibraryItem } from "../services/library.service";
+import { LibraryItem } from "../services/library.service";
+import { useLibrary } from "../hooks/useLibrary";
 import { getPosterUrl, SearchResultItem } from "../services/shows.service";
 import { useThemeColors } from "../theme/useThemeColors";
 import { useI18n } from "../i18n/useI18n";
 import { useUIStore } from "../store/uiStore";
-import { log } from "../utils/logger";
 import { RootStackParamList } from "../navigation/RootNavigator";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "ShowDetail">;
@@ -114,42 +114,27 @@ export function LibraryScreen() {
   const setLibraryViewMode = useUIStore((state) => state.setLibraryViewMode);
   const hydrateLibraryViewMode = useUIStore((state) => state.hydrateLibraryViewMode);
   const [activeTab, setActiveTab] = useState<LibraryTab>(route.params?.tab ?? "tv");
-  const [data, setData] = useState<LibraryItem[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isError, setIsError] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
 
-  const fetchLibrary = async (tab: LibraryTab, pageNum = 1, isRefresh = false) => {
-    setIsLoading(true);
-    setIsError(false);
-    setError(null);
-    try {
-      const response = await getLibrary(tab, pageNum, 20);
-      if (isRefresh || pageNum === 1) {
-        setData(response.data);
-      } else {
-        setData((prev) => [...prev, ...response.data]);
-      }
-      setHasMore(pageNum < response.pagination.pages);
-      setPage(pageNum);
-    } catch (err) {
-      setIsError(true);
-      setError(err as Error);
-      log("LibraryScreen", "fetch error", err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const {
+    data: libraryData,
+    isLoading,
+    isError,
+    error,
+    refetch,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useLibrary(activeTab);
+
+  const data: LibraryItem[] = libraryData?.pages.flatMap((page) => page.data) ?? [];
 
   const handleRefresh = () => {
-    fetchLibrary(activeTab, 1, true);
+    refetch();
   };
 
   const handleLoadMore = () => {
-    if (!isLoading && hasMore) {
-      fetchLibrary(activeTab, page + 1, false);
+    if (!isFetchingNextPage && hasNextPage) {
+      fetchNextPage();
     }
   };
 
@@ -160,16 +145,11 @@ export function LibraryScreen() {
   const handleTabChange = (tab: LibraryTab) => {
     if (tab !== activeTab) {
       setActiveTab(tab);
-      setData([]);
-      setPage(1);
-      setHasMore(true);
-      fetchLibrary(tab, 1, true);
     }
   };
 
   useEffect(() => {
     hydrateLibraryViewMode();
-    fetchLibrary(activeTab, 1, true);
   }, []);
 
   const toSearchResultItem = useCallback((item: LibraryItem): SearchResultItem => ({
@@ -220,7 +200,7 @@ export function LibraryScreen() {
           </View>
         ) : isError ? (
           <NetworkError isOffline={!error || !("response" in error)} onRetry={handleRefresh} />
-        ) : data.length === 0 ? (
+        ) : !isFetchingNextPage && data.length === 0 ? (
           <EmptyState
             icon="film-outline"
             title={t("screens.library.emptyTitle")}
@@ -240,7 +220,7 @@ export function LibraryScreen() {
                 />
               </View>
             )}
-            refreshControl={<RefreshControl refreshing={isLoading && page === 1} onRefresh={handleRefresh} tintColor={colors.primary} />}
+            refreshControl={<RefreshControl refreshing={isLoading} onRefresh={handleRefresh} tintColor={colors.primary} />}
             onEndReached={handleLoadMore}
             onEndReachedThreshold={0.5}
             contentContainerStyle={{ paddingBottom: 24 }}
@@ -252,7 +232,7 @@ export function LibraryScreen() {
             renderItem={({ item }) => (
               <LibraryItemCard item={item} onPress={() => handleItemPress(item)} />
             )}
-            refreshControl={<RefreshControl refreshing={isLoading && page === 1} onRefresh={handleRefresh} tintColor={colors.primary} />}
+            refreshControl={<RefreshControl refreshing={isLoading} onRefresh={handleRefresh} tintColor={colors.primary} />}
             onEndReached={handleLoadMore}
             onEndReachedThreshold={0.5}
             contentContainerStyle={{ paddingBottom: 24 }}

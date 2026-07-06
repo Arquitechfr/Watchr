@@ -14,5 +14,6 @@ export function useTrackingEntry(showId: string) {
     queryKey: ["tracking", "entry", showId],
     queryFn: () => getTrackingEntry(showId),
     enabled: isHydrated && Boolean(showId),
+    staleTime: 30_000,
   });
 }

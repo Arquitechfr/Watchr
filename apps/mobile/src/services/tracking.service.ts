@@ -111,6 +111,13 @@ export async function deleteTracking(showId: string): Promise<void> {
   log("TrackingService", "delete success");
 }
 
+export async function unmarkSeason(showId: string, season: number): Promise<WatchEntry> {
+  log("TrackingService", "unmarkSeason", { showId, season });
+  const response = await api.post<WatchEntry>(`/tracking/${showId}/unmark-season`, { season });
+  log("TrackingService", "unmarkSeason response", { status: response.data.status });
+  return response.data;
+}
+
 export async function toggleDropped(showId: string, dropped: boolean): Promise<WatchEntry> {
   log("TrackingService", "toggleDropped", { showId, dropped });
   const response = await api.patch<WatchEntry>(`/tracking/${showId}/dropped`, { dropped });

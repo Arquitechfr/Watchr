@@ -1,5 +1,6 @@
 import { useCallback, useState } from "react";
 import { useUIStore } from "../store/uiStore";
+import { useI18n } from "../i18n/useI18n";
 
 interface UseRefreshRateLimitOptions {
   maxCount?: number;
@@ -9,6 +10,7 @@ interface UseRefreshRateLimitOptions {
 export function useRefreshRateLimit({ maxCount = 2, windowMs = 60_000 }: UseRefreshRateLimitOptions = {}) {
   const [timestamps, setTimestamps] = useState<number[]>([]);
   const { showSnackbar } = useUIStore();
+  const { t } = useI18n();
 
   const throttledRefresh = useCallback(
     (refetch: () => void) => {
@@ -19,14 +21,14 @@ export function useRefreshRateLimit({ maxCount = 2, windowMs = 60_000 }: UseRefr
       if (recentTimestamps.length >= maxCount) {
         const oldest = recentTimestamps[0];
         const remainingSeconds = Math.ceil((oldest + windowMs - now) / 1000);
-        showSnackbar(`Tu pourras rafraîchir dans ${remainingSeconds} s`, "info");
+        showSnackbar(t("common.refreshRateLimited", { seconds: remainingSeconds }), "info");
         return;
       }
 
       setTimestamps([...recentTimestamps, now]);
       refetch();
     },
-    [maxCount, windowMs, showSnackbar, timestamps],
+    [maxCount, windowMs, showSnackbar, t, timestamps],
   );
 
   return throttledRefresh;

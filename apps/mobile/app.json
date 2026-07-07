@@ -39,21 +39,7 @@
     "plugins": [
       "expo-font",
       "expo-secure-store",
-      [
-        "expo-splash-screen",
-        {
-          "ios": {
-            "image": "./assets/splash.png",
-            "resizeMode": "contain",
-            "backgroundColor": "#ffffff"
-          },
-          "android": {
-            "image": "./assets/splash.png",
-            "imageWidth": 578,
-            "backgroundColor": "#ffffff"
-          }
-        }
-      ],
+      "./plugins/withCustomSplashScreen",
       "expo-localization",
       "expo-notifications",
       "expo-dev-client",

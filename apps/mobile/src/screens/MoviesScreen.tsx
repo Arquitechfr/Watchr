@@ -1,18 +1,23 @@
-import { Text, FlatList, RefreshControl, TouchableOpacity, View, Image, ActivityIndicator } from "react-native";
+import { Text, FlatList, RefreshControl, TouchableOpacity, View, Image, ActivityIndicator, useWindowDimensions } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { useEffect, useMemo, useState } from "react";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { EmptyState } from "../components/EmptyState";
 import { NetworkError } from "../components/NetworkError";
 import { Skeleton } from "../components/Skeleton";
+import { ViewModeToggle } from "../components/ViewModeToggle";
+import { PosterCard } from "../components/PosterCard";
+import { SearchBar } from "../components/SearchBar";
+import { FilterChips, FilterChipOption } from "../components/FilterChips";
 import { useUnwatchedMovies } from "../hooks/useUnwatched";
 import { useQuickMarkMovieWatched } from "../hooks/useTracking";
 import { useRefreshRateLimit } from "../hooks/useRefreshRateLimit";
 import { useUIStore } from "../store/uiStore";
 import { RootStackParamList } from "../navigation/RootNavigator";
 import { UnwatchedMovie } from "../services/unwatched.service";
-import { getPosterUrl } from "../services/shows.service";
+import { getPosterUrl, SearchResultItem } from "../services/shows.service";
 import { useThemeColors } from "../theme/useThemeColors";
 import { useI18n } from "../i18n/useI18n";
 import { WatchStatus } from "../services/tracking.service";
@@ -88,10 +93,63 @@ export function MoviesScreen() {
   const { t } = useI18n();
   const colors = useThemeColors();
   const showSnackbar = useUIStore((state) => state.showSnackbar);
+  const libraryViewMode = useUIStore((state) => state.libraryViewMode);
+  const hydrateLibraryViewMode = useUIStore((state) => state.hydrateLibraryViewMode);
+  const { width: windowWidth } = useWindowDimensions();
   const { data, isLoading, isError, error, refetch } = useUnwatchedMovies();
   const quickMarkMovie = useQuickMarkMovieWatched();
   const throttledRefresh = useRefreshRateLimit();
-  const movies = data?.movies ?? [];
+  const movies: UnwatchedMovie[] = data?.movies ?? [];
+  const [isSearchVisible, setIsSearchVisible] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedGenre, setSelectedGenre] = useState<number | undefined>(undefined);
+  const [selectedYear, setSelectedYear] = useState<number | undefined>(undefined);
+
+  useEffect(() => {
+    hydrateLibraryViewMode();
+  }, []);
+
+  const genreOptions = useMemo<FilterChipOption[]>(() => {
+    const genreMap = new Map<number, string>();
+    for (const movie of movies) {
+      for (const genre of movie.genres ?? []) {
+        if (genre.id && genre.name) {
+          genreMap.set(genre.id, genre.name);
+        }
+      }
+    }
+    return Array.from(genreMap.entries()).map(([id, name]) => ({ label: name, value: id }));
+  }, [movies]);
+
+  const yearOptions = useMemo<FilterChipOption[]>(() => {
+    const yearSet = new Set<number>();
+    for (const movie of movies) {
+      if (movie.year) yearSet.add(movie.year);
+    }
+    return Array.from(yearSet).sort((a, b) => b - a).map((year) => ({ label: String(year), value: year }));
+  }, [movies]);
+
+  const filteredMovies = useMemo<UnwatchedMovie[]>(() => {
+    let result = movies;
+    if (searchQuery.trim().length >= 3) {
+      const q = searchQuery.trim().toLowerCase();
+      result = result.filter((m) => m.title.toLowerCase().includes(q));
+    }
+    if (selectedGenre !== undefined) {
+      result = result.filter((m) => m.genres?.some((g) => g.id === selectedGenre));
+    }
+    if (selectedYear !== undefined) {
+      result = result.filter((m) => m.year === selectedYear);
+    }
+    return result;
+  }, [movies, searchQuery, selectedGenre, selectedYear]);
+
+  const isFiltering = searchQuery.trim().length >= 3 || selectedGenre !== undefined || selectedYear !== undefined;
+
+  const gridNumColumns = 3;
+  const gridGap = 12;
+  const gridPadding = 16;
+  const gridCardWidth = (windowWidth - gridPadding * 2 - gridGap * (gridNumColumns - 1)) / gridNumColumns;
 
   const markingMovieId = quickMarkMovie.isPending && quickMarkMovie.variables
     ? quickMarkMovie.variables.showId
@@ -131,35 +189,129 @@ export function MoviesScreen() {
     );
   }
 
+  const toSearchResultItem = (movie: UnwatchedMovie): SearchResultItem => ({
+    tmdbId: movie.tmdbId,
+    type: "movie",
+    title: movie.title,
+    posterPath: movie.posterPath ?? undefined,
+    source: "tmdb",
+  });
+
   return (
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]}>
-      <Text className="text-3xl font-bold text-text mb-4">{t("navigation.movies")}</Text>
+      <View className="flex-row items-center justify-between mb-4">
+        <Text className="text-3xl font-bold text-text">{t("navigation.movies")}</Text>
+        <View className="flex-row items-center" style={{ gap: 12 }}>
+          <TouchableOpacity onPress={() => setIsSearchVisible(!isSearchVisible)} className="p-1">
+            <Ionicons name={isSearchVisible ? "search" : "search-outline"} size={24} color={colors.text} />
+          </TouchableOpacity>
+          <ViewModeToggle />
+        </View>
+      </View>
 
-      <View className="flex-1">
-        <FlatList
-          data={movies}
-          keyExtractor={(item) => item.showId}
-          renderItem={({ item }) => (
-            <MovieCard
-              movie={item}
-              onPress={() => {
-                if (!item.tmdbId) return;
-                navigation.navigate("ShowDetail", { tmdbId: item.tmdbId, title: item.title });
-              }}
-              onMarkWatched={() => handleMarkMovieWatched(item)}
-              isMarking={markingMovieId === item.showId}
+      {isSearchVisible && (
+        <>
+          <SearchBar
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            placeholder={t("screens.movies.searchPlaceholder")}
+            onClose={() => {
+              setSearchQuery("");
+              setSelectedGenre(undefined);
+              setSelectedYear(undefined);
+              setIsSearchVisible(false);
+            }}
+          />
+          {genreOptions.length > 0 && (
+            <FilterChips
+              options={genreOptions}
+              selectedValue={selectedGenre}
+              onSelect={(v) => setSelectedGenre(v as number | undefined)}
+              allLabel={t("screens.movies.filterAll")}
             />
           )}
-          refreshControl={<RefreshControl refreshing={isLoading} onRefresh={() => throttledRefresh(refetch)} tintColor={colors.primary} />}
-          contentContainerStyle={{ paddingBottom: 24 }}
-          ListEmptyComponent={
-            <EmptyState
-              icon="film-outline"
-              title={t("screens.movies.empty")}
-              subtitle={t("screens.movies.addFromSearch")}
+          {yearOptions.length > 0 && (
+            <FilterChips
+              options={yearOptions}
+              selectedValue={selectedYear}
+              onSelect={(v) => setSelectedYear(v as number | undefined)}
+              allLabel={t("screens.movies.filterAll")}
             />
-          }
-        />
+          )}
+        </>
+      )}
+
+      <View className="flex-1">
+        {libraryViewMode === "grid" ? (
+          <FlatList
+            key="grid"
+            data={filteredMovies}
+            keyExtractor={(item) => item.showId}
+            numColumns={gridNumColumns}
+            columnWrapperStyle={{ gap: gridGap }}
+            renderItem={({ item }) => (
+              <View style={{ width: gridCardWidth, marginBottom: gridGap }}>
+                <PosterCard
+                  show={toSearchResultItem(item)}
+                  onPress={() => {
+                    if (!item.tmdbId) return;
+                    navigation.navigate("ShowDetail", { tmdbId: item.tmdbId, title: item.title });
+                  }}
+                  width={gridCardWidth}
+                />
+              </View>
+            )}
+            refreshControl={<RefreshControl refreshing={isLoading} onRefresh={() => throttledRefresh(refetch)} tintColor={colors.primary} />}
+            contentContainerStyle={{ paddingBottom: 24 }}
+            ListEmptyComponent={
+              isFiltering ? (
+                <EmptyState
+                  icon="search-outline"
+                  title={t("screens.movies.noResults")}
+                />
+              ) : (
+                <EmptyState
+                  icon="film-outline"
+                  title={t("screens.movies.empty")}
+                  subtitle={t("screens.movies.addFromSearch")}
+                />
+              )
+            }
+          />
+        ) : (
+          <FlatList
+            key="list"
+            data={filteredMovies}
+            keyExtractor={(item) => item.showId}
+            renderItem={({ item }) => (
+              <MovieCard
+                movie={item}
+                onPress={() => {
+                  if (!item.tmdbId) return;
+                  navigation.navigate("ShowDetail", { tmdbId: item.tmdbId, title: item.title });
+                }}
+                onMarkWatched={() => handleMarkMovieWatched(item)}
+                isMarking={markingMovieId === item.showId}
+              />
+            )}
+            refreshControl={<RefreshControl refreshing={isLoading} onRefresh={() => throttledRefresh(refetch)} tintColor={colors.primary} />}
+            contentContainerStyle={{ paddingBottom: 24 }}
+            ListEmptyComponent={
+              isFiltering ? (
+                <EmptyState
+                  icon="search-outline"
+                  title={t("screens.movies.noResults")}
+                />
+              ) : (
+                <EmptyState
+                  icon="film-outline"
+                  title={t("screens.movies.empty")}
+                  subtitle={t("screens.movies.addFromSearch")}
+                />
+              )
+            }
+          />
+        )}
       </View>
 
       <TouchableOpacity

@@ -671,6 +671,7 @@ export interface UnwatchedShow {
   unwatchedEpisodes: UnwatchedEpisode[];
   watchedCount: number;
   totalEpisodes: number;
+  network?: string;
 }
 
 export interface UnwatchedMovie {
@@ -680,6 +681,8 @@ export interface UnwatchedMovie {
   posterPath: string | null;
   status: WatchStatus;
   type: "movie";
+  genres?: Array<{ id: number; name?: string }>;
+  year?: number;
 }
 
 export type UnwatchedResult = { shows: UnwatchedShow[] } | { movies: UnwatchedMovie[] };
@@ -696,7 +699,7 @@ export async function getUnwatched(
   log("TrackingService", "getUnwatched filter", { userId, type, language, filter });
 
   const entries = await WatchEntry.find(filter)
-    .populate("showId", "tmdbId title type posterPath status seasons translations")
+    .populate("showId", "tmdbId title type posterPath status seasons translations genres firstAirDate networks")
     .lean();
 
   log("TrackingService", "getUnwatched entries", { count: entries.length, type });
@@ -719,9 +722,13 @@ export async function getUnwatched(
           posterPath?: string | null;
           type?: "tv" | "movie";
           translations?: Map<string, ShowTranslation> | Record<string, ShowTranslation>;
+          genres?: Array<{ id: number; name?: string }>;
+          firstAirDate?: Date;
         };
         const translation = getTranslationValue(populatedShow.translations, language);
         const title = translation?.title ?? populatedShow.title ?? "Unknown";
+        const localizedGenres = translation?.genres ?? populatedShow.genres;
+        const year = populatedShow.firstAirDate ? new Date(populatedShow.firstAirDate).getFullYear() : undefined;
         return {
           showId: populatedShow._id?.toString() ?? entry.showId.toString(),
           tmdbId: populatedShow.tmdbId ?? 0,
@@ -729,6 +736,8 @@ export async function getUnwatched(
           posterPath: populatedShow.posterPath ?? null,
           status: entry.status,
           type: "movie" as const,
+          genres: localizedGenres,
+          year,
         };
       });
     log("TrackingService", "getUnwatched movies", { count: movies.length });
@@ -747,9 +756,11 @@ export async function getUnwatched(
       status?: string;
       seasons?: Season[];
       translations?: Map<string, ShowTranslation> | Record<string, ShowTranslation>;
+      networks?: Array<{ id: number; name?: string }>;
     };
     const translation = getTranslationValue(populatedShow.translations, language);
     const localizedTitle = translation?.title ?? populatedShow.title ?? "Unknown";
+    const network = translation?.networks?.[0]?.name ?? populatedShow.networks?.[0]?.name;
 
     // Use translation seasons if they have episodes, otherwise fall back to show seasons
     const translationHasEpisodes = translation?.seasons?.some((s) => s.episodes && s.episodes.length > 0);
@@ -849,6 +860,7 @@ export async function getUnwatched(
       ),
       watchedCount: getAiredWatchedCount(entry.watchedEpisodes, localizedSeasons ?? []),
       totalEpisodes: getAiredEpisodeCount(localizedSeasons ?? []),
+      network,
     });
   }
 

@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { View, Text, TouchableOpacity, Image, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Comment } from "../../services/comments.service";
 import { useAuthStore } from "../../store/authStore";
 import { useThemeColors } from "../../theme/useThemeColors";
@@ -10,12 +12,19 @@ import { useI18n } from "../../i18n/useI18n";
 import { useUIStore } from "../../store/uiStore";
 import { formatDistanceToNow } from "date-fns";
 
+type RootStackParamList = {
+  CommentThread: { commentId: string; showId: string; title: string; season?: number; episode?: number };
+};
+
 interface CommentItemProps {
   comment: Comment;
-  depth?: number;
+  showId?: string;
+  title?: string;
+  season?: number;
+  episode?: number;
   isPending?: boolean;
   onReply?: (content: string, parentId: string) => void;
-  onEdit?: (id: string, content: string, images?: string[]) => void;
+  onEdit?: (id: string, content: string, images?: string[], isSpoiler?: boolean) => void;
   onDelete?: (id: string) => void;
   onLike?: (id: string) => void;
   onUnlike?: (id: string) => void;
@@ -27,7 +36,10 @@ const QUICK_EMOJIS = ["👍", "❤️", "🔥", "😂", "😍", "👏", "🤔", 
 
 export function CommentItem({
   comment,
-  depth = 0,
+  showId,
+  title,
+  season,
+  episode,
   isPending,
   onReply,
   onEdit,
@@ -41,11 +53,13 @@ export function CommentItem({
   const colors = useThemeColors();
   const userId = useAuthStore((state) => state.userId);
   const showAlert = useUIStore((state) => state.showAlert);
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const isOwn = comment.userId === userId;
   const [isReplying, setIsReplying] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [viewingImage, setViewingImage] = useState<string | null>(null);
+  const [spoilerRevealed, setSpoilerRevealed] = useState(false);
 
   const handleLike = () => {
     if (comment.likedByMe) {
@@ -60,8 +74,8 @@ export function CommentItem({
     setIsReplying(false);
   };
 
-  const handleEdit = (content: string, images?: string[]) => {
-    onEdit?.(comment.id, content, images);
+  const handleEdit = (content: string, images?: string[], isSpoiler?: boolean) => {
+    onEdit?.(comment.id, content, images, isSpoiler);
     setIsEditing(false);
   };
 
@@ -86,15 +100,16 @@ export function CommentItem({
     setShowEmojiPicker(false);
   };
 
-  const maxDepth = 2;
-  const showReplyButton = depth < maxDepth && onReply;
+  const showReplyButton = onReply;
+  const showRepliesButton = comment.replyCount > 0 && showId;
 
   return (
-    <View className={`mb-3 ${depth > 0 ? "ml-4 border-l border-border pl-3" : ""}`}>
+    <View className="mb-3">
       {isEditing ? (
         <CommentInput
           initialValue={comment.content}
           initialImages={comment.images}
+          initialIsSpoiler={comment.isSpoiler}
           onSubmit={handleEdit}
           onCancel={() => setIsEditing(false)}
           isPending={isPending}
@@ -105,7 +120,15 @@ export function CommentItem({
           <View className="flex-row items-center mb-2">
             <Avatar url={comment.authorAvatarUrl} size={32} />
             <View className="ml-2 flex-1">
-              <Text className="text-text font-semibold text-sm">{comment.authorUsername}</Text>
+              <View className="flex-row items-center">
+                <Text className="text-text font-semibold text-sm">{comment.authorUsername}</Text>
+                {comment.isSpoiler && (
+                  <View className="ml-2 flex-row items-center px-1.5 py-0.5 rounded-full bg-danger/15">
+                    <Ionicons name="eye-off-outline" size={11} color={colors.danger} />
+                    <Text className="text-danger text-xs font-semibold ml-0.5">{t("screens.comments.spoiler")}</Text>
+                  </View>
+                )}
+              </View>
               <Text className="text-text-muted text-xs">
                 {formatDistanceToNow(new Date(comment.createdAt), {
                   addSuffix: true,
@@ -115,26 +138,44 @@ export function CommentItem({
             </View>
           </View>
 
-          <Text className="text-text leading-relaxed">{comment.content}</Text>
-
-          {comment.images.length > 0 && (
-            <View className="flex-row flex-wrap mt-2">
-              {comment.images.map((img, idx) => (
-                <Pressable key={idx} onPress={() => setViewingImage(img)}>
-                  <Image
-                    source={{ uri: img }}
-                    style={{
-                      width: 100,
-                      height: 100,
-                      borderRadius: 8,
-                      marginRight: 8,
-                      marginBottom: 8,
-                    }}
-                    resizeMode="cover"
-                  />
-                </Pressable>
-              ))}
+          {comment.isSpoiler && !spoilerRevealed ? (
+            <View className="bg-surface-light rounded-lg p-3 mt-1 items-center">
+              <View className="flex-row items-center mb-1">
+                <Ionicons name="eye-off-outline" size={16} color={colors.danger} />
+                <Text className="text-danger text-sm font-semibold ml-1">{t("screens.comments.containsSpoiler")}</Text>
+              </View>
+              <TouchableOpacity
+                onPress={() => setSpoilerRevealed(true)}
+                className="mt-1 px-3 py-1.5 rounded-lg bg-primary/15"
+                activeOpacity={0.7}
+              >
+                <Text className="text-primary text-sm font-semibold">{t("screens.comments.reveal")}</Text>
+              </TouchableOpacity>
             </View>
+          ) : (
+            <>
+              <Text className="text-text leading-relaxed">{comment.content}</Text>
+
+              {comment.images.length > 0 && (
+                <View className="flex-row flex-wrap mt-2">
+                  {comment.images.map((img, idx) => (
+                    <Pressable key={idx} onPress={() => setViewingImage(img)}>
+                      <Image
+                        source={{ uri: img }}
+                        style={{
+                          width: 100,
+                          height: 100,
+                          borderRadius: 8,
+                          marginRight: 8,
+                          marginBottom: 8,
+                        }}
+                        resizeMode="cover"
+                      />
+                    </Pressable>
+                  ))}
+                </View>
+              )}
+            </>
           )}
 
           <View className="flex-row items-center justify-between mt-3">
@@ -162,6 +203,25 @@ export function CommentItem({
                 >
                   <Ionicons name="chatbubble-outline" size={16} color={colors.textMuted} />
                   <Text className="text-text-muted text-sm ml-1">{t("common.reply")}</Text>
+                </TouchableOpacity>
+              )}
+
+              {showRepliesButton && (
+                <TouchableOpacity
+                  onPress={() =>
+                    navigation.navigate("CommentThread", {
+                      commentId: comment.id,
+                      showId: showId!,
+                      title: title ?? "",
+                      season,
+                      episode,
+                    })
+                  }
+                  className="flex-row items-center ml-4"
+                  activeOpacity={0.7}
+                >
+                  <Ionicons name="chatbubbles-outline" size={16} color={colors.primary} />
+                  <Text className="text-primary text-sm font-semibold ml-1">{comment.replyCount}</Text>
                 </TouchableOpacity>
               )}
 
@@ -239,26 +299,6 @@ export function CommentItem({
             onCancel={() => setIsReplying(false)}
             isPending={isPending}
           />
-        </View>
-      )}
-
-      {comment.replies && comment.replies.length > 0 && (
-        <View className="mt-2">
-          {comment.replies.map((reply) => (
-            <CommentItem
-              key={reply.id}
-              comment={reply}
-              depth={depth + 1}
-              isPending={isPending}
-              onReply={onReply}
-              onEdit={onEdit}
-              onDelete={onDelete}
-              onLike={onLike}
-              onUnlike={onUnlike}
-              onAddReaction={onAddReaction}
-              onRemoveReaction={onRemoveReaction}
-            />
-          ))}
         </View>
       )}
     </View>

@@ -15,11 +15,13 @@ export interface CreateCommentInput {
   parentId?: string;
   content: string;
   images?: string[];
+  isSpoiler?: boolean;
 }
 
 export interface UpdateCommentInput {
   content: string;
   images?: string[];
+  isSpoiler?: boolean;
 }
 
 export interface ListCommentsQuery {
@@ -27,6 +29,7 @@ export interface ListCommentsQuery {
   episode?: number;
   page: number;
   limit: number;
+  sort?: "relevant" | "liked" | "replied" | "recent";
 }
 
 export interface ReactionItem {
@@ -42,12 +45,13 @@ export interface CommentItem {
   authorAvatarUrl?: string;
   content: string;
   images: string[];
+  isSpoiler: boolean;
   likesCount: number;
+  replyCount: number;
   likedByMe: boolean;
   reactions: ReactionItem[];
   createdAt: string;
   updatedAt: string;
-  replies: CommentItem[];
 }
 
 export interface ListCommentsResult {
@@ -57,6 +61,14 @@ export interface ListCommentsResult {
   page: number;
   limit: number;
   comments: CommentItem[];
+}
+
+export interface ListRepliesResult {
+  commentId: string;
+  total: number;
+  page: number;
+  limit: number;
+  replies: CommentItem[];
 }
 
 async function validateShowExists(showId: string) {
@@ -181,12 +193,13 @@ function buildCommentItem(
     authorAvatarUrl: userInfo?.avatarUrl,
     content: comment.content,
     images: comment.images ?? [],
+    isSpoiler: comment.isSpoiler ?? false,
     likesCount: comment.likesCount,
+    replyCount: comment.replyCount ?? 0,
     likedByMe: likedIds.has(comment._id.toString()),
     reactions: reactionMap.get(comment._id.toString()) ?? [],
     createdAt: comment.createdAt.toISOString(),
     updatedAt: comment.updatedAt.toISOString(),
-    replies: [],
   };
 }
 
@@ -205,9 +218,14 @@ export async function createComment(userId: string, input: CreateCommentInput) {
     parentId: input.parentId ? new Types.ObjectId(input.parentId) : undefined,
     content: input.content,
     images: input.images ?? [],
+    isSpoiler: input.isSpoiler ?? false,
   });
 
   if (input.parentId) {
+    await Comment.updateOne(
+      { _id: new Types.ObjectId(input.parentId) },
+      { $inc: { replyCount: 1 } },
+    );
     const parentComment = await Comment.findById(input.parentId).select("userId").lean();
     if (parentComment && parentComment.userId.toString() !== userId) {
       const [replier, show] = await Promise.all([
@@ -237,6 +255,7 @@ export async function createComment(userId: string, input: CreateCommentInput) {
       parentId: comment.parentId?.toString(),
       content: comment.content,
       images: comment.images,
+      isSpoiler: comment.isSpoiler,
       likesCount: comment.likesCount,
       createdAt: comment.createdAt.toISOString(),
       updatedAt: comment.updatedAt.toISOString(),
@@ -251,6 +270,7 @@ export async function createComment(userId: string, input: CreateCommentInput) {
     parentId: comment.parentId?.toString(),
     content: comment.content,
     images: comment.images,
+    isSpoiler: comment.isSpoiler,
     likesCount: comment.likesCount,
     createdAt: comment.createdAt.toISOString(),
     updatedAt: comment.updatedAt.toISOString(),
@@ -261,6 +281,9 @@ export async function updateComment(userId: string, commentId: string, input: Up
   const comment = await validateCommentAccess(commentId, userId);
   comment.content = input.content;
   comment.images = input.images ?? [];
+  if (input.isSpoiler !== undefined) {
+    comment.isSpoiler = input.isSpoiler;
+  }
   await comment.save();
 
   wsEvents.emit("comment:updated", {
@@ -294,7 +317,15 @@ export async function deleteComment(userId: string, commentId: string) {
   const allIds = [comment._id, ...replyIds.map((reply) => reply._id)];
 
   await CommentLike.deleteMany({ commentId: { $in: allIds } });
+  await CommentReaction.deleteMany({ commentId: { $in: allIds } });
   await Comment.deleteMany({ _id: { $in: allIds } });
+
+  if (comment.parentId) {
+    await Comment.updateOne(
+      { _id: comment.parentId },
+      { $inc: { replyCount: -1 } },
+    );
+  }
 
   wsEvents.emit("comment:deleted", {
     showId: comment.showId.toString(),
@@ -321,57 +352,47 @@ export async function listCommentsForShow(
     matchFilter.episodeRef = { season: query.season, episode: query.episode };
   }
 
-  const total = await Comment.countDocuments({
+  const topLevelFilter = {
     ...matchFilter,
     parentId: { $exists: false },
-  });
+  };
 
-  const topLevelComments = await Comment.find({
-    ...matchFilter,
-    parentId: { $exists: false },
-  })
-    .sort({ createdAt: -1 })
+  const total = await Comment.countDocuments(topLevelFilter);
+
+  const sort = query.sort ?? "recent";
+  let sortOption: Record<string, 1 | -1>;
+
+  switch (sort) {
+    case "liked":
+      sortOption = { likesCount: -1, createdAt: -1 };
+      break;
+    case "replied":
+      sortOption = { replyCount: -1, createdAt: -1 };
+      break;
+    case "relevant":
+      sortOption = { likesCount: -1, replyCount: -1, createdAt: -1 };
+      break;
+    case "recent":
+    default:
+      sortOption = { createdAt: -1 };
+      break;
+  }
+
+  const topLevelComments = await Comment.find(topLevelFilter)
+    .sort(sortOption)
     .skip((query.page - 1) * query.limit)
     .limit(query.limit);
 
-  const topLevelIds = topLevelComments.map((comment) => comment._id.toString());
-  const replies = await Comment.find({
-    ...matchFilter,
-    parentId: { $in: topLevelIds.map((id) => new Types.ObjectId(id)) },
-  }).sort({ createdAt: 1 });
-
-  const allCommentIds = [
-    ...topLevelComments.map((c) => c._id.toString()),
-    ...replies.map((c) => c._id.toString()),
-  ];
-  const allUserIds = [
-    ...new Set([
-      ...topLevelComments.map((c) => c.userId.toString()),
-      ...replies.map((c) => c.userId.toString()),
-    ]),
-  ];
+  const commentIds = topLevelComments.map((c) => c._id.toString());
+  const userIds = [...new Set(topLevelComments.map((c) => c.userId.toString()))];
   const [likedIds, reactionMap, userMap] = await Promise.all([
-    getLikedCommentIds(userId, allCommentIds),
-    getReactionsForComments(userId, allCommentIds),
-    getUserInfoMap(allUserIds),
+    getLikedCommentIds(userId, commentIds),
+    getReactionsForComments(userId, commentIds),
+    getUserInfoMap(userIds),
   ]);
 
-  const replyMap = new Map<string, CommentItem[]>();
-  for (const reply of replies) {
-    const parentId = reply.parentId?.toString();
-    if (!parentId || !topLevelIds.includes(parentId)) {
-      continue;
-    }
-    const item = buildCommentItem(reply, likedIds, reactionMap, userMap);
-    const list = replyMap.get(parentId) || [];
-    list.push(item);
-    replyMap.set(parentId, list);
-  }
-
   const comments = topLevelComments.map((comment) => {
-    const item = buildCommentItem(comment, likedIds, reactionMap, userMap);
-    item.replies = replyMap.get(comment._id.toString()) || [];
-    return item;
+    return buildCommentItem(comment, likedIds, reactionMap, userMap);
   });
 
   return {
@@ -384,6 +405,64 @@ export async function listCommentsForShow(
     page: query.page,
     limit: query.limit,
     comments,
+  };
+}
+
+export async function getCommentById(
+  userId: string,
+  commentId: string,
+): Promise<CommentItem> {
+  const comment = await Comment.findById(commentId);
+  if (!comment) {
+    throw new ApiError(404, "COMMENT_NOT_FOUND", "Comment not found");
+  }
+
+  const [likedIds, reactionMap, userMap] = await Promise.all([
+    getLikedCommentIds(userId, [commentId]),
+    getReactionsForComments(userId, [commentId]),
+    getUserInfoMap([comment.userId.toString()]),
+  ]);
+
+  return buildCommentItem(comment, likedIds, reactionMap, userMap);
+}
+
+export async function listRepliesForComment(
+  userId: string,
+  commentId: string,
+  page: number,
+  limit: number,
+): Promise<ListRepliesResult> {
+  const parent = await Comment.findById(commentId);
+  if (!parent) {
+    throw new ApiError(404, "COMMENT_NOT_FOUND", "Comment not found");
+  }
+
+  const filter = { parentId: new Types.ObjectId(commentId) };
+  const total = await Comment.countDocuments(filter);
+
+  const replies = await Comment.find(filter)
+    .sort({ createdAt: 1 })
+    .skip((page - 1) * limit)
+    .limit(limit);
+
+  const replyIds = replies.map((r) => r._id.toString());
+  const userIds = [...new Set(replies.map((r) => r.userId.toString()))];
+  const [likedIds, reactionMap, userMap] = await Promise.all([
+    getLikedCommentIds(userId, replyIds),
+    getReactionsForComments(userId, replyIds),
+    getUserInfoMap(userIds),
+  ]);
+
+  const replyItems = replies.map((reply) =>
+    buildCommentItem(reply, likedIds, reactionMap, userMap),
+  );
+
+  return {
+    commentId,
+    total,
+    page,
+    limit,
+    replies: replyItems,
   };
 }
 

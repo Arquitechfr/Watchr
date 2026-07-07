@@ -13,6 +13,7 @@ export interface UpcomingEpisode {
   isSeriesPremiere: boolean;
   isSeasonPremiere: boolean;
   isFinale: boolean;
+  network?: string;
 }
 
 export interface UpcomingResponse {

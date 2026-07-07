@@ -2,13 +2,21 @@ import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getMe } from "../services/auth.service";
 import { useAuthStore } from "../store/authStore";
-import { useThemeStore } from "../store/themeStore";
+import { useThemeStore, type ThemePreference } from "../store/themeStore";
 import { log } from "../utils/logger";
+
+export function computeThemeSyncUpdate(
+  serverPref: ThemePreference | undefined,
+  localPref: ThemePreference,
+): ThemePreference | null {
+  if (!serverPref) return null;
+  if (serverPref === localPref) return null;
+  return serverPref;
+}
 
 export function useThemeSync() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const setThemePreference = useThemeStore((s) => s.setThemePreference);
-  const currentPref = useThemeStore((s) => s.themePreference);
 
   const { data: me } = useQuery({
     queryKey: ["me"],
@@ -18,9 +26,12 @@ export function useThemeSync() {
   });
 
   useEffect(() => {
-    if (me?.themePreference && me.themePreference !== currentPref) {
-      log("ThemeSync", "syncing theme from server", { themePreference: me.themePreference });
-      setThemePreference(me.themePreference);
+    if (!me?.themePreference) return;
+    const localPref = useThemeStore.getState().themePreference;
+    const update = computeThemeSyncUpdate(me.themePreference, localPref);
+    if (update) {
+      log("ThemeSync", "syncing theme from server", { themePreference: update });
+      setThemePreference(update);
     }
-  }, [me?.themePreference, currentPref, setThemePreference]);
+  }, [me?.themePreference, setThemePreference]);
 }

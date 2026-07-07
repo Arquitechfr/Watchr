@@ -1,7 +1,8 @@
-import { View, Text, FlatList, RefreshControl, TouchableOpacity } from "react-native";
+import { View, Text, FlatList, RefreshControl, TouchableOpacity, useWindowDimensions } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { TopTabs, TopTab } from "../components/TopTabs";
 import { UpcomingEpisodeRow } from "../components/UpcomingEpisodeRow";
@@ -10,6 +11,9 @@ import { WeekSectionHeader } from "../components/WeekSectionHeader";
 import { EmptyState } from "../components/EmptyState";
 import { NetworkError } from "../components/NetworkError";
 import { Skeleton } from "../components/Skeleton";
+import { ViewModeToggle } from "../components/ViewModeToggle";
+import { EpisodeCard } from "../components/EpisodeCard";
+import { SearchBar } from "../components/SearchBar";
 import { useUnwatchedShows } from "../hooks/useUnwatched";
 import { useUpcomingEpisodes } from "../hooks/useUpcomingEpisodes";
 import { useQuickMarkWatched } from "../hooks/useTracking";
@@ -30,6 +34,8 @@ interface FlattenedEpisode {
   title: string;
   posterPath?: string;
   episode: UnwatchedEpisode;
+  network?: string;
+  isNew?: boolean;
 }
 
 function useTabs() {
@@ -47,6 +53,9 @@ function UnwatchedList({
   onEpisodePress,
   onMarkWatched,
   markingEpisodeKey,
+  viewMode,
+  cardWidth,
+  searchQuery,
 }: {
   shows: UnwatchedShow[];
   isLoading: boolean;
@@ -54,18 +63,23 @@ function UnwatchedList({
   onEpisodePress: (item: FlattenedEpisode) => void;
   onMarkWatched?: (item: FlattenedEpisode) => void;
   markingEpisodeKey?: string;
+  viewMode: "list" | "grid";
+  cardWidth: number;
+  searchQuery: string;
 }) {
   const { t } = useI18n();
   const colors = useThemeColors();
 
   const episodes = useMemo(() => {
     const flat: FlattenedEpisode[] = shows.flatMap((show) =>
-      show.unwatchedEpisodes.map((ep) => ({
+      show.unwatchedEpisodes.map((ep, index) => ({
         showId: show.showId,
         tmdbId: show.tmdbId,
         title: show.title,
         posterPath: show.posterPath,
         episode: ep,
+        network: show.network,
+        isNew: index === 0,
       })),
     );
     flat.sort((a, b) => {
@@ -73,8 +87,12 @@ function UnwatchedList({
       const bDate = b.episode.airDate ? new Date(b.episode.airDate).getTime() : 0;
       return bDate - aDate;
     });
+    if (searchQuery.trim().length >= 3) {
+      const q = searchQuery.trim().toLowerCase();
+      return flat.filter((ep) => ep.title.toLowerCase().includes(q));
+    }
     return flat;
-  }, [shows]);
+  }, [shows, searchQuery]);
 
   if (episodes.length === 0) {
     return (
@@ -87,8 +105,42 @@ function UnwatchedList({
 
   log("SeriesScreen:UnwatchedList", "flattened episodes", { count: episodes.length });
 
+  if (viewMode === "grid") {
+    return (
+      <FlatList
+        key="grid"
+        data={episodes}
+        keyExtractor={(item, index) => `${item.showId}-${item.episode.season}-${item.episode.episode}-${index}`}
+        numColumns={3}
+        columnWrapperStyle={{ gap: 12 }}
+        renderItem={({ item }) => {
+          const epKey = `${item.showId}-${item.episode.season}-${item.episode.episode}`;
+          return (
+            <View style={{ width: cardWidth, marginBottom: 12 }}>
+              <EpisodeCard
+                posterPath={item.posterPath}
+                title={item.title}
+                season={item.episode.season}
+                episode={item.episode.episode}
+                episodeName={item.episode.name}
+                isNew={item.isNew}
+                onPress={() => onEpisodePress(item)}
+                onMarkWatched={onMarkWatched ? () => onMarkWatched(item) : undefined}
+                isMarking={markingEpisodeKey === epKey}
+                width={cardWidth}
+              />
+            </View>
+          );
+        }}
+        refreshControl={<RefreshControl refreshing={isLoading} onRefresh={() => refetch()} tintColor={colors.primary} />}
+        contentContainerStyle={{ paddingBottom: 24 }}
+      />
+    );
+  }
+
   return (
     <FlatList
+      key="list"
       data={episodes}
       keyExtractor={(item, index) => `${item.showId}-${item.episode.season}-${item.episode.episode}-${index}`}
       renderItem={({ item }) => {
@@ -100,6 +152,7 @@ function UnwatchedList({
             title={item.title}
             posterPath={item.posterPath}
             episode={item.episode}
+            isNew={item.isNew}
             onPress={() => onEpisodePress(item)}
             onMarkWatched={onMarkWatched ? () => onMarkWatched(item) : undefined}
             isMarking={markingEpisodeKey === epKey}
@@ -120,6 +173,9 @@ function UpcomingList({
   onEpisodePress,
   onMarkWatched,
   markingEpisodeKey,
+  viewMode,
+  cardWidth,
+  searchQuery,
 }: {
   data: { today: UpcomingEpisode[]; thisWeek: UpcomingEpisode[]; nextWeek: UpcomingEpisode[]; later: UpcomingEpisode[] } | undefined;
   isLoading: boolean;
@@ -128,9 +184,20 @@ function UpcomingList({
   onEpisodePress: (episode: UpcomingEpisode) => void;
   onMarkWatched?: (episode: UpcomingEpisode) => void;
   markingEpisodeKey?: string;
+  viewMode: "list" | "grid";
+  cardWidth: number;
+  searchQuery: string;
 }) {
   const { t } = useI18n();
   const colors = useThemeColors();
+
+  const filterByQuery = (eps: UpcomingEpisode[]): UpcomingEpisode[] => {
+    if (searchQuery.trim().length >= 3) {
+      const q = searchQuery.trim().toLowerCase();
+      return eps.filter((ep) => ep.title.toLowerCase().includes(q));
+    }
+    return eps;
+  };
   if (isLoading) {
     return (
       <View>
@@ -145,22 +212,80 @@ function UpcomingList({
     return <NetworkError isOffline={!("response" in error)} onRetry={() => refetch()} />;
   }
 
+  if (viewMode === "grid") {
+    const allEpisodes: UpcomingEpisode[] = [
+      ...filterByQuery(data?.today ?? []),
+      ...filterByQuery(data?.thisWeek ?? []),
+      ...filterByQuery(data?.nextWeek ?? []),
+      ...filterByQuery(data?.later ?? []),
+    ];
+
+    if (allEpisodes.length === 0) {
+      return (
+        <EmptyState
+          icon="calendar-outline"
+          title={t("screens.upcoming.empty")}
+          subtitle={t("screens.upcoming.emptySubtitle")}
+        />
+      );
+    }
+
+    const todayEps = filterByQuery(data?.today ?? []);
+    const todayKeys = new Set(todayEps.map((ep) => `${ep.showId}-${ep.season}-${ep.episode}`));
+
+    return (
+      <FlatList
+        key="grid"
+        data={allEpisodes}
+        keyExtractor={(item, index) => `${item.showId}-${item.season}-${item.episode}-${index}`}
+        numColumns={3}
+        columnWrapperStyle={{ gap: 12 }}
+        renderItem={({ item }) => {
+          const epKey = `${item.showId}-${item.season}-${item.episode}`;
+          return (
+            <View style={{ width: cardWidth, marginBottom: 12 }}>
+              <EpisodeCard
+                posterPath={item.posterPath}
+                title={item.title}
+                season={item.season}
+                episode={item.episode}
+                episodeName={item.name}
+                isNew={todayKeys.has(epKey)}
+                network={item.network}
+                onPress={() => onEpisodePress(item)}
+                onMarkWatched={onMarkWatched ? () => onMarkWatched(item) : undefined}
+                isMarking={markingEpisodeKey === epKey}
+                width={cardWidth}
+              />
+            </View>
+          );
+        }}
+        refreshControl={<RefreshControl refreshing={isLoading} onRefresh={() => refetch()} tintColor={colors.primary} />}
+        contentContainerStyle={{ paddingBottom: 24 }}
+      />
+    );
+  }
+
   const rows: { type: "header" | "episode"; title?: string; episode?: UpcomingEpisode }[] = [];
-  if ((data?.today.length ?? 0) > 0) {
+  const today = filterByQuery(data?.today ?? []);
+  const thisWeek = filterByQuery(data?.thisWeek ?? []);
+  const nextWeek = filterByQuery(data?.nextWeek ?? []);
+  const later = filterByQuery(data?.later ?? []);
+  if (today.length > 0) {
     rows.push({ type: "header", title: t("screens.upcoming.today") });
-    data?.today.forEach((ep) => rows.push({ type: "episode", episode: ep }));
+    today.forEach((ep) => rows.push({ type: "episode", episode: ep }));
   }
-  if ((data?.thisWeek.length ?? 0) > 0) {
+  if (thisWeek.length > 0) {
     rows.push({ type: "header", title: t("screens.upcoming.thisWeek") });
-    data?.thisWeek.forEach((ep) => rows.push({ type: "episode", episode: ep }));
+    thisWeek.forEach((ep) => rows.push({ type: "episode", episode: ep }));
   }
-  if ((data?.nextWeek.length ?? 0) > 0) {
+  if (nextWeek.length > 0) {
     rows.push({ type: "header", title: t("screens.upcoming.nextWeek") });
-    data?.nextWeek.forEach((ep) => rows.push({ type: "episode", episode: ep }));
+    nextWeek.forEach((ep) => rows.push({ type: "episode", episode: ep }));
   }
-  if ((data?.later.length ?? 0) > 0) {
+  if (later.length > 0) {
     rows.push({ type: "header", title: t("screens.upcoming.later") });
-    data?.later.forEach((ep) => rows.push({ type: "episode", episode: ep }));
+    later.forEach((ep) => rows.push({ type: "episode", episode: ep }));
   }
 
   if (rows.length === 0) {
@@ -175,6 +300,7 @@ function UpcomingList({
 
   return (
     <FlatList
+      key="list"
       data={rows}
       keyExtractor={(item, index) => (item.type === "header" ? `header-${index}` : `${item.episode?.showId}-${index}`)}
       renderItem={({ item }) => {
@@ -183,9 +309,11 @@ function UpcomingList({
         }
         const ep = item.episode!;
         const epKey = `${ep.showId}-${ep.season}-${ep.episode}`;
+        const isNew = today.some((e) => `${e.showId}-${e.season}-${e.episode}` === epKey);
         return (
           <UpcomingEpisodeRow
             episode={ep}
+            isNew={isNew}
             onPress={() => onEpisodePress(ep)}
             onMarkWatched={onMarkWatched ? () => onMarkWatched(ep) : undefined}
             isMarking={markingEpisodeKey === epKey}
@@ -201,9 +329,24 @@ function UpcomingList({
 export function SeriesScreen() {
   const navigation = useNavigation<NavigationProp>();
   const { t } = useI18n();
+  const colors = useThemeColors();
   const showSnackbar = useUIStore((state) => state.showSnackbar);
+  const libraryViewMode = useUIStore((state) => state.libraryViewMode);
+  const hydrateLibraryViewMode = useUIStore((state) => state.hydrateLibraryViewMode);
+  const { width: windowWidth } = useWindowDimensions();
   const tabs = useTabs();
   const [activeTab, setActiveTab] = useState<TopTab>("unwatched");
+  const [isSearchVisible, setIsSearchVisible] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    hydrateLibraryViewMode();
+  }, []);
+
+  const gridNumColumns = 3;
+  const gridGap = 12;
+  const gridPadding = 16;
+  const cardWidth = (windowWidth - gridPadding * 2 - gridGap * (gridNumColumns - 1)) / gridNumColumns;
   const { data: unwatchedData, isLoading: isUnwatchedLoading, isError: isUnwatchedError, error: unwatchedError, refetch: refetchUnwatched } = useUnwatchedShows();
   const { data: upcomingData, isLoading: isUpcomingLoading, isError: _isUpcomingError, error: upcomingError, refetch: refetchUpcoming } = useUpcomingEpisodes();
   const quickMarkWatched = useQuickMarkWatched();
@@ -264,11 +407,36 @@ export function SeriesScreen() {
 
   return (
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]}>
-      <Text className="text-3xl font-bold text-text mb-4">{t("navigation.series")}</Text>
+      <View className="flex-row items-center justify-between mb-4">
+        <Text className="text-3xl font-bold text-text">{t("navigation.series")}</Text>
+        <View className="flex-row items-center" style={{ gap: 12 }}>
+          <TouchableOpacity onPress={() => setIsSearchVisible(!isSearchVisible)} className="p-1">
+            <Ionicons name={isSearchVisible ? "search" : "search-outline"} size={24} color={colors.text} />
+          </TouchableOpacity>
+          <ViewModeToggle />
+        </View>
+      </View>
+
+      {isSearchVisible && (
+        <SearchBar
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          placeholder={t("screens.series.searchPlaceholder")}
+          onClose={() => {
+            setSearchQuery("");
+            setIsSearchVisible(false);
+          }}
+        />
+      )}
 
       <TopTabs tabs={tabs} active={activeTab} onChange={(tab) => {
         log("SeriesScreen", "tab changed", tab);
         setActiveTab(tab);
+        if (tab === "unwatched") {
+          throttledRefreshUnwatched(refetchUnwatched);
+        } else if (tab === "upcoming") {
+          throttledRefreshUpcoming(refetchUpcoming);
+        }
       }} />
 
       {activeTab === "unwatched" && (
@@ -289,6 +457,9 @@ export function SeriesScreen() {
               onEpisodePress={handleEpisodePress}
               onMarkWatched={handleMarkUnwatchedEpisode}
               markingEpisodeKey={markingEpisodeKey}
+              viewMode={libraryViewMode}
+              cardWidth={cardWidth}
+              searchQuery={searchQuery}
             />
           )}
         </View>
@@ -304,6 +475,9 @@ export function SeriesScreen() {
             onEpisodePress={handleUpcomingPress}
             onMarkWatched={handleMarkUpcomingWatched}
             markingEpisodeKey={markingEpisodeKey}
+            viewMode={libraryViewMode}
+            cardWidth={cardWidth}
+            searchQuery={searchQuery}
           />
         </View>
       )}

@@ -7,12 +7,16 @@ import { useI18n } from "../../i18n/useI18n";
 
 interface CommentsListProps {
   comments: Comment[];
+  showId?: string;
+  title?: string;
+  season?: number;
+  episode?: number;
   isLoading?: boolean;
   isPending?: boolean;
   refreshing?: boolean;
   onRefresh?: () => void;
   onReply?: (content: string, parentId: string) => void;
-  onEdit?: (id: string, content: string, images?: string[]) => void;
+  onEdit?: (id: string, content: string, images?: string[], isSpoiler?: boolean) => void;
   onDelete?: (id: string) => void;
   onLike?: (id: string) => void;
   onUnlike?: (id: string) => void;
@@ -22,6 +26,10 @@ interface CommentsListProps {
 
 export function CommentsList({
   comments,
+  showId,
+  title,
+  season,
+  episode,
   isLoading,
   isPending,
   refreshing,
@@ -61,6 +69,10 @@ export function CommentsList({
       renderItem={({ item }) => (
         <CommentItem
           comment={item}
+          showId={showId}
+          title={title}
+          season={season}
+          episode={episode}
           isPending={isPending}
           onReply={onReply}
           onEdit={onEdit}

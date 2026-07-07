@@ -113,6 +113,50 @@ export function ShowDetailScreen() {
     }
   };
 
+  const navigateToComments = () => {
+    if (!show) return;
+    navigation.navigate("ShowComments", { showId: show.id, title: show.title });
+  };
+
+  const handleOpenComments = () => {
+    if (!show) return;
+    const hasWatched =
+      show.type === "movie"
+        ? trackingEntry?.status === "completed"
+        : (trackingEntry?.watchedCount ?? 0) > 0;
+    if (hasWatched) {
+      navigateToComments();
+      return;
+    }
+    showAlert({
+      title: t("screens.comments.spoilerWarningTitle"),
+      message: t("screens.comments.spoilerWarningMessage", { title: show.title }),
+      buttons: [
+        { text: t("common.cancel"), style: "cancel" },
+        {
+          text: t("screens.comments.proceedAnyway"),
+          onPress: navigateToComments,
+        },
+        {
+          text: t("screens.comments.markWatchedAndProceed"),
+          onPress: () => {
+            if (show.type === "movie") {
+              upsertTracking.mutate(
+                { status: "completed" },
+                {
+                  onSuccess: () => navigateToComments(),
+                  onError: () => showSnackbar(t("screens.showDetail.updateTrackingError"), "error"),
+                },
+              );
+            } else {
+              navigateToComments();
+            }
+          },
+        },
+      ],
+    });
+  };
+
   const handleSaveTracking = (payload: {
     currentSeason?: number;
     currentEpisode?: number;
@@ -435,7 +479,7 @@ export function ShowDetailScreen() {
 
           {show.type === "tv" && trackingEntry ? (
             <TouchableOpacity
-              onPress={() => navigation.navigate("ShowComments", { showId: show.id, title: show.title })}
+              onPress={handleOpenComments}
               className="flex-row items-center justify-between bg-surface rounded-xl p-4 mb-6"
               activeOpacity={0.7}
             >
@@ -454,7 +498,7 @@ export function ShowDetailScreen() {
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
-              onPress={() => navigation.navigate("ShowComments", { showId: show.id, title: show.title })}
+              onPress={handleOpenComments}
               className="flex-row items-center justify-between bg-surface rounded-xl p-4 mb-6"
               activeOpacity={0.7}
             >

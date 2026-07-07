@@ -14,7 +14,7 @@ interface ThemeState {
 export const useThemeStore = create<ThemeState>()(
   persist(
     (set) => ({
-      themePreference: "system",
+      themePreference: "dark",
       isHydrated: false,
       setThemePreference: (pref) => set({ themePreference: pref }),
       hydrate: async () => {

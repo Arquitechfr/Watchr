@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { View, Text, KeyboardAvoidingView, Platform, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRefreshRateLimit } from "../hooks/useRefreshRateLimit";
@@ -9,6 +9,7 @@ import { useAuthStore } from "../store/authStore";
 import { useUIStore } from "../store/uiStore";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { CommentsList } from "../components/Comments/CommentsList";
+import { CommentsSortBar } from "../components/Comments/CommentsSortBar";
 import { CommentInput } from "../components/Comments/CommentInput";
 import { useThemeColors } from "../theme/useThemeColors";
 import {
@@ -25,6 +26,7 @@ import { useCommentsRealtime } from "../hooks/useCommentsRealtime";
 import { RootStackParamList } from "../navigation/RootNavigator";
 import { log } from "../utils/logger";
 import { useI18n } from "../i18n/useI18n";
+import type { CommentSort } from "../services/comments.service";
 
 type ShowCommentsRouteProp = RouteProp<RootStackParamList, "ShowComments">;
 type ShowCommentsNavigationProp = NativeStackNavigationProp<RootStackParamList, "ShowComments">;
@@ -41,7 +43,8 @@ export function ShowCommentsScreen() {
 
   useCommentsRealtime(showId);
 
-  const query = season !== undefined && episode !== undefined ? { season, episode } : undefined;
+  const [sort, setSort] = useState<CommentSort>("recent");
+  const query = season !== undefined && episode !== undefined ? { season, episode, sort } : { sort };
   const { data, isLoading, refetch } = useCommentsForShow(showId, query);
   const throttledRefresh = useRefreshRateLimit();
   const createComment = useCreateComment(showId, query);
@@ -68,9 +71,9 @@ export function ShowCommentsScreen() {
   const subtitle = season !== undefined && episode !== undefined ? `S${season}E${episode}` : title;
   const headerTitle = `${t("screens.showDetail.comments")} · ${subtitle}`;
 
-  const handleCreate = (content: string, images?: string[]) => {
+  const handleCreate = (content: string, images?: string[], isSpoiler?: boolean) => {
     createComment.mutate(
-      { content, images },
+      { content, images, isSpoiler },
       { onError: () => showSnackbar(t("screens.comments.addError"), "error") },
     );
   };
@@ -82,9 +85,9 @@ export function ShowCommentsScreen() {
     );
   };
 
-  const handleEdit = (id: string, content: string, images?: string[]) => {
+  const handleEdit = (id: string, content: string, images?: string[], isSpoiler?: boolean) => {
     updateComment.mutate(
-      { id, content, images },
+      { id, content, images, isSpoiler },
       { onError: () => showSnackbar(t("screens.comments.editError"), "error") },
     );
   };
@@ -141,9 +144,14 @@ export function ShowCommentsScreen() {
               {title} — {t("screens.showDetail.season")} {season}, {t("screens.showDetail.episode")} {episode}
             </Text>
           )}
+          <CommentsSortBar sort={sort} onSortChange={setSort} />
           <View className="flex-1">
             <CommentsList
               comments={data?.comments ?? []}
+              showId={showId}
+              title={title}
+              season={season}
+              episode={episode}
               isLoading={isLoading}
               isPending={isPending}
               refreshing={isLoading}

@@ -9,6 +9,7 @@ import { NetworkError } from "../components/NetworkError";
 import { Skeleton } from "../components/Skeleton";
 import { PosterCard } from "../components/PosterCard";
 import { ProgressBar } from "../components/ProgressBar";
+import { ViewModeToggle } from "../components/ViewModeToggle";
 import { LibraryItem } from "../services/library.service";
 import { useLibrary } from "../hooks/useLibrary";
 import { getPosterUrl, SearchResultItem } from "../services/shows.service";
@@ -111,7 +112,6 @@ export function LibraryScreen() {
   const colors = useThemeColors();
   const { width: windowWidth } = useWindowDimensions();
   const libraryViewMode = useUIStore((state) => state.libraryViewMode);
-  const setLibraryViewMode = useUIStore((state) => state.setLibraryViewMode);
   const hydrateLibraryViewMode = useUIStore((state) => state.hydrateLibraryViewMode);
   const [activeTab, setActiveTab] = useState<LibraryTab>(route.params?.tab ?? "tv");
 
@@ -169,24 +169,7 @@ export function LibraryScreen() {
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]}>
       <View className="flex-row items-center justify-between mb-4">
         <Text className="text-3xl font-bold text-text">{t("navigation.library")}</Text>
-        <View className="flex-row bg-muted rounded-lg p-1">
-          <TouchableOpacity
-            onPress={() => setLibraryViewMode("list")}
-            className={`p-1.5 rounded-md ${libraryViewMode === "list" ? "bg-primary" : ""}`}
-            accessibilityRole="button"
-            accessibilityLabel={t("screens.library.listView")}
-          >
-            <Ionicons name="list" size={18} color={libraryViewMode === "list" ? colors.background : colors.textMuted} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => setLibraryViewMode("grid")}
-            className={`p-1.5 rounded-md ml-1 ${libraryViewMode === "grid" ? "bg-primary" : ""}`}
-            accessibilityRole="button"
-            accessibilityLabel={t("screens.library.gridView")}
-          >
-            <Ionicons name="grid" size={18} color={libraryViewMode === "grid" ? colors.background : colors.textMuted} />
-          </TouchableOpacity>
-        </View>
+        <ViewModeToggle />
       </View>
 
       <LibraryTabs active={activeTab} onChange={handleTabChange} />
@@ -207,16 +190,19 @@ export function LibraryScreen() {
           />
         ) : libraryViewMode === "grid" ? (
           <FlatList
+            key="grid-flatlist"
             data={data}
             keyExtractor={(item) => item.id}
             numColumns={gridNumColumns}
+            columnWrapperStyle={{ gap: gridGap }}
             renderItem={({ item }) => (
-              <View style={{ width: gridCardWidth, marginRight: gridGap, marginBottom: gridGap }}>
+              <View style={{ width: gridCardWidth, marginBottom: gridGap }}>
                 <PosterCard
                   show={toSearchResultItem(item)}
                   onPress={() => handleItemPress(item)}
                   watched={item.show.type === "tv" ? item.watchedEpisodes.length : undefined}
                   total={item.show.type === "tv" ? item.show.totalEpisodes : undefined}
+                  width={gridCardWidth}
                 />
               </View>
             )}
@@ -227,6 +213,7 @@ export function LibraryScreen() {
           />
         ) : (
           <FlatList
+            key="list-flatlist"
             data={data}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (

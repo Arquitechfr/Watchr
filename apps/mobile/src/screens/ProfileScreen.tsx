@@ -133,7 +133,7 @@ export function ProfileScreen() {
         {isLoading ? (
           <ActivityIndicator color={colors.text} />
         ) : (
-          <Text className="text-text font-semibold">{t("screens.profile.logout")}</Text>
+          <Text className="font-semibold" style={{ color: "#fff" }}>{t("screens.profile.logout")}</Text>
         )}
       </TouchableOpacity>
       </ScrollView>

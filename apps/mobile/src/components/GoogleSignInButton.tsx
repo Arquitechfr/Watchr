@@ -7,6 +7,7 @@ import { useErrorMessage } from "../services/api";
 import { useI18n } from "../i18n/useI18n";
 import { log } from "../utils/logger";
 import { useThemeColors } from "../theme/useThemeColors";
+import { syncPreferencesToBackend } from "../hooks/useSyncPreferences";
 
 interface GoogleSignInButtonProps {
   label: string;
@@ -25,6 +26,7 @@ export function GoogleSignInButton({ label }: GoogleSignInButtonProps) {
       setIsSubmitting(true);
       try {
         await setTokens(tokens.accessToken, tokens.refreshToken);
+        syncPreferencesToBackend();
         log("GoogleSignInButton", "tokens persisted");
         showSnackbar(t("auth.connectedWithGoogle"), "success");
       } catch (err) {

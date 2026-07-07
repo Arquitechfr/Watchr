@@ -1,4 +1,5 @@
-import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { ScreenContainer } from "../../components/ScreenContainer";
 import { useI18n } from "../../i18n/useI18n";
 import { useLocaleStore } from "../../store/localeStore";
@@ -6,8 +7,17 @@ import { useUIStore } from "../../store/uiStore";
 import { useErrorMessage } from "../../services/api";
 import { updateLanguage } from "../../services/auth.service";
 import { useThemeColors } from "../../theme/useThemeColors";
-import { useState } from "react";
 import { SUPPORTED_LOCALES, type SupportedLocale } from "../../i18n/translations";
+
+const LANG_FLAGS: Record<SupportedLocale, string> = {
+  fr: "🇫🇷",
+  en: "🇬🇧",
+};
+
+const LANG_LABELS: Record<SupportedLocale, string> = {
+  fr: "screens.profile.languageFrench",
+  en: "screens.profile.languageEnglish",
+};
 
 export function ProfileLanguageScreen() {
   const { t, locale } = useI18n();
@@ -15,19 +25,13 @@ export function ProfileLanguageScreen() {
   const setLocale = useLocaleStore((state) => state.setLocale);
   const { showSnackbar } = useUIStore();
   const getErrorMessage = useErrorMessage();
-  const [loading, setLoading] = useState<string | null>(null);
 
-  async function handleLanguageChange(lang: SupportedLocale) {
+  function handleLanguageChange(lang: SupportedLocale) {
     if (lang === locale) return;
-    setLoading(lang);
-    try {
-      await updateLanguage(lang);
-      setLocale(lang);
-    } catch (error) {
-      showSnackbar(getErrorMessage(error), "error");
-    } finally {
-      setLoading(null);
-    }
+    setLocale(lang);
+    updateLanguage(lang).catch((error) => {
+      showSnackbar(t("screens.profile.languageSyncError"), "error");
+    });
   }
 
   return (
@@ -38,23 +42,17 @@ export function ProfileLanguageScreen() {
           <TouchableOpacity
             key={lang}
             onPress={() => handleLanguageChange(lang)}
-            className="flex-row items-center justify-between rounded-lg p-4"
+            className="flex-row items-center rounded-xl p-4"
             style={{ backgroundColor: colors.surface }}
-            disabled={loading !== null}
+            activeOpacity={0.7}
           >
-            <Text className="text-text text-base">
-              {lang === "fr" ? "Français" : "English"}
+            <Text className="text-3xl mr-4">{LANG_FLAGS[lang]}</Text>
+            <Text className="text-text text-base flex-1">
+              {t(LANG_LABELS[lang])}
             </Text>
-            {loading === lang ? (
-              <ActivityIndicator size="small" color={colors.primary} />
-            ) : locale === lang ? (
-              <View
-                className="items-center justify-center rounded-full"
-                style={{ width: 24, height: 24, backgroundColor: colors.primary }}
-              >
-                <Text className="text-background font-bold text-xs">✓</Text>
-              </View>
-            ) : null}
+            {locale === lang && (
+              <Ionicons name="checkmark-circle" size={24} color={colors.primary} />
+            )}
           </TouchableOpacity>
         ))}
       </View>

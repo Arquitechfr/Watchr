@@ -13,23 +13,27 @@ interface PosterCardProps {
   isAdded?: boolean;
   watched?: number;
   total?: number;
+  width?: number;
 }
 
-const CARD_WIDTH = 128;
-const CARD_HEIGHT = 192;
+const DEFAULT_CARD_WIDTH = 128;
+const DEFAULT_CARD_HEIGHT = 192;
 
-export function PosterCard({ show, onPress, onAdd, isAdding, isAdded, watched, total }: PosterCardProps) {
+export function PosterCard({ show, onPress, onAdd, isAdding, isAdded, watched, total, width }: PosterCardProps) {
   const { t } = useI18n();
   const colors = useThemeColors();
   const posterUrl = getPosterUrl(show.posterPath, 200);
   const year = show.firstAirDate ? new Date(show.firstAirDate).getFullYear() : null;
 
+  const cardWidth = width ?? DEFAULT_CARD_WIDTH;
+  const cardHeight = width ? Math.round(width * 1.5) : DEFAULT_CARD_HEIGHT;
+
   return (
-    <View style={{ width: CARD_WIDTH, marginRight: 12 }}>
+    <View style={{ width: cardWidth, marginRight: width ? 0 : 12 }}>
       <TouchableOpacity
         style={{
-          width: CARD_WIDTH,
-          height: CARD_HEIGHT,
+          width: cardWidth,
+          height: cardHeight,
           borderRadius: 8,
           backgroundColor: colors.surfaceLight,
           overflow: "hidden",
@@ -40,11 +44,11 @@ export function PosterCard({ show, onPress, onAdd, isAdding, isAdded, watched, t
         {posterUrl ? (
           <Image
             source={{ uri: posterUrl }}
-            style={{ width: CARD_WIDTH, height: CARD_HEIGHT }}
+            style={{ width: cardWidth, height: cardHeight }}
             resizeMode="cover"
           />
         ) : (
-          <View style={{ width: CARD_WIDTH, height: CARD_HEIGHT, alignItems: "center", justifyContent: "center" }}>
+          <View style={{ width: cardWidth, height: cardHeight, alignItems: "center", justifyContent: "center" }}>
             <Text className="text-text-muted text-xs">{t("common.noImage")}</Text>
           </View>
         )}

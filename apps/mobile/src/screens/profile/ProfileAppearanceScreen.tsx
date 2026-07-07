@@ -1,10 +1,11 @@
 import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
+import { useQueryClient } from "@tanstack/react-query";
 import { ScreenContainer } from "../../components/ScreenContainer";
 import { useI18n } from "../../i18n/useI18n";
 import { useThemeStore, type ThemePreference } from "../../store/themeStore";
 import { useUIStore } from "../../store/uiStore";
 import { useErrorMessage } from "../../services/api";
-import { updateThemePreference } from "../../services/auth.service";
+import { updateThemePreference, type Me } from "../../services/auth.service";
 import { useThemeColors } from "../../theme/useThemeColors";
 import { useState } from "react";
 
@@ -21,6 +22,7 @@ export function ProfileAppearanceScreen() {
   const setPreference = useThemeStore((s) => s.setThemePreference);
   const { showSnackbar } = useUIStore();
   const getErrorMessage = useErrorMessage();
+  const queryClient = useQueryClient();
   const [loading, setLoading] = useState<ThemePreference | null>(null);
 
   async function handleChange(pref: ThemePreference) {
@@ -29,6 +31,7 @@ export function ProfileAppearanceScreen() {
     try {
       await updateThemePreference(pref);
       setPreference(pref);
+      queryClient.setQueryData<Me>(["me"], (old: Me | undefined) => (old ? { ...old, themePreference: pref } : old));
     } catch (error) {
       showSnackbar(getErrorMessage(error), "error");
     } finally {

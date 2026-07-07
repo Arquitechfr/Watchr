@@ -1,17 +1,17 @@
-import { useEffect, useState, useRef } from "react";
-import { ActivityIndicator, Linking } from "react-native";
+import { useEffect, useRef } from "react";
+import { Linking } from "react-native";
 import { NavigationContainer, LinkingOptions } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useQuery } from "@tanstack/react-query";
-import { ScreenContainer } from "../components/ScreenContainer";
 import { NetworkError } from "../components/NetworkError";
+import { ScreenContainer } from "../components/ScreenContainer";
 import { useAuthStore } from "../store/authStore";
-import { useThemeColors } from "../theme/useThemeColors";
 import { AuthStack } from "./AuthStack";
 import { MainTabs } from "./MainTabs";
 import { OnboardingStack } from "./OnboardingStack";
 import { ShowDetailScreen } from "../screens/ShowDetailScreen";
 import { ShowCommentsScreen } from "../screens/ShowCommentsScreen";
+import { CommentThreadScreen } from "../screens/CommentThreadScreen";
 import { EpisodeDetailScreen } from "../screens/EpisodeDetailScreen";
 import { ImportScreen } from "../screens/ImportScreen";
 import { ImportReviewScreen } from "../screens/ImportReviewScreen";
@@ -35,6 +35,7 @@ export type RootStackParamList = {
   Onboarding: undefined;
   ShowDetail: { tmdbId: number; title: string };
   ShowComments: { showId: string; title: string; season?: number; episode?: number };
+  CommentThread: { commentId: string; showId: string; title: string; season?: number; episode?: number };
   EpisodeDetail: { showId: string; tmdbId: number; season: number; episodeNumber: number; title?: string };
   Import: undefined;
   ImportReview: { jobId: string };
@@ -52,9 +53,7 @@ export type RootStackParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export function RootNavigator() {
-  const { isHydrated, isAuthenticated, hydrate } = useAuthStore();
-  const colors = useThemeColors();
-  const [isReady, setIsReady] = useState(false);
+  const { isAuthenticated } = useAuthStore();
   const navigationRef = useRef<any>(null);
 
   const meQuery = useQuery<Me>({
@@ -65,19 +64,10 @@ export function RootNavigator() {
   });
 
   const me = meQuery.data;
-  const isMeLoading = meQuery.isLoading;
   const isMeError = meQuery.isError;
 
   usePushNotifications();
   useThemeSync();
-
-  useEffect(() => {
-    async function init() {
-      await hydrate();
-      setIsReady(true);
-    }
-    init();
-  }, [hydrate]);
 
   useEffect(() => {
     let subscription: import("expo-notifications").Subscription | undefined;
@@ -127,22 +117,6 @@ export function RootNavigator() {
     },
   };
 
-  if (!isReady || !isHydrated) {
-    return (
-      <ScreenContainer className="items-center justify-center">
-        <ActivityIndicator size="large" color={colors.primary} />
-      </ScreenContainer>
-    );
-  }
-
-  if (isAuthenticated && isMeLoading && !me) {
-    return (
-      <ScreenContainer className="items-center justify-center">
-        <ActivityIndicator size="large" color={colors.primary} />
-      </ScreenContainer>
-    );
-  }
-
   if (isAuthenticated && isMeError && !me) {
     return (
       <ScreenContainer>
@@ -178,6 +152,7 @@ export function RootNavigator() {
             )}
             <Stack.Screen name="ShowDetail" component={ShowDetailScreen} />
             <Stack.Screen name="ShowComments" component={ShowCommentsScreen} />
+            <Stack.Screen name="CommentThread" component={CommentThreadScreen} />
             <Stack.Screen name="EpisodeDetail" component={EpisodeDetailScreen} />
             <Stack.Screen name="Import" component={ImportScreen} />
             <Stack.Screen name="ImportReview" component={ImportReviewScreen} />

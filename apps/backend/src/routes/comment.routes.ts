@@ -8,6 +8,7 @@ import {
   commentParamsSchema,
   showCommentsParamsSchema,
   listCommentsQuerySchema,
+  listRepliesQuerySchema,
   reactionBodySchema,
 } from "../validators/comment.validator.js";
 import {
@@ -15,6 +16,8 @@ import {
   updateComment,
   deleteComment,
   listCommentsForShow,
+  getCommentById,
+  listRepliesForComment,
   getCommentCount,
   likeComment,
   unlikeComment,
@@ -45,6 +48,35 @@ router.get(
 );
 
 router.get(
+  "/:id",
+  validateRequest(undefined, undefined, commentParamsSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const comment = await getCommentById(req.userId!, id);
+    res.json(comment);
+  }),
+);
+
+router.get(
+  "/:id/replies",
+  validateRequest(undefined, listRepliesQuerySchema, commentParamsSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const query = req.query as {
+      page?: string;
+      limit?: string;
+    };
+    const result = await listRepliesForComment(
+      req.userId!,
+      id,
+      Number(query.page || 1),
+      Number(query.limit || 20),
+    );
+    res.json(result);
+  }),
+);
+
+router.get(
   "/show/:showId",
   validateRequest(undefined, listCommentsQuerySchema, showCommentsParamsSchema),
   asyncHandler(async (req: Request, res: Response) => {
@@ -54,12 +86,14 @@ router.get(
       episode?: string;
       page?: string;
       limit?: string;
+      sort?: string;
     };
     const result = await listCommentsForShow(req.userId!, showId, {
       season: query.season !== undefined ? Number(query.season) : undefined,
       episode: query.episode !== undefined ? Number(query.episode) : undefined,
       page: Number(query.page || 1),
       limit: Number(query.limit || 20),
+      sort: (query.sort as "relevant" | "liked" | "replied" | "recent") || "recent",
     });
     res.json(result);
   }),

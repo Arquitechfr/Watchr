@@ -52,7 +52,7 @@ export function NewsScreen() {
                 key={source.id}
                 onPress={() => setSelectedSource(source.id)}
                 activeOpacity={0.8}
-                className={`mr-3 px-4 py-2 rounded-full border border-border ${
+                className={`shrink-0 mr-3 px-4 py-2 rounded-full border border-border ${
                   isActive ? "bg-primary" : "bg-surface"
                 }`}
               >

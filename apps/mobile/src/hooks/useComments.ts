@@ -9,6 +9,8 @@ import {
   unlikeComment,
   addReaction,
   removeReaction,
+  getCommentById,
+  listRepliesForComment,
   CreateCommentInput,
   UpdateCommentInput,
   ListCommentsQuery,
@@ -19,7 +21,7 @@ import { useAuthStore } from "../store/authStore";
 const COMMENTS_QUERY_KEY = "comments";
 
 function getCommentsQueryKey(showId: string, query?: ListCommentsQuery) {
-  return [COMMENTS_QUERY_KEY, showId, query?.season, query?.episode];
+  return [COMMENTS_QUERY_KEY, showId, query?.season, query?.episode, query?.sort];
 }
 
 export function useCommentsForShow(showId: string, query?: ListCommentsQuery) {
@@ -153,5 +155,23 @@ export function useRemoveReaction(showId: string, query?: ListCommentsQuery) {
     onError: (err) => {
       log("useComments", "removeReaction error", { showId, err });
     },
+  });
+}
+
+export function useComment(commentId: string) {
+  const isHydrated = useAuthStore((state) => state.isHydrated);
+  return useQuery({
+    queryKey: [COMMENTS_QUERY_KEY, "single", commentId],
+    queryFn: () => getCommentById(commentId),
+    enabled: isHydrated && Boolean(commentId),
+  });
+}
+
+export function useReplies(commentId: string, page: number = 1, limit: number = 20) {
+  const isHydrated = useAuthStore((state) => state.isHydrated);
+  return useQuery({
+    queryKey: [COMMENTS_QUERY_KEY, "replies", commentId, page, limit],
+    queryFn: () => listRepliesForComment(commentId, page, limit),
+    enabled: isHydrated && Boolean(commentId),
   });
 }

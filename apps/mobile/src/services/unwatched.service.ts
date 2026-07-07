@@ -19,6 +19,7 @@ export interface UnwatchedShow {
   unwatchedEpisodes: UnwatchedEpisode[];
   watchedCount: number;
   totalEpisodes: number;
+  network?: string;
 }
 
 export interface UnwatchedMovie {
@@ -28,6 +29,8 @@ export interface UnwatchedMovie {
   posterPath?: string;
   status: "watching" | "completed" | "plan_to_watch" | "dropped";
   type: "movie";
+  genres?: Array<{ id: number; name?: string }>;
+  year?: number;
 }
 
 export interface UnwatchedTvResponse {

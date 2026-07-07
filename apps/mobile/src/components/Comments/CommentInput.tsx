@@ -12,9 +12,10 @@ interface CommentInputProps {
   placeholder?: string;
   initialValue?: string;
   initialImages?: string[];
+  initialIsSpoiler?: boolean;
   submitLabel?: string;
   isPending?: boolean;
-  onSubmit: (content: string, images?: string[]) => void;
+  onSubmit: (content: string, images?: string[], isSpoiler?: boolean) => void;
   onCancel?: () => void;
 }
 
@@ -24,6 +25,7 @@ export function CommentInput({
   placeholder,
   initialValue = "",
   initialImages = [],
+  initialIsSpoiler = false,
   submitLabel,
   isPending,
   onSubmit,
@@ -37,16 +39,18 @@ export function CommentInput({
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [selectedImages, setSelectedImages] = useState<string[]>(initialImages);
   const [uploadingCount, setUploadingCount] = useState(0);
+  const [isSpoiler, setIsSpoiler] = useState(initialIsSpoiler);
 
   const MAX_IMAGES = 3;
 
   const handleSubmit = () => {
     const trimmed = content.trim();
     if (!trimmed) return;
-    onSubmit(trimmed, selectedImages.length > 0 ? selectedImages : undefined);
+    onSubmit(trimmed, selectedImages.length > 0 ? selectedImages : undefined, isSpoiler);
     setContent("");
     setSelectedImages([]);
     setShowEmojiPicker(false);
+    setIsSpoiler(false);
   };
 
   const insertEmoji = (emoji: string) => {
@@ -128,6 +132,21 @@ export function CommentInput({
           activeOpacity={0.7}
         >
           <Ionicons name="happy-outline" size={22} color={colors.textMuted} />
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => setIsSpoiler((prev) => !prev)}
+          disabled={isPending}
+          className="flex-row items-center mr-3 p-1"
+          activeOpacity={0.7}
+        >
+          <Ionicons
+            name={isSpoiler ? "eye-off" : "eye-off-outline"}
+            size={22}
+            color={isSpoiler ? colors.danger : colors.textMuted}
+          />
+          {isSpoiler && (
+            <Text className="text-danger text-xs font-semibold ml-1">{t("screens.comments.spoiler")}</Text>
+          )}
         </TouchableOpacity>
         {onCancel && (
           <TouchableOpacity onPress={onCancel} disabled={isPending} className="mr-3" activeOpacity={0.7}>

@@ -19,12 +19,13 @@ export interface Comment {
   authorAvatarUrl?: string;
   content: string;
   images: string[];
+  isSpoiler: boolean;
   likesCount: number;
+  replyCount: number;
   likedByMe: boolean;
   reactions: Reaction[];
   createdAt: string;
   updatedAt: string;
-  replies: Comment[];
 }
 
 export interface CreateCommentInput {
@@ -33,12 +34,14 @@ export interface CreateCommentInput {
   parentId?: string;
   content: string;
   images?: string[];
+  isSpoiler?: boolean;
 }
 
 export interface UpdateCommentInput {
   id: string;
   content: string;
   images?: string[];
+  isSpoiler?: boolean;
 }
 
 export interface ListCommentsResult {
@@ -50,11 +53,22 @@ export interface ListCommentsResult {
   comments: Comment[];
 }
 
+export type CommentSort = "relevant" | "liked" | "replied" | "recent";
+
 export interface ListCommentsQuery {
   season?: number;
   episode?: number;
   page?: number;
   limit?: number;
+  sort?: CommentSort;
+}
+
+export interface ListRepliesResult {
+  commentId: string;
+  total: number;
+  page: number;
+  limit: number;
+  replies: Comment[];
 }
 
 export async function getCommentCount(
@@ -87,7 +101,11 @@ export async function createComment(input: CreateCommentInput): Promise<Comment>
 
 export async function updateComment(input: UpdateCommentInput): Promise<Comment> {
   log("CommentsService", "update", { id: input.id, content: input.content });
-  const response = await api.patch<Comment>(`/comments/${input.id}`, { content: input.content, images: input.images });
+  const response = await api.patch<Comment>(`/comments/${input.id}`, {
+    content: input.content,
+    images: input.images,
+    isSpoiler: input.isSpoiler,
+  });
   log("CommentsService", "update response", { id: response.data.id });
   return response.data;
 }
@@ -120,4 +138,24 @@ export async function removeReaction(id: string, emoji: string): Promise<void> {
   log("CommentsService", "removeReaction", { id, emoji });
   await api.delete(`/comments/${id}/reactions`, { data: { emoji } });
   log("CommentsService", "removeReaction success");
+}
+
+export async function getCommentById(commentId: string): Promise<Comment> {
+  log("CommentsService", "getById", { commentId });
+  const response = await api.get<Comment>(`/comments/${commentId}`);
+  log("CommentsService", "getById response", { id: response.data.id });
+  return response.data;
+}
+
+export async function listRepliesForComment(
+  commentId: string,
+  page: number = 1,
+  limit: number = 20,
+): Promise<ListRepliesResult> {
+  log("CommentsService", "listReplies", { commentId, page, limit });
+  const response = await api.get<ListRepliesResult>(`/comments/${commentId}/replies`, {
+    params: { page, limit },
+  });
+  log("CommentsService", "listReplies response", { total: response.data.total });
+  return response.data;
 }

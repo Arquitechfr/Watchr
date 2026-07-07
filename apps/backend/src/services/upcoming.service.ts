@@ -22,6 +22,7 @@ export interface UpcomingEpisode {
   isSeriesPremiere: boolean;
   isSeasonPremiere: boolean;
   isFinale: boolean;
+  network?: string;
 }
 
 export interface UpcomingCalendar {
@@ -35,7 +36,7 @@ export async function getUpcomingEpisodes(userId: string, language = "en"): Prom
   const entries = await WatchEntry.find({
     userId: new Types.ObjectId(userId),
     status: { $in: ["watching", "plan_to_watch"] },
-  }).populate("showId", "tmdbId title type posterPath status seasons nextEpisodeToAir translations");
+  }).populate("showId", "tmdbId title type posterPath status seasons nextEpisodeToAir translations networks");
 
   const now = new Date();
   const weekStart = startOfWeek(now, { weekStartsOn: 1 });
@@ -50,6 +51,7 @@ export async function getUpcomingEpisodes(userId: string, language = "en"): Prom
     const title = getShowTitle(show, language);
     const translation = getTranslationValue(show.translations, language);
     const seasons = translation?.seasons ?? show.seasons;
+    const network = translation?.networks?.[0]?.name ?? show.networks?.[0]?.name;
 
     const watchedKeys = new Set(
       entry.watchedEpisodes.map((ep) => `${ep.season}-${ep.episode}`),
@@ -76,6 +78,7 @@ export async function getUpcomingEpisodes(userId: string, language = "en"): Prom
           // If TMDB hasn't yet listed all episodes of an ongoing season, a mid-season
           // episode may be temporarily mislabeled as finale. Not fixable without another data source.
           isFinale: seasonEpisodeCount > 0 && episode.episodeNumber === seasonEpisodeCount,
+          network,
         });
       }
     }
@@ -96,6 +99,7 @@ export async function getUpcomingEpisodes(userId: string, language = "en"): Prom
           isSeriesPremiere: show.nextEpisodeToAir.season === 1 && show.nextEpisodeToAir.episode === 1,
           isSeasonPremiere: show.nextEpisodeToAir.season > 1 && show.nextEpisodeToAir.episode === 1,
           isFinale: nextSeasonEpisodeCount > 0 && show.nextEpisodeToAir.episode === nextSeasonEpisodeCount,
+          network,
         });
       }
     }

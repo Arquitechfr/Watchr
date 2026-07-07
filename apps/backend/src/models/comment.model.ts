@@ -12,7 +12,9 @@ export interface IComment extends Document {
   parentId?: Schema.Types.ObjectId;
   content: string;
   images: string[];
+  isSpoiler: boolean;
   likesCount: number;
+  replyCount: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -59,6 +61,14 @@ const commentSchema = new Schema<IComment>(
     images: {
       type: [String],
       default: [],
+    },
+    isSpoiler: {
+      type: Boolean,
+      default: false,
+    },
+    replyCount: {
+      type: Number,
+      default: 0,
     },
   },
   { timestamps: true },

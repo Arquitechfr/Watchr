@@ -1,6 +1,5 @@
 import { View, Text, Image, TouchableOpacity, ActivityIndicator } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { format } from "date-fns";
 import { getPosterUrl } from "../services/shows.service";
 import { UnwatchedEpisode } from "../services/unwatched.service";
 import { useI18n } from "../i18n/useI18n";
@@ -12,6 +11,7 @@ interface UnwatchedEpisodeRowProps {
   title: string;
   posterPath?: string;
   episode: UnwatchedEpisode;
+  isNew?: boolean;
   onPress: () => void;
   onMarkWatched?: () => void;
   isMarking?: boolean;
@@ -21,13 +21,16 @@ export function UnwatchedEpisodeRow({
   title,
   posterPath,
   episode,
+  isNew,
   onPress,
   onMarkWatched,
   isMarking,
 }: UnwatchedEpisodeRowProps) {
-  const { t, dateFnsLocale } = useI18n();
+  const { t } = useI18n();
   const colors = useThemeColors();
   const posterUrl = getPosterUrl(posterPath, 200);
+
+  const seasonEpisodeLabel = `S${String(episode.season).padStart(2, "0")} - E${String(episode.episode).padStart(2, "0")}`;
 
   return (
     <TouchableOpacity
@@ -46,18 +49,26 @@ export function UnwatchedEpisodeRow({
         </View>
       )}
       <View className="flex-1 ml-3">
-        <Text className="text-text font-semibold mb-1" numberOfLines={1}>
-          {title}
-        </Text>
-        <Text className="text-text-muted text-sm" numberOfLines={1}>
-          S{episode.season}E{episode.episode}
-          {episode.name ? ` · ${episode.name}` : ""}
-        </Text>
-        {episode.airDate && (
-          <Text className="text-primary text-xs mt-1">
-            {format(new Date(episode.airDate), "EEE d MMM", { locale: dateFnsLocale })}
+        <View className="bg-surface-light rounded-full px-3 py-1 self-start mb-1.5">
+          <Text className="text-text text-xs font-medium" numberOfLines={1}>
+            {title}
           </Text>
-        )}
+        </View>
+        <Text className="text-text font-bold text-base mb-0.5">
+          {seasonEpisodeLabel}
+        </Text>
+        {episode.name ? (
+          <Text className="text-text-muted text-sm" numberOfLines={1}>
+            {episode.name}
+          </Text>
+        ) : null}
+        {isNew ? (
+          <View className="bg-primary rounded-full px-2 py-0.5 self-start mt-1.5">
+            <Text className="text-background text-xs font-semibold">
+              {t("common.newEpisode")}
+            </Text>
+          </View>
+        ) : null}
       </View>
       {onMarkWatched && (
         <TouchableOpacity

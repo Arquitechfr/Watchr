@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Linking, Switch } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import * as DocumentPicker from "expo-document-picker";
 import { format } from "date-fns";
@@ -74,6 +75,7 @@ export function ImportScreen() {
   const activeJobId = useImportStore((state) => state.activeJobId);
   const setActiveJobId = useImportStore((state) => state.setActiveJobId);
   const clearActiveJob = useImportStore((state) => state.clearActiveJob);
+  const [showDisclaimer, setShowDisclaimer] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [isSyncingTrakt, setIsSyncingTrakt] = useState(false);
@@ -200,7 +202,15 @@ export function ImportScreen() {
         <Text className="text-2xl font-bold text-text mb-2">{t("screens.import.title")}</Text>
         <Text className="text-text-muted mb-6">{t("screens.import.description")}</Text>
 
-        <Text className="text-text font-semibold text-lg mb-3">{t("screens.import.choosePlatform")}</Text>
+        <View className="flex-row items-center justify-between mb-3">
+          <Text className="text-text font-semibold text-lg">{t("screens.import.choosePlatform")}</Text>
+          <TouchableOpacity onPress={() => setShowDisclaimer((v) => !v)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+            <Ionicons name="information-circle-outline" size={16} color={colors.textMuted} />
+          </TouchableOpacity>
+        </View>
+        {showDisclaimer && (
+          <Text className="text-text-muted text-xs mb-3">{t("screens.import.importDisclaimer")}</Text>
+        )}
 
         <PlatformCard
           icon="📺"

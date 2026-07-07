@@ -208,12 +208,42 @@ export function EpisodeDetailScreen() {
     }
   };
 
-  const handleOpenComments = () => {
+  const navigateToComments = () => {
     navigation.navigate("ShowComments", {
       showId,
       title: episode?.name ?? `S${season}E${episodeNumber}`,
       season,
       episode: episodeNumber,
+    });
+  };
+
+  const handleOpenComments = () => {
+    if (isWatched) {
+      navigateToComments();
+      return;
+    }
+    showAlert({
+      title: t("screens.comments.spoilerWarningTitle"),
+      message: t("screens.comments.spoilerWarningMessage", { title: episode?.name ?? `S${season}E${episodeNumber}` }),
+      buttons: [
+        { text: t("common.cancel"), style: "cancel" },
+        {
+          text: t("screens.comments.proceedAnyway"),
+          onPress: navigateToComments,
+        },
+        {
+          text: t("screens.comments.markWatchedAndProceed"),
+          onPress: () => {
+            toggleEpisode.mutate(
+              { season, episode: episodeNumber, watched: true },
+              {
+                onSuccess: () => navigateToComments(),
+                onError: () => showSnackbar(t("screens.episode.markError"), "error"),
+              },
+            );
+          },
+        },
+      ],
     });
   };
 
@@ -404,7 +434,14 @@ export function EpisodeDetailScreen() {
             </View>
             {previewComments.length > 0 ? (
               previewComments.map((comment: Comment) => (
-                <CommentItem key={comment.id} comment={comment} />
+                <CommentItem
+                  key={comment.id}
+                  comment={comment}
+                  showId={showId}
+                  title={episode?.name ?? `S${season}E${episodeNumber}`}
+                  season={season}
+                  episode={episodeNumber}
+                />
               ))
             ) : (
               <View className="py-12 items-center justify-center bg-surface rounded-lg">

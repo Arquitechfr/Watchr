@@ -44,9 +44,9 @@ export function CommentsSection({ showId, query }: CommentsSectionProps) {
     addReaction.isPending ||
     removeReaction.isPending;
 
-  const handleCreate = (content: string, images?: string[]) => {
+  const handleCreate = (content: string, images?: string[], isSpoiler?: boolean) => {
     createComment.mutate(
-      { content, images },
+      { content, images, isSpoiler },
       {
         onError: () => showSnackbar(t("screens.comments.addError"), "error"),
       },
@@ -62,9 +62,9 @@ export function CommentsSection({ showId, query }: CommentsSectionProps) {
     );
   };
 
-  const handleEdit = (id: string, content: string, images?: string[]) => {
+  const handleEdit = (id: string, content: string, images?: string[], isSpoiler?: boolean) => {
     updateComment.mutate(
-      { id, content, images },
+      { id, content, images, isSpoiler },
       {
         onError: () => showSnackbar(t("screens.comments.editError"), "error"),
       },
@@ -118,6 +118,7 @@ export function CommentsSection({ showId, query }: CommentsSectionProps) {
       )}
       <CommentsList
         comments={data?.comments ?? []}
+        showId={showId}
         isLoading={isLoading}
         isPending={isPending}
         onReply={handleReply}

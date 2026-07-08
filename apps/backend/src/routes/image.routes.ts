@@ -27,10 +27,25 @@ router.get(
       throw new ApiError(400, "VALIDATION_ERROR", "Invalid image path");
     }
 
-    const { buffer, contentType } = await proxyImage(type, size, imagePath);
-    res.setHeader("Content-Type", contentType);
-    res.setHeader("Cache-Control", "public, max-age=604800, immutable");
-    res.send(buffer);
+    try {
+      const { buffer, contentType } = await proxyImage(type, size, imagePath);
+      res.setHeader("Content-Type", contentType);
+      res.setHeader("Cache-Control", "public, max-age=604800, immutable");
+      res.send(buffer);
+    } catch (err) {
+      // Return transparent placeholder for missing images (404)
+      if (err instanceof ApiError && err.status === 404) {
+        const transparentPng = Buffer.from(
+          "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+          "base64",
+        );
+        res.setHeader("Content-Type", "image/png");
+        res.setHeader("Cache-Control", "public, max-age=604800, immutable");
+        res.send(transparentPng);
+        return;
+      }
+      throw err;
+    }
   }),
 );
 

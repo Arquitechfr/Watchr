@@ -50,3 +50,4 @@ apps/backend/scripts/*
 apps/mobile/app-debug.apk
 template.md
 .gitignore
+apps/web/public/.well-known/assetlinks.json

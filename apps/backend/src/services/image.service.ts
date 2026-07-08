@@ -52,6 +52,11 @@ export async function proxyImage(
   } catch (err) {
     if (axios.isAxiosError(err)) {
       const status = err.response?.status || 500;
+      // Treat 400, 404 as missing images (not errors)
+      if (status === 400 || status === 404) {
+        logError("ImageService", "image not found on TMDB", err, { url, status });
+        throw new ApiError(404, "IMAGE_NOT_FOUND", "Image not found on TMDB", err);
+      }
       logError("ImageService", "fetch failed", err, { url, status });
       throw new ApiError(status, "IMAGE_FETCH_ERROR", `Failed to fetch image from TMDB: ${status}`, err);
     }

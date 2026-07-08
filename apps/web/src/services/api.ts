@@ -27,6 +27,10 @@ function onTokenRefreshed(token: string) {
   refreshSubscribers = [];
 }
 
+function onTokenRefreshFailed() {
+  refreshSubscribers = [];
+}
+
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const token = useAuthStore.getState().accessToken;
   if (token) {
@@ -83,6 +87,7 @@ api.interceptors.response.use(
         originalRequest.headers.set("Authorization", `Bearer ${accessToken}`);
         return api(originalRequest);
       } catch (refreshError) {
+        onTokenRefreshFailed();
         useAuthStore.getState().logout();
         return Promise.reject(refreshError);
       } finally {

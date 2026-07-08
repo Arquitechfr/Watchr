@@ -70,6 +70,12 @@ const en = {
     connected: "Connected",
     disconnected: "Disconnected",
   },
+  widgets: {
+    upNext: {
+      noEpisode: "No episode",
+      title: "UP NEXT",
+    },
+  },
 };
 
 export default en;

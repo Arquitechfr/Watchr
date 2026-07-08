@@ -70,6 +70,12 @@ const pt = {
     connected: "Conectado",
     disconnected: "Desconectado",
   },
+  widgets: {
+    upNext: {
+      noEpisode: "Nenhum episódio",
+      title: "A SEGUIR",
+    },
+  },
 };
 
 export default pt;

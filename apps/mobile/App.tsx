@@ -12,6 +12,10 @@ import { SplashScreen } from "./src/components/SplashScreen";
 import { useAppBootstrap } from "./src/hooks/useAppBootstrap";
 import { ThemeProvider } from "./src/theme/ThemeProvider";
 import { useTheme } from "./src/theme/useTheme";
+import { registerWidgetTaskHandler } from 'react-native-android-widget';
+import { widgetTaskHandler } from './src/widgets/widgetTaskHandler';
+
+registerWidgetTaskHandler(widgetTaskHandler);
 
 Sentry.init({
   dsn: "https://bf2e227cd3abf6f8e316e40c13f874dc@o4511684973428736.ingest.de.sentry.io/4511684992893008",

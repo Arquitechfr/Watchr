@@ -477,6 +477,12 @@ const it = {
     newNotification: "Nuova notifica",
     newArticlesAvailable: "Nuovi articoli disponibili",
   },
+  widgets: {
+    upNext: {
+      noEpisode: "Nessun episodio",
+      title: "IN SEGUITO",
+    },
+  },
 };
 
 export default it;

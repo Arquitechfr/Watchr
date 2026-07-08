@@ -481,6 +481,12 @@ const en = {
     newNotification: "New notification",
     newArticlesAvailable: "New articles available",
   },
+  widgets: {
+    upNext: {
+      noEpisode: "No episode",
+      title: "UP NEXT",
+    },
+  },
 };
 
 export default en;

@@ -70,6 +70,12 @@ const fr = {
     connected: "Connecté",
     disconnected: "Déconnecté",
   },
+  widgets: {
+    upNext: {
+      noEpisode: "Aucun épisode",
+      title: "À SUIVRE",
+    },
+  },
 };
 
 export default fr;

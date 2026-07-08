@@ -481,6 +481,12 @@ const fr = {
     newNotification: "Nouvelle notification",
     newArticlesAvailable: "Nouveaux articles disponibles",
   },
+  widgets: {
+    upNext: {
+      noEpisode: "Aucun épisode",
+      title: "À SUIVRE",
+    },
+  },
 };
 
 export default fr;

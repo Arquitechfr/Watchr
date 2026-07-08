@@ -477,6 +477,12 @@ const ar = {
     newNotification: "إشعار جديد",
     newArticlesAvailable: "مقالات جديدة متاحة",
   },
+  widgets: {
+    upNext: {
+      noEpisode: "لا توجد حلقة",
+      title: "التالي",
+    },
+  },
 };
 
 export default ar;

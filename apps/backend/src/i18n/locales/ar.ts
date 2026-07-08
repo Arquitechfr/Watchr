@@ -70,6 +70,12 @@ const ar = {
     connected: "متصل",
     disconnected: "غير متصل",
   },
+  widgets: {
+    upNext: {
+      noEpisode: "لا توجد حلقة",
+      title: "التالي",
+    },
+  },
 };
 
 export default ar;

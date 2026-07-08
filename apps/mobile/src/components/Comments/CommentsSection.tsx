@@ -46,7 +46,12 @@ export function CommentsSection({ showId, query }: CommentsSectionProps) {
 
   const handleCreate = (content: string, images?: string[], isSpoiler?: boolean) => {
     createComment.mutate(
-      { content, images, isSpoiler },
+      { 
+        content, 
+        images, 
+        isSpoiler,
+        ...(query?.season !== undefined && query?.episode !== undefined ? { episodeRef: { season: query.season, episode: query.episode } } : {})
+      },
       {
         onError: () => showSnackbar(t("screens.comments.addError"), "error"),
       },
@@ -55,7 +60,11 @@ export function CommentsSection({ showId, query }: CommentsSectionProps) {
 
   const handleReply = (content: string, parentId: string) => {
     createComment.mutate(
-      { content, parentId },
+      { 
+        content, 
+        parentId,
+        ...(query?.season !== undefined && query?.episode !== undefined ? { episodeRef: { season: query.season, episode: query.episode } } : {})
+      },
       {
         onError: () => showSnackbar(t("screens.comments.replyError"), "error"),
       },

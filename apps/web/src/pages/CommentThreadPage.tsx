@@ -56,7 +56,11 @@ export function CommentThreadPage() {
 
   const handleReply = (input: { content: string; images?: string[]; isSpoiler?: boolean }) => {
     createReply.mutate(
-      { ...input, parentId: commentId },
+      { 
+        ...input, 
+        parentId: commentId,
+        ...(season !== undefined && episode !== undefined ? { episodeRef: { season, episode } } : {})
+      },
       {
         onSuccess: () => {
           refetchReplies();

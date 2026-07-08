@@ -73,14 +73,23 @@ export function ShowCommentsScreen() {
 
   const handleCreate = (content: string, images?: string[], isSpoiler?: boolean) => {
     createComment.mutate(
-      { content, images, isSpoiler },
+      { 
+        content, 
+        images, 
+        isSpoiler,
+        ...(season !== undefined && episode !== undefined ? { episodeRef: { season, episode } } : {})
+      },
       { onError: () => showSnackbar(t("screens.comments.addError"), "error") },
     );
   };
 
   const handleReply = (content: string, parentId: string) => {
     createComment.mutate(
-      { content, parentId },
+      { 
+        content, 
+        parentId,
+        ...(season !== undefined && episode !== undefined ? { episodeRef: { season, episode } } : {})
+      },
       { onError: () => showSnackbar(t("screens.comments.replyError"), "error") },
     );
   };

@@ -79,14 +79,23 @@ export function ShowCommentsPage() {
 
   const handleCreate = (input: { content: string; images?: string[]; isSpoiler?: boolean }) => {
     createComment.mutate(
-      { content: input.content, images: input.images, isSpoiler: input.isSpoiler },
+      { 
+        content: input.content, 
+        images: input.images, 
+        isSpoiler: input.isSpoiler,
+        ...(season !== undefined && episode !== undefined ? { episodeRef: { season, episode } } : {})
+      },
       { onError: () => showSnackbar(t("screens.comments.addError"), "error") },
     );
   };
 
   const handleReply = (parentId: string) => {
     createComment.mutate(
-      { content: "", parentId },
+      { 
+        content: "", 
+        parentId,
+        ...(season !== undefined && episode !== undefined ? { episodeRef: { season, episode } } : {})
+      },
       { onError: () => showSnackbar(t("screens.comments.replyError"), "error") },
     );
   };

@@ -75,7 +75,13 @@ export function CommentThreadScreen() {
 
   const handleReply = (content: string, images?: string[], isSpoiler?: boolean) => {
     createComment.mutate(
-      { content, images, isSpoiler, parentId: commentId },
+      { 
+        content, 
+        images, 
+        isSpoiler, 
+        parentId: commentId,
+        ...(season !== undefined && episode !== undefined ? { episodeRef: { season, episode } } : {})
+      },
       {
         onSuccess: () => {
           refetch();

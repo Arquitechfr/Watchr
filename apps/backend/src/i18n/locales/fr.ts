@@ -14,6 +14,7 @@ const fr = {
     INVALID_SOURCE: "Source d'actualités invalide.",
     NEWS_SOURCE_NOT_FOUND: "Source d'actualités introuvable.",
     NEWS_FETCH_ERROR: "Impossible de récupérer les actualités.",
+    IMAGE_FETCH_ERROR: "Impossible de récupérer l'image.",
     IMPORT_FAILED: "L'import a échoué.",
     IMPORT_NO_CSV: "Aucun fichier CSV valide trouvé dans l'archive envoyée.",
     IMPORT_REVIEW_NOT_FOUND: "Révision d'import introuvable.",

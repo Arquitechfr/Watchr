@@ -1,10 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 import { getDiscoverSections, type DiscoverResult } from "../services/shows.service";
+import { useAuthStore } from "../store/authStore";
 
-export function useDiscover() {
+export function useDiscoverSections() {
+  const isHydrated = useAuthStore((state) => state.isHydrated);
+
   return useQuery<DiscoverResult>({
     queryKey: ["shows", "discover"],
     queryFn: () => getDiscoverSections(),
-    staleTime: 5 * 60_000,
+    enabled: isHydrated,
+    staleTime: 24 * 60 * 60 * 1000,
   });
 }

@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Calendar } from "lucide-react";
+import { Calendar, Check } from "lucide-react";
 import { getPosterUrl } from "../services/shows.service";
 import type { UpcomingEpisode } from "../services/upcoming.service";
 import { useI18n } from "../i18n/useI18n";
@@ -7,9 +7,12 @@ import { format } from "date-fns";
 
 interface UpcomingEpisodeRowProps {
   episode: UpcomingEpisode;
+  onPress?: () => void;
+  onMarkWatched?: () => void;
+  isMarking?: boolean;
 }
 
-export function UpcomingEpisodeRow({ episode }: UpcomingEpisodeRowProps) {
+export function UpcomingEpisodeRow({ episode, onPress, onMarkWatched, isMarking }: UpcomingEpisodeRowProps) {
   const navigate = useNavigate();
   const { dateFnsLocale } = useI18n();
   const posterUrl = getPosterUrl(episode.posterPath, 92);
@@ -17,7 +20,7 @@ export function UpcomingEpisodeRow({ episode }: UpcomingEpisodeRowProps) {
   return (
     <div
       className="flex items-center gap-3 bg-surface rounded-lg p-3 cursor-pointer hover:bg-surface-light transition-colors"
-      onClick={() => navigate(`/show/${episode.tmdbId}`)}
+      onClick={onPress}
     >
       <img
         src={posterUrl}
@@ -36,6 +39,22 @@ export function UpcomingEpisodeRow({ episode }: UpcomingEpisodeRowProps) {
         <Calendar size={14} />
         {format(new Date(episode.airDate), "MMM d", { locale: dateFnsLocale })}
       </div>
+      {onMarkWatched && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onMarkWatched();
+          }}
+          disabled={isMarking}
+          className={`self-center p-2 rounded-full transition-colors shrink-0 ${
+            isMarking
+              ? "bg-surface-light text-text-muted"
+              : "bg-primary text-background hover:bg-primary-dark"
+          }`}
+        >
+          {isMarking ? <Check size={16} className="animate-spin" /> : <Check size={16} />}
+        </button>
+      )}
     </div>
   );
 }

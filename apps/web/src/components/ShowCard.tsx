@@ -5,37 +5,38 @@ import type { SearchResultItem } from "../services/shows.service";
 import { useI18n } from "../i18n/useI18n";
 
 interface ShowCardProps {
-  item: SearchResultItem;
-  isTracked?: boolean;
+  show: SearchResultItem;
+  onPress?: () => void;
   onQuickAdd?: () => void;
+  isTracked?: boolean;
+  isAdding?: boolean;
 }
 
-export function ShowCard({ item, isTracked, onQuickAdd }: ShowCardProps) {
-  const navigate = useNavigate();
+export function ShowCard({ show, onPress, onQuickAdd, isTracked, isAdding }: ShowCardProps) {
   const { t } = useI18n();
-  const posterUrl = getPosterUrl(item.posterPath, 200);
+  const posterUrl = getPosterUrl(show.posterPath, 200);
 
   return (
     <div
       className="flex gap-3 bg-surface rounded-lg p-3 cursor-pointer hover:bg-surface-light transition-colors"
-      onClick={() => navigate(`/show/${item.tmdbId}`)}
+      onClick={onPress}
     >
       {posterUrl && (
         <img
           src={posterUrl}
-          alt={item.title}
+          alt={show.title}
           className="w-12 h-18 rounded-md object-cover shrink-0"
           loading="lazy"
         />
       )}
       <div className="flex-1 min-w-0">
-        <p className="text-text font-medium text-sm truncate">{item.title}</p>
+        <p className="text-text font-medium text-sm truncate">{show.title}</p>
         <p className="text-text-muted text-xs mt-0.5">
-          {item.type === "tv" ? t("common.series") : t("common.movie")}
-          {item.firstAirDate && ` • ${new Date(item.firstAirDate).getFullYear()}`}
+          {show.type === "tv" ? t("common.series") : t("common.movie")}
+          {show.firstAirDate && ` • ${new Date(show.firstAirDate).getFullYear()}`}
         </p>
-        {item.overview && (
-          <p className="text-text-muted text-xs mt-1 line-clamp-2">{item.overview}</p>
+        {show.overview && (
+          <p className="text-text-muted text-xs mt-1 line-clamp-2">{show.overview}</p>
         )}
       </div>
       {onQuickAdd && (
@@ -44,14 +45,14 @@ export function ShowCard({ item, isTracked, onQuickAdd }: ShowCardProps) {
             e.stopPropagation();
             onQuickAdd();
           }}
-          disabled={isTracked}
+          disabled={isTracked || isAdding}
           className={`self-center p-2 rounded-full transition-colors shrink-0 ${
             isTracked
               ? "bg-success/20 text-success"
               : "bg-primary text-background hover:bg-primary-dark"
           }`}
         >
-          {isTracked ? <Check size={18} /> : <Plus size={18} />}
+          {isAdding ? <Plus size={18} className="animate-spin" /> : isTracked ? <Check size={18} /> : <Plus size={18} />}
         </button>
       )}
     </div>

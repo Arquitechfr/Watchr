@@ -8,6 +8,7 @@ import { generateRefreshToken, hashToken } from "../lib/hashToken.js";
 import { generateUniqueUsername } from "../lib/usernameGenerator.js";
 import { uploadAvatar as uploadAvatarToS3 } from "../services/upload.service.js";
 import { EmailService } from "../services/email.service.js";
+import { sendSignupToMake } from "../services/webhook.service.js";
 import { ApiError } from "../middleware/error.middleware.js";
 
 const ACCESS_TOKEN_TTL_SECONDS = 15 * 60;
@@ -31,6 +32,10 @@ export async function registerUser(email: string, password: string): Promise<Tok
 
   EmailService.sendWelcomeEmail(user.email, user.username, user.preferredLanguage).catch((err) =>
     console.error("Failed to send welcome email:", err),
+  );
+
+  sendSignupToMake(user, "email").catch((err) =>
+    console.error("Failed to send signup webhook:", err),
   );
 
   return await issueTokenPair(user._id.toString());
@@ -79,6 +84,10 @@ export async function loginWithFirebase(idToken: string): Promise<TokenPair> {
   if (isNewUser) {
     EmailService.sendWelcomeEmail(user.email, user.username, user.preferredLanguage).catch((err) =>
       console.error("Failed to send welcome email:", err),
+    );
+
+    sendSignupToMake(user, "firebase").catch((err) =>
+      console.error("Failed to send signup webhook:", err),
     );
   }
 

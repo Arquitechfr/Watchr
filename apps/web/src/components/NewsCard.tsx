@@ -11,31 +11,34 @@ interface NewsCardProps {
 export function NewsCard({ article, onClick }: NewsCardProps) {
   const { dateFnsLocale } = useI18n();
 
+  const pubDate = article.pubDate ? new Date(article.pubDate) : undefined;
+
   return (
     <div
-      className="flex gap-3 bg-surface rounded-lg p-3 cursor-pointer hover:bg-surface-light transition-colors"
+      className="bg-surface rounded-lg overflow-hidden cursor-pointer hover:bg-surface-light transition-colors"
       onClick={onClick}
     >
       {article.image && (
         <img
           src={article.image}
           alt={article.title}
-          className="w-20 h-20 rounded-md object-cover shrink-0"
+          className="w-full h-40 bg-surface-light object-cover"
           loading="lazy"
         />
       )}
-      <div className="flex-1 min-w-0">
-        <p className="text-text font-medium text-sm line-clamp-2">{article.title}</p>
-        {article.pubDate && (
-          <p className="text-text-muted text-xs mt-1">
-            {format(new Date(article.pubDate), "PP", { locale: dateFnsLocale })}
+      <div className="p-4">
+        <p className="text-text font-semibold text-base mb-2 line-clamp-2">{article.title}</p>
+        {article.description && (
+          <p className="text-text-muted text-sm mb-3 line-clamp-3">
+            {article.description.replace(/<[^>]+>/g, "")}
           </p>
         )}
-        {article.description && (
-          <p className="text-text-muted text-xs mt-1 line-clamp-2">{article.description}</p>
+        {pubDate && !Number.isNaN(pubDate.getTime()) && (
+          <p className="text-primary text-xs">
+            {format(pubDate, "d MMM yyyy", { locale: dateFnsLocale })}
+          </p>
         )}
       </div>
-      <ExternalLink size={16} className="text-text-muted shrink-0 self-center" />
     </div>
   );
 }

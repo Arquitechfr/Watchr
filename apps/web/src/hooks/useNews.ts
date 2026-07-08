@@ -13,7 +13,6 @@ export function useNews(sourceId: string | null) {
   return useQuery<NewsArticle[]>({
     queryKey: ["news", sourceId],
     queryFn: () => getNews(sourceId ?? undefined),
-    enabled: sourceId !== null,
     staleTime: 60_000,
   });
 }

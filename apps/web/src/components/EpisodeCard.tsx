@@ -1,58 +1,102 @@
 import { Check } from "lucide-react";
-import { getStillUrl } from "../services/shows.service";
-import type { Episode } from "../services/shows.service";
+import { useNavigate } from "react-router-dom";
+import { getPosterUrl } from "../services/shows.service";
 import { useI18n } from "../i18n/useI18n";
 
 interface EpisodeCardProps {
-  episode: Episode;
-  seasonNumber: number;
-  isWatched: boolean;
-  onToggle: () => void;
+  posterPath?: string;
+  title: string;
+  season: number;
+  episode: number;
+  episodeName?: string;
+  isNew?: boolean;
+  network?: string;
+  airDate?: string;
+  onPress?: () => void;
+  onMarkWatched?: () => void;
+  isMarking?: boolean;
+  width?: number;
 }
 
-export function EpisodeCard({ episode, seasonNumber, isWatched, onToggle }: EpisodeCardProps) {
-  const { t } = useI18n();
-  const stillUrl = getStillUrl(episode.stillPath, 300);
+export function EpisodeCard({
+  posterPath,
+  title,
+  season,
+  episode,
+  episodeName,
+  isNew,
+  network,
+  airDate,
+  onPress,
+  onMarkWatched,
+  isMarking,
+  width,
+}: EpisodeCardProps) {
+  const { t, dateFnsLocale } = useI18n();
+  const navigate = useNavigate();
+  const posterUrl = posterPath ? getPosterUrl(posterPath, 200) : null;
+
+  function handleClick() {
+    if (onPress) onPress();
+  }
 
   return (
-    <div className="flex gap-3 bg-surface rounded-lg p-3 hover:bg-surface-light transition-colors">
-      <div className="relative shrink-0">
-        {stillUrl ? (
+    <div
+      className="bg-surface rounded-lg overflow-hidden cursor-pointer hover:bg-surface-light transition-colors"
+      onClick={handleClick}
+      style={{ width: width ?? 128 }}
+    >
+      <div className="relative aspect-[2/3]">
+        {posterUrl ? (
           <img
-            src={stillUrl}
-            alt={episode.name ?? `S${seasonNumber}E${episode.episodeNumber}`}
-            className="w-32 h-18 rounded-md object-cover"
+            src={posterUrl}
+            alt={title}
+            className="w-full h-full object-cover"
             loading="lazy"
           />
         ) : (
-          <div className="w-32 h-18 bg-surface-light rounded-md" />
+          <div className="w-full h-full bg-surface-light flex items-center justify-center">
+            <span className="text-text-muted text-xs text-center px-2">{title}</span>
+          </div>
+        )}
+        {isNew && (
+          <div className="absolute top-2 right-2 bg-primary text-white text-xs px-2 py-1 rounded">
+            {t("common.new")}
+          </div>
         )}
       </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-text font-medium text-sm">
-          S{seasonNumber}E{episode.episodeNumber}
-          {episode.name && ` - ${episode.name}`}
-        </p>
-        {episode.airDate && (
-          <p className="text-text-muted text-xs mt-0.5">
-            {new Date(episode.airDate).toLocaleDateString()}
+      <div className="p-2">
+        <p className="text-text font-medium text-xs truncate">{title}</p>
+        <p className="text-text-muted text-xs">S{season}E{episode}</p>
+        {episodeName && (
+          <p className="text-text-muted text-xs truncate">{episodeName}</p>
+        )}
+        {airDate && (
+          <p className="text-text-muted text-xs">
+            {new Date(airDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
           </p>
         )}
-        {episode.overview && (
-          <p className="text-text-muted text-xs mt-1 line-clamp-2">{episode.overview}</p>
+        {onMarkWatched && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onMarkWatched();
+            }}
+            disabled={isMarking}
+            className={`mt-2 w-full p-2 rounded-lg transition-colors ${
+              isMarking
+                ? "bg-surface-light text-text-muted"
+                : "bg-primary text-background hover:bg-primary-dark"
+            }`}
+          >
+            {isMarking ? (
+              <Check size={16} className="mx-auto animate-spin" />
+            ) : (
+              <Check size={16} className="mx-auto" />
+            )}
+          </button>
         )}
       </div>
-      <button
-        onClick={onToggle}
-        className={`self-center p-2 rounded-full transition-colors shrink-0 ${
-          isWatched
-            ? "bg-success/20 text-success"
-            : "bg-surface-light text-text-muted hover:text-text"
-        }`}
-        aria-label={isWatched ? t("common.markUnwatched") : t("common.markWatched")}
-      >
-        <Check size={18} />
-      </button>
     </div>
   );
 }

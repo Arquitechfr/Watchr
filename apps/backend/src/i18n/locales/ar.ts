@@ -14,6 +14,7 @@ const ar = {
     INVALID_SOURCE: "مصدر أخبار غير صالح.",
     NEWS_SOURCE_NOT_FOUND: "مصدر الأخبار غير موجود.",
     NEWS_FETCH_ERROR: "تعذّر جلب الأخبار.",
+    IMAGE_FETCH_ERROR: "تعذّر جلب الصورة.",
     IMPORT_FAILED: "فشل الاستيراد.",
     IMPORT_NO_CSV: "لا يوجد CSV صالح في الأرشيف.",
     IMPORT_REVIEW_NOT_FOUND: "مراجعة الاستيراد غير موجودة.",

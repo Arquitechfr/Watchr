@@ -2,6 +2,13 @@ import { api } from "./api";
 
 export type ImportSource = "tvtime" | "trakt" | "imdb" | "letterboxd" | "watchr" | "unknown";
 
+export interface TraktStatus {
+  linked: boolean;
+  traktUsername?: string;
+  autoSync?: boolean;
+  lastSyncAt?: string;
+}
+
 export interface ImportProgress {
   total: number;
   processed: number;
@@ -52,20 +59,17 @@ export interface ImportReviewCandidate {
 }
 
 export interface ImportReviewItem {
-  _id: string;
+  id: string;
   sourceType: "series" | "movie";
   sourceTitle: string;
   sourceYear: number | null;
   candidates: ImportReviewCandidate[];
-  status: "pending" | "resolved" | "skipped";
 }
 
 export interface ImportReviewsResponse {
   reviews: ImportReviewItem[];
   total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  pending: number;
 }
 
 export async function uploadImport(file: File, source: ImportSource): Promise<{ jobId: string; source: ImportSource }> {
@@ -94,18 +98,44 @@ export async function getImportJobErrors(jobId: string): Promise<ImportErrorsRes
   return response.data;
 }
 
-export async function getImportReviews(jobId: string, page = 1, limit = 20): Promise<ImportReviewsResponse> {
-  const response = await api.get<ImportReviewsResponse>(`/import/${jobId}/review`, {
-    params: { page, limit },
-  });
+export async function getImportReviews(jobId: string): Promise<ImportReviewsResponse> {
+  const response = await api.get<ImportReviewsResponse>(`/import/${jobId}/reviews`);
   return response.data;
 }
 
 export async function resolveImportReview(
-  jobId: string,
   reviewId: string,
   tmdbId: number | null,
   skip: boolean,
 ): Promise<void> {
-  await api.post(`/import/${jobId}/review/${reviewId}/resolve`, { tmdbId, skip });
+  await api.post(`/import/reviews/${reviewId}/resolve`, { tmdbId, skip });
+}
+
+export async function getTraktAuthUrl(): Promise<string> {
+  const response = await api.get<{ url: string }>("/trakt/auth-url");
+  return response.data.url;
+}
+
+export async function linkTraktAccount(code: string): Promise<TraktStatus> {
+  const response = await api.post<TraktStatus>("/trakt/callback", { code });
+  return response.data;
+}
+
+export async function getTraktStatus(): Promise<TraktStatus> {
+  const response = await api.get<TraktStatus>("/trakt/status");
+  return response.data;
+}
+
+export async function syncTrakt(): Promise<{ total: number; matched: number; failed: number }> {
+  const response = await api.post<{ total: number; matched: number; failed: number }>("/trakt/sync");
+  return response.data;
+}
+
+export async function unlinkTrakt(): Promise<void> {
+  await api.delete("/trakt/unlink");
+}
+
+export async function toggleTraktAutoSync(enabled: boolean): Promise<TraktStatus> {
+  const response = await api.put<TraktStatus>("/trakt/auto-sync", { enabled });
+  return response.data;
 }

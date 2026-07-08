@@ -1,15 +1,24 @@
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
+import { Info } from "lucide-react";
 import {
   uploadImport,
   getImportJobErrors,
   getImportJobs,
+  getTraktAuthUrl,
+  getTraktStatus,
+  syncTrakt,
+  unlinkTrakt,
+  toggleTraktAutoSync,
   type ImportSource,
   type ImportError,
   type ImportJobSummary,
+  type TraktStatus,
 } from "../services/import.service";
-import { useImportJob } from "../hooks/useImportJob";
+import { useImportPolling } from "../hooks/useImportPolling";
+import { useImportStore } from "../store/importStore";
 import { useUIStore } from "../store/uiStore";
 import { useErrorMessage } from "../services/api";
 import { useI18n } from "../i18n/useI18n";
@@ -45,27 +54,28 @@ const PLATFORMS: PlatformConfig[] = [
 
 export function ImportPage() {
   const navigate = useNavigate();
-  const { showSnackbar } = useUIStore();
+  const { showSnackbar, showAlert } = useUIStore();
   const { t, dateFnsLocale } = useI18n();
   const getErrorMessage = useErrorMessage();
-  const [jobId, setJobId] = useState<string | null>(() => localStorage.getItem("watchr-active-import-job"));
+  const queryClient = useQueryClient();
+  const activeJobId = useImportStore((state) => state.activeJobId);
+  const setActiveJobId = useImportStore((state) => state.setActiveJobId);
+  const clearActiveJob = useImportStore((state) => state.clearActiveJob);
   const [errors, setErrors] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
-  const [importJobs, setImportJobs] = useState<ImportJobSummary[]>([]);
-  const { job } = useImportJob(jobId);
-  const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  const [isSyncingTrakt, setIsSyncingTrakt] = useState(false);
+  const [showDisclaimer, setShowDisclaimer] = useState(false);
+  const { data: job } = useImportPolling(activeJobId);
 
-  useEffect(() => {
-    if (jobId) {
-      localStorage.setItem("watchr-active-import-job", jobId);
-    } else {
-      localStorage.removeItem("watchr-active-import-job");
-    }
-  }, [jobId]);
+  const { data: traktStatus } = useQuery<TraktStatus>({
+    queryKey: ["trakt-status"],
+    queryFn: getTraktStatus,
+  });
 
-  useEffect(() => {
-    getImportJobs().then((data) => setImportJobs(data.jobs)).catch(() => {});
-  }, [jobId, job?.status]);
+  const { data: importJobsData } = useQuery({
+    queryKey: ["import-jobs"],
+    queryFn: getImportJobs,
+  });
 
   const handleFileSelect = useCallback(
     async (source: ImportSource, file: File) => {
@@ -73,7 +83,8 @@ export function ImportPage() {
       setErrors([]);
       try {
         const { jobId: newJobId } = await uploadImport(file, source);
-        setJobId(newJobId);
+        setActiveJobId(newJobId);
+        queryClient.invalidateQueries({ queryKey: ["import-jobs"] });
         showSnackbar(t("screens.import.started"), "success");
       } catch (err) {
         showSnackbar(getErrorMessage(err), "error");
@@ -81,14 +92,66 @@ export function ImportPage() {
         setIsUploading(false);
       }
     },
-    [t, showSnackbar, getErrorMessage],
+    [t, showSnackbar, getErrorMessage, setActiveJobId, queryClient],
   );
 
   async function viewErrors() {
-    if (!jobId) return;
+    if (!activeJobId) return;
     try {
-      const { errors: jobErrors } = await getImportJobErrors(jobId);
+      const { errors: jobErrors } = await getImportJobErrors(activeJobId);
       setErrors(jobErrors.map((err: ImportError) => `${t("screens.import.line")} ${err.line}: ${err.reason}`));
+    } catch (err) {
+      showSnackbar(getErrorMessage(err), "error");
+    }
+  }
+
+  async function handleTraktOAuth() {
+    try {
+      const url = await getTraktAuthUrl();
+      window.open(url, "_blank");
+    } catch (err) {
+      showSnackbar(getErrorMessage(err), "error");
+    }
+  }
+
+  async function handleTraktSync() {
+    setIsSyncingTrakt(true);
+    try {
+      const result = await syncTrakt();
+      showSnackbar(t("screens.import.traktSyncStarted"), "success");
+    } catch (err) {
+      showSnackbar(getErrorMessage(err), "error");
+    } finally {
+      setIsSyncingTrakt(false);
+    }
+  }
+
+  async function handleTraktUnlink() {
+    showAlert({
+      title: t("screens.import.traktUnlinkTitle"),
+      message: t("screens.import.traktUnlinkMessage"),
+      confirmLabel: t("common.confirm"),
+      cancelLabel: t("common.cancel"),
+      variant: "danger",
+      onConfirm: async () => {
+        try {
+          await unlinkTrakt();
+          queryClient.invalidateQueries({ queryKey: ["trakt-status"] });
+          showSnackbar(t("screens.import.traktUnlinked"), "success");
+        } catch (err) {
+          showSnackbar(getErrorMessage(err), "error");
+        }
+      },
+      onCancel: () => {
+        // Do nothing on cancel
+      },
+    });
+  }
+
+  async function handleToggleAutoSync(enabled: boolean) {
+    try {
+      await toggleTraktAutoSync(enabled);
+      queryClient.invalidateQueries({ queryKey: ["trakt-status"] });
     } catch (err) {
       showSnackbar(getErrorMessage(err), "error");
     }
@@ -96,7 +159,9 @@ export function ImportPage() {
 
   const isComplete = job?.status === "completed" || job?.status === "failed";
   const isFailed = job?.status === "failed";
-  const isBusy = isUploading || Boolean(jobId && !isComplete);
+  const isBusy = isUploading || Boolean(activeJobId && !isComplete);
+  const isTraktLinked = traktStatus?.linked === true;
+  const recentJobs = (importJobsData?.jobs ?? []).filter((j: ImportJobSummary) => j.id !== activeJobId);
 
   return (
     <ScreenContainer className="px-6 py-8">
@@ -113,12 +178,32 @@ export function ImportPage() {
         <h1 className="text-2xl font-bold text-text mb-2">{t("screens.import.title")}</h1>
         <p className="text-text-muted mb-6">{t("screens.import.description")}</p>
 
-        <h2 className="text-text font-semibold text-lg mb-3">{t("screens.import.choosePlatform")}</h2>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-text font-semibold text-lg">{t("screens.import.choosePlatform")}</h2>
+          <button
+            onClick={() => setShowDisclaimer((v) => !v)}
+            className="text-text-muted hover:text-text transition-colors"
+          >
+            <Info size={16} />
+          </button>
+        </div>
+        {showDisclaimer && (
+          <p className="text-text-muted text-xs mb-3">{t("screens.import.importDisclaimer")}</p>
+        )}
 
         {PLATFORMS.map((platform) => (
           <div key={platform.source}>
             <button
-              onClick={() => fileInputRefs.current[platform.source]?.click()}
+              onClick={() => {
+                const input = document.createElement("input");
+                input.type = "file";
+                input.accept = platform.accept;
+                input.onchange = (e) => {
+                  const file = (e.target as HTMLInputElement).files?.[0];
+                  if (file) handleFileSelect(platform.source, file);
+                };
+                input.click();
+              }}
               disabled={isBusy}
               className="w-full flex items-center rounded-lg p-4 mb-2 bg-surface hover:bg-surface-light transition-colors disabled:opacity-50 text-left"
             >
@@ -128,22 +213,55 @@ export function ImportPage() {
                 <p className="text-text-muted text-sm mt-0.5">{t(`screens.import.${platform.source}Desc`)}</p>
               </div>
             </button>
-            <input
-              ref={(el) => { fileInputRefs.current[platform.source] = el; }}
-              type="file"
-              accept={platform.accept}
-              className="hidden"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) handleFileSelect(platform.source, file);
-                e.target.value = "";
-              }}
-            />
-            <InfoBox icon={platform.icon} title={t(`screens.help.${platform.helpKey}`)}>
-              {t(`screens.help.${platform.helpKey}Desc`)}
-            </InfoBox>
           </div>
         ))}
+
+        {isTraktLinked && (
+          <div className="bg-surface rounded-lg p-4 mb-4 mt-2">
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <p className="text-text font-semibold">{t("screens.import.traktConnected")}</p>
+                <p className="text-text-muted text-sm">{traktStatus?.traktUsername}</p>
+              </div>
+              <button onClick={handleTraktUnlink} className="text-danger text-sm">
+                {t("screens.import.unlink")}
+              </button>
+            </div>
+
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-text">{t("screens.import.autoSync")}</p>
+              <button
+                onClick={() => handleToggleAutoSync(!(traktStatus?.autoSync ?? false))}
+                className={`w-12 h-7 rounded-full p-1 transition-colors ${
+                  traktStatus?.autoSync ? "bg-primary" : "bg-surface-light"
+                }`}
+              >
+                <div
+                  className={`w-5 h-5 rounded-full bg-white transition-transform ${
+                    traktStatus?.autoSync ? "translate-x-5" : "translate-x-0"
+                  }`}
+                />
+              </button>
+            </div>
+
+            <button
+              className="w-full bg-primary py-3 rounded-lg text-background font-semibold"
+              onClick={handleTraktSync}
+              disabled={isSyncingTrakt}
+            >
+              {isSyncingTrakt ? t("screens.import.processing") : t("screens.import.syncNow")}
+            </button>
+          </div>
+        )}
+
+        {!isTraktLinked && (
+          <button
+            className="w-full bg-surface py-3 rounded-lg text-primary font-semibold mb-4 mt-2"
+            onClick={handleTraktOAuth}
+          >
+            {t("screens.import.connectTrakt")}
+          </button>
+        )}
 
         {isUploading && (
           <div className="text-center py-4">
@@ -167,7 +285,7 @@ export function ImportPage() {
           </div>
         )}
 
-        {isComplete && job.progress.failed > 0 && (
+        {isComplete && job?.progress.failed > 0 && (
           <button
             onClick={viewErrors}
             className="w-full bg-surface-light py-3 rounded-lg text-center text-text font-medium mb-4 hover:opacity-80 transition-opacity"
@@ -184,7 +302,7 @@ export function ImportPage() {
           </div>
         )}
 
-        {isComplete && job.progress.pendingReview && job.progress.pendingReview > 0 && (
+        {isComplete && job?.progress.pendingReview && job.progress.pendingReview > 0 && (
           <button
             onClick={() => navigate(`/import/${job.id}/review`)}
             className="w-full bg-primary py-4 rounded-lg text-center text-background font-semibold mb-4 hover:bg-primary-dark transition-colors"
@@ -193,12 +311,10 @@ export function ImportPage() {
           </button>
         )}
 
-        {importJobs.length > 0 && (
+        {recentJobs.length > 0 && (
           <div className="mt-4">
             <h2 className="text-text font-semibold text-lg mb-3">{t("screens.import.recentImports")}</h2>
-            {importJobs
-              .filter((j) => j.id !== jobId)
-              .map((item) => {
+            {recentJobs.map((item: ImportJobSummary) => {
                 const icon = SOURCE_ICONS[item.source ?? "unknown"] ?? "📦";
                 const dateStr = format(new Date(item.createdAt), "PP", { locale: dateFnsLocale });
                 const isCompleted = item.status === "completed";

@@ -1,8 +1,13 @@
 /* eslint-disable no-console */
 import { z } from "zod";
 import dotenv from "dotenv";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
 
-dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+dotenv.config({ path: join(__dirname, "../../.env") });
 
 const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(4500),
@@ -35,6 +40,8 @@ const envSchema = z.object({
   TRAKT_CLIENT_SECRET: z.string().optional(),
   CI_UPLOAD_TOKEN: z.string().optional(),
   SENTRY_DSN: z.string().optional(),
+  MAKE_WEBHOOK_URL: z.string().optional(),
+  MAKE_API_KEY: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);

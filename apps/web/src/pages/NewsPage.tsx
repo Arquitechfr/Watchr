@@ -1,31 +1,43 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Inbox } from "lucide-react";
 import { PageWrapper } from "../components/layout/PageWrapper";
-import { FilterChips } from "../components/FilterChips";
+import { FilterChips, FilterChipOption } from "../components/FilterChips";
 import { NewsCard } from "../components/NewsCard";
 import { EmptyState } from "../components/EmptyState";
 import { NetworkError } from "../components/NetworkError";
 import { Skeleton } from "../components/Skeleton";
 import { useNews, useNewsSources } from "../hooks/useNews";
 import { useNewsRealtime } from "../hooks/useNewsRealtime";
+import { useRefreshRateLimit } from "../hooks/useRefreshRateLimit";
 import { useI18n } from "../i18n/useI18n";
+import { useLocaleStore } from "../store/localeStore";
 import type { NewsSource, NewsArticle } from "../services/news.service";
 
 export function NewsPage() {
   const { t } = useI18n();
+  const locale = useLocaleStore((state) => state.locale);
   const [selectedSource, setSelectedSource] = useState<string | null>(null);
 
   const { data: sources, isLoading: isLoadingSources } = useNewsSources();
-  const { data: articles, isLoading: isLoadingArticles, isError: isErrorArticles, refetch } = useNews(selectedSource);
+  const { data: articles, isLoading: isLoadingArticles, isError: isErrorArticles, error, refetch } = useNews(selectedSource);
+
+  const throttledRefresh = useRefreshRateLimit();
+
+  useEffect(() => {
+    setSelectedSource(null);
+  }, [locale]);
+
+  useEffect(() => {
+    if (sources && sources.length > 0 && selectedSource === null) {
+      setSelectedSource(sources[0].id);
+    }
+  }, [sources, selectedSource]);
 
   useNewsRealtime();
 
-  const chips = [{ key: "all", label: t("common.all") }];
-  sources?.forEach((s: NewsSource) => chips.push({ key: s.id, label: s.name }));
+  const chips: FilterChipOption[] = sources?.map((s: NewsSource) => ({ label: s.name, value: s.id })) ?? [];
 
-  const filteredArticles = selectedSource === null
-    ? articles
-    : articles;
+  const filteredArticles = articles;
 
   return (
     <PageWrapper maxWidth="max-w-3xl">
@@ -41,8 +53,10 @@ export function NewsPage() {
         ) : (
           <FilterChips
             chips={chips}
-            activeChip={selectedSource ?? "all"}
-            onChipChange={(key) => setSelectedSource(key === "all" ? null : key)}
+            activeChip={selectedSource ?? undefined}
+            onChipChange={(v) => setSelectedSource((v as string | undefined) ?? null)}
+            allLabel={t("common.all")}
+            showAllOption
           />
         )}
       </div>
@@ -54,9 +68,11 @@ export function NewsPage() {
           ))}
         </div>
       )}
-      {isErrorArticles && <NetworkError onRetry={refetch} />}
+      {isErrorArticles && (
+        <NetworkError onRetry={() => throttledRefresh(refetch)} />
+      )}
       {!isLoadingArticles && !isErrorArticles && (!filteredArticles || filteredArticles.length === 0) && (
-        <EmptyState icon={Inbox} title={t("screens.news.empty")} />
+        <EmptyState icon={Inbox} title={t("screens.news.empty")} subtitle={t("screens.news.emptySubtitle")} />
       )}
       {!isLoadingArticles && !isErrorArticles && filteredArticles && filteredArticles.length > 0 && (
         <div className="space-y-2">

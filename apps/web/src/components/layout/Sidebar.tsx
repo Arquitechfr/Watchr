@@ -2,11 +2,13 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { Tv, Film, Search, Newspaper, User, LogOut, Settings, BookMarked } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
 import { useI18n } from "../../i18n/useI18n";
+import { useThemeContext } from "../../theme/ThemeProvider";
 
 export function Sidebar() {
   const { t } = useI18n();
   const navigate = useNavigate();
   const { logout: logoutStore } = useAuthStore();
+  const { mode, colors } = useThemeContext();
 
   const navItems = [
     { to: "/series", icon: Tv, label: t("navigation.series") },
@@ -30,7 +32,7 @@ export function Sidebar() {
           alt="Watchr"
           className="w-10 h-10 object-contain"
         />
-        <span className="text-white font-bold text-xl" style={{ fontFamily: "Outfit, system-ui, sans-serif" }}>
+        <span className="font-bold text-xl" style={{ fontFamily: "Outfit, system-ui, sans-serif", color: mode === "light" ? colors.primary : "white" }}>
           Watchr
         </span>
       </div>

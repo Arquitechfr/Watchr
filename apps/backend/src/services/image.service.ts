@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import axios from "axios";
 import { log, logError } from "../lib/logger.js";
+import { ApiError } from "../middleware/error.middleware.js";
 
 const CACHE_DIR = path.resolve(".cache", "images");
 
@@ -49,8 +50,13 @@ export async function proxyImage(
     await writeCachedImage(cachePath, buffer, contentType);
     return { buffer, contentType };
   } catch (err) {
+    if (axios.isAxiosError(err)) {
+      const status = err.response?.status || 500;
+      logError("ImageService", "fetch failed", err, { url, status });
+      throw new ApiError(status, "IMAGE_FETCH_ERROR", `Failed to fetch image from TMDB: ${status}`, err);
+    }
     logError("ImageService", "fetch failed", err, { url });
-    throw new Error("Failed to fetch image");
+    throw new ApiError(500, "IMAGE_FETCH_ERROR", "Failed to fetch image", err);
   }
 }
 

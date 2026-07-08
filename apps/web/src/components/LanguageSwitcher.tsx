@@ -12,6 +12,16 @@ const LANG_LABELS: Record<SupportedLocale, string> = {
   ar: "screens.profile.languageArabic",
 };
 
+const LANG_FLAGS: Record<SupportedLocale, string> = {
+  en: "🇬🇧",
+  fr: "🇫🇷",
+  es: "🇪🇸",
+  pt: "🇵🇹",
+  de: "🇩🇪",
+  it: "🇮🇹",
+  ar: "🇸🇦",
+};
+
 export function LanguageSwitcher() {
   const locale = useLocaleStore((s) => s.locale);
   const setLocale = useLocaleStore((s) => s.setLocale);
@@ -25,7 +35,7 @@ export function LanguageSwitcher() {
     >
       {SUPPORTED_LOCALES.map((lang) => (
         <option key={lang} value={lang}>
-          {t(LANG_LABELS[lang])}
+          {LANG_FLAGS[lang]} {t(LANG_LABELS[lang])}
         </option>
       ))}
     </select>

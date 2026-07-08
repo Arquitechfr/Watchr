@@ -14,6 +14,7 @@ const en = {
     INVALID_SOURCE: "Invalid news source.",
     NEWS_SOURCE_NOT_FOUND: "News source not found.",
     NEWS_FETCH_ERROR: "Failed to fetch news.",
+    IMAGE_FETCH_ERROR: "Failed to fetch image.",
     IMPORT_FAILED: "Import failed.",
     IMPORT_NO_CSV: "No valid CSV file found in the uploaded archive.",
     IMPORT_REVIEW_NOT_FOUND: "Import review not found.",

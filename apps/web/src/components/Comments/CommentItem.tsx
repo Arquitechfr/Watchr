@@ -8,22 +8,36 @@ import { useI18n } from "../../i18n/useI18n";
 
 interface CommentItemProps {
   comment: Comment;
+  showId: string;
+  title: string;
+  season?: number;
+  episode?: number;
   onLike: (id: string) => void;
   onUnlike: (id: string) => void;
   onDelete: (id: string) => void;
-  onEdit: (id: string, content: string) => void;
+  onEdit: (id: string, content: string, images?: string[], isSpoiler?: boolean) => void;
   onReply?: (parentId: string) => void;
+  onAddReaction?: (id: string, emoji: string) => void;
+  onRemoveReaction?: (id: string, emoji: string) => void;
   isOwnComment: boolean;
+  isPending?: boolean;
 }
 
 export function CommentItem({
   comment,
+  showId,
+  title,
+  season,
+  episode,
   onLike,
   onUnlike,
   onDelete,
   onEdit,
   onReply,
+  onAddReaction,
+  onRemoveReaction,
   isOwnComment,
+  isPending = false,
 }: CommentItemProps) {
   const { t, dateFnsLocale } = useI18n();
   const navigate = useNavigate();
@@ -111,16 +125,25 @@ export function CommentItem({
               )}
 
               {comment.reactions.length > 0 && (
-                <div className="flex gap-1 mt-2">
+                <div className="flex gap-1 mt-2 flex-wrap">
                   {comment.reactions.map((r) => (
-                    <span
+                    <button
                       key={r.emoji}
-                      className={`text-xs px-2 py-0.5 rounded-full ${
-                        r.reactedByMe ? "bg-primary/20 text-primary" : "bg-surface-light text-text-muted"
+                      onClick={() => {
+                        if (isPending) return;
+                        if (r.reactedByMe && onRemoveReaction) {
+                          onRemoveReaction(comment.id, r.emoji);
+                        } else if (!r.reactedByMe && onAddReaction) {
+                          onAddReaction(comment.id, r.emoji);
+                        }
+                      }}
+                      disabled={isPending}
+                      className={`text-xs px-2 py-0.5 rounded-full transition-colors ${
+                        r.reactedByMe ? "bg-primary/20 text-primary" : "bg-surface-light text-text-muted hover:bg-surface"
                       }`}
                     >
                       {r.emoji} {r.count}
-                    </span>
+                    </button>
                   ))}
                 </div>
               )}

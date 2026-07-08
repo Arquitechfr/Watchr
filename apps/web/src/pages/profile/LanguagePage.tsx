@@ -35,12 +35,9 @@ export function LanguagePage() {
   async function handleSelect(code: SupportedLocale) {
     if (code === locale) return;
     setLocale(code);
-    try {
-      await updateLanguage(code);
-    } catch {
-      // non-critical
-    }
-    showSnackbar(t("screens.profile.languageUpdated"), "success");
+    updateLanguage(code).catch((error) => {
+      showSnackbar(t("screens.profile.languageSyncError"), "error");
+    });
   }
 
   return (

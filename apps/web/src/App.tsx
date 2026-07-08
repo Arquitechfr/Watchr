@@ -31,7 +31,9 @@ import { ShowDetailPage } from "./pages/ShowDetailPage";
 import { ShowCommentsPage } from "./pages/ShowCommentsPage";
 import { EpisodeDetailPage } from "./pages/EpisodeDetailPage";
 import { CommentThreadPage } from "./pages/CommentThreadPage";
-import { OnboardingPage } from "./pages/OnboardingPage";
+import { OnboardingWelcomePage } from "./pages/onboarding/OnboardingWelcomePage";
+import { OnboardingSelectionPage } from "./pages/onboarding/OnboardingSelectionPage";
+import { OnboardingConfirmationPage } from "./pages/onboarding/OnboardingConfirmationPage";
 import { ImportPage } from "./pages/ImportPage";
 import { ImportReviewPage } from "./pages/ImportReviewPage";
 import { ExportPage } from "./pages/ExportPage";
@@ -102,7 +104,10 @@ export default function App() {
               <Route path="/profile/import" element={<ImportPage />} />
               <Route path="/profile/export" element={<ExportPage />} />
               <Route path="/library" element={<LibraryPage />} />
-              <Route path="/onboarding" element={<OnboardingPage />} />
+              <Route path="/onboarding" element={<OnboardingWelcomePage />} />
+              <Route path="/onboarding/welcome" element={<OnboardingWelcomePage />} />
+              <Route path="/onboarding/selection" element={<OnboardingSelectionPage />} />
+              <Route path="/onboarding/confirmation" element={<OnboardingConfirmationPage />} />
               <Route path="/show/:tmdbId" element={<ShowDetailPage />} />
               <Route path="/show/:tmdbId/comments" element={<ShowCommentsPage />} />
               <Route path="/show/:tmdbId/season/:season/episode/:episode" element={<EpisodeDetailPage />} />

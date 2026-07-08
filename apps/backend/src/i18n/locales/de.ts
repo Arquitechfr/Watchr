@@ -14,6 +14,7 @@ const de = {
     INVALID_SOURCE: "Ungültige Nachrichtenquelle.",
     NEWS_SOURCE_NOT_FOUND: "Nachrichtenquelle nicht gefunden.",
     NEWS_FETCH_ERROR: "Nachrichten konnten nicht geladen werden.",
+    IMAGE_FETCH_ERROR: "Bild konnte nicht geladen werden.",
     IMPORT_FAILED: "Import fehlgeschlagen.",
     IMPORT_NO_CSV: "Keine gültige CSV im Archiv gefunden.",
     IMPORT_REVIEW_NOT_FOUND: "Import-Prüfung nicht gefunden.",

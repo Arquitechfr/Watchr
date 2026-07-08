@@ -1,11 +1,38 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getFavorites, addFavorite, removeFavorite, type FavoritesResponse } from "../services/favorites.service";
+import { useMutation, useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  getFavorites,
+  addFavorite,
+  removeFavorite,
+  getFavoriteShowIds,
+  type FavoritesResponse,
+  type FavoriteItem,
+} from "../services/favorites.service";
+import { useAuthStore } from "../store/authStore";
 
-export function useFavorites(type?: "tv" | "movie", page: number = 1, limit: number = 20) {
-  return useQuery<FavoritesResponse>({
-    queryKey: ["favorites", type, page, limit],
-    queryFn: () => getFavorites(type, page, limit),
-    staleTime: 30_000,
+export type FavoriteType = "tv" | "movie" | undefined;
+
+export function useFavorites(type: FavoriteType) {
+  const isHydrated = useAuthStore((state) => state.isHydrated);
+
+  return useInfiniteQuery<FavoritesResponse>({
+    queryKey: ["favorites", type],
+    queryFn: ({ pageParam }) => getFavorites(type, (pageParam as number) ?? 1, 20),
+    initialPageParam: 1,
+    enabled: isHydrated,
+    getNextPageParam: (lastPage) => {
+      const { page, pages } = lastPage.pagination;
+      return page < pages ? page + 1 : undefined;
+    },
+  });
+}
+
+export function useFavoriteShowIds() {
+  const isHydrated = useAuthStore((state) => state.isHydrated);
+
+  return useQuery<string[]>({
+    queryKey: ["favorite-ids"],
+    queryFn: getFavoriteShowIds,
+    enabled: isHydrated,
   });
 }
 

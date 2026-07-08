@@ -6,10 +6,16 @@ interface SearchBarProps {
   onChange: (value: string) => void;
   placeholder?: string;
   autoFocus?: boolean;
+  onClose?: () => void;
 }
 
-export function SearchBar({ value, onChange, placeholder, autoFocus }: SearchBarProps) {
+export function SearchBar({ value, onChange, placeholder, autoFocus, onClose }: SearchBarProps) {
   const { t } = useI18n();
+
+  const handleClose = () => {
+    onChange("");
+    onClose?.();
+  };
 
   return (
     <div className="relative flex items-center">
@@ -24,7 +30,7 @@ export function SearchBar({ value, onChange, placeholder, autoFocus }: SearchBar
       />
       {value && (
         <button
-          onClick={() => onChange("")}
+          onClick={handleClose}
           className="absolute right-3 text-text-muted hover:text-text transition-colors"
         >
           <X size={18} />

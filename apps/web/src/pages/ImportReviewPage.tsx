@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   getImportReviews,
   resolveImportReview,
@@ -20,43 +21,32 @@ export function ImportReviewPage() {
   const { t } = useI18n();
   const { showSnackbar } = useUIStore();
   const getErrorMessage = useErrorMessage();
-  const [data, setData] = useState<ImportReviewsResponse | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [resolvingId, setResolvingId] = useState<string | null>(null);
 
-  const fetchReviews = useCallback(async () => {
-    try {
-      const result = await getImportReviews(jobId);
-      setData(result);
-    } catch (err) {
-      showSnackbar(getErrorMessage(err), "error");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [jobId, showSnackbar, getErrorMessage]);
-
-  useEffect(() => {
-    fetchReviews();
-  }, [fetchReviews]);
+  const { data, isLoading } = useQuery({
+    queryKey: ["import-reviews", jobId],
+    queryFn: () => getImportReviews(jobId),
+  });
 
   const handleResolve = useCallback(
     async (reviewId: string, tmdbId: number | null, skip: boolean) => {
       setResolvingId(reviewId);
       try {
-        await resolveImportReview(jobId, reviewId, tmdbId, skip);
+        await resolveImportReview(reviewId, tmdbId, skip);
         showSnackbar(skip ? t("screens.importReview.skipped") : t("screens.importReview.resolved"), "success");
-        await fetchReviews();
+        queryClient.invalidateQueries({ queryKey: ["import-reviews", jobId] });
       } catch (err) {
         showSnackbar(getErrorMessage(err), "error");
       } finally {
         setResolvingId(null);
       }
     },
-    [jobId, t, showSnackbar, getErrorMessage, fetchReviews],
+    [jobId, t, showSnackbar, getErrorMessage, queryClient],
   );
 
   const reviews: ImportReviewItem[] = data?.reviews ?? [];
-  const pendingCount = data?.total ?? 0;
+  const pendingCount = data?.pending ?? 0;
 
   return (
     <ScreenContainer className="px-6 py-8">
@@ -88,9 +78,9 @@ export function ImportReviewPage() {
         ) : (
           <div className="space-y-3">
             {reviews.map((item) => {
-              const isResolving = resolvingId === item._id;
+              const isResolving = resolvingId === item.id;
               return (
-                <div key={item._id} className="bg-surface rounded-lg p-4">
+                <div key={item.id} className="bg-surface rounded-lg p-4">
                   <div className="mb-3">
                     <p className="text-text font-semibold text-base">{item.sourceTitle}</p>
                     <p className="text-text-muted text-sm">
@@ -106,7 +96,7 @@ export function ImportReviewPage() {
                       {item.candidates.map((candidate, index) => (
                         <button
                           key={`${candidate.tmdbId}-${index}`}
-                          onClick={() => handleResolve(item._id, candidate.tmdbId, false)}
+                          onClick={() => handleResolve(item.id, candidate.tmdbId, false)}
                           disabled={isResolving}
                           className="w-full flex items-center bg-surface-light rounded-lg p-3 hover:opacity-80 transition-opacity disabled:opacity-50 text-left"
                         >
@@ -137,7 +127,7 @@ export function ImportReviewPage() {
                   )}
 
                   <button
-                    onClick={() => handleResolve(item._id, null, true)}
+                    onClick={() => handleResolve(item.id, null, true)}
                     disabled={isResolving}
                     className="w-full py-2 text-center text-text-muted text-sm hover:opacity-70 transition-opacity"
                   >

@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createComment,
   updateComment,
@@ -7,9 +7,13 @@ import {
   unlikeComment,
   addReaction,
   removeReaction,
+  getCommentById,
+  listRepliesForComment,
   type CreateCommentInput,
   type UpdateCommentInput,
   type ListCommentsQuery,
+  type Comment,
+  type ListRepliesResult,
 } from "../services/comments.service";
 
 export function useCreateComment(showId: string, query?: ListCommentsQuery) {
@@ -96,5 +100,21 @@ export function useRemoveReaction(showId: string, query?: ListCommentsQuery) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey });
     },
+  });
+}
+
+export function useComment(commentId: string) {
+  return useQuery({
+    queryKey: ["comments", "single", commentId],
+    queryFn: () => getCommentById(commentId),
+    enabled: Boolean(commentId),
+  });
+}
+
+export function useReplies(commentId: string, page: number = 1, limit: number = 20) {
+  return useQuery({
+    queryKey: ["comments", "replies", commentId, page, limit],
+    queryFn: () => listRepliesForComment(commentId, page, limit),
+    enabled: Boolean(commentId),
   });
 }

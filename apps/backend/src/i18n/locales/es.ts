@@ -14,6 +14,7 @@ const es = {
     INVALID_SOURCE: "Fuente de noticias inválida.",
     NEWS_SOURCE_NOT_FOUND: "Fuente de noticias no encontrada.",
     NEWS_FETCH_ERROR: "Error al obtener noticias.",
+    IMAGE_FETCH_ERROR: "Error al obtener imagen.",
     IMPORT_FAILED: "Importación fallida.",
     IMPORT_NO_CSV: "No se encontró CSV válido en el archivo.",
     IMPORT_REVIEW_NOT_FOUND: "Revisión de importación no encontrada.",

@@ -4,12 +4,13 @@ import { uploadCommentImage } from "../../services/upload.service";
 import { useI18n } from "../../i18n/useI18n";
 
 interface CommentInputProps {
-  onSubmit: (input: { content: string; images?: string[]; isSpoiler: boolean }) => void;
+  onSubmit: (input: { content: string; images?: string[]; isSpoiler?: boolean }) => void;
   placeholder?: string;
   autoFocus?: boolean;
+  isPending?: boolean;
 }
 
-export function CommentInput({ onSubmit, placeholder, autoFocus }: CommentInputProps) {
+export function CommentInput({ onSubmit, placeholder, autoFocus, isPending = false }: CommentInputProps) {
   const { t } = useI18n();
   const [content, setContent] = useState("");
   const [isSpoiler, setIsSpoiler] = useState(false);
@@ -85,7 +86,7 @@ export function CommentInput({ onSubmit, placeholder, autoFocus }: CommentInputP
         </div>
         <button
           onClick={handleSubmit}
-          disabled={!content.trim() || uploading}
+          disabled={!content.trim() || uploading || isPending}
           className="flex items-center gap-1.5 bg-primary text-background px-3 py-1.5 rounded-md text-sm font-medium hover:bg-primary-dark transition-colors disabled:opacity-50"
         >
           <Send size={16} />

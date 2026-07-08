@@ -1,25 +1,24 @@
 import { List, Grid } from "lucide-react";
+import { useUIStore } from "../store/uiStore";
 
-interface ViewModeToggleProps {
-  mode: "list" | "grid";
-  onChange: (mode: "list" | "grid") => void;
-}
+export function ViewModeToggle() {
+  const libraryViewMode = useUIStore((state) => state.libraryViewMode);
+  const setLibraryViewMode = useUIStore((state) => state.setLibraryViewMode);
 
-export function ViewModeToggle({ mode, onChange }: ViewModeToggleProps) {
   return (
     <div className="flex items-center gap-1 bg-surface rounded-lg p-1">
       <button
-        onClick={() => onChange("list")}
+        onClick={() => setLibraryViewMode("list")}
         className={`p-1.5 rounded-md transition-colors ${
-          mode === "list" ? "bg-primary text-background" : "text-text-muted hover:text-text"
+          libraryViewMode === "list" ? "bg-primary text-background" : "text-text-muted hover:text-text"
         }`}
       >
         <List size={18} />
       </button>
       <button
-        onClick={() => onChange("grid")}
+        onClick={() => setLibraryViewMode("grid")}
         className={`p-1.5 rounded-md transition-colors ${
-          mode === "grid" ? "bg-primary text-background" : "text-text-muted hover:text-text"
+          libraryViewMode === "grid" ? "bg-primary text-background" : "text-text-muted hover:text-text"
         }`}
       >
         <Grid size={18} />

@@ -88,6 +88,7 @@ const en = {
     connected: "Connected successfully",
     invalidCredentials: "Invalid email or password.",
     emailAlreadyUsed: "This email is already in use.",
+    invalidEmail: "Invalid email.",
     networkError: "Check your internet connection.",
     genericError: "Something went wrong. Please try again.",
     forgotPassword: "Forgot password?",

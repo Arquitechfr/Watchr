@@ -29,9 +29,14 @@ export function RegisterPage() {
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault();
     log("Register", "start", { email: email.trim() });
-    if (!email.trim() || password.length < 8) {
-      log("Register", "validation failed");
-      showSnackbar(t("auth.genericError"), "error");
+    if (!email.trim() || !email.includes("@")) {
+      log("Register", "validation failed email");
+      showSnackbar(t("auth.invalidEmail"), "error");
+      return;
+    }
+    if (password.length < 8) {
+      log("Register", "validation failed password");
+      showSnackbar(t("auth.passwordTooShort"), "error");
       return;
     }
     setIsLoading(true);

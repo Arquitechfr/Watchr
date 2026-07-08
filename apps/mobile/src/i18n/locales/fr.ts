@@ -73,6 +73,7 @@ const fr = {
     connected: "Connecté avec succès",
     invalidCredentials: "Email ou mot de passe incorrect.",
     emailAlreadyUsed: "Cet email est déjà utilisé.",
+    invalidEmail: "Email invalide.",
     networkError: "Vérifie ta connexion internet.",
     genericError: "Une erreur est survenue. Réessaie.",
     forgotPassword: "Mot de passe oublié ?",

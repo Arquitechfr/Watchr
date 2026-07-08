@@ -10,6 +10,6 @@ export function useSeasonEpisodes(tmdbId: number, seasonNumber: number) {
     queryKey: ["shows", "season", validTmdbId, validSeasonNumber],
     queryFn: () => getSeasonDetails(validTmdbId, validSeasonNumber),
     enabled: isHydrated && validTmdbId > 0 && validSeasonNumber > 0,
-    staleTime: 10 * 60 * 1000,
+    staleTime: 2 * 60 * 1000,
   });
 }

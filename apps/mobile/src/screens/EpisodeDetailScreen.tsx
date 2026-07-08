@@ -16,7 +16,7 @@ import { format } from "date-fns";
 import { useShowDetails } from "../hooks/useShowDetails";
 import { useSeasonDetails } from "../hooks/useSeasonDetails";
 import { useTrackingEntry } from "../hooks/useTrackingEntry";
-import { useToggleEpisode, useMarkUpTo, useMarkAllAired, useUnmarkSeason } from "../hooks/useTracking";
+import { useToggleEpisode, useMarkUpTo } from "../hooks/useTracking";
 import { WatchedEpisode } from "../services/tracking.service";
 import { useRatingsForShow, useUpsertRating } from "../hooks/useRatings";
 import { useCommentsForShow } from "../hooks/useComments";
@@ -26,7 +26,7 @@ import { ScreenContainer } from "../components/ScreenContainer";
 import { DetailHeader } from "../components/DetailHeader";
 import { NetworkError } from "../components/NetworkError";
 import { Skeleton } from "../components/Skeleton";
-import { RatingStars } from "../components/RatingStars";
+import { RatingCard } from "../components/RatingCard";
 import { CommentItem } from "../components/Comments/CommentItem";
 import { RootStackParamList } from "../navigation/RootNavigator";
 import {
@@ -66,8 +66,6 @@ export function EpisodeDetailScreen() {
   const throttledRefresh = useRefreshRateLimit();
   const toggleEpisode = useToggleEpisode(showId, tmdbId);
   const markUpTo = useMarkUpTo(showId, tmdbId);
-  const markAllAired = useMarkAllAired(showId, tmdbId);
-  const unmarkSeason = useUnmarkSeason(showId, tmdbId);
   const upsertRating = useUpsertRating(showId);
 
   const episode = useMemo<Episode | undefined>(() => {
@@ -101,8 +99,13 @@ export function EpisodeDetailScreen() {
   const isWatched = watchedKeys.has(`${season}-${episodeNumber}`);
 
   const episodeRating = useMemo(() => {
-    const found = ratings?.episodes.find((e: { season: number; episode: number; value: number }) => e.season === season && e.episode === episodeNumber);
+    const found = ratings?.user.episodes.find((e: { season: number; episode: number; value: number }) => e.season === season && e.episode === episodeNumber);
     return found?.value ?? null;
+  }, [ratings, season, episodeNumber]);
+
+  const communityEpisodeRating = useMemo(() => {
+    const found = ratings?.community.episodes.find((e: { season: number; episode: number; average: number; count: number }) => e.season === season && e.episode === episodeNumber);
+    return found ?? ratings?.community.show ?? null;
   }, [ratings, season, episodeNumber]);
 
   const previewComments = useMemo<Comment[]>(() => (commentsData?.comments ?? []).slice(0, 3), [commentsData]);
@@ -162,41 +165,6 @@ export function EpisodeDetailScreen() {
         },
       ],
     });
-  };
-
-  const handleToggleSeason = () => {
-    if (!show || show.type !== "tv") return;
-    const seasonEpisodes = show.seasons
-      .filter((s: Season) => s.seasonNumber === season)
-      .flatMap((s: Season) => {
-        const count = s.episodeCount ?? s.episodes?.length ?? 0;
-        return Array.from({ length: count }, (_, i) => i + 1).map((ep: number) => ({ season: s.seasonNumber, episode: ep }));
-      });
-    const seasonWatched = seasonEpisodes.every((ep: { season: number; episode: number }) => watchedKeys.has(`${ep.season}-${ep.episode}`));
-
-    if (seasonWatched) {
-      unmarkSeason.mutate(season, {
-        onError: () => showSnackbar(t("screens.episode.seasonError"), "error"),
-      });
-    } else {
-      showAlert({
-        title: t("screens.episode.markSeasonAiredConfirmTitle", { season }),
-        message: t("screens.episode.markSeasonAiredConfirmMessage"),
-        buttons: [
-          { text: t("common.cancel"), style: "cancel" },
-          {
-            text: t("common.confirm"),
-            onPress: () => {
-              log("EpisodeDetail", "mark season aired", { showId, season });
-              markAllAired.mutate(
-                { season },
-                { onError: () => showSnackbar(t("screens.episode.seasonError"), "error") },
-              );
-            },
-          },
-        ],
-      });
-    }
   };
 
   const handleShare = async () => {
@@ -309,7 +277,24 @@ export function EpisodeDetailScreen() {
 
   return (
     <ScreenContainer edges={["top", "left", "right"]}>
-      <DetailHeader title={headerTitle} onBack={() => navigation.goBack()} />
+      <DetailHeader
+        title={headerTitle}
+        onBack={() => navigation.goBack()}
+        rightElement={
+          <TouchableOpacity
+            onPress={handleToggleWatched}
+            disabled={toggleEpisode.isPending || markUpTo.isPending}
+            className="p-1"
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <Ionicons
+              name={isWatched ? "checkmark-circle" : "ellipse-outline"}
+              size={26}
+              color={isWatched ? colors.primary : colors.text}
+            />
+          </TouchableOpacity>
+        }
+      />
       <ScrollView
         className="flex-1 bg-background"
         contentContainerStyle={{ paddingBottom: 120 }}
@@ -357,28 +342,6 @@ export function EpisodeDetailScreen() {
 
           <View className="flex-row flex-wrap mb-6">
             <TouchableOpacity
-              onPress={handleToggleWatched}
-              disabled={toggleEpisode.isPending || markUpTo.isPending}
-              className={`flex-row items-center px-4 py-3 rounded-lg mr-2 mb-2 ${isWatched ? "bg-surface border border-primary" : "bg-primary"}`}
-              activeOpacity={0.7}
-            >
-              <Ionicons name={isWatched ? "checkmark-circle" : "ellipse-outline"} size={18} color={isWatched ? colors.primary : colors.background} />
-              <Text className={`font-semibold ml-2 ${isWatched ? "text-primary" : "text-background"}`}>
-                {isWatched ? t("screens.episode.unwatched") : t("screens.episode.watched")}
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={handleToggleSeason}
-              disabled={toggleEpisode.isPending || markAllAired.isPending || unmarkSeason.isPending}
-              className="flex-row items-center px-4 py-3 rounded-lg bg-surface border border-border mr-2 mb-2"
-              activeOpacity={0.7}
-            >
-              <Ionicons name="checkmark-done-outline" size={18} color={colors.primary} />
-              <Text className="font-semibold ml-2 text-text">{t("screens.episode.markSeasonAired")}</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
               onPress={handleShare}
               className="flex-row items-center px-4 py-3 rounded-lg bg-surface border border-border mr-2 mb-2"
               activeOpacity={0.7}
@@ -402,9 +365,14 @@ export function EpisodeDetailScreen() {
             </TouchableOpacity>
           </View>
 
-          <View className="mb-6">
-            <Text className="text-lg font-semibold text-text mb-2">{t("screens.showDetail.yourRating")}</Text>
-            <RatingStars value={episodeRating} onChange={handleRatingChange} />
+          <View className="flex-row flex-wrap mb-6 gap-2">
+            <RatingCard
+              value={episodeRating}
+              onChange={handleRatingChange}
+            />
+            <RatingCard
+              communityData={communityEpisodeRating}
+            />
           </View>
 
           {show.cast && show.cast.length > 0 && (
@@ -444,11 +412,15 @@ export function EpisodeDetailScreen() {
                 />
               ))
             ) : (
-              <View className="py-12 items-center justify-center bg-surface rounded-lg">
+              <TouchableOpacity
+                onPress={handleOpenComments}
+                className="py-12 items-center justify-center bg-surface rounded-lg"
+                activeOpacity={0.7}
+              >
                 <Ionicons name="chatbubbles-outline" size={40} color={colors.textMuted} />
                 <Text className="text-text-muted mt-2 text-center">{t("screens.comments.empty")}</Text>
                 <Text className="text-text-muted text-sm text-center">{t("screens.comments.beFirst")}</Text>
-              </View>
+              </TouchableOpacity>
             )}
           </View>
         </View>
@@ -466,6 +438,14 @@ export function EpisodeDetailScreen() {
         >
           <Ionicons name="chevron-back" size={18} color={colors.text} />
           <Text className="text-text ml-1 text-sm">{t("common.previous")}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => navigation.navigate("ShowDetail", { tmdbId, title: show.title })}
+          className="flex-row items-center px-4 py-2 rounded-lg bg-surface"
+          activeOpacity={0.7}
+        >
+          <Ionicons name="tv-outline" size={18} color={colors.primary} />
+          <Text className="text-primary ml-1 text-sm font-semibold">{t("common.backToSeries")}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => nextEpisode && handleNavigate(nextEpisode)}

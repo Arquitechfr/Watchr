@@ -10,6 +10,7 @@ import { Skeleton } from "../components/Skeleton";
 import { ViewModeToggle } from "../components/ViewModeToggle";
 import { PosterCard } from "../components/PosterCard";
 import { SearchBar } from "../components/SearchBar";
+import { MainHeader } from "../components/MainHeader";
 import { FilterChips, FilterChipOption } from "../components/FilterChips";
 import { useUnwatchedMovies } from "../hooks/useUnwatched";
 import { useQuickMarkMovieWatched } from "../hooks/useTracking";
@@ -42,6 +43,15 @@ function MovieCard({ movie, onPress, onMarkWatched, isMarking }: { movie: Unwatc
   const colors = useThemeColors();
   const posterUrl = movie.posterPath ? getPosterUrl(movie.posterPath, 200) : null;
 
+  const genreNames = (movie.genres ?? []).filter((g) => g.name).slice(0, 2).map((g) => g.name!);
+
+  const statusColor: Record<WatchStatus, string> = {
+    watching: "text-primary",
+    completed: "text-success",
+    plan_to_watch: "text-text-muted",
+    dropped: "text-error",
+  };
+
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -56,17 +66,28 @@ function MovieCard({ movie, onPress, onMarkWatched, isMarking }: { movie: Unwatc
         />
       ) : (
         <View className="w-16 h-24 rounded bg-muted items-center justify-center">
-          <Text className="text-text-muted text-xs">No poster</Text>
+          <Text className="text-text-muted text-xs">{t("common.noImage")}</Text>
         </View>
       )}
       <View className="flex-1 justify-center">
         <Text className="text-text font-semibold text-base mb-1" numberOfLines={2}>
           {movie.title}
         </Text>
-        <Text className="text-text-muted text-sm mb-1">
+        {movie.year ? (
+          <Text className="text-text-muted text-xs mb-1">
+            {movie.year} · {t("common.movie")}
+          </Text>
+        ) : (
+          <Text className="text-text-muted text-xs mb-1">{t("common.movie")}</Text>
+        )}
+        {genreNames.length > 0 && (
+          <Text className="text-text-muted text-xs mb-1" numberOfLines={1}>
+            {genreNames.join(" · ")}
+          </Text>
+        )}
+        <Text className={`text-xs font-semibold ${statusColor[movie.status]}`}>
           {getStatusLabel(t, movie.status)}
         </Text>
-        <Text className="text-text-muted text-xs">{t("common.movie")}</Text>
       </View>
       {onMarkWatched && (
         <TouchableOpacity
@@ -172,7 +193,7 @@ export function MoviesScreen() {
   if (isLoading) {
     return (
       <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]}>
-        <Text className="text-3xl font-bold text-text mb-4">{t("navigation.movies")}</Text>
+        <MainHeader />
         {[...Array(4)].map((_, index) => (
           <Skeleton key={index} width="100%" height={112} className="mb-2" borderRadius={8} />
         ))}
@@ -183,7 +204,7 @@ export function MoviesScreen() {
   if (isError) {
     return (
       <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]}>
-        <Text className="text-3xl font-bold text-text mb-4">{t("navigation.movies")}</Text>
+        <MainHeader />
         <NetworkError isOffline={!error || !("response" in error)} onRetry={() => refetch()} />
       </ScreenContainer>
     );
@@ -194,20 +215,22 @@ export function MoviesScreen() {
     type: "movie",
     title: movie.title,
     posterPath: movie.posterPath ?? undefined,
+    firstAirDate: movie.year ? `${movie.year}-01-01` : undefined,
     source: "tmdb",
   });
 
   return (
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]}>
-      <View className="flex-row items-center justify-between mb-4">
-        <Text className="text-3xl font-bold text-text">{t("navigation.movies")}</Text>
-        <View className="flex-row items-center" style={{ gap: 12 }}>
-          <TouchableOpacity onPress={() => setIsSearchVisible(!isSearchVisible)} className="p-1">
-            <Ionicons name={isSearchVisible ? "search" : "search-outline"} size={24} color={colors.text} />
-          </TouchableOpacity>
-          <ViewModeToggle />
-        </View>
-      </View>
+      <MainHeader
+        rightElement={
+          <>
+            <TouchableOpacity onPress={() => setIsSearchVisible(!isSearchVisible)} className="p-1">
+              <Ionicons name={isSearchVisible ? "search" : "search-outline"} size={24} color={colors.text} />
+            </TouchableOpacity>
+            <ViewModeToggle />
+          </>
+        }
+      />
 
       {isSearchVisible && (
         <>
@@ -249,7 +272,15 @@ export function MoviesScreen() {
             keyExtractor={(item) => item.showId}
             numColumns={gridNumColumns}
             columnWrapperStyle={{ gap: gridGap }}
-            renderItem={({ item }) => (
+            renderItem={({ item }) => {
+              const genreNames = (item.genres ?? []).filter((g) => g.name).slice(0, 2).map((g) => g.name!);
+              const statusColorMap: Record<WatchStatus, string> = {
+                watching: "text-primary",
+                completed: "text-success",
+                plan_to_watch: "text-text-muted",
+                dropped: "text-error",
+              };
+              return (
               <View style={{ width: gridCardWidth, marginBottom: gridGap }}>
                 <PosterCard
                   show={toSearchResultItem(item)}
@@ -258,9 +289,13 @@ export function MoviesScreen() {
                     navigation.navigate("ShowDetail", { tmdbId: item.tmdbId, title: item.title });
                   }}
                   width={gridCardWidth}
+                  genres={genreNames}
+                  statusLabel={getStatusLabel(t, item.status)}
+                  statusColor={statusColorMap[item.status]}
                 />
               </View>
-            )}
+              );
+            }}
             refreshControl={<RefreshControl refreshing={isLoading} onRefresh={() => throttledRefresh(refetch)} tintColor={colors.primary} />}
             contentContainerStyle={{ paddingBottom: 24 }}
             ListEmptyComponent={

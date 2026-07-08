@@ -8,5 +8,6 @@ export function useSeasonDetails(tmdbId: number, seasonNumber: number) {
     queryKey: ["shows", "season", tmdbId, seasonNumber],
     queryFn: () => getSeasonDetails(tmdbId, seasonNumber),
     enabled: isHydrated && Boolean(tmdbId) && Boolean(seasonNumber),
+    staleTime: 2 * 60 * 1000,
   });
 }

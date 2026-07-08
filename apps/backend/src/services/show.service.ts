@@ -1,6 +1,6 @@
 import { Show, getLocalizedShow } from "../models/show.model.js";
 import { ApiError } from "../middleware/error.middleware.js";
-import { tmdbService, TmdbSearchResult } from "./tmdb.service.js";
+import { tmdbService, TmdbSearchResult, TmdbPaginatedResult } from "./tmdb.service.js";
 import { normalizeLocale } from "../i18n/index.js";
 import {
   isShowCacheStale,
@@ -39,6 +39,16 @@ export interface DiscoverSection {
 export interface DiscoverResult {
   sections: DiscoverSection[];
 }
+
+export interface DiscoverSectionItemsResult {
+  items: SearchResultItem[];
+  page: number;
+  totalPages: number;
+  hasMore: boolean;
+}
+
+const DISCOVER_SECTION_IDS = ["trending-tv", "trending-movie", "popular-tv", "popular-movie"] as const;
+export type DiscoverSectionId = (typeof DISCOVER_SECTION_IDS)[number];
 
 export async function searchShows(query: string, locale = "en"): Promise<SearchResultItem[]> {
   log("ShowService", "search start", { query, locale });
@@ -80,19 +90,19 @@ export async function getDiscoverSections(locale = "en"): Promise<DiscoverResult
   const [trendingTv, trendingMovies, popularTv, popularMovies] = await Promise.all([
     tmdbService.getTrendingTv(10, tmdbLanguage).catch((err: Error) => {
       logError("ShowService", "trending tv failed", err);
-      return [] as TmdbSearchResult[];
+      return { results: [] as TmdbSearchResult[], page: 1, totalPages: 0 } as TmdbPaginatedResult;
     }),
     tmdbService.getTrendingMovies(10, tmdbLanguage).catch((err: Error) => {
       logError("ShowService", "trending movies failed", err);
-      return [] as TmdbSearchResult[];
+      return { results: [] as TmdbSearchResult[], page: 1, totalPages: 0 } as TmdbPaginatedResult;
     }),
     tmdbService.getPopularTv(10, tmdbLanguage).catch((err: Error) => {
       logError("ShowService", "popular tv failed", err);
-      return [] as TmdbSearchResult[];
+      return { results: [] as TmdbSearchResult[], page: 1, totalPages: 0 } as TmdbPaginatedResult;
     }),
     tmdbService.getPopularMovies(10, tmdbLanguage).catch((err: Error) => {
       logError("ShowService", "popular movies failed", err);
-      return [] as TmdbSearchResult[];
+      return { results: [] as TmdbSearchResult[], page: 1, totalPages: 0 } as TmdbPaginatedResult;
     }),
   ]);
 
@@ -101,36 +111,69 @@ export async function getDiscoverSections(locale = "en"): Promise<DiscoverResult
       id: "trending-tv",
       title: isFr ? "Séries tendances" : "Trending TV Shows",
       type: "tv",
-      items: trendingTv.map((item) => mapTmdbResult(item, "tv")),
+      items: trendingTv.results.map((item) => mapTmdbResult(item, "tv")),
     },
     {
       id: "trending-movie",
       title: isFr ? "Films tendances" : "Trending Movies",
       type: "movie",
-      items: trendingMovies.map((item) => mapTmdbResult(item, "movie")),
+      items: trendingMovies.results.map((item) => mapTmdbResult(item, "movie")),
     },
     {
       id: "popular-tv",
       title: isFr ? "Séries populaires" : "Popular TV Shows",
       type: "tv",
-      items: popularTv.map((item) => mapTmdbResult(item, "tv")),
+      items: popularTv.results.map((item) => mapTmdbResult(item, "tv")),
     },
     {
       id: "popular-movie",
       title: isFr ? "Films populaires" : "Popular Movies",
       type: "movie",
-      items: popularMovies.map((item) => mapTmdbResult(item, "movie")),
+      items: popularMovies.results.map((item) => mapTmdbResult(item, "movie")),
     },
   ];
 
   log("ShowService", "discover result", {
-    trendingTv: trendingTv.length,
-    trendingMovies: trendingMovies.length,
-    popularTv: popularTv.length,
-    popularMovies: popularMovies.length,
+    trendingTv: trendingTv.results.length,
+    trendingMovies: trendingMovies.results.length,
+    popularTv: popularTv.results.length,
+    popularMovies: popularMovies.results.length,
   });
 
   return { sections };
+}
+
+export async function getDiscoverSectionItems(
+  sectionId: DiscoverSectionId,
+  page: number,
+  locale = "en",
+): Promise<DiscoverSectionItemsResult> {
+  log("ShowService", "discover section items", { sectionId, page, locale });
+  const tmdbLanguage = toTmdbLanguage(locale);
+
+  const fetcher: Record<DiscoverSectionId, () => Promise<TmdbPaginatedResult>> = {
+    "trending-tv": () => tmdbService.getTrendingTv(10, tmdbLanguage, page),
+    "trending-movie": () => tmdbService.getTrendingMovies(10, tmdbLanguage, page),
+    "popular-tv": () => tmdbService.getPopularTv(10, tmdbLanguage, page),
+    "popular-movie": () => tmdbService.getPopularMovies(10, tmdbLanguage, page),
+  };
+
+  const typeMap: Record<DiscoverSectionId, "tv" | "movie"> = {
+    "trending-tv": "tv",
+    "trending-movie": "movie",
+    "popular-tv": "tv",
+    "popular-movie": "movie",
+  };
+
+  const result = await fetcher[sectionId]();
+  const items = result.results.map((item) => mapTmdbResult(item, typeMap[sectionId]));
+
+  return {
+    items,
+    page: result.page,
+    totalPages: result.totalPages,
+    hasMore: result.page < result.totalPages,
+  };
 }
 
 export async function getShowDetails(tmdbId: number, locale = "en"): Promise<ReturnType<typeof showToResponse>> {

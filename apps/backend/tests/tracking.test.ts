@@ -282,4 +282,69 @@ describe("Tracking", () => {
     expect(res.body.shows[0].unwatchedEpisodes).toHaveLength(1);
     expect(res.body.shows[0].unwatchedEpisodes[0].episode).toBe(2);
   });
+
+  it("should keep future upcoming episodes after marking one as watched (translation with empty episodes)", async () => {
+    const { token } = await getAuthUser();
+    const now = new Date();
+    const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+    const nextWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+    const show = await Show.create({
+      tmdbId: 456,
+      type: "tv",
+      title: "Upcoming Test Show",
+      status: "Returning Series",
+      seasons: [
+        {
+          seasonNumber: 1,
+          episodeCount: 3,
+          episodes: [
+            { episodeNumber: 1, airDate: new Date("2020-01-01") },
+            { episodeNumber: 2, name: "Tomorrow Ep", airDate: tomorrow },
+            { episodeNumber: 3, name: "Next Week Ep", airDate: nextWeek },
+          ],
+        },
+      ],
+      translations: new Map([
+        [
+          "fr",
+          {
+            title: "Série à venir",
+            seasons: [
+              {
+                seasonNumber: 1,
+                episodeCount: 3,
+                episodes: [],
+              },
+            ],
+          },
+        ],
+      ]),
+    });
+
+    await request(app)
+      .post(`/api/tracking/${show._id.toString()}`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({ status: "watching" });
+
+    await request(app)
+      .patch(`/api/tracking/${show._id.toString()}/episodes`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({ season: 1, episode: 2, watched: true });
+
+    const res = await request(app)
+      .get("/api/upcoming")
+      .set("Authorization", `Bearer ${token}`)
+      .set("Accept-Language", "fr");
+
+    expect(res.status).toBe(200);
+    const allUpcoming = [
+      ...res.body.today,
+      ...res.body.thisWeek,
+      ...res.body.nextWeek,
+      ...res.body.later,
+    ];
+    expect(allUpcoming.length).toBe(1);
+    expect(allUpcoming[0].episode).toBe(3);
+  });
 });

@@ -21,22 +21,44 @@ export interface UpsertRatingInput {
   };
 }
 
-export interface RatingsForShow {
-  show: number | null;
-  episodes: Array<{ season: number; episode: number; value: number }>;
+export interface CommunityRating {
+  average: number;
+  count: number;
 }
 
-export async function upsertRating(input: UpsertRatingInput): Promise<Rating> {
+export interface CommunityRatings {
+  show: CommunityRating | null;
+  episodes: Array<{ season: number; episode: number; average: number; count: number }>;
+}
+
+export interface RatingsForShow {
+  user: {
+    show: number | null;
+    episodes: Array<{ season: number; episode: number; value: number }>;
+  };
+  community: CommunityRatings;
+}
+
+export interface UpsertRatingResponse {
+  rating: Rating;
+  community: CommunityRatings;
+}
+
+export async function upsertRating(input: UpsertRatingInput): Promise<UpsertRatingResponse> {
   log("RatingsService", "upsert", { showId: input.showId, value: input.value, episodeRef: input.episodeRef });
-  const response = await api.post<Rating>("/ratings", input);
-  log("RatingsService", "upsert response", { id: response.data.id, value: response.data.value });
+  const response = await api.post<UpsertRatingResponse>("/ratings", input);
+  log("RatingsService", "upsert response", { id: response.data.rating.id, value: response.data.rating.value });
   return response.data;
 }
 
 export async function listRatingsForShow(showId: string): Promise<RatingsForShow> {
   log("RatingsService", "list", { showId });
   const response = await api.get<RatingsForShow>(`/ratings/${showId}`);
-  log("RatingsService", "list response", { show: response.data.show, episodes: response.data.episodes.length });
+  log("RatingsService", "list response", {
+    userShow: response.data.user.show,
+    userEpisodes: response.data.user.episodes.length,
+    communityShow: response.data.community.show,
+  });
   return response.data;
 }
 

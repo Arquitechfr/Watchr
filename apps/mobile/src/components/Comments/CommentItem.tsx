@@ -91,7 +91,7 @@ export function CommentItem({
   };
 
   const handleReaction = (emoji: string) => {
-    const existing = comment.reactions.find((r) => r.emoji === emoji);
+    const existing = comment.reactions?.find((r) => r.emoji === emoji);
     if (existing?.reactedByMe) {
       onRemoveReaction?.(comment.id, emoji);
     } else {
@@ -156,7 +156,7 @@ export function CommentItem({
             <>
               <Text className="text-text leading-relaxed">{comment.content}</Text>
 
-              {comment.images.length > 0 && (
+              {comment.images?.length > 0 && (
                 <View className="flex-row flex-wrap mt-2">
                   {comment.images.map((img, idx) => (
                     <Pressable key={idx} onPress={() => setViewingImage(img)}>
@@ -253,7 +253,7 @@ export function CommentItem({
             )}
           </View>
 
-          {comment.reactions.length > 0 && (
+          {comment.reactions?.length > 0 && (
             <View className="flex-row flex-wrap mt-2">
               {comment.reactions.map((reaction) => (
                 <TouchableOpacity

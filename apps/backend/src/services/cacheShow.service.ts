@@ -19,7 +19,7 @@ import { wsEvents } from "../lib/wsEvents.js";
 export type ShowDocument = HydratedDocument<IShow>;
 
 const SHOW_METADATA_SYNC_TTL_MS = 7 * 24 * 60 * 60 * 1000;
-const EPISODE_SYNC_TTL_MS = 24 * 60 * 60 * 1000;
+const EPISODE_SYNC_TTL_MS = 6 * 60 * 60 * 1000;
 
 export function isShowCacheStale(show?: IShow | null): boolean {
   if (!show || !show.lastSyncedAt) return true;
@@ -282,6 +282,14 @@ export async function syncEpisodesForShow(show: ShowDocument, language = "en-US"
           existingSeason.episodeCount = mapped.episodeCount;
         } else {
           freshShow.seasons.push(mapped);
+        }
+
+        for (const [, translation] of freshShow.translations ?? []) {
+          const trSeason = translation.seasons?.find((s) => s.seasonNumber === seasonNumber);
+          if (trSeason) {
+            trSeason.episodes = mapped.episodes;
+            trSeason.episodeCount = mapped.episodeCount;
+          }
         }
       } catch (err) {
         logError("CacheShowService", "syncEpisodes season failed", err, { tmdbId: freshShow.tmdbId, seasonNumber });

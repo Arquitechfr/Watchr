@@ -1,5 +1,6 @@
 import { View, Text, FlatList, RefreshControl, ScrollView, TouchableOpacity } from "react-native";
 import { ScreenContainer } from "../components/ScreenContainer";
+import { MainHeader } from "../components/MainHeader";
 import { NewsCard } from "../components/NewsCard";
 import { EmptyState } from "../components/EmptyState";
 import { NetworkError } from "../components/NetworkError";
@@ -36,7 +37,7 @@ export function NewsScreen() {
 
   return (
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]}>
-      <Text className="text-3xl font-bold text-text mb-4">{t("navigation.news")}</Text>
+      <MainHeader />
 
       {sources && sources.length > 0 && (
         <ScrollView

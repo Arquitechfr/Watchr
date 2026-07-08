@@ -153,3 +153,19 @@ export async function getDiscoverSections(): Promise<DiscoverResult> {
   log("ShowsService", "discover response", { sectionCount: response.data.sections.length });
   return response.data;
 }
+
+export interface DiscoverSectionItemsResult {
+  items: SearchResultItem[];
+  page: number;
+  totalPages: number;
+  hasMore: boolean;
+}
+
+export async function fetchDiscoverSectionItems(sectionId: string, page: number): Promise<DiscoverSectionItemsResult> {
+  log("ShowsService", "discover section items", { sectionId, page });
+  const response = await api.get<DiscoverSectionItemsResult>(`/shows/discover/${sectionId}`, {
+    params: { page },
+  });
+  log("ShowsService", "discover section items response", { sectionId, count: response.data.items.length });
+  return response.data;
+}

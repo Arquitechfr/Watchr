@@ -10,6 +10,6 @@ export const episodeRefSchema = z
 export const upsertRatingSchema = z.object({
   showId: z.string().min(1, "Show ID is required"),
   episodeRef: episodeRefSchema,
-  value: z.coerce.number().int().min(1).max(10),
+  value: z.coerce.number().int().min(1).max(5),
   review: z.string().max(2000).optional(),
 });

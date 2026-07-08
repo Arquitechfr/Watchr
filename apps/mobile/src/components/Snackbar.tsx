@@ -34,11 +34,11 @@ export function Snackbar() {
       ? "bg-danger"
       : snackbar.type === "success"
         ? "bg-success"
-        : "bg-surface-light";
+        : "bg-primary";
 
   return (
     <Animated.View
-      style={{ opacity }}
+      style={{ opacity, elevation: 60 }}
       className={`absolute bottom-12 left-4 right-4 ${bgClass} px-4 py-3 rounded-lg shadow-lg z-50`}
       pointerEvents="box-none"
     >

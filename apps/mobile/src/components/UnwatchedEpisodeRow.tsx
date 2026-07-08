@@ -1,5 +1,6 @@
 import { View, Text, Image, TouchableOpacity, ActivityIndicator } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { formatDistanceToNow } from "date-fns";
 import { getPosterUrl } from "../services/shows.service";
 import { UnwatchedEpisode } from "../services/unwatched.service";
 import { useI18n } from "../i18n/useI18n";
@@ -26,11 +27,17 @@ export function UnwatchedEpisodeRow({
   onMarkWatched,
   isMarking,
 }: UnwatchedEpisodeRowProps) {
-  const { t } = useI18n();
+  const { t, dateFnsLocale } = useI18n();
   const colors = useThemeColors();
   const posterUrl = getPosterUrl(posterPath, 200);
 
   const seasonEpisodeLabel = `S${String(episode.season).padStart(2, "0")} - E${String(episode.episode).padStart(2, "0")}`;
+
+  const airedLabel = episode.airDate
+    ? t("screens.unwatched.airedAgo", {
+        distance: formatDistanceToNow(new Date(episode.airDate), { addSuffix: true, locale: dateFnsLocale }),
+      })
+    : null;
 
   return (
     <TouchableOpacity
@@ -60,6 +67,11 @@ export function UnwatchedEpisodeRow({
         {episode.name ? (
           <Text className="text-text-muted text-sm" numberOfLines={1}>
             {episode.name}
+          </Text>
+        ) : null}
+        {airedLabel ? (
+          <Text className="text-text-muted text-xs mt-0.5">
+            {airedLabel}
           </Text>
         ) : null}
         {isNew ? (

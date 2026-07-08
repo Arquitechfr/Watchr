@@ -81,6 +81,7 @@ export function useTrackingList(status?: WatchStatus) {
     queryFn: ({ pageParam = 1 }) => listTracking(pageParam, 20, status),
     initialPageParam: 1,
     enabled: isHydrated,
+    staleTime: 60 * 1000,
     getNextPageParam: (lastPage) => {
       const { page, totalPages } = lastPage.pagination;
       return page < totalPages ? page + 1 : undefined;

@@ -10,11 +10,88 @@ export interface UpsertRatingInput {
   review?: string;
 }
 
+export interface CommunityRating {
+  average: number;
+  count: number;
+}
+
+export interface CommunityRatings {
+  show: CommunityRating | null;
+  episodes: Array<{ season: number; episode: number; average: number; count: number }>;
+}
+
+function normalizeValue(value: number): number {
+  if (value > 5) {
+    return Math.round(value / 2);
+  }
+  return value;
+}
+
+export async function getCommunityRatings(showId: string): Promise<CommunityRatings> {
+  const show = await Show.findById(showId).lean();
+  if (!show) {
+    return { show: null, episodes: [] };
+  }
+
+  const tmdbAvg = show.voteAverage ? show.voteAverage / 2 : null;
+  const tmdbCount = show.voteCount ?? 0;
+
+  const [showAgg, episodeAgg] = await Promise.all([
+    Rating.aggregate<{
+      _id: null;
+      average: number;
+      count: number;
+    }>([
+      { $match: { showId: new Types.ObjectId(showId), episodeRef: { $exists: false } } },
+      { $group: { _id: null, average: { $avg: "$value" }, count: { $sum: 1 } } },
+    ]),
+    Rating.aggregate<{
+      _id: { season: number; episode: number };
+      average: number;
+      count: number;
+    }>([
+      { $match: { showId: new Types.ObjectId(showId), episodeRef: { $exists: true } } },
+      {
+        $group: {
+          _id: { season: "$episodeRef.season", episode: "$episodeRef.episode" },
+          average: { $avg: "$value" },
+          count: { $sum: 1 },
+        },
+      },
+    ]),
+  ]);
+
+  let communityShow: CommunityRating | null = null;
+  if (showAgg.length > 0) {
+    const watchrAvg = showAgg[0].average;
+    const watchrCount = showAgg[0].count;
+    if (tmdbAvg !== null && tmdbCount > 0) {
+      const combinedAvg = (watchrAvg * watchrCount + tmdbAvg * tmdbCount) / (watchrCount + tmdbCount);
+      communityShow = { average: Math.round(combinedAvg * 10) / 10, count: watchrCount + tmdbCount };
+    } else {
+      communityShow = { average: Math.round(watchrAvg * 10) / 10, count: watchrCount };
+    }
+  } else if (tmdbAvg !== null && tmdbCount > 0) {
+    communityShow = { average: Math.round(tmdbAvg * 10) / 10, count: tmdbCount };
+  }
+
+  const communityEpisodes = episodeAgg.map((e) => ({
+    season: e._id.season,
+    episode: e._id.episode,
+    average: Math.round(e.average * 10) / 10,
+    count: e.count,
+  }));
+
+  return { show: communityShow, episodes: communityEpisodes };
+}
+
 export async function upsertRating(userId: string, input: UpsertRatingInput) {
   const show = await Show.findById(input.showId);
   if (!show) {
     throw new ApiError(404, "SHOW_NOT_FOUND", "Show not found");
   }
+
+  const normalizedValue = normalizeValue(input.value);
 
   const filter: {
     userId: Types.ObjectId;
@@ -35,14 +112,16 @@ export async function upsertRating(userId: string, input: UpsertRatingInput) {
     filter,
     {
       $set: {
-        value: input.value,
+        value: normalizedValue,
         review: input.review,
       },
     },
     { new: true, upsert: true },
   );
 
-  return rating;
+  const community = await getCommunityRatings(input.showId);
+
+  return { rating, community };
 }
 
 export async function listRatingsForShow(userId: string, showId: string) {
@@ -51,10 +130,13 @@ export async function listRatingsForShow(userId: string, showId: string) {
     throw new ApiError(404, "SHOW_NOT_FOUND", "Show not found");
   }
 
-  const ratings = await Rating.find({
-    userId: new Types.ObjectId(userId),
-    showId: new Types.ObjectId(showId),
-  }).sort({ createdAt: -1 });
+  const [ratings, community] = await Promise.all([
+    Rating.find({
+      userId: new Types.ObjectId(userId),
+      showId: new Types.ObjectId(showId),
+    }).sort({ createdAt: -1 }),
+    getCommunityRatings(showId),
+  ]);
 
   const showRating = ratings.find((r) => !r.episodeRef) ?? null;
   const episodeRatings = ratings
@@ -66,8 +148,11 @@ export async function listRatingsForShow(userId: string, showId: string) {
     }));
 
   return {
-    show: showRating ? showRating.value : null,
-    episodes: episodeRatings,
+    user: {
+      show: showRating ? showRating.value : null,
+      episodes: episodeRatings,
+    },
+    community,
   };
 }
 

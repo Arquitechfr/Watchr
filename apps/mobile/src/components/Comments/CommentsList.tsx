@@ -52,7 +52,7 @@ export function CommentsList({
     );
   }
 
-  if (comments.length === 0) {
+  if (!comments || comments.length === 0) {
     return (
       <View className="flex-1 items-center justify-center px-6">
         <Ionicons name="chatbubbles-outline" size={48} color={colors.textMuted} />

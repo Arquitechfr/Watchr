@@ -14,12 +14,15 @@ interface PosterCardProps {
   watched?: number;
   total?: number;
   width?: number;
+  genres?: string[];
+  statusLabel?: string;
+  statusColor?: string;
 }
 
 const DEFAULT_CARD_WIDTH = 128;
 const DEFAULT_CARD_HEIGHT = 192;
 
-export function PosterCard({ show, onPress, onAdd, isAdding, isAdded, watched, total, width }: PosterCardProps) {
+export function PosterCard({ show, onPress, onAdd, isAdding, isAdded, watched, total, width, genres, statusLabel, statusColor }: PosterCardProps) {
   const { t } = useI18n();
   const colors = useThemeColors();
   const posterUrl = getPosterUrl(show.posterPath, 200);
@@ -102,6 +105,16 @@ export function PosterCard({ show, onPress, onAdd, isAdding, isAdded, watched, t
           {" · "}
           {show.type === "tv" ? t("common.tv") : t("common.movie")}
         </Text>
+        {genres && genres.length > 0 && (
+          <Text className="text-text-muted text-xs mt-0.5" numberOfLines={1}>
+            {genres.join(" · ")}
+          </Text>
+        )}
+        {statusLabel && (
+          <Text className={`text-xs font-semibold mt-1 ${statusColor ?? "text-text-muted"}`}>
+            {statusLabel}
+          </Text>
+        )}
         {show.type === "tv" && watched !== undefined && total !== undefined && (
           <View className="mt-1.5">
             <ProgressBar watched={watched} total={total} />

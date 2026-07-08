@@ -62,6 +62,11 @@ watchr/
 - Backend dev : `pnpm --filter backend dev`
 - Mobile dev : `pnpm --filter mobile start` (dev client Expo, prebuild autorisé)
 
+## URLs de production
+
+- **Site web** : https://watchr.me
+- **API backend** : https://api.watchr.me
+
 ## Contraintes et principes actifs
 
 1. **Modules natifs côté mobile.** Les libs nécessitant du code natif doivent avoir un config plugin Expo officiel. Le prebuild est autorisé (dev client Expo). Signaler avant d'ajouter une lib nécessitant du code natif custom.

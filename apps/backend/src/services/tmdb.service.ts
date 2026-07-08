@@ -15,6 +15,12 @@ export interface TmdbSearchResult {
   media_type?: string;
 }
 
+export interface TmdbPaginatedResult {
+  results: TmdbSearchResult[];
+  page: number;
+  totalPages: number;
+}
+
 export interface TmdbEpisode {
   episode_number: number;
   name?: string;
@@ -217,49 +223,69 @@ class TmdbService {
     }
   }
 
-  async getTrendingTv(limit = 10, language = "en-US"): Promise<TmdbSearchResult[]> {
+  async getTrendingTv(limit = 10, language = "en-US", page = 1): Promise<TmdbPaginatedResult> {
     await tmdbRateLimiter.consume();
     try {
-      const response = await this.client.get<{ results: TmdbSearchResult[] }>("/trending/tv/week", {
-        params: { language },
+      const response = await this.client.get<{ results: TmdbSearchResult[]; total_pages: number; page: number }>("/trending/tv/week", {
+        params: { language, page },
       });
-      return (response.data.results || []).slice(0, limit);
+      const results = response.data.results || [];
+      return {
+        results: page === 1 ? results.slice(0, limit) : results,
+        page: response.data.page,
+        totalPages: response.data.total_pages,
+      };
     } catch (err) {
       throw this.handleError(err);
     }
   }
 
-  async getTrendingMovies(limit = 10, language = "en-US"): Promise<TmdbSearchResult[]> {
+  async getTrendingMovies(limit = 10, language = "en-US", page = 1): Promise<TmdbPaginatedResult> {
     await tmdbRateLimiter.consume();
     try {
-      const response = await this.client.get<{ results: TmdbSearchResult[] }>("/trending/movie/week", {
-        params: { language },
+      const response = await this.client.get<{ results: TmdbSearchResult[]; total_pages: number; page: number }>("/trending/movie/week", {
+        params: { language, page },
       });
-      return (response.data.results || []).slice(0, limit);
+      const results = response.data.results || [];
+      return {
+        results: page === 1 ? results.slice(0, limit) : results,
+        page: response.data.page,
+        totalPages: response.data.total_pages,
+      };
     } catch (err) {
       throw this.handleError(err);
     }
   }
 
-  async getPopularTv(limit = 10, language = "en-US"): Promise<TmdbSearchResult[]> {
+  async getPopularTv(limit = 10, language = "en-US", page = 1): Promise<TmdbPaginatedResult> {
     await tmdbRateLimiter.consume();
     try {
-      const response = await this.client.get<{ results: TmdbSearchResult[] }>("/tv/popular", {
-        params: { language },
+      const response = await this.client.get<{ results: TmdbSearchResult[]; total_pages: number; page: number }>("/tv/popular", {
+        params: { language, page },
       });
-      return (response.data.results || []).slice(0, limit);
+      const results = response.data.results || [];
+      return {
+        results: page === 1 ? results.slice(0, limit) : results,
+        page: response.data.page,
+        totalPages: response.data.total_pages,
+      };
     } catch (err) {
       throw this.handleError(err);
     }
   }
 
-  async getPopularMovies(limit = 10, language = "en-US"): Promise<TmdbSearchResult[]> {
+  async getPopularMovies(limit = 10, language = "en-US", page = 1): Promise<TmdbPaginatedResult> {
     await tmdbRateLimiter.consume();
     try {
-      const response = await this.client.get<{ results: TmdbSearchResult[] }>("/movie/popular", {
-        params: { language },
+      const response = await this.client.get<{ results: TmdbSearchResult[]; total_pages: number; page: number }>("/movie/popular", {
+        params: { language, page },
       });
-      return (response.data.results || []).slice(0, limit);
+      const results = response.data.results || [];
+      return {
+        results: page === 1 ? results.slice(0, limit) : results,
+        page: response.data.page,
+        totalPages: response.data.total_pages,
+      };
     } catch (err) {
       throw this.handleError(err);
     }

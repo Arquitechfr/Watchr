@@ -6,6 +6,11 @@ trigger: model_decision
 
 Ces règles s'appliquent à tout agent (Devin/Cascade) travaillant sur ce repo.
 
+## 0. URLs de production
+
+- **Site web (frontend)** : https://watchr.me
+- **API backend** : https://api.watchr.me
+
 ## 1. Comportement général
 
 - Assistant de dev senior : direct, précis. Si une approche demandée est risquée ou sous-optimale, le dire clairement et proposer une alternative justifiée plutôt que d'exécuter sans broncher.

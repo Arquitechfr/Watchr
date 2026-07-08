@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 import { requireAuth } from "../middleware/requireAuth.middleware.js";
-import { getShowDetails, getSeasonDetails, searchShows, getDiscoverSections } from "../services/show.service.js";
-import { searchSchema, tmdbIdParamSchema, seasonParamSchema } from "../validators/show.validator.js";
+import { getShowDetails, getSeasonDetails, searchShows, getDiscoverSections, getDiscoverSectionItems } from "../services/show.service.js";
+import { searchSchema, tmdbIdParamSchema, seasonParamSchema, discoverSectionParamSchema, discoverSectionQuerySchema } from "../validators/show.validator.js";
 import { validateRequest } from "../validators/validateRequest.js";
 import { asyncHandler } from "../lib/asyncHandler.js";
 import { cacheResponse } from "../middleware/cache.middleware.js";
@@ -31,6 +31,18 @@ router.get(
 );
 
 router.get(
+  "/discover/:sectionId",
+  validateRequest(discoverSectionQuerySchema, undefined, discoverSectionParamSchema),
+  cacheResponse(3600),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { sectionId } = req.params;
+    const page = Number(req.query.page) || 1;
+    const results = await getDiscoverSectionItems(sectionId as any, page, req.language);
+    res.json(results);
+  }),
+);
+
+router.get(
   "/:tmdbId",
   validateRequest(undefined, undefined, tmdbIdParamSchema),
   cacheResponse(300),
@@ -44,7 +56,7 @@ router.get(
 router.get(
   "/:tmdbId/seasons/:seasonNumber",
   validateRequest(undefined, undefined, seasonParamSchema),
-  cacheResponse(300),
+  cacheResponse(60),
   asyncHandler(async (req: Request, res: Response) => {
     const { tmdbId, seasonNumber } = req.params;
     const season = await getSeasonDetails(Number(tmdbId), Number(seasonNumber), req.language);

@@ -14,6 +14,7 @@ import { Skeleton } from "../components/Skeleton";
 import { ViewModeToggle } from "../components/ViewModeToggle";
 import { EpisodeCard } from "../components/EpisodeCard";
 import { SearchBar } from "../components/SearchBar";
+import { MainHeader } from "../components/MainHeader";
 import { useUnwatchedShows } from "../hooks/useUnwatched";
 import { useUpcomingEpisodes } from "../hooks/useUpcomingEpisodes";
 import { useQuickMarkWatched } from "../hooks/useTracking";
@@ -124,6 +125,7 @@ function UnwatchedList({
                 episode={item.episode.episode}
                 episodeName={item.episode.name}
                 isNew={item.isNew}
+                airDate={item.episode.airDate}
                 onPress={() => onEpisodePress(item)}
                 onMarkWatched={onMarkWatched ? () => onMarkWatched(item) : undefined}
                 isMarking={markingEpisodeKey === epKey}
@@ -252,6 +254,7 @@ function UpcomingList({
                 episodeName={item.name}
                 isNew={todayKeys.has(epKey)}
                 network={item.network}
+                airDate={item.airDate}
                 onPress={() => onEpisodePress(item)}
                 onMarkWatched={onMarkWatched ? () => onMarkWatched(item) : undefined}
                 isMarking={markingEpisodeKey === epKey}
@@ -266,25 +269,25 @@ function UpcomingList({
     );
   }
 
-  const rows: { type: "header" | "episode"; title?: string; episode?: UpcomingEpisode }[] = [];
+  const rows: { type: "header" | "episode"; title?: string; count?: number; episode?: UpcomingEpisode }[] = [];
   const today = filterByQuery(data?.today ?? []);
   const thisWeek = filterByQuery(data?.thisWeek ?? []);
   const nextWeek = filterByQuery(data?.nextWeek ?? []);
   const later = filterByQuery(data?.later ?? []);
   if (today.length > 0) {
-    rows.push({ type: "header", title: t("screens.upcoming.today") });
+    rows.push({ type: "header", title: t("screens.upcoming.today"), count: today.length });
     today.forEach((ep) => rows.push({ type: "episode", episode: ep }));
   }
   if (thisWeek.length > 0) {
-    rows.push({ type: "header", title: t("screens.upcoming.thisWeek") });
+    rows.push({ type: "header", title: t("screens.upcoming.thisWeek"), count: thisWeek.length });
     thisWeek.forEach((ep) => rows.push({ type: "episode", episode: ep }));
   }
   if (nextWeek.length > 0) {
-    rows.push({ type: "header", title: t("screens.upcoming.nextWeek") });
+    rows.push({ type: "header", title: t("screens.upcoming.nextWeek"), count: nextWeek.length });
     nextWeek.forEach((ep) => rows.push({ type: "episode", episode: ep }));
   }
   if (later.length > 0) {
-    rows.push({ type: "header", title: t("screens.upcoming.later") });
+    rows.push({ type: "header", title: t("screens.upcoming.later"), count: later.length });
     later.forEach((ep) => rows.push({ type: "episode", episode: ep }));
   }
 
@@ -305,7 +308,7 @@ function UpcomingList({
       keyExtractor={(item, index) => (item.type === "header" ? `header-${index}` : `${item.episode?.showId}-${index}`)}
       renderItem={({ item }) => {
         if (item.type === "header") {
-          return <WeekSectionHeader title={item.title ?? ""} />;
+          return <WeekSectionHeader title={item.title ?? ""} count={item.count} />;
         }
         const ep = item.episode!;
         const epKey = `${ep.showId}-${ep.season}-${ep.episode}`;
@@ -367,8 +370,11 @@ export function SeriesScreen() {
 
   function handleEpisodePress(item: FlattenedEpisode) {
     if (!item.tmdbId) return;
-    navigation.navigate("ShowDetail", {
+    navigation.navigate("EpisodeDetail", {
+      showId: item.showId,
       tmdbId: item.tmdbId,
+      season: item.episode.season,
+      episodeNumber: item.episode.episode,
       title: item.title,
     });
   }
@@ -399,23 +405,27 @@ export function SeriesScreen() {
 
   function handleUpcomingPress(episode: UpcomingEpisode) {
     if (!episode.tmdbId) return;
-    navigation.navigate("ShowDetail", {
+    navigation.navigate("EpisodeDetail", {
+      showId: episode.showId,
       tmdbId: episode.tmdbId,
+      season: episode.season,
+      episodeNumber: episode.episode,
       title: episode.title,
     });
   }
 
   return (
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]}>
-      <View className="flex-row items-center justify-between mb-4">
-        <Text className="text-3xl font-bold text-text">{t("navigation.series")}</Text>
-        <View className="flex-row items-center" style={{ gap: 12 }}>
-          <TouchableOpacity onPress={() => setIsSearchVisible(!isSearchVisible)} className="p-1">
-            <Ionicons name={isSearchVisible ? "search" : "search-outline"} size={24} color={colors.text} />
-          </TouchableOpacity>
-          <ViewModeToggle />
-        </View>
-      </View>
+      <MainHeader
+        rightElement={
+          <>
+            <TouchableOpacity onPress={() => setIsSearchVisible(!isSearchVisible)} className="p-1">
+              <Ionicons name={isSearchVisible ? "search" : "search-outline"} size={24} color={colors.text} />
+            </TouchableOpacity>
+            <ViewModeToggle />
+          </>
+        }
+      />
 
       {isSearchVisible && (
         <SearchBar

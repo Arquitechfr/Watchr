@@ -1,5 +1,6 @@
 import { View, Text, Image, TouchableOpacity, ActivityIndicator } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { differenceInCalendarDays, format } from "date-fns";
 import { UpcomingEpisode } from "../services/upcoming.service";
 import { getPosterUrl } from "../services/shows.service";
 import { useI18n } from "../i18n/useI18n";
@@ -14,14 +15,25 @@ interface UpcomingEpisodeRowProps {
 }
 
 export function UpcomingEpisodeRow({ episode, isNew, onPress, onMarkWatched, isMarking }: UpcomingEpisodeRowProps) {
-  const { t } = useI18n();
+  const { t, dateFnsLocale } = useI18n();
   const colors = useThemeColors();
   const posterUrl = getPosterUrl(episode.posterPath, 200);
   const airDate = new Date(episode.airDate);
   const now = new Date();
   const isAired = airDate <= now;
+  const daysUntil = differenceInCalendarDays(airDate, now);
 
   const seasonEpisodeLabel = `S${String(episode.season).padStart(2, "0")} - E${String(episode.episode).padStart(2, "0")}`;
+
+  const daysUntilLabel = isAired
+    ? null
+    : daysUntil === 0
+      ? t("screens.upcoming.today")
+      : daysUntil === 1
+        ? t("screens.upcoming.tomorrow")
+        : t("screens.upcoming.inDays", { count: daysUntil });
+
+  const formattedDate = format(airDate, "d MMMM yyyy", { locale: dateFnsLocale });
 
   return (
     <TouchableOpacity
@@ -53,6 +65,14 @@ export function UpcomingEpisodeRow({ episode, isNew, onPress, onMarkWatched, isM
             {episode.name}
           </Text>
         ) : null}
+        {daysUntilLabel ? (
+          <Text className="text-primary text-xs font-semibold mt-1">
+            {daysUntilLabel}
+          </Text>
+        ) : null}
+        <Text className="text-text-muted text-xs mt-0.5">
+          {t("screens.upcoming.airingOn", { date: formattedDate })}
+        </Text>
         {isNew ? (
           <View className="bg-primary rounded-full px-2 py-0.5 self-start mt-1.5">
             <Text className="text-background text-xs font-semibold">

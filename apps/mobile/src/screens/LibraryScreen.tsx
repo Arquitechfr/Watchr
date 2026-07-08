@@ -4,6 +4,7 @@ import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useState, useEffect, useCallback } from "react";
 import { ScreenContainer } from "../components/ScreenContainer";
+import { MainHeader } from "../components/MainHeader";
 import { EmptyState } from "../components/EmptyState";
 import { NetworkError } from "../components/NetworkError";
 import { Skeleton } from "../components/Skeleton";
@@ -167,10 +168,7 @@ export function LibraryScreen() {
 
   return (
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]}>
-      <View className="flex-row items-center justify-between mb-4">
-        <Text className="text-3xl font-bold text-text">{t("navigation.library")}</Text>
-        <ViewModeToggle />
-      </View>
+      <MainHeader rightElement={<ViewModeToggle />} />
 
       <LibraryTabs active={activeTab} onChange={handleTabChange} />
 

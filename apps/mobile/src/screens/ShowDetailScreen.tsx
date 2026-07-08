@@ -10,7 +10,7 @@ import { useCommentCount } from "../hooks/useComments";
 import { useShowDetailsRealtime } from "../hooks/useShowDetailsRealtime";
 import { useRefreshRateLimit } from "../hooks/useRefreshRateLimit";
 import { LazyEpisodeGrid } from "../components/LazyEpisodeGrid";
-import { RatingStars } from "../components/RatingStars";
+import { RatingCard } from "../components/RatingCard";
 import { NetworkError } from "../components/NetworkError";
 import { Skeleton } from "../components/Skeleton";
 import { ScreenContainer } from "../components/ScreenContainer";
@@ -101,6 +101,12 @@ export function ShowDetailScreen() {
     }
     return 0;
   }, [show, trackingEntry]);
+
+  const allAiredWatched = useMemo(() => {
+    const total = trackingEntry?.totalEpisodes ?? 0;
+    const watched = trackingEntry?.watchedCount ?? 0;
+    return total > 0 && watched >= total;
+  }, [trackingEntry]);
 
   const isAnyPending =
     upsertTracking.isPending || markUpTo.isPending || markAllAired.isPending || toggleEpisode.isPending || upsertRating.isPending;
@@ -203,6 +209,10 @@ export function ShowDetailScreen() {
 
   const handleMarkAllAired = () => {
     if (!show) return;
+    if (allAiredWatched) {
+      showSnackbar(t("screens.showDetail.markAllAiredAlreadyUpToDate"), "info");
+      return;
+    }
     showAlert({
       title: t("screens.showDetail.markAllAiredConfirmTitle"),
       message: t("screens.showDetail.markAllAiredConfirmMessage"),
@@ -341,7 +351,40 @@ export function ShowDetailScreen() {
 
   return (
     <ScreenContainer edges={["top", "left", "right"]}>
-      <DetailHeader title={show.title} onBack={() => navigation.goBack()} />
+      <DetailHeader
+        title={show.title}
+        onBack={() => navigation.goBack()}
+        rightElement={
+          show.type === "movie" ? (
+            <TouchableOpacity
+              onPress={handleToggleWatched}
+              disabled={upsertTracking.isPending}
+              className="p-1"
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              <Ionicons
+                name={trackingEntry?.status === "completed" ? "checkmark-circle" : "ellipse-outline"}
+                size={26}
+                color={trackingEntry?.status === "completed" ? colors.primary : colors.text}
+              />
+            </TouchableOpacity>
+          ) : show.type === "tv" ? (
+            <TouchableOpacity
+              onPress={handleMarkAllAired}
+              disabled={markAllAired.isPending || toggleEpisode.isPending}
+              className="p-1"
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              accessibilityLabel={t("screens.showDetail.markAllAired")}
+            >
+              <Ionicons
+                name={allAiredWatched ? "checkmark-circle" : "checkmark-done-outline"}
+                size={26}
+                color={colors.primary}
+              />
+            </TouchableOpacity>
+          ) : undefined
+        }
+      />
       <ScrollView
         className="flex-1 bg-background"
         contentContainerStyle={{ paddingBottom: 100 }}
@@ -385,14 +428,16 @@ export function ShowDetailScreen() {
             )}
           </View>
 
-          <View className="mb-6">
-            <Text className="text-lg font-semibold text-text mb-2">{t("screens.showDetail.yourRating")}</Text>
-            <RatingStars
-              value={ratings?.show ?? null}
+          <View className="flex-row flex-wrap mb-6 gap-2">
+            <RatingCard
+              value={ratings?.user.show ?? null}
               onChange={(value) => {
                 log("ShowDetail", "rating change", { showId: show.id, value });
                 upsertRating.mutate({ value });
               }}
+            />
+            <RatingCard
+              communityData={ratings?.community.show ?? null}
             />
           </View>
 
@@ -477,7 +522,7 @@ export function ShowDetailScreen() {
             </View>
           )}
 
-          {show.type === "tv" && trackingEntry ? (
+          {commentCountData && commentCountData.total > 0 ? (
             <TouchableOpacity
               onPress={handleOpenComments}
               className="flex-row items-center justify-between bg-surface rounded-xl p-4 mb-6"
@@ -488,49 +533,27 @@ export function ShowDetailScreen() {
                   <Ionicons name="chatbubbles-outline" size={20} color={colors.primary} />
                 </View>
                 <Text className="text-text font-semibold">{t("screens.showDetail.comments")}</Text>
-                {commentCountData && commentCountData.total > 0 && (
-                  <View className="ml-2 bg-primary/20 rounded-full px-2 py-0.5">
-                    <Text className="text-primary text-xs font-semibold">{commentCountData.total}</Text>
-                  </View>
-                )}
+                <View className="ml-2 bg-primary/20 rounded-full px-2 py-0.5">
+                  <Text className="text-primary text-xs font-semibold">{commentCountData.total}</Text>
+                </View>
               </View>
               <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
               onPress={handleOpenComments}
-              className="flex-row items-center justify-between bg-surface rounded-xl p-4 mb-6"
+              className="py-12 items-center justify-center bg-surface rounded-xl mb-6"
               activeOpacity={0.7}
             >
-              <View className="flex-row items-center">
-                <View className="w-10 h-10 rounded-full bg-primary/15 items-center justify-center mr-3">
-                  <Ionicons name="chatbubbles-outline" size={20} color={colors.primary} />
-                </View>
-                <Text className="text-text font-semibold">{t("screens.showDetail.comments")}</Text>
-                {commentCountData && commentCountData.total > 0 && (
-                  <View className="ml-2 bg-primary/20 rounded-full px-2 py-0.5">
-                    <Text className="text-primary text-xs font-semibold">{commentCountData.total}</Text>
-                  </View>
-                )}
-              </View>
-              <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
+              <Ionicons name="chatbubbles-outline" size={40} color={colors.textMuted} />
+              <Text className="text-text-muted mt-2 text-center">{t("screens.comments.empty")}</Text>
+              <Text className="text-text-muted text-sm text-center">{t("screens.comments.beFirst")}</Text>
             </TouchableOpacity>
           )}
 
           {show.type === "tv" && show.seasons.length > 0 && (
             <View className="mb-6">
-              <View className="flex-row items-center justify-between mb-2">
-                <Text className="text-lg font-semibold text-text">{t("screens.showDetail.episodes")}</Text>
-                <TouchableOpacity
-                  onPress={handleMarkAllAired}
-                  disabled={markAllAired.isPending || toggleEpisode.isPending}
-                  className="flex-row items-center bg-surface rounded-lg px-3 py-2"
-                  activeOpacity={0.7}
-                >
-                  <Ionicons name="checkmark-done-outline" size={16} color={colors.primary} />
-                  <Text className="text-primary font-semibold text-sm ml-1.5">{t("screens.showDetail.markAllAired")}</Text>
-                </TouchableOpacity>
-              </View>
+              <Text className="text-lg font-semibold text-text mb-2">{t("screens.showDetail.episodes")}</Text>
               <LazyEpisodeGrid
                 tmdbId={tmdbId}
                 seasons={show.seasons}
@@ -551,7 +574,7 @@ export function ShowDetailScreen() {
         progress={progress}
         onPress={() => setTrackingModalVisible(true)}
         disabled={isAnyPending || deleteTracking.isPending}
-        onToggleWatched={show.type === "movie" ? handleToggleWatched : undefined}
+        onToggleWatched={undefined}
         onToggleDropped={show.type === "tv" ? handleToggleDropped : undefined}
       />
 
@@ -560,7 +583,7 @@ export function ShowDetailScreen() {
         onClose={() => setTrackingModalVisible(false)}
         show={show}
         trackingEntry={trackingEntry}
-        rating={ratings?.show ?? null}
+        rating={ratings?.user.show ?? null}
         onSave={handleSaveTracking}
         isPending={upsertTracking.isPending || markUpTo.isPending}
       />

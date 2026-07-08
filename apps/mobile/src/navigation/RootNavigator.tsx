@@ -22,6 +22,8 @@ import { ProfileLanguageScreen } from "../screens/profile/ProfileLanguageScreen"
 import { ProfileNotificationsScreen } from "../screens/profile/ProfileNotificationsScreen";
 import { ProfileAboutScreen } from "../screens/profile/ProfileAboutScreen";
 import { ProfileAppearanceScreen } from "../screens/profile/ProfileAppearanceScreen";
+import { ProfileSettingsScreen } from "../screens/profile/ProfileSettingsScreen";
+import { ProfileDataScreen } from "../screens/profile/ProfileDataScreen";
 import { usePushNotifications } from "../hooks/usePushNotifications";
 import { useThemeSync } from "../hooks/useThemeSync";
 import { log } from "../utils/logger";
@@ -46,6 +48,8 @@ export type RootStackParamList = {
   ProfileNotifications: undefined;
   ProfileAbout: undefined;
   ProfileAppearance: undefined;
+  ProfileSettings: undefined;
+  ProfileData: undefined;
   ResetPassword: { token: string };
   NewsArticleDetail: { link: string; title: string };
 };
@@ -163,6 +167,8 @@ export function RootNavigator() {
             <Stack.Screen name="ProfileNotifications" component={ProfileNotificationsScreen} />
             <Stack.Screen name="ProfileAbout" component={ProfileAboutScreen} />
             <Stack.Screen name="ProfileAppearance" component={ProfileAppearanceScreen} />
+            <Stack.Screen name="ProfileSettings" component={ProfileSettingsScreen} />
+            <Stack.Screen name="ProfileData" component={ProfileDataScreen} />
             <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
             <Stack.Screen name="NewsArticleDetail" component={NewsArticleDetailScreen} />
           </>

@@ -50,7 +50,8 @@ export async function getUpcomingEpisodes(userId: string, language = "en"): Prom
 
     const title = getShowTitle(show, language);
     const translation = getTranslationValue(show.translations, language);
-    const seasons = translation?.seasons ?? show.seasons;
+    const translationHasEpisodes = translation?.seasons?.some((s) => s.episodes && s.episodes.length > 0);
+    const seasons = (translationHasEpisodes && translation?.seasons) ? translation.seasons : show.seasons;
     const network = translation?.networks?.[0]?.name ?? show.networks?.[0]?.name;
 
     const watchedKeys = new Set(

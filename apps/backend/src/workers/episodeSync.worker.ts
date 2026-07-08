@@ -5,7 +5,7 @@ import { redisConnection } from "../config/env.js";
 import { WatchEntry } from "../models/watchEntry.model.js";
 import { Show } from "../models/show.model.js";
 import { refreshShowFromTmdb, syncEpisodesForShow } from "../services/cacheShow.service.js";
-import { tmdbService } from "../services/tmdb.service.js";
+import { tmdbService, TmdbSearchResult } from "../services/tmdb.service.js";
 import { wsEvents } from "../lib/wsEvents.js";
 
 export const episodeSyncQueue = new Queue("episode-sync", { connection: redisConnection });
@@ -80,9 +80,10 @@ export function createEpisodeSyncWorker(): Worker {
 }
 
 export async function syncTrendingShows(): Promise<void> {
-  let trending: Awaited<ReturnType<typeof tmdbService.getTrendingTv>> = [];
+  let trending: TmdbSearchResult[] = [];
   try {
-    trending = await tmdbService.getTrendingTv(20);
+    const result = await tmdbService.getTrendingTv(20);
+    trending = result.results;
   } catch (err) {
     console.error("Failed to fetch trending TV shows:", err);
   }

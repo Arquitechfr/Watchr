@@ -5,6 +5,7 @@ import {
   deleteRating,
   UpsertRatingInput,
   RatingsForShow,
+  UpsertRatingResponse,
 } from "../services/ratings.service";
 import { log } from "../utils/logger";
 import { useAuthStore } from "../store/authStore";
@@ -17,13 +18,14 @@ export function useRatingsForShow(showId: string) {
     queryKey: [RATINGS_QUERY_KEY, showId],
     queryFn: () => listRatingsForShow(showId),
     enabled: isHydrated && Boolean(showId),
+    staleTime: 2 * 60 * 1000,
   });
 }
 
 export function useUpsertRating(showId: string) {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<UpsertRatingResponse, Error, Omit<UpsertRatingInput, "showId">, { previousRatings: RatingsForShow | undefined }>({
     mutationFn: (input: Omit<UpsertRatingInput, "showId">) => upsertRating({ ...input, showId }),
     onMutate: async (input) => {
       log("useRatings", "upsert mutate", { showId, value: input.value, episodeRef: input.episodeRef });
@@ -36,20 +38,20 @@ export function useUpsertRating(showId: string) {
 
         if (input.episodeRef) {
           const { season, episode } = input.episodeRef;
-          const existingIndex = old.episodes.findIndex(
+          const existingIndex = old.user.episodes.findIndex(
             (e: { season: number; episode: number; value: number }) => e.season === season && e.episode === episode,
           );
           const newEpisode = { season, episode, value: input.value };
           const nextEpisodes =
             existingIndex >= 0
-              ? old.episodes.map((e: { season: number; episode: number; value: number }, i: number) =>
+              ? old.user.episodes.map((e: { season: number; episode: number; value: number }, i: number) =>
                   i === existingIndex ? newEpisode : e,
                 )
-              : [...old.episodes, newEpisode];
-          return { ...old, episodes: nextEpisodes };
+              : [...old.user.episodes, newEpisode];
+          return { ...old, user: { ...old.user, episodes: nextEpisodes } };
         }
 
-        return { ...old, show: input.value };
+        return { ...old, user: { ...old.user, show: input.value } };
       });
 
       return { previousRatings };
@@ -59,6 +61,13 @@ export function useUpsertRating(showId: string) {
       if (context?.previousRatings) {
         queryClient.setQueryData([RATINGS_QUERY_KEY, showId], context.previousRatings);
       }
+    },
+    onSuccess: (data) => {
+      log("useRatings", "upsert success", { showId, communityShow: data.community.show });
+      queryClient.setQueryData<RatingsForShow>([RATINGS_QUERY_KEY, showId], (old: RatingsForShow | undefined) => {
+        if (!old) return old;
+        return { ...old, community: data.community };
+      });
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: [RATINGS_QUERY_KEY, showId] });

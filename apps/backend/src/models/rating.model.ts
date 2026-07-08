@@ -44,7 +44,7 @@ const ratingSchema = new Schema<IRating>(
       type: Number,
       required: true,
       min: 1,
-      max: 10,
+      max: 5,
     },
     review: {
       type: String,

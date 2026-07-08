@@ -43,6 +43,7 @@ import { asyncHandler } from "../lib/asyncHandler.js";
 import { z } from "zod";
 import { requireAuth } from "../middleware/requireAuth.middleware.js";
 import { translate } from "../i18n/index.js";
+import { getUserStats } from "../services/stats.service.js";
 
 const updateLanguageSchema = z.object({
   language: z.string().min(2).max(5),
@@ -206,6 +207,14 @@ router.get(
   asyncHandler(async (req: Request, res: Response) => {
     const me = await getMe(req.userId!);
     res.json(me);
+  }),
+);
+
+router.get(
+  "/me/stats",
+  asyncHandler(async (req: Request, res: Response) => {
+    const stats = await getUserStats(req.userId!, req.language);
+    res.json(stats);
   }),
 );
 

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Text, TextInput, TouchableOpacity, ActivityIndicator, Image, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import Animated, { FadeIn, FadeOut, SlideInDown } from "react-native-reanimated";
@@ -30,6 +31,7 @@ export function RegisterScreen() {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const insets = useSafeAreaInsets();
 
   async function handleRegister() {
     log("Register", "start", { email: email.trim() });
@@ -58,7 +60,7 @@ export function RegisterScreen() {
 
   return (
     <ScreenContainer className="px-6 justify-center">
-      <View className="absolute top-4 right-4 flex-row gap-1 bg-surface rounded-lg p-1">
+      <View style={{ top: insets.top + 8 }} className="absolute right-4 flex-row flex-wrap gap-1 justify-end bg-surface rounded-lg p-1 max-w-[90%]">
         <LanguageSwitcher />
         <ThemeToggle />
       </View>
@@ -66,10 +68,15 @@ export function RegisterScreen() {
       <View className="items-center mb-10">
         <Image
           source={require("../../../assets/splash-icon.png")}
-          style={{ width: 120, height: 120 }}
+          style={{ width: 80, height: 80 }}
           resizeMode="contain"
         />
-        <Text className="text-3xl font-bold text-primary mt-4">{t("common.appName")}</Text>
+        <Text
+          style={{ fontFamily: "Outfit_700Bold", fontSize: 32 }}
+          className="text-primary mt-2"
+        >
+          {t("common.appName")}
+        </Text>
       </View>
 
       {showForm ? (

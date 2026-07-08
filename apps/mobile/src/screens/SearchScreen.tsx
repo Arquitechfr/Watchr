@@ -16,12 +16,12 @@ import { useDiscoverSections } from "../hooks/useDiscover";
 import { useQuickAddToWatchlist, useTrackedTmdbIds } from "../hooks/useTracking";
 import { useRefreshRateLimit } from "../hooks/useRefreshRateLimit";
 import { ShowCard } from "../components/ShowCard";
-import { PosterCard } from "../components/PosterCard";
-import { SectionHeader } from "../components/SectionHeader";
+import { DiscoverSectionRow } from "../components/DiscoverSectionRow";
 import { EmptyState } from "../components/EmptyState";
 import { NetworkError } from "../components/NetworkError";
 import { ShowCardSkeleton, Skeleton } from "../components/Skeleton";
 import { ScreenContainer } from "../components/ScreenContainer";
+import { MainHeader } from "../components/MainHeader";
 import { useThemeColors } from "../theme/useThemeColors";
 import { RootStackParamList } from "../navigation/RootNavigator";
 import { SearchResultItem, DiscoverSection } from "../services/shows.service";
@@ -85,26 +85,6 @@ export function SearchScreen() {
     );
   }
 
-  function renderDiscoverSection(section: DiscoverSection) {
-    return (
-      <View key={section.id} className="mb-6">
-        <SectionHeader title={section.title} />
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="-mx-4 px-4">
-          {section.items.map((item, index) => (
-            <PosterCard
-              key={`${section.id}-${item.tmdbId ?? index}`}
-              show={item}
-              onPress={() => handleShowPress(item)}
-              onAdd={() => handleQuickAdd(item)}
-              isAdding={quickAdd.isPending}
-              isAdded={item.tmdbId ? trackedTmdbIds.has(item.tmdbId) : false}
-            />
-          ))}
-        </ScrollView>
-      </View>
-    );
-  }
-
   function renderDiscoverSkeleton() {
     return (
       <View className="mt-2">
@@ -125,7 +105,7 @@ export function SearchScreen() {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]}>
-        <Text className="text-2xl font-bold text-text mb-4">{t("navigation.search")}</Text>
+        <MainHeader />
         <TextInput
           className="bg-surface text-text px-4 py-3 rounded-lg mb-4 border border-border"
           placeholder={t("screens.search.placeholder")}
@@ -156,7 +136,16 @@ export function SearchScreen() {
               />
             }
           >
-            {discoverData.sections.map(renderDiscoverSection)}
+            {discoverData.sections.map((section) => (
+              <DiscoverSectionRow
+                key={section.id}
+                section={section}
+                onShowPress={handleShowPress}
+                onQuickAdd={handleQuickAdd}
+                isAdding={quickAdd.isPending}
+                isTracked={(tmdbId) => trackedTmdbIds.has(tmdbId)}
+              />
+            ))}
           </ScrollView>
         )}
 

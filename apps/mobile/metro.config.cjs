@@ -1,7 +1,19 @@
 const { getDefaultConfig } = require("expo/metro-config");
 const { withNativeWind } = require("nativewind/metro");
+const { createTransformer } = require("react-native-svg-transformer");
 
-/** @type {import('expo/metro-config').MetroConfig} */
-const config = getDefaultConfig(__dirname);
+/** @type {import('expo-metro-config').MetroConfig} */
+const defaultConfig = getDefaultConfig(__dirname);
 
-module.exports = withNativeWind(config, { input: "./global.css" });
+const { transformer, resolver } = createTransformer(defaultConfig);
+
+defaultConfig.transformer = {
+  ...defaultConfig.transformer,
+  ...transformer,
+};
+defaultConfig.resolver = {
+  ...defaultConfig.resolver,
+  ...resolver,
+};
+
+module.exports = withNativeWind(defaultConfig, { input: "./global.css" });

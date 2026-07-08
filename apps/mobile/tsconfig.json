@@ -12,5 +12,5 @@
       "@/*": ["src/*"]
     }
   },
-  "include": ["src/**/*", "App.tsx", "nativewind-env.d.ts"]
+  "include": ["src/**/*", "App.tsx", "nativewind-env.d.ts", "svg.d.ts"]
 }

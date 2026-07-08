@@ -1,5 +1,6 @@
 import { View, Text, Image, TouchableOpacity, ActivityIndicator } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { differenceInCalendarDays, format } from "date-fns";
 import { getPosterUrl } from "../services/shows.service";
 import { useThemeColors } from "../theme/useThemeColors";
 import { useI18n } from "../i18n/useI18n";
@@ -12,6 +13,7 @@ interface EpisodeCardProps {
   episodeName?: string;
   isNew?: boolean;
   network?: string;
+  airDate?: string;
   onPress: () => void;
   onMarkWatched?: () => void;
   isMarking?: boolean;
@@ -29,12 +31,13 @@ export function EpisodeCard({
   episodeName,
   isNew,
   network,
+  airDate,
   onPress,
   onMarkWatched,
   isMarking,
   width,
 }: EpisodeCardProps) {
-  const { t } = useI18n();
+  const { t, dateFnsLocale } = useI18n();
   const colors = useThemeColors();
   const posterUrl = getPosterUrl(posterPath, 200);
 
@@ -42,6 +45,20 @@ export function EpisodeCard({
   const cardHeight = width ? Math.round(width * 1.5) : DEFAULT_CARD_HEIGHT;
 
   const seasonEpisodeLabel = `S${String(season).padStart(2, "0")} - E${String(episode).padStart(2, "0")}`;
+
+  const airLabel = airDate
+    ? (() => {
+        const date = new Date(airDate);
+        const now = new Date();
+        const daysUntil = differenceInCalendarDays(date, now);
+        if (daysUntil > 0) {
+          return daysUntil === 1
+            ? t("screens.upcoming.tomorrow")
+            : t("screens.upcoming.inDays", { count: daysUntil });
+        }
+        return format(date, "d MMMM yyyy", { locale: dateFnsLocale });
+      })()
+    : null;
 
   return (
     <View style={{ width: cardWidth }}>
@@ -118,6 +135,11 @@ export function EpisodeCard({
         {network ? (
           <Text className="text-text-muted text-xs mt-1" numberOfLines={1}>
             {t("common.platform")} {network}
+          </Text>
+        ) : null}
+        {airLabel ? (
+          <Text className="text-primary text-xs font-semibold mt-1" numberOfLines={1}>
+            {airLabel}
           </Text>
         ) : null}
       </View>

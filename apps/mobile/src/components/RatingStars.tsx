@@ -14,7 +14,7 @@ export function RatingStars({ value, onChange, size = 20, label }: RatingStarsPr
   return (
     <View className="flex-row items-center">
       {label && <Text className="text-text-muted mr-3 text-sm">{label}</Text>}
-      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((star) => {
+      {[1, 2, 3, 4, 5].map((star) => {
         const isFilled = value !== null && star <= value;
         return (
           <TouchableOpacity key={star} onPress={() => onChange(star)} className="mr-1">
@@ -27,7 +27,7 @@ export function RatingStars({ value, onChange, size = 20, label }: RatingStarsPr
         );
       })}
       {value !== null && (
-        <Text className="text-primary ml-2 font-semibold">{value}/10</Text>
+        <Text className="text-primary ml-2 font-semibold">{value}/5</Text>
       )}
     </View>
   );

@@ -25,8 +25,8 @@ export function CommentThreadPage() {
   const { data: repliesData, isLoading: isLoadingReplies, refetch: refetchReplies } = useReplies(commentId!, page, limit);
 
   const showId = parentComment?.showId ?? "";
-  const query = parentComment?.season !== undefined && parentComment?.episode !== undefined
-    ? { season: parentComment.season, episode: parentComment.episode }
+  const query = parentComment?.episodeRef
+    ? { season: parentComment.episodeRef.season, episode: parentComment.episodeRef.episode }
     : undefined;
 
   const likeComment = useLikeComment(showId, query);
@@ -121,7 +121,7 @@ export function CommentThreadPage() {
     );
   }
 
-  const headerTitle = `${t("screens.comments.title")} · ${parentComment.title || "Show"}`;
+  const headerTitle = `${t("screens.comments.title")} · ${parentComment.showTitle || "Show"}`;
 
   return (
     <PageWrapper maxWidth="max-w-3xl">
@@ -144,9 +144,9 @@ export function CommentThreadPage() {
         <CommentItem
           comment={parentComment}
           showId={showId}
-          title={parentComment.title || ""}
-          season={parentComment.season}
-          episode={parentComment.episode}
+          title={parentComment.showTitle || ""}
+          season={parentComment.episodeRef?.season}
+          episode={parentComment.episodeRef?.episode}
           isPending={isPending}
           onEdit={handleEdit}
           onDelete={handleDelete}
@@ -178,9 +178,9 @@ export function CommentThreadPage() {
               key={reply.id}
               comment={reply}
               showId={showId}
-              title={parentComment.title || ""}
-              season={parentComment.season}
-              episode={parentComment.episode}
+              title={parentComment.showTitle || ""}
+              season={parentComment.episodeRef?.season}
+              episode={parentComment.episodeRef?.episode}
               isPending={isPending}
               onEdit={handleEdit}
               onDelete={handleDelete}

@@ -14,6 +14,7 @@ export interface Reaction {
 export interface Comment {
   id: string;
   showId: string;
+  showTitle: string;
   userId: string;
   authorUsername: string;
   authorAvatarUrl?: string;
@@ -24,6 +25,7 @@ export interface Comment {
   replyCount: number;
   likedByMe: boolean;
   reactions: Reaction[];
+  episodeRef?: EpisodeRef;
   createdAt: string;
   updatedAt: string;
 }

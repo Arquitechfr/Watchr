@@ -136,7 +136,7 @@ export function SearchScreen() {
               />
             }
           >
-            {discoverData.sections.map((section) => (
+            {discoverData.sections.map((section: DiscoverSection) => (
               <DiscoverSectionRow
                 key={section.id}
                 section={section}

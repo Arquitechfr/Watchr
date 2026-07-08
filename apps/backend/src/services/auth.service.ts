@@ -137,7 +137,7 @@ export function verifyAccessToken(token: string): { sub: string } {
 }
 
 export async function getMe(userId: string) {
-  const user = await User.findById(userId).select("email username usernameChanged avatarUrl preferredLanguage themePreference hasCompletedOnboarding createdAt").lean();
+  const user = await User.findById(userId).select("email username usernameChanged avatarUrl preferredLanguage themePreference hasCompletedOnboarding firebaseUid createdAt").lean();
   if (!user) {
     throw new ApiError(404, "USER_NOT_FOUND", "User not found");
   }
@@ -150,6 +150,7 @@ export async function getMe(userId: string) {
     preferredLanguage: user.preferredLanguage,
     themePreference: user.themePreference ?? "system",
     hasCompletedOnboarding: user.hasCompletedOnboarding ?? false,
+    googleLinked: !!user.firebaseUid,
     createdAt: user.createdAt.toISOString(),
   };
 }
@@ -307,4 +308,52 @@ export async function completeOnboarding(userId: string): Promise<{ hasCompleted
     throw new ApiError(404, "USER_NOT_FOUND", "User not found");
   }
   return { hasCompletedOnboarding: user.hasCompletedOnboarding ?? true };
+}
+
+export async function linkGoogleAccount(userId: string, idToken: string): Promise<{ googleLinked: boolean }> {
+  let decoded;
+  try {
+    decoded = await firebaseAuth.verifyIdToken(idToken);
+  } catch {
+    throw new ApiError(401, "INVALID_FIREBASE_TOKEN", "Invalid Firebase token");
+  }
+
+  if (!decoded.email || !decoded.email_verified) {
+    throw new ApiError(401, "UNVERIFIED_EMAIL", "Google email is not verified");
+  }
+
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new ApiError(404, "USER_NOT_FOUND", "User not found");
+  }
+
+  if (decoded.email.toLowerCase() !== user.email.toLowerCase()) {
+    throw new ApiError(400, "GOOGLE_EMAIL_MISMATCH", "Google email does not match account email");
+  }
+
+  const existingByUid = await User.findOne({ firebaseUid: decoded.uid, _id: { $ne: user._id } });
+  if (existingByUid) {
+    throw new ApiError(409, "GOOGLE_ALREADY_LINKED", "This Google account is already linked to another user");
+  }
+
+  user.firebaseUid = decoded.uid;
+  await user.save();
+
+  return { googleLinked: true };
+}
+
+export async function unlinkGoogleAccount(userId: string): Promise<{ googleLinked: boolean }> {
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new ApiError(404, "USER_NOT_FOUND", "User not found");
+  }
+
+  if (!user.passwordHash) {
+    throw new ApiError(400, "CANNOT_UNLINK_NO_PASSWORD", "Cannot unlink Google without a password set");
+  }
+
+  user.firebaseUid = undefined;
+  await user.save();
+
+  return { googleLinked: false };
 }

@@ -1,25 +1,33 @@
 import { useLocaleStore } from "../store/localeStore";
-import { SUPPORTED_LOCALES } from "../i18n/translations";
+import { SUPPORTED_LOCALES, type SupportedLocale } from "../i18n/translations";
+import { useI18n } from "../i18n/useI18n";
+
+const LANG_LABELS: Record<SupportedLocale, string> = {
+  en: "screens.profile.languageEnglish",
+  fr: "screens.profile.languageFrench",
+  es: "screens.profile.languageSpanish",
+  pt: "screens.profile.languagePortuguese",
+  de: "screens.profile.languageGerman",
+  it: "screens.profile.languageItalian",
+  ar: "screens.profile.languageArabic",
+};
 
 export function LanguageSwitcher() {
   const locale = useLocaleStore((s) => s.locale);
   const setLocale = useLocaleStore((s) => s.setLocale);
+  const { t } = useI18n();
 
   return (
-    <div className="flex gap-1 bg-surface rounded-lg p-1">
+    <select
+      value={locale}
+      onChange={(e) => setLocale(e.target.value as SupportedLocale)}
+      className="bg-surface text-text px-3 py-1.5 rounded-lg text-sm font-medium border border-border outline-none focus:border-primary transition-colors cursor-pointer"
+    >
       {SUPPORTED_LOCALES.map((lang) => (
-        <button
-          key={lang}
-          onClick={() => setLocale(lang)}
-          className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors uppercase ${
-            locale === lang
-              ? "bg-primary text-background"
-              : "text-text-muted hover:text-text"
-          }`}
-        >
-          {lang}
-        </button>
+        <option key={lang} value={lang}>
+          {t(LANG_LABELS[lang])}
+        </option>
       ))}
-    </div>
+    </select>
   );
 }

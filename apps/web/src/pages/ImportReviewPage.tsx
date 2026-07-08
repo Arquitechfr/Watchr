@@ -12,8 +12,7 @@ import { useI18n } from "../i18n/useI18n";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { LanguageSwitcher } from "../components/LanguageSwitcher";
 import { ThemeToggle } from "../components/ThemeToggle";
-
-const TMDB_IMG_BASE = "https://image.tmdb.org/t/p/w200";
+import { getPosterUrl } from "../services/shows.service";
 
 export function ImportReviewPage() {
   const { jobId = "" } = useParams<{ jobId: string }>();
@@ -113,7 +112,7 @@ export function ImportReviewPage() {
                         >
                           {candidate.posterPath ? (
                             <img
-                              src={`${TMDB_IMG_BASE}${candidate.posterPath}`}
+                              src={getPosterUrl(candidate.posterPath, 200)}
                               alt={candidate.title}
                               className="w-12 h-18 rounded mr-3 object-cover"
                             />

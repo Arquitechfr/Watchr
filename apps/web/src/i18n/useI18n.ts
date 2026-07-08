@@ -3,7 +3,7 @@ import { I18n } from "i18n-js";
 import { useLocaleStore } from "../store/localeStore";
 import { translations, type SupportedLocale } from "./translations";
 import type { Locale } from "date-fns";
-import { enUS, fr } from "date-fns/locale";
+import { enUS, fr, es, ptBR, de, it, ar } from "date-fns/locale";
 
 const i18n = new I18n(translations);
 i18n.defaultLocale = "en";
@@ -12,6 +12,11 @@ i18n.enableFallback = true;
 const dateFnsLocales: Record<SupportedLocale, Locale> = {
   en: enUS,
   fr,
+  es,
+  pt: ptBR,
+  de,
+  it,
+  ar,
 };
 
 export function getDateFnsLocale(locale: SupportedLocale): Locale {

@@ -45,7 +45,16 @@ export function LoginPage() {
       </div>
 
       <div className="w-full max-w-sm">
-        <h1 className="text-3xl font-bold text-primary mb-2">{t("common.appName")}</h1>
+        <div className="flex flex-col items-center mb-10">
+          <img
+            src="/splash-icon.png"
+            alt="Watchr"
+            className="w-20 h-20 object-contain"
+          />
+          <h1 className="text-3xl font-bold text-white mt-2" style={{ fontFamily: "Outfit, system-ui, sans-serif" }}>
+            {t("common.appName")}
+          </h1>
+        </div>
         <p className="text-text-muted mb-8">{t("auth.loginTitle")}</p>
 
         <form onSubmit={handleLogin}>

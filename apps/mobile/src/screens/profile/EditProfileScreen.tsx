@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { View, Text, TouchableOpacity, TextInput, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity, TextInput, ActivityIndicator, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ScreenContainer } from "../../components/ScreenContainer";
 import { Avatar } from "../../components/Avatar";
-import { getMe, uploadAvatar, updateUsername } from "../../services/auth.service";
+import { getMe, uploadAvatar, updateUsername, unlinkGoogleAccount } from "../../services/auth.service";
+import { useGoogleLink } from "../../services/googleAuth.service";
 import { useI18n } from "../../i18n/useI18n";
 import { useUIStore } from "../../store/uiStore";
 import { useErrorMessage } from "../../services/api";
@@ -21,6 +22,46 @@ export function EditProfileScreen() {
   const { data: me } = useQuery({ queryKey: ["me"], queryFn: getMe });
   const [editingUsername, setEditingUsername] = useState(false);
   const [usernameInput, setUsernameInput] = useState("");
+
+  const unlinkGoogleMutation = useMutation({
+    mutationFn: () => unlinkGoogleAccount(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["me"] });
+      showSnackbar(t("screens.profile.googleUnlinkSuccess"), "success");
+    },
+    onError: (error) => {
+      showSnackbar(getErrorMessage(error), "error");
+    },
+  });
+
+  const handleGoogleLinkSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: ["me"] });
+    showSnackbar(t("screens.profile.googleLinkSuccess"), "success");
+  };
+
+  const handleGoogleLinkError = (error: Error) => {
+    showSnackbar(getErrorMessage(error) ?? error.message, "error");
+  };
+
+  const { prompt: promptGoogleLink, isLoading: isLinkingGoogle } = useGoogleLink(
+    handleGoogleLinkSuccess,
+    handleGoogleLinkError,
+  );
+
+  function handleUnlinkGoogle() {
+    Alert.alert(
+      t("screens.profile.googleUnlinkConfirmTitle"),
+      t("screens.profile.googleUnlinkConfirmMessage"),
+      [
+        { text: t("common.cancel"), style: "cancel" },
+        {
+          text: t("common.confirm"),
+          style: "destructive",
+          onPress: () => unlinkGoogleMutation.mutate(),
+        },
+      ],
+    );
+  }
 
   const avatarMutation = useMutation({
     mutationFn: (file: { uri: string; type: string; name: string }) => uploadAvatar(file),
@@ -146,6 +187,43 @@ export function EditProfileScreen() {
       <View className="mb-6">
         <Text className="text-text-muted text-sm mb-2">{t("screens.profile.email")}</Text>
         <Text className="text-text text-base">{me?.email}</Text>
+      </View>
+
+      <View className="mb-6">
+        <Text className="text-text-muted text-sm mb-2">{t("screens.profile.googleAccount")}</Text>
+        {me?.googleLinked ? (
+          <View className="flex-row items-center gap-2">
+            <Ionicons name="checkmark-circle" size={20} color={colors.primary} />
+            <Text className="text-text text-base flex-1">{t("screens.profile.googleLinked")}</Text>
+            <TouchableOpacity
+              onPress={handleUnlinkGoogle}
+              disabled={unlinkGoogleMutation.isPending}
+            >
+              {unlinkGoogleMutation.isPending ? (
+                <ActivityIndicator size="small" color={colors.danger} />
+              ) : (
+                <Text className="text-danger text-sm">{t("screens.profile.unlinkGoogle")}</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <TouchableOpacity
+            className="flex-row items-center rounded-lg p-3 mt-1"
+            style={{ backgroundColor: colors.surface }}
+            onPress={promptGoogleLink}
+            disabled={isLinkingGoogle}
+            activeOpacity={0.7}
+          >
+            {isLinkingGoogle ? (
+              <ActivityIndicator size="small" color={colors.primary} />
+            ) : (
+              <>
+                <Ionicons name="logo-google" size={20} color={colors.primary} />
+                <Text className="text-text text-base ml-3">{t("screens.profile.linkGoogle")}</Text>
+              </>
+            )}
+          </TouchableOpacity>
+        )}
       </View>
     </ScreenContainer>
   );

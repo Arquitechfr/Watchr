@@ -47,6 +47,13 @@ export function ResetPasswordPage() {
       </div>
 
       <div className="w-full max-w-sm">
+        <div className="flex flex-col items-center mb-8">
+          <img
+            src="/splash-icon.png"
+            alt="Watchr"
+            className="w-16 h-16 object-contain"
+          />
+        </div>
         <h2 className="text-2xl font-bold text-text mb-2">{t("auth.resetPasswordTitle")}</h2>
         <p className="text-text-muted mb-8">{t("auth.resetPasswordBody")}</p>
 

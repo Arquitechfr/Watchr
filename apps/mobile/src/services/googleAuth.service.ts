@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import Constants from "expo-constants";
 import { log } from "../utils/logger";
-import { loginWithGoogle } from "./auth.service";
+import { loginWithGoogle, linkGoogleAccount } from "./auth.service";
 import { signInWithGoogleWeb } from "./googleAuthWeb.service";
 
 declare const require: (id: string) => { signInWithGoogleNative: () => Promise<string> };
@@ -16,8 +16,29 @@ export interface GoogleAuthState {
   isLoading: boolean;
 }
 
+export interface GoogleLinkState {
+  prompt: () => Promise<void>;
+  isLoading: boolean;
+}
+
 function isExpoGo(): boolean {
   return Constants.appOwnership === "expo";
+}
+
+async function getFirebaseIdToken(): Promise<string> {
+  if (isExpoGo()) {
+    log("GoogleLink", "using web flow (Expo Go)");
+    const { auth } = await import("../config/firebase");
+    const { GoogleAuthProvider, signInWithPopup, linkWithPopup } = await import("firebase/auth");
+    const provider = new GoogleAuthProvider();
+    const result = await signInWithPopup(auth, provider);
+    const idToken = await result.user.getIdToken();
+    return idToken;
+  } else {
+    log("GoogleLink", "using native flow (dev build)");
+    const { signInWithGoogleNative } = require("./googleSignInNative.service");
+    return await signInWithGoogleNative();
+  }
 }
 
 export function useGoogleAuth(
@@ -42,6 +63,30 @@ export function useGoogleAuth(
       }
     } catch (err) {
       log("GoogleAuth", "error", err);
+      onError(err instanceof Error ? err : new Error(String(err)));
+    } finally {
+      setIsLoading(false);
+    }
+  }, [onSuccess, onError]);
+
+  return { prompt, isLoading };
+}
+
+export function useGoogleLink(
+  onSuccess: () => void,
+  onError: (error: Error) => void,
+): GoogleLinkState {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const prompt = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const idToken = await getFirebaseIdToken();
+      await linkGoogleAccount(idToken);
+      log("GoogleLink", "linked successfully");
+      onSuccess();
+    } catch (err) {
+      log("GoogleLink", "error", err);
       onError(err instanceof Error ? err : new Error(String(err)));
     } finally {
       setIsLoading(false);

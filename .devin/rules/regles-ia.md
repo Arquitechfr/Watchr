@@ -1,5 +1,5 @@
 ---
-trigger: model_decision
+trigger: always_on
 ---
 
 # Règles IA — Watchr
@@ -39,16 +39,31 @@ Ces règles s'appliquent à tout agent (Devin/Cascade) travaillant sur ce repo.
 - Rate limiting sur les routes d'auth et d'import.
 - Toute réponse d'erreur API a un format cohérent (`{ error: { code, message } }`), jamais de stack trace exposée en prod.
 
-## 5. Spécifique mobile (Expo sans prebuild)
+## 5. Synchronisation web ↔ mobile — non négociable
+
+- Le dossier `apps/web` est la **version desktop ViteJS + React** de l'application mobile `apps/mobile`. Les deux sont des clients du même backend et exposent les mêmes fonctionnalités.
+- **Règle absolue** : toute création de logique métier (hook, service, store, utilitaire), tout nouvel écran/page, toute nouvelle fonctionnalité doit être implémentée **simultanément** sur les deux plateformes.
+- Correspondance des dossiers :
+  - `apps/mobile/src/screens/` ↔ `apps/web/src/pages/`
+  - `apps/mobile/src/components/` ↔ `apps/web/src/components/`
+  - `apps/mobile/src/hooks/` ↔ `apps/web/src/hooks/`
+  - `apps/mobile/src/services/` ↔ `apps/web/src/services/`
+  - `apps/mobile/src/store/` ↔ `apps/web/src/store/`
+- Les deux versions doivent rester en **parité fonctionnelle** : mêmes endpoints API consommés, mêmes validations Zod, mêmes états de chargement/erreur, mêmes flux utilisateur.
+- Une tâche n'est **pas terminée** tant que les deux plateformes ne sont pas synchronisées.
+- Si une feature ne peut pas exister sur une plateforme (ex : module natif mobile sans équivalent web), documenter explicitement la raison et marquer avec `[?]`.
+
+## 6. Spécifique mobile (Expo sans prebuild)
 
 - **Aucune lib nécessitant du code natif custom** ou un dev client non standard. Vérifier la compatibilité Expo Go avant d'ajouter une dépendance.
 - Pas de `Context` pour l'état complexe (utiliser Zustand). Pas de prop drilling au-delà de 2 niveaux.
 - États de chargement et d'erreur obligatoires sur tout écran consommant une query réseau (pas de "flash" d'écran vide).
 - **Internationalisation** : tout texte UI dans les composants/écrans mobile passe par `useI18n`/`t()`. Les dates utilisent `dateFnsLocale`. Les messages d'erreur API passent par `useErrorMessage`. Les traductions sont splitées par langue dans `apps/mobile/src/i18n/locales/<lang>.ts` (mobile) et `apps/backend/src/i18n/locales/<lang>.ts` (backend). **Toute nouvelle clé ou modification doit être répercutée dans tous les fichiers de locale de chaque côté** — les fichiers `en.ts` et `fr.ts` (et toute autre langue supportée) doivent rester en parité parfaite. Une tâche n'est pas terminée tant que toutes les langues ne sont pas synchronisées.
 
-## 6. Definition of Done
+## 7. Definition of Done
 
 Une tâche n'est considérée terminée que si :
 - [ ] Code sans placeholder ni `console.log` de debug oublié
 - [ ] Erreurs et edge cases gérés (réseau down, 401/403, données vides, import malformé)
 - [ ] Hypothèses non confirmées documentées avec `[?]` dans la description du changement
+- [ ] **Synchronisation web ↔ mobile** : la feature existe et fonctionne sur les deux plateformes (mobile et web), ou une raison documentée justifie l'absence sur l'une d'elles

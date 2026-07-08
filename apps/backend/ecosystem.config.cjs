@@ -3,7 +3,7 @@ module.exports = {
   apps: [
     {
       name: 'watchr-api',
-      script: 'dist/src/server.js',
+      script: 'dist/server.js',
       instances: 2,
       exec_mode: 'cluster',
       env: {
@@ -27,7 +27,7 @@ module.exports = {
     },
     {
       name: 'watchr-import-worker',
-      script: 'dist/src/workers/startImportWorker.js',
+      script: 'dist/workers/startImportWorker.js',
       instances: 1,
       env: {
         NODE_ENV: 'production',
@@ -48,7 +48,7 @@ module.exports = {
     },
     {
       name: 'watchr-episode-sync-worker',
-      script: 'dist/src/workers/startEpisodeSyncWorker.js',
+      script: 'dist/workers/startEpisodeSyncWorker.js',
       instances: 1,
       env: {
         NODE_ENV: 'production',
@@ -69,7 +69,7 @@ module.exports = {
     },
     {
       name: 'watchr-notification-worker',
-      script: 'dist/src/workers/startNotificationWorker.js',
+      script: 'dist/workers/startNotificationWorker.js',
       instances: 1,
       env: {
         NODE_ENV: 'production',
@@ -90,7 +90,7 @@ module.exports = {
     },
     {
       name: 'watchr-trakt-sync-worker',
-      script: 'dist/src/workers/startTraktSyncWorker.js',
+      script: 'dist/workers/startTraktSyncWorker.js',
       instances: 1,
       env: {
         NODE_ENV: 'production',
@@ -111,7 +111,7 @@ module.exports = {
     },
     {
       name: 'watchr-username-fix-worker',
-      script: 'dist/src/workers/startUsernameFixWorker.js',
+      script: 'dist/workers/startUsernameFixWorker.js',
       instances: 1,
       env: {
         NODE_ENV: 'production',
@@ -132,7 +132,7 @@ module.exports = {
     },
     {
       name: 'watchr-news-sync-worker',
-      script: 'dist/src/workers/startNewsSyncWorker.js',
+      script: 'dist/workers/startNewsSyncWorker.js',
       instances: 1,
       env: {
         NODE_ENV: 'production',

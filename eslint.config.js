@@ -27,6 +27,17 @@ export default tseslint.config(
     },
   },
   {
+    files: ["**/*.tsx"],
+    rules: {
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
+      ],
+      "@typescript-eslint/no-explicit-any": "warn",
+      "no-console": "warn",
+    },
+  },
+  {
     ignores: ["**/dist/**", "**/node_modules/**", "**/coverage/**"],
   }
 );

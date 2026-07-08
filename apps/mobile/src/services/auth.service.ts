@@ -59,6 +59,7 @@ export interface Me {
   preferredLanguage?: string;
   themePreference: "system" | "light" | "dark";
   hasCompletedOnboarding: boolean;
+  googleLinked: boolean;
   createdAt: string;
 }
 
@@ -131,5 +132,15 @@ export async function completeOnboarding(): Promise<{ hasCompletedOnboarding: bo
   log("AuthService", "completeOnboarding request");
   const response = await api.patch<{ hasCompletedOnboarding: boolean }>("/auth/me/onboarding", {});
   log("AuthService", "completeOnboarding response", { status: response.status });
+  return response.data;
+}
+
+export async function linkGoogleAccount(idToken: string): Promise<{ googleLinked: boolean }> {
+  const response = await api.post<{ googleLinked: boolean }>("/auth/me/link-google", { idToken });
+  return response.data;
+}
+
+export async function unlinkGoogleAccount(): Promise<{ googleLinked: boolean }> {
+  const response = await api.delete<{ googleLinked: boolean }>("/auth/me/link-google");
   return response.data;
 }

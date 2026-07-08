@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { SUPPORTED_LOCALES, normalizeLocale, type SupportedLocale } from "../i18n/translations";
+import { normalizeLocale, type SupportedLocale } from "../i18n/translations";
 
 function detectDeviceLocale(): SupportedLocale {
   if (typeof navigator !== "undefined" && navigator.language) {

@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import * as brevo from "@getbrevo/brevo";
+import nodemailer from "nodemailer";
 import { env } from "../config/env.js";
 import { SupportedLocale } from "../i18n/translations.js";
 import { welcomeTemplate, resetPasswordTemplate } from "./emailTemplates.js";
@@ -10,37 +10,42 @@ interface SendEmailParams {
   html: string;
 }
 
-let brevoClient: brevo.BrevoClient | null = null;
+let transporter: nodemailer.Transporter | null = null;
 
-function getBrevoClient(): brevo.BrevoClient | null {
-  if (!env.BREVO_API_KEY) {
+function getTransporter(): nodemailer.Transporter | null {
+  if (!env.SMTP_USER || !env.SMTP_PASS) {
     return null;
   }
 
-  if (!brevoClient) {
-    brevoClient = new brevo.BrevoClient({ apiKey: env.BREVO_API_KEY });
+  if (!transporter) {
+    transporter = nodemailer.createTransport({
+      host: env.SMTP_HOST,
+      port: env.SMTP_PORT,
+      secure: env.SMTP_PORT === 465,
+      auth: {
+        user: env.SMTP_USER,
+        pass: env.SMTP_PASS,
+      },
+    });
   }
 
-  return brevoClient;
+  return transporter;
 }
 
 async function sendEmail(params: SendEmailParams): Promise<boolean> {
-  const client = getBrevoClient();
+  const client = getTransporter();
 
   if (!client) {
-    console.warn("[EmailService] BREVO_API_KEY not configured — skipping email send");
+    console.warn("[EmailService] SMTP credentials not configured — skipping email send");
     return false;
   }
 
   try {
-    await client.transactionalEmails.sendTransacEmail({
-      sender: {
-        email: env.BREVO_SENDER_EMAIL ?? "noreply@watchr.app",
-        name: env.BREVO_SENDER_NAME,
-      },
-      to: [{ email: params.to }],
+    await client.sendMail({
+      from: `${env.SMTP_SENDER_NAME} <${env.SMTP_SENDER_EMAIL ?? "noreply@watchr.app"}>`,
+      to: params.to,
       subject: params.subject,
-      htmlContent: params.html,
+      html: params.html,
     });
     console.log(`[EmailService] Email sent to ${params.to}: ${params.subject}`);
     return true;

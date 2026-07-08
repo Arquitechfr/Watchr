@@ -12,11 +12,21 @@ import { SUPPORTED_LOCALES, type SupportedLocale } from "../../i18n/translations
 const LANG_FLAGS: Record<SupportedLocale, string> = {
   fr: "🇫🇷",
   en: "🇬🇧",
+  es: "🇪🇸",
+  pt: "🇧🇷",
+  de: "🇩🇪",
+  it: "🇮🇹",
+  ar: "🇸🇦",
 };
 
 const LANG_LABELS: Record<SupportedLocale, string> = {
   fr: "screens.profile.languageFrench",
   en: "screens.profile.languageEnglish",
+  es: "screens.profile.languageSpanish",
+  pt: "screens.profile.languagePortuguese",
+  de: "screens.profile.languageGerman",
+  it: "screens.profile.languageItalian",
+  ar: "screens.profile.languageArabic",
 };
 
 export function ProfileLanguageScreen() {

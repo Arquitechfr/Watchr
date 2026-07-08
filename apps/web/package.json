@@ -11,9 +11,11 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.101.2",
     "axios": "^1.7.2",
     "date-fns": "^3.6.0",
     "i18n-js": "^4.5.3",
+    "lucide-react": "^1.23.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-router-dom": "^7.1.0",

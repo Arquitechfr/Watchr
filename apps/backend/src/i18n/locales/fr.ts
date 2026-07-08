@@ -34,6 +34,9 @@ const fr = {
     SEASON_NOT_FOUND: "Saison introuvable.",
     UNAUTHORIZED_DELETE: "Tu ne peux pas supprimer cette ressource.",
     ALREADY_TRACKED: "Déjà suivi.",
+    GOOGLE_ALREADY_LINKED: "Ce compte Google est déjà lié à un autre utilisateur.",
+    GOOGLE_EMAIL_MISMATCH: "L'email du compte Google ne correspond pas à votre email.",
+    CANNOT_UNLINK_NO_PASSWORD: "Vous ne pouvez pas délier Google sans avoir défini un mot de passe.",
     UNKNOWN: "Une erreur est survenue.",
   },
   notifications: {

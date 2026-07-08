@@ -34,6 +34,9 @@ const en = {
     SEASON_NOT_FOUND: "Season not found.",
     UNAUTHORIZED_DELETE: "You are not allowed to delete this resource.",
     ALREADY_TRACKED: "Already tracked.",
+    GOOGLE_ALREADY_LINKED: "This Google account is already linked to another user.",
+    GOOGLE_EMAIL_MISMATCH: "The Google account email does not match your account email.",
+    CANNOT_UNLINK_NO_PASSWORD: "You cannot unlink Google without a password set on your account.",
     UNKNOWN: "Something went wrong.",
   },
   notifications: {

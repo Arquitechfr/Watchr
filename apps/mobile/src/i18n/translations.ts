@@ -1,11 +1,16 @@
 import fr from "./locales/fr";
 import en from "./locales/en";
+import es from "./locales/es";
+import pt from "./locales/pt";
+import de from "./locales/de";
+import it from "./locales/it";
+import ar from "./locales/ar";
 
-export const SUPPORTED_LOCALES = ["en", "fr"] as const;
+export const SUPPORTED_LOCALES = ["en", "fr", "es", "pt", "de", "it", "ar"] as const;
 
 export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
 
-export const translations = { en, fr } as const;
+export const translations = { en, fr, es, pt, de, it, ar } as const;
 
 export type Translations = typeof fr;
 

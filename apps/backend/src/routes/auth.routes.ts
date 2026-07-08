@@ -19,6 +19,8 @@ import {
   getNotificationPreferences,
   updateThemePreference,
   completeOnboarding,
+  linkGoogleAccount,
+  unlinkGoogleAccount,
 } from "../services/auth.service.js";
 import {
   buildGoogleAuthUrl,
@@ -301,6 +303,28 @@ router.patch(
   validateRequest(onboardingCompleteSchema),
   asyncHandler(async (req: Request, res: Response) => {
     const result = await completeOnboarding(req.userId!);
+    res.json(result);
+  }),
+);
+
+const linkGoogleSchema = z.object({
+  idToken: z.string().min(1, "Firebase ID token is required"),
+});
+
+router.post(
+  "/me/link-google",
+  validateRequest(linkGoogleSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { idToken } = req.body;
+    const result = await linkGoogleAccount(req.userId!, idToken);
+    res.json(result);
+  }),
+);
+
+router.delete(
+  "/me/link-google",
+  asyncHandler(async (req: Request, res: Response) => {
+    const result = await unlinkGoogleAccount(req.userId!);
     res.json(result);
   }),
 );

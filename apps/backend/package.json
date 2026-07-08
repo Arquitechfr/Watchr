@@ -17,7 +17,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "mobile-config": "tsx scripts/mobile-config-cli.ts",
+    "mobile-config:seed": "tsx scripts/mobile-config-seed.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1079.0",

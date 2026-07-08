@@ -4,11 +4,14 @@ import { log } from "../utils/logger";
 import { useAuthStore, waitForHydration } from "../store/authStore";
 import { useLocaleStore } from "../store/localeStore";
 import { useI18n } from "../i18n/useI18n";
+import { remoteConfigService } from "./remoteConfig";
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:4500";
+export function getApiBaseUrl(): string {
+  return `${remoteConfigService.getConfig().backend_url}/api`;
+}
 
 export const api = axios.create({
-  baseURL: `${API_URL}/api`,
+  baseURL: "",
   timeout: 15000,
   headers: {
     "Content-Type": "application/json",
@@ -34,6 +37,7 @@ function onTokenRefreshFailed() {
 }
 
 api.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
+  config.baseURL = getApiBaseUrl();
   log("API", "request", { method: config.method, url: config.url });
   let token = useAuthStore.getState().accessToken;
   if (!token) {
@@ -82,7 +86,7 @@ api.interceptors.response.use(
           throw new Error("No refresh token");
         }
 
-        const response = await axios.post(`${API_URL}/api/auth/refresh`, {
+        const response = await axios.post(`${remoteConfigService.getConfig().backend_url}/api/auth/refresh`, {
           refreshToken,
         });
         const { accessToken, refreshToken: newRefreshToken } = response.data as {

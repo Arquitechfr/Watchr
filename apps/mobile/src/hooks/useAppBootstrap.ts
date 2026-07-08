@@ -16,6 +16,7 @@ import { useLocaleStore } from "../store/localeStore";
 import { useThemeStore } from "../store/themeStore";
 import { useAuthStore } from "../store/authStore";
 import { getMe } from "../services/auth.service";
+import { remoteConfigService } from "../services/remoteConfig";
 import { log } from "../utils/logger";
 
 const BOOTSTRAP_TIMEOUT_MS = 2500;
@@ -49,6 +50,8 @@ export function useAppBootstrap(queryClient: QueryClient) {
       });
 
       const storesPromise = (async () => {
+        await remoteConfigService.init();
+
         await Promise.allSettled([
           useLocaleStore.getState().hydrate(),
           useThemeStore.getState().hydrate(),

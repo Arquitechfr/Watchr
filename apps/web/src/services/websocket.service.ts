@@ -1,7 +1,6 @@
 import { io, type Socket } from "socket.io-client";
 import { useAuthStore } from "../store/authStore";
-
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:4500";
+import { remoteConfigService } from "./remoteConfig";
 
 export type WsConnectionState = "connected" | "reconnecting" | "disconnected";
 
@@ -38,7 +37,7 @@ class WebSocketService {
       return;
     }
 
-    this.socket = io(API_URL, {
+    this.socket = io(remoteConfigService.getConfig().backend_url, {
       path: "/socket.io",
       auth: { token: accessToken },
       transports: ["websocket"],
@@ -83,7 +82,7 @@ class WebSocketService {
         return;
       }
 
-      const response = await fetch(`${API_URL}/api/auth/refresh`, {
+      const response = await fetch(`${remoteConfigService.getConfig().backend_url}/api/auth/refresh`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ refreshToken }),

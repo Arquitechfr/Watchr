@@ -22,6 +22,7 @@ import newsRoutes from "./routes/news.routes.js";
 import uploadRoutes from "./routes/upload.routes.js";
 import ciRoutes from "./routes/ci.routes.js";
 import favoriteRoutes from "./routes/favorite.routes.js";
+import mobileConfigRoutes from "./routes/internal/mobileConfig.routes.js";
 
 const allowedOrigins = process.env.CORS_ORIGINS
   ? process.env.CORS_ORIGINS.split(",").map((o) => o.trim())
@@ -349,6 +350,7 @@ export function createApp(): Application {
   app.use("/api/uploads", uploadRoutes);
   app.use("/api/favorites", favoriteRoutes);
   app.use("/ci", ciRoutes);
+  app.use("/internal", mobileConfigRoutes);
 
   app.get("/metrics", async (_req: Request, res: Response) => {
     const { getMetrics, getMetricsContentType } = await import("./lib/wsMetrics.js");

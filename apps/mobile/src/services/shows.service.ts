@@ -1,7 +1,5 @@
 import { log } from "../utils/logger";
-import { api } from "./api";
-
-const API_BASE_URL = api.defaults.baseURL ?? "";
+import { api, getApiBaseUrl } from "./api";
 
 export interface SearchResult {
   results: SearchResultItem[];
@@ -134,17 +132,17 @@ export async function getSeasonDetails(tmdbId: number, seasonNumber: number): Pr
 
 export function getPosterUrl(path?: string, size: number = 200): string | undefined {
   if (!path) return undefined;
-  return `${API_BASE_URL}/images/poster/w${size}${path}`;
+  return `${getApiBaseUrl()}/images/poster/w${size}${path}`;
 }
 
 export function getStillUrl(path?: string, size: number = 300): string | undefined {
   if (!path) return undefined;
-  return `${API_BASE_URL}/images/still/w${size}${path}`;
+  return `${getApiBaseUrl()}/images/still/w${size}${path}`;
 }
 
 export function getProfileUrl(path?: string, size: number = 200): string | undefined {
   if (!path) return undefined;
-  return `${API_BASE_URL}/images/profile/w${size}${path}`;
+  return `${getApiBaseUrl()}/images/profile/w${size}${path}`;
 }
 
 export async function getDiscoverSections(): Promise<DiscoverResult> {

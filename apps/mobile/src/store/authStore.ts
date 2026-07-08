@@ -1,8 +1,7 @@
 import { create } from "zustand";
 import * as SecureStore from "expo-secure-store";
 import { log } from "../utils/logger";
-
-const API_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:4500";
+import { remoteConfigService } from "../services/remoteConfig";
 
 function decodeJwtPayload(token: string): Record<string, unknown> | null {
   try {
@@ -97,7 +96,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       if (isTokenExpired(accessToken)) {
         log("AuthStore", "access token expired, refreshing");
         try {
-          const response = await fetch(`${API_URL}/api/auth/refresh`, {
+          const response = await fetch(`${remoteConfigService.getConfig().backend_url}/api/auth/refresh`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ refreshToken }),

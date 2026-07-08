@@ -1,7 +1,6 @@
 import { create } from "zustand";
 import { websocketService } from "../services/websocket.service";
-
-const API_URL = (import.meta.env.VITE_API_URL ?? "http://localhost:4500").replace(/\/+$/, "");
+import { remoteConfigService } from "../services/remoteConfig";
 
 function decodeJwtPayload(token: string): Record<string, unknown> | null {
   try {
@@ -73,7 +72,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
     if (isTokenExpired(accessToken)) {
       try {
-        const response = await fetch(`${API_URL}/api/auth/refresh`, {
+        const response = await fetch(`${remoteConfigService.getConfig().backend_url}/api/auth/refresh`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ refreshToken }),

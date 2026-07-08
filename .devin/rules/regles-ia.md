@@ -49,9 +49,21 @@ Ces règles s'appliquent à tout agent (Devin/Cascade) travaillant sur ce repo.
   - `apps/mobile/src/hooks/` ↔ `apps/web/src/hooks/`
   - `apps/mobile/src/services/` ↔ `apps/web/src/services/`
   - `apps/mobile/src/store/` ↔ `apps/web/src/store/`
+  - `apps/mobile/src/config/` ↔ `apps/web/src/config/`
 - Les deux versions doivent rester en **parité fonctionnelle** : mêmes endpoints API consommés, mêmes validations Zod, mêmes états de chargement/erreur, mêmes flux utilisateur.
 - Une tâche n'est **pas terminée** tant que les deux plateformes ne sont pas synchronisées.
 - Si une feature ne peut pas exister sur une plateforme (ex : module natif mobile sans équivalent web), documenter explicitement la raison et marquer avec `[?]`.
+
+## 5b. Remote Config — configuration dynamique non négociable
+
+- Les valeurs de configuration **runtime** (`backend_url`, flags, etc.) sont stockées dans MongoDB (collection `mobile_config`) et servies via l'endpoint public `GET /internal/mobile-config` (cache process-level 30s côté backend).
+- Côté mobile et web, `remoteConfigService` (singleton) charge la config au lancement (**init bloquant** dans le bootstrap), la cache localement (AsyncStorage côté mobile, localStorage côté web), et la rafraîchit toutes les 5 min + au retour foreground (AppState / visibilitychange).
+- **Écriture = CLI uniquement** : `pnpm --filter backend mobile-config set <key> <value> [type]`. Jamais d'endpoint HTTP d'écriture (décision de sécurité : un endpoint d'écriture sur `backend_url` est un vecteur d'attaque disproportionné).
+- **Lecture = endpoint public sans auth** : le payload ne contient aucune donnée sensible par design.
+- **L'URL backend ne doit jamais être hardcodée** dans le code : utiliser `remoteConfigService.getConfig().backend_url` ou `getApiBaseUrl()` (exporté depuis `services/api.ts`).
+- Les valeurs **build-time** (Firebase, EAS, Sentry) restent dans `.env` et ne peuvent pas être dynamiques (inlinées par Expo/Vite à build time).
+- Toute nouvelle valeur de configuration runtime doit être : (1) ajoutée à `DEFAULT_REMOTE_CONFIG` dans `config/defaults.ts` côté mobile **et** web, (2) seedée en MongoDB via le CLI, (3) documentée dans le plan de la feature.
+- Fichiers clés : `apps/backend/src/models/MobileConfig.ts`, `apps/backend/src/routes/internal/mobileConfig.routes.ts`, `apps/backend/scripts/mobile-config-cli.ts`, `apps/{mobile,web}/src/config/defaults.ts`, `apps/{mobile,web}/src/services/remoteConfig.ts`, `apps/{mobile,web}/src/hooks/useRemoteConfig.ts`.
 
 ## 6. Spécifique mobile (Expo sans prebuild)
 
@@ -67,3 +79,4 @@ Une tâche n'est considérée terminée que si :
 - [ ] Erreurs et edge cases gérés (réseau down, 401/403, données vides, import malformé)
 - [ ] Hypothèses non confirmées documentées avec `[?]` dans la description du changement
 - [ ] **Synchronisation web ↔ mobile** : la feature existe et fonctionne sur les deux plateformes (mobile et web), ou une raison documentée justifie l'absence sur l'une d'elles
+- [ ] **Remote Config** : si la feature introduit une valeur de configuration runtime, celle-ci est ajoutée à `DEFAULT_REMOTE_CONFIG` (mobile + web), seedée en MongoDB, et aucune URL backend n'est hardcodée

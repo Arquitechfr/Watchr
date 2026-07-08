@@ -4,7 +4,6 @@ name: Remote Android Build
 # Watchr — Build Android (dev + production)
 #
 # Secrets repo (Settings → Actions → Secrets) :
-#   EXPO_PUBLIC_API_URL             → URL du backend (ex: https://api.watchr.app)
 #   EXPO_PUBLIC_FIREBASE_API_KEY    → Firebase API key
 #   EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN → Firebase auth domain
 #   EXPO_PUBLIC_FIREBASE_PROJECT_ID  → Firebase project ID
@@ -14,8 +13,11 @@ name: Remote Android Build
 #   EXPO_PUBLIC_FIREBASE_CLIENT_ID  → Google Sign-In web client ID
 #   GOOGLE_SERVICES_JSON            → Contenu du fichier google-services.json (base64)
 #   CI_UPLOAD_TOKEN                 → Token d'auth pour l'endpoint /ci/upload-apk
-#   BACKEND_URL                     → URL base du backend pour l'upload CI (ex: https://api.watchr.app)
+#   BACKEND_URL                     → URL base du backend pour l'upload CI (ex: https://api.watchr.me)
 #   SENTRY_AUTH_TOKEN               → Token d'auth Sentry pour l'upload des source maps
+#
+# Note: EXPO_PUBLIC_API_URL is no longer needed — backend_url is centralized in MongoDB
+# (mobile_config collection, managed via `pnpm --filter backend mobile-config` CLI)
 #
 # Keystore production (optionnel pour l'instant — build non signé si absent) :
 #   Variable : ANDROID_KEYSTORE_PATH (défaut /opt/watchr/keys/keystore.jks)
@@ -52,7 +54,6 @@ jobs:
       MOBILE_DIR: apps/mobile
       TERM: dumb
       GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.configureondemand=true
-      EXPO_PUBLIC_API_URL: ${{ secrets.EXPO_PUBLIC_API_URL }}
       EXPO_PUBLIC_FIREBASE_API_KEY: ${{ secrets.EXPO_PUBLIC_FIREBASE_API_KEY }}
       EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ secrets.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN }}
       EXPO_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.EXPO_PUBLIC_FIREBASE_PROJECT_ID }}

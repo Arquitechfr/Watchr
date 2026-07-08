@@ -76,6 +76,9 @@ watchr/
 - Backend dev : `pnpm --filter backend dev`
 - Mobile dev : `pnpm --filter mobile start` (dev client Expo, prebuild autorisé)
 - Web dev : `pnpm --filter web dev` (ViteJS dev server)
+- Remote config CLI : `pnpm --filter backend mobile-config set <key> <value> [type]` (types: string, number, boolean, json)
+- Remote config list : `pnpm --filter backend mobile-config list`
+- Remote config seed : `pnpm --filter backend mobile-config:seed` (peuple avec les valeurs par défaut)
 
 ## URLs de production
 
@@ -96,4 +99,5 @@ watchr/
      - Backend : `apps/backend/src/i18n/locales/<lang>.ts` (agrégés dans `translations.ts`)
    - Les dates et formats localisés utilisent `date-fns` avec la locale dynamique fournie par `useI18n` (`dateFnsLocale`).
    - Les messages d'erreur API utilisent le hook `useErrorMessage` ; les messages snackbar utilisent des clés de traduction.
+   - **Synchronisation obligatoire** : toute nouvelle clé ou modification de traduction doit être répercutée dans **tous** les fichiers de locale (`en.ts`, `fr.ts`, et toute autre langue supportée) côté mobile **et** backend. Les fichiers doivent rester en parité parfaite. Une tâche n'est pas terminée tant que toutes les langues ne sont pas à jour.
    - **Synchronisation obligatoire** : toute nouvelle clé ou modification de traduction doit être répercutée dans **tous** les fichiers de locale (`en.ts`, `fr.ts`, et toute autre langue supportée) côté mobile **et** backend. Les fichiers doivent rester en parité parfaite. Une tâche n'est pas terminée tant que toutes les langues ne sont pas à jour.

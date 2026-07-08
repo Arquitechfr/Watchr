@@ -30,6 +30,7 @@ interface CommentItemProps {
   onUnlike?: (id: string) => void;
   onAddReaction?: (id: string, emoji: string) => void;
   onRemoveReaction?: (id: string, emoji: string) => void;
+  variant?: "default" | "parent" | "reply";
 }
 
 const QUICK_EMOJIS = ["👍", "❤️", "🔥", "😂", "😍", "👏", "🤔", "😢"];
@@ -48,6 +49,7 @@ export function CommentItem({
   onUnlike,
   onAddReaction,
   onRemoveReaction,
+  variant = "default",
 }: CommentItemProps) {
   const { t, dateFnsLocale } = useI18n();
   const colors = useThemeColors();
@@ -103,8 +105,11 @@ export function CommentItem({
   const showReplyButton = onReply;
   const showRepliesButton = comment.replyCount > 0 && showId;
 
+  const isParent = variant === "parent";
+  const isReply = variant === "reply";
+
   return (
-    <View className="mb-3">
+    <View className={isReply ? "" : "mb-3"}>
       {isEditing ? (
         <CommentInput
           initialValue={comment.content}
@@ -116,7 +121,7 @@ export function CommentItem({
           submitLabel={t("common.edit")}
         />
       ) : (
-        <View className="bg-surface rounded-lg p-3">
+        <View className={isParent ? "bg-primary/10 border border-primary/20 rounded-lg p-4" : "bg-surface rounded-lg p-3"}>
           <View className="flex-row items-center mb-2">
             <Avatar url={comment.authorAvatarUrl} size={32} />
             <View className="ml-2 flex-1">
@@ -154,7 +159,7 @@ export function CommentItem({
             </View>
           ) : (
             <>
-              <Text className="text-text leading-relaxed">{comment.content}</Text>
+              <Text className={`text-text leading-relaxed ${isParent ? "text-base" : ""}`}>{comment.content}</Text>
 
               {comment.images?.length > 0 && (
                 <View className="flex-row flex-wrap mt-2">

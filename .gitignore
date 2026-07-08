@@ -51,3 +51,5 @@ apps/mobile/app-debug.apk
 template.md
 .gitignore
 apps/web/public/.well-known/assetlinks.json
+apps/backend/test-firebase.ts
+apps/backend/test-sentry.ts

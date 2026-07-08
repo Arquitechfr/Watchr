@@ -158,47 +158,53 @@ export function CommentThreadScreen() {
           onUnlike={handleUnlike}
           onAddReaction={handleAddReaction}
           onRemoveReaction={handleRemoveReaction}
+          variant="parent"
         />
+        <View className="mt-2 border-b border-border" />
       </View>
     );
   };
 
   return (
-    <ScreenContainer edges={["top", "left", "right"]}>
-      <View className="px-4 py-3 border-b border-border flex-row items-center justify-between">
-        <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.7} className="p-1">
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
-        </TouchableOpacity>
-        <Text className="text-text font-semibold text-lg flex-1 text-center mx-2" numberOfLines={1}>
-          {headerTitle}
-        </Text>
-        <View className="w-8" />
-      </View>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        className="flex-1"
-        keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
-      >
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      className="flex-1 bg-background"
+    >
+      <ScreenContainer edges={["top", "left", "right"]}>
+        <View className="px-4 py-3 border-b border-border flex-row items-center justify-between">
+          <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.7} className="p-1">
+            <Ionicons name="arrow-back" size={24} color={colors.text} />
+          </TouchableOpacity>
+          <Text className="text-text font-semibold text-lg flex-1 text-center mx-2" numberOfLines={1}>
+            {headerTitle}
+          </Text>
+          <View className="w-8" />
+        </View>
         <View className="flex-1 px-4 pt-4">
           <FlatList
             data={replies}
             keyExtractor={(item) => item.id}
             ListHeaderComponent={renderParentComment}
             renderItem={({ item }) => (
-              <CommentItem
-                comment={item}
-                showId={showId}
-                title={title}
-                season={season}
-                episode={episode}
-                isPending={isPending}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                onLike={handleLike}
-                onUnlike={handleUnlike}
-                onAddReaction={handleAddReaction}
-                onRemoveReaction={handleRemoveReaction}
-              />
+              <View className="flex-row">
+                <View className="border-l-2 border-border ml-4 pl-3 flex-1 mb-3 mt-1">
+                  <CommentItem
+                    comment={item}
+                    showId={showId}
+                    title={title}
+                    season={season}
+                    episode={episode}
+                    isPending={isPending}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                    onLike={handleLike}
+                    onUnlike={handleUnlike}
+                    onAddReaction={handleAddReaction}
+                    onRemoveReaction={handleRemoveReaction}
+                    variant="reply"
+                  />
+                </View>
+              </View>
             )}
             ListEmptyComponent={
               !isLoadingReplies ? (
@@ -237,7 +243,7 @@ export function CommentThreadScreen() {
             </View>
           )}
         </View>
-      </KeyboardAvoidingView>
-    </ScreenContainer>
+      </ScreenContainer>
+    </KeyboardAvoidingView>
   );
 }

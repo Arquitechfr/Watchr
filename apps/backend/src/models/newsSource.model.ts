@@ -1,6 +1,7 @@
 import { Schema, model, Document } from "mongoose";
+import { SUPPORTED_LOCALES, type SupportedLocale } from "../i18n/translations.js";
 
-export type NewsLocale = "en" | "fr";
+export type NewsLocale = SupportedLocale;
 
 export interface INewsSource extends Document {
   id: string;
@@ -32,7 +33,7 @@ const newsSourceSchema = new Schema<INewsSource>(
     },
     locale: {
       type: String,
-      enum: ["en", "fr"],
+      enum: Object.values(SUPPORTED_LOCALES),
       required: true,
     },
     isActive: {

@@ -21,6 +21,7 @@ interface CommentItemProps {
   onRemoveReaction?: (id: string, emoji: string) => void;
   isOwnComment: boolean;
   isPending?: boolean;
+  variant?: "default" | "parent" | "reply";
 }
 
 export function CommentItem({
@@ -38,6 +39,7 @@ export function CommentItem({
   onRemoveReaction,
   isOwnComment,
   isPending = false,
+  variant = "default",
 }: CommentItemProps) {
   const { t, dateFnsLocale } = useI18n();
   const navigate = useNavigate();
@@ -45,8 +47,10 @@ export function CommentItem({
   const [editing, setEditing] = useState(false);
   const [editContent, setEditContent] = useState(comment.content);
 
+  const isParent = variant === "parent";
+
   return (
-    <div className="bg-surface rounded-lg p-3">
+    <div className={isParent ? "bg-primary/5 border border-primary/20 rounded-lg p-4" : "bg-surface rounded-lg p-3"}>
       <div className="flex items-start gap-3">
         <Avatar url={comment.authorAvatarUrl} username={comment.authorUsername} size={36} />
         <div className="flex-1 min-w-0">
@@ -115,7 +119,7 @@ export function CommentItem({
                   {t("comments.spoiler")}
                 </span>
               )}
-              <p className="text-text text-sm mt-1 whitespace-pre-wrap">{comment.content}</p>
+              <p className={`text-text mt-1 whitespace-pre-wrap ${isParent ? "text-base" : "text-sm"}`}>{comment.content}</p>
               {comment.images.length > 0 && (
                 <div className="flex gap-2 mt-2 flex-wrap">
                   {comment.images.map((url, i) => (

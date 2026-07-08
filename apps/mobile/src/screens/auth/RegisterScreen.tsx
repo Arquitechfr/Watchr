@@ -12,8 +12,7 @@ import { log } from "../../utils/logger";
 import { useThemeColors } from "../../theme/useThemeColors";
 import { ScreenContainer } from "../../components/ScreenContainer";
 import { GoogleSignInButton } from "../../components/GoogleSignInButton";
-import { ThemeToggle } from "../../components/ThemeToggle";
-import { LanguageSwitcher } from "../../components/LanguageSwitcher";
+import { AuthSettingsMenu } from "../../components/AuthSettingsMenu";
 import { syncPreferencesToBackend } from "../../hooks/useSyncPreferences";
 import { AuthStackParamList } from "../../navigation/AuthStack";
 import { useI18n } from "../../i18n/useI18n";
@@ -65,9 +64,8 @@ export function RegisterScreen() {
 
   return (
     <ScreenContainer className="px-6 justify-center">
-      <View style={{ top: insets.top + 8 }} className="absolute right-4 flex-row flex-wrap gap-1 justify-end bg-surface rounded-lg p-1 max-w-[90%]">
-        <LanguageSwitcher />
-        <ThemeToggle />
+      <View style={{ top: insets.top + 8, zIndex: 50 }} className="absolute right-4">
+        <AuthSettingsMenu />
       </View>
 
       <View className="items-center mb-10">

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { StyleSheet, ImageBackground } from "react-native";
+import { StyleSheet, ImageBackground, ActivityIndicator, View } from "react-native";
 import Animated, {
   useSharedValue,
   withTiming,
@@ -23,7 +23,7 @@ export function SplashScreen({ visible }: SplashScreenProps) {
   useEffect(() => {
     if (!visible) {
       opacity.value = withDelay(
-        100,
+        1500,
         withTiming(0, { duration: 300 }, (finished) => {
           if (finished) runOnJS(setRendered)(false);
         }),
@@ -45,7 +45,21 @@ export function SplashScreen({ visible }: SplashScreenProps) {
         source={require("../../assets/splash-background.png")}
         style={StyleSheet.absoluteFill}
         resizeMode="cover"
-      />
+      >
+        <View style={styles.loaderContainer}>
+          <ActivityIndicator size="large" color="#C65D3A" />
+        </View>
+      </ImageBackground>
     </Animated.View>
   );
 }
+
+const styles = StyleSheet.create({
+  loaderContainer: {
+    position: "absolute",
+    bottom: 80,
+    left: 0,
+    right: 0,
+    alignItems: "center",
+  },
+});

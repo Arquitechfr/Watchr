@@ -12,6 +12,17 @@ const SEED_SOURCES: Array<{ id: string; name: string; url: string; locale: NewsL
   { id: "variety-film", name: "Variety Film News", url: "http://feeds.feedburner.com/variety/news/film", locale: "en" },
   { id: "variety-tv", name: "Variety TV News", url: "http://feeds.feedburner.com/variety/news/tv", locale: "en" },
   { id: "deadline", name: "Deadline", url: "https://deadline.com/feed/", locale: "en" },
+  // Spanish
+  { id: "google-news-es", name: "Google News Entretenimiento", url: "https://news.google.com/rss/headlines/section/topic/ENTERTAINMENT?hl=es&gl=ES&ceid=ES:es", locale: "es" },
+  // Portuguese
+  { id: "google-news-pt", name: "Google News Entretenimento", url: "https://news.google.com/rss/headlines/section/topic/ENTERTAINMENT?hl=pt-BR&gl=BR&ceid=BR:pt-419", locale: "pt" },
+  // German
+  { id: "google-news-de", name: "Google News Unterhaltung", url: "https://news.google.com/rss/headlines/section/topic/ENTERTAINMENT?hl=de&gl=DE&ceid=DE:de", locale: "de" },
+  // Italian
+  { id: "google-news-it", name: "Google News Intrattenimento", url: "https://news.google.com/rss/headlines/section/topic/ENTERTAINMENT?hl=it&gl=IT&ceid=IT:it", locale: "it" },
+  // Arabic
+  { id: "ign-me-ar", name: "IGN Middle East", url: "https://me.ign.com/ar/feed.xml", locale: "ar" },
+  { id: "google-news-ar", name: "Google News Entertainment", url: "https://news.google.com/rss/headlines/section/topic/ENTERTAINMENT?hl=ar&gl=EG&ceid=EG:ar", locale: "ar" },
 ];
 
 async function seedNewsSources() {

@@ -9,8 +9,7 @@ import { useI18n } from "../i18n/useI18n";
 import { useThemeContext } from "../theme/ThemeProvider";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { GoogleSignInButton } from "../components/GoogleSignInButton";
-import { ThemeToggle } from "../components/ThemeToggle";
-import { LanguageSwitcher } from "../components/LanguageSwitcher";
+import { AuthSettingsMenu } from "../components/AuthSettingsMenu";
 import { syncPreferencesToBackend } from "../hooks/useSyncPreferences";
 import { log } from "../utils/logger";
 
@@ -61,8 +60,7 @@ export function RegisterPage() {
   return (
     <ScreenContainer className="px-6 justify-center items-center">
       <div className="absolute top-4 right-4 flex gap-2">
-        <LanguageSwitcher />
-        <ThemeToggle />
+        <AuthSettingsMenu />
       </div>
 
       <div className="w-full max-w-sm">

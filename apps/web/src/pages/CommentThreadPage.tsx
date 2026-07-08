@@ -163,7 +163,9 @@ export function CommentThreadPage() {
           onAddReaction={handleAddReaction}
           onRemoveReaction={handleRemoveReaction}
           isOwnComment={parentComment.userId === userId}
+          variant="parent"
         />
+        <hr className="mt-6 border-border" />
       </div>
 
       {/* Replies */}
@@ -182,22 +184,26 @@ export function CommentThreadPage() {
             </div>
           )}
           {replies.map((reply: Comment) => (
-            <CommentItem
-              key={reply.id}
-              comment={reply}
-              showId={showId}
-              title={title}
-              season={season}
-              episode={episode}
-              isPending={isPending}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              onLike={handleLike}
-              onUnlike={handleUnlike}
-              onAddReaction={handleAddReaction}
-              onRemoveReaction={handleRemoveReaction}
-              isOwnComment={reply.userId === userId}
-            />
+            <div key={reply.id} className="flex">
+              <div className="border-l-2 border-border ml-4 pl-4 flex-1 mb-2 mt-1">
+                <CommentItem
+                  comment={reply}
+                  showId={showId}
+                  title={title}
+                  season={season}
+                  episode={episode}
+                  isPending={isPending}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                  onLike={handleLike}
+                  onUnlike={handleUnlike}
+                  onAddReaction={handleAddReaction}
+                  onRemoveReaction={handleRemoveReaction}
+                  isOwnComment={reply.userId === userId}
+                  variant="reply"
+                />
+              </div>
+            </div>
           ))}
           {hasMore && (
             <button

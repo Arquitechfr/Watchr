@@ -13,7 +13,7 @@ const LANG_FLAGS: Record<SupportedLocale, string> = {
   fr: "🇫🇷",
   en: "🇬🇧",
   es: "🇪🇸",
-  pt: "🇧🇷",
+  pt: "🇵🇹",
   de: "🇩🇪",
   it: "🇮🇹",
   ar: "🇸🇦",

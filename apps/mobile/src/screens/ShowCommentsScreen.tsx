@@ -132,21 +132,20 @@ export function ShowCommentsScreen() {
   };
 
   return (
-    <ScreenContainer edges={["top", "left", "right"]}>
-      <View className="px-4 py-3 border-b border-border flex-row items-center justify-between">
-        <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.7} className="p-1">
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
-        </TouchableOpacity>
-        <Text className="text-text font-semibold text-lg flex-1 text-center mx-2" numberOfLines={1}>
-          {headerTitle}
-        </Text>
-        <View className="w-8" />
-      </View>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        className="flex-1"
-        keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
-      >
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      className="flex-1 bg-background"
+    >
+      <ScreenContainer edges={["top", "left", "right"]}>
+        <View className="px-4 py-3 border-b border-border flex-row items-center justify-between">
+          <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.7} className="p-1">
+            <Ionicons name="arrow-back" size={24} color={colors.text} />
+          </TouchableOpacity>
+          <Text className="text-text font-semibold text-lg flex-1 text-center mx-2" numberOfLines={1}>
+            {headerTitle}
+          </Text>
+          <View className="w-8" />
+        </View>
         <View className="flex-1 px-4 pt-4">
           {season !== undefined && episode !== undefined && (
             <Text className="text-text-muted mb-4">
@@ -184,7 +183,7 @@ export function ShowCommentsScreen() {
             </View>
           )}
         </View>
-      </KeyboardAvoidingView>
-    </ScreenContainer>
+      </ScreenContainer>
+    </KeyboardAvoidingView>
   );
 }

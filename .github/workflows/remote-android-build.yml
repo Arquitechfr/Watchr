@@ -112,12 +112,26 @@ jobs:
             echo "⚠️  GOOGLE_SERVICES_JSON secret not set — Firebase/Google Sign-In may not work"
           fi
 
-      # ── 6. Expo prebuild ──────────────────────────────────────────────────
+      # ── 6. Set versionCode from CI run number ─────────────────────────────
+      - name: Set Android versionCode from CI run number
+        working-directory: ${{ env.MOBILE_DIR }}
+        run: |
+          VERSION_CODE=${{ github.run_number }}
+          echo "📱 Setting Android versionCode to $VERSION_CODE (GitHub run #${{ github.run_number }})"
+          node -e "
+            const fs = require('fs');
+            const config = JSON.parse(fs.readFileSync('app.json', 'utf8'));
+            config.expo.android.versionCode = ${VERSION_CODE};
+            fs.writeFileSync('app.json', JSON.stringify(config, null, 2) + '\n');
+          "
+          echo "✅ versionCode updated to $VERSION_CODE"
+
+      # ── 7. Expo prebuild ──────────────────────────────────────────────────
       - name: Expo prebuild (Android)
         run: npx expo prebuild --clean -p android
         working-directory: ${{ env.MOBILE_DIR }}
 
-      # ── 7. Cache Gradle ───────────────────────────────────────────────────
+      # ── 8. Cache Gradle ───────────────────────────────────────────────────
       - name: Cache Gradle
         uses: actions/cache@v5
         with:
@@ -129,7 +143,7 @@ jobs:
           restore-keys: |
             gradle-${{ runner.os }}-
 
-      # ── 8. Gradle build ─────────────────────────────────────────────────────
+      # ── 9. Gradle build ─────────────────────────────────────────────────────
       # Production : signé si keystore présent, sinon build non signé (debug signing)
       # Development : toujours debug
       - name: Gradle build
@@ -151,7 +165,7 @@ jobs:
             ./gradlew ${{ github.event.inputs.variant }}
           fi
 
-      # ── 9. Fallback local artifact on runner ──────────────────────────────
+      # ── 10. Fallback local artifact on runner ──────────────────────────────
       - name: Copy build outputs to runner output directory
         if: always()
         run: |
@@ -165,7 +179,7 @@ jobs:
           echo "📦 Local artifacts copied to: $DEST_DIR"
           ls -lh "$DEST_DIR"
 
-      # ── 10. Upload APK/AAB vers S3 MinIO via backend ─────────────────────
+      # ── 11. Upload APK/AAB vers S3 MinIO via backend ─────────────────────
       - name: Upload APK/AAB to S3 via backend
         if: always()
         env:
@@ -213,7 +227,7 @@ jobs:
             echo "✅ $FILENAME uploaded successfully"
           done
 
-      # ── 11. Cleanup ──────────────────────────────────────────────────────
+      # ── 12. Cleanup ──────────────────────────────────────────────────────
       - name: Cleanup build outputs
         if: always()
         run: rm -rf ${{ env.MOBILE_DIR }}/android/app/build/outputs

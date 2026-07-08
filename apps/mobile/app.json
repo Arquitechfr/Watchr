@@ -22,6 +22,7 @@
     "icon": "./assets/icon.png",
     "android": {
       "package": "com.watchr.app",
+      "versionCode": 1,
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",

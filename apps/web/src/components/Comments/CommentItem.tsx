@@ -169,7 +169,7 @@ export function CommentItem({
                 )}
                 {comment.replyCount > 0 && onReply && (
                   <button
-                    onClick={() => navigate(`/comments/${comment.id}`)}
+                    onClick={() => navigate(`/comments/${comment.id}`, { state: { showId, title, season, episode } })}
                     className="text-xs text-primary hover:underline"
                   >
                     {t("comments.viewThread")}

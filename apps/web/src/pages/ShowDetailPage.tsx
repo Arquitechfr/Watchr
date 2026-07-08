@@ -407,9 +407,9 @@ export function ShowDetailPage() {
       />
 
       {/* Hero */}
-      <div className="relative rounded-xl overflow-hidden mb-6">
+      <div className="relative rounded-xl overflow-hidden mb-6 h-64 sm:h-96 bg-surface-light">
         {posterUrl && (
-          <img src={posterUrl} alt={show.title} className="w-full object-cover" style={{ aspectRatio: "2/3" }} />
+          <img src={posterUrl} alt={show.title} className="w-full h-full object-cover object-top" />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent" />
       </div>

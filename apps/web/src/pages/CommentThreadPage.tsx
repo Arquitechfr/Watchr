@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { ArrowLeft, MessageSquare, RefreshCw } from "lucide-react";
 import { useState } from "react";
 import { PageWrapper } from "../components/layout/PageWrapper";
@@ -15,6 +15,8 @@ import { useI18n } from "../i18n/useI18n";
 export function CommentThreadPage() {
   const { commentId } = useParams<{ commentId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
+  const state = location.state as { showId: string; title: string; season?: number; episode?: number } | undefined;
   const { t } = useI18n();
   const userId = useAuthStore((s) => s.userId);
   const { showSnackbar } = useUIStore();
@@ -24,10 +26,12 @@ export function CommentThreadPage() {
   const { data: parentComment, isLoading: isLoadingParent, isError: isErrorParent, refetch: refetchParent } = useComment(commentId!);
   const { data: repliesData, isLoading: isLoadingReplies, refetch: refetchReplies } = useReplies(commentId!, page, limit);
 
-  const showId = parentComment?.showId ?? "";
-  const query = parentComment?.episodeRef
-    ? { season: parentComment.episodeRef.season, episode: parentComment.episodeRef.episode }
-    : undefined;
+  const showId = state?.showId ?? "";
+  const title = state?.title ?? "";
+  const season = state?.season;
+  const episode = state?.episode;
+  
+  const query = season !== undefined && episode !== undefined ? { season, episode } : undefined;
 
   const likeComment = useLikeComment(showId, query);
   const unlikeComment = useUnlikeComment(showId, query);
@@ -121,7 +125,7 @@ export function CommentThreadPage() {
     );
   }
 
-  const headerTitle = `${t("screens.comments.title")} · ${parentComment.showTitle || "Show"}`;
+  const headerTitle = `${t("screens.comments.title")} · ${title || "Show"}`;
 
   return (
     <PageWrapper maxWidth="max-w-3xl">
@@ -144,9 +148,9 @@ export function CommentThreadPage() {
         <CommentItem
           comment={parentComment}
           showId={showId}
-          title={parentComment.showTitle || ""}
-          season={parentComment.episodeRef?.season}
-          episode={parentComment.episodeRef?.episode}
+          title={title}
+          season={season}
+          episode={episode}
           isPending={isPending}
           onEdit={handleEdit}
           onDelete={handleDelete}
@@ -178,9 +182,9 @@ export function CommentThreadPage() {
               key={reply.id}
               comment={reply}
               showId={showId}
-              title={parentComment.showTitle || ""}
-              season={parentComment.episodeRef?.season}
-              episode={parentComment.episodeRef?.episode}
+              title={title}
+              season={season}
+              episode={episode}
               isPending={isPending}
               onEdit={handleEdit}
               onDelete={handleDelete}

@@ -23,8 +23,13 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: TruffleHog OSS
+      - name: TruffleHog OSS — Filesystem scan
         uses: trufflesecurity/trufflehog@v3.95.8
         with:
           path: .
+          extra_args: --results=verified,unknown
+
+      - name: TruffleHog OSS — Git history scan
+        uses: trufflesecurity/trufflehog@v3.95.8
+        with:
           extra_args: --only-verified --results=verified,unknown

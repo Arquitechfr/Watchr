@@ -13,7 +13,7 @@ export function StatCard({ icon, value, label }: StatCardProps) {
 
   return (
     <View
-      className="rounded-lg p-3 flex-1"
+      className="rounded-lg p-3"
       style={{ backgroundColor: colors.surface, minHeight: 90 }}
     >
       <View className="flex-row items-center mb-2">

@@ -1,0 +1,29 @@
+name: TruffleHog OSS
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Watchr — Secret scanning with TruffleHog OSS
+#
+# Scans the repository for leaked secrets (API keys, tokens, credentials)
+# on every push and pull request.
+# ─────────────────────────────────────────────────────────────────────────────
+
+on:
+  push:
+    branches: [master, develop]
+  pull_request:
+    branches: [master, develop]
+
+jobs:
+  trufflehog:
+    name: TruffleHog OSS
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: TruffleHog OSS
+        uses: trufflesecurity/trufflehog@v3.95.8
+        with:
+          extra_args: --only-verified

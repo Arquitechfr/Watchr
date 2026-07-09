@@ -1,16 +1,16 @@
 import { useState } from "react";
 import { View, Text, TouchableOpacity, TextInput, ActivityIndicator, Alert, Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import * as ImagePicker from "expo-image-picker";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ScreenContainer } from "../../components/ScreenContainer";
 import { Avatar } from "../../components/Avatar";
-import { getMe, uploadAvatar, updateUsername, unlinkGoogleAccount } from "../../services/auth.service";
+import { getMe, updateUsername, unlinkGoogleAccount } from "../../services/auth.service";
 import { useGoogleLink } from "../../services/googleAuth.service";
 import { useI18n } from "../../i18n/useI18n";
 import { useUIStore } from "../../store/uiStore";
 import { useErrorMessage } from "../../services/api";
 import { useThemeColors } from "../../theme/useThemeColors";
+import { useAvatarUpload } from "../../hooks/useAvatarUpload";
 
 export function EditProfileScreen() {
   const { t } = useI18n();
@@ -63,16 +63,7 @@ export function EditProfileScreen() {
     );
   }
 
-  const avatarMutation = useMutation({
-    mutationFn: (file: { uri: string; type: string; name: string }) => uploadAvatar(file),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["me"] });
-      showSnackbar(t("screens.profile.avatarUpdated"), "success");
-    },
-    onError: (error) => {
-      showSnackbar(getErrorMessage(error), "error");
-    },
-  });
+  const { pickAvatar, isUploading: isAvatarUploading } = useAvatarUpload();
 
   const usernameMutation = useMutation({
     mutationFn: (username: string) => updateUsername(username),
@@ -85,25 +76,6 @@ export function EditProfileScreen() {
       showSnackbar(getErrorMessage(error), "error");
     },
   });
-
-  async function pickAvatar() {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.8,
-    });
-
-    if (result.canceled || !result.assets?.[0]) return;
-
-    const asset = result.assets[0];
-    const file = {
-      uri: asset.uri,
-      type: asset.mimeType ?? "image/jpeg",
-      name: `avatar.${(asset.mimeType ?? "image/jpeg").split("/")[1]}`,
-    };
-    avatarMutation.mutate(file);
-  }
 
   function submitUsername() {
     const trimmed = usernameInput.trim();
@@ -122,14 +94,14 @@ export function EditProfileScreen() {
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]}>
       <View style={Platform.OS === "web" ? { maxWidth: 600, alignSelf: "center", width: "100%" } : undefined}>
       <View className="items-center mb-8">
-        <TouchableOpacity onPress={pickAvatar} disabled={avatarMutation.isPending} activeOpacity={0.8}>
+        <TouchableOpacity onPress={pickAvatar} disabled={isAvatarUploading} activeOpacity={0.8}>
           <View className="relative">
             <Avatar url={me?.avatarUrl} size={96} />
             <View
               className="absolute bottom-0 right-0 items-center justify-center rounded-full"
               style={{ width: 32, height: 32, backgroundColor: colors.primary }}
             >
-              {avatarMutation.isPending ? (
+              {isAvatarUploading ? (
                 <ActivityIndicator size="small" color={colors.background} />
               ) : (
                 <Ionicons name="camera" size={18} color={colors.background} />

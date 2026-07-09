@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import { useLocaleStore } from "../store/localeStore";
+import { useAuthStore } from "../store/authStore";
 import { useUIStore } from "../store/uiStore";
 import { useI18n } from "../i18n/useI18n";
 import { updateLanguage } from "../services/auth.service";
@@ -13,6 +14,7 @@ export function useChangeLocale() {
   return useCallback(
     (lang: SupportedLocale) => {
       setLocale(lang);
+      if (!useAuthStore.getState().isAuthenticated) return;
       updateLanguage(lang).catch(() => {
         showSnackbar(t("screens.profile.languageSyncError"), "error");
       });

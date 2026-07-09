@@ -1,4 +1,5 @@
 import { Text, TouchableOpacity, ActivityIndicator, View, ScrollView, Platform, useWindowDimensions } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { getItem as secureGetItem } from "../utils/secureStorage";
@@ -25,6 +26,7 @@ import { useState } from "react";
 import { useI18n } from "../i18n/useI18n";
 import { useUserStats } from "../hooks/useStats";
 import { useFavorites } from "../hooks/useFavorites";
+import { useAvatarUpload } from "../hooks/useAvatarUpload";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -38,6 +40,7 @@ export function ProfileScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const { width } = useWindowDimensions();
   const isDesktopWeb = Platform.OS === "web" && width >= 768;
+  const { pickAvatar, isUploading: isAvatarUploading } = useAvatarUpload();
 
   const { data: me, isLoading: meLoading } = useQuery({ queryKey: ["me"], queryFn: getMe });
   const { data: stats, isLoading: statsLoading } = useUserStats();
@@ -81,7 +84,21 @@ export function ProfileScreen() {
       <MainHeader rightElement={<ProfileMenuButton />} />
       <ScrollView showsVerticalScrollIndicator={false} contentContainerClassName="pb-24">
         <View className="items-center mb-6">
-          <Avatar url={me?.avatarUrl} size={80} />
+          <TouchableOpacity onPress={pickAvatar} disabled={isAvatarUploading || meLoading} activeOpacity={0.8}>
+            <View className="relative">
+              <Avatar url={me?.avatarUrl} size={80} />
+              <View
+                className="absolute bottom-0 right-0 items-center justify-center rounded-full"
+                style={{ width: 28, height: 28, backgroundColor: colors.primary }}
+              >
+                {isAvatarUploading ? (
+                  <ActivityIndicator size="small" color={colors.background} />
+                ) : (
+                  <Ionicons name="camera" size={16} color={colors.background} />
+                )}
+              </View>
+            </View>
+          </TouchableOpacity>
           {meLoading ? (
             <View className="items-center mt-3">
               <Skeleton width={120} height={18} className="mb-2" />
@@ -116,12 +133,24 @@ export function ProfileScreen() {
           <View className="mb-8">
             <Text className="text-text font-semibold text-base mb-3">{t("screens.profile.statsTitle")}</Text>
             <View className="flex-row flex-wrap gap-3 mb-3">
-              <StatCard icon="tv-outline" value={stats.tvCount} label={t("screens.profile.statsShowsFollowed")} />
-              <StatCard icon="film-outline" value={stats.movieCount} label={t("screens.profile.statsMoviesFollowed")} />
-              <StatCard icon="play-circle-outline" value={stats.episodesWatched} label={t("screens.profile.statsEpisodesWatched")} />
-              <StatCard icon="time-outline" value={`${stats.hoursWatched}h`} label={t("screens.profile.statsHoursWatched")} />
-              <StatCard icon="chatbubble-outline" value={stats.commentsCount} label={t("screens.profile.statsComments")} />
-              <StatCard icon="heart-outline" value={stats.reactionsCount + stats.likesCount} label={t("screens.profile.statsReactions")} />
+              <View className="w-[48%] md:w-[31%]">
+                <StatCard icon="tv-outline" value={stats.tvCount} label={t("screens.profile.statsShowsFollowed")} />
+              </View>
+              <View className="w-[48%] md:w-[31%]">
+                <StatCard icon="film-outline" value={stats.movieCount} label={t("screens.profile.statsMoviesFollowed")} />
+              </View>
+              <View className="w-[48%] md:w-[31%]">
+                <StatCard icon="play-circle-outline" value={stats.episodesWatched} label={t("screens.profile.statsEpisodesWatched")} />
+              </View>
+              <View className="w-[48%] md:w-[31%]">
+                <StatCard icon="time-outline" value={`${stats.hoursWatched}h`} label={t("screens.profile.statsHoursWatched")} />
+              </View>
+              <View className="w-[48%] md:w-[31%]">
+                <StatCard icon="chatbubble-outline" value={stats.commentsCount} label={t("screens.profile.statsComments")} />
+              </View>
+              <View className="w-[48%] md:w-[31%]">
+                <StatCard icon="heart-outline" value={stats.reactionsCount + stats.likesCount} label={t("screens.profile.statsReactions")} />
+              </View>
             </View>
           </View>
         )}

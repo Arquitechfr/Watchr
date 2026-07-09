@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Text, TextInput, TouchableOpacity, ActivityIndicator, Image, View, Platform } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -30,6 +31,7 @@ export function RegisterScreen() {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const insets = useSafeAreaInsets();
 
   async function handleRegister() {
@@ -94,14 +96,27 @@ export function RegisterScreen() {
             value={email}
             onChangeText={setEmail}
           />
-          <TextInput
-            className="bg-surface text-text px-4 py-3 rounded-lg mb-6 border border-border"
-            placeholder={t("auth.password")}
-            placeholderTextColor={colors.textMuted}
-            secureTextEntry
-            value={password}
-            onChangeText={setPassword}
-          />
+          <View className="mb-6">
+            <TextInput
+              className="bg-surface text-text px-4 py-3 rounded-lg border border-border pr-12"
+              placeholder={t("auth.password")}
+              placeholderTextColor={colors.textMuted}
+              secureTextEntry={!showPassword}
+              value={password}
+              onChangeText={setPassword}
+            />
+            <TouchableOpacity
+              onPress={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-3"
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <Ionicons
+                name={showPassword ? "eye-off" : "eye"}
+                size={22}
+                color={colors.textMuted}
+              />
+            </TouchableOpacity>
+          </View>
 
           <TouchableOpacity
             className="bg-primary py-3 rounded-lg items-center mb-4"

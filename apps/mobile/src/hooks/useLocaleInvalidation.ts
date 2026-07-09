@@ -12,7 +12,7 @@ export function useLocaleInvalidation() {
     if (prevLocale.current === locale) return;
     prevLocale.current = locale;
     setLocaleChanged(true);
-    queryClient.invalidateQueries();
+    queryClient.invalidateQueries({ queryKey: ["news"] });
   }, [locale, queryClient]);
 
   const isFetching = useIsFetching();

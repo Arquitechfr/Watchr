@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Text, TextInput, TouchableOpacity, ActivityIndicator, View, Platform } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { RouteProp } from "@react-navigation/native";
 import { resetPassword } from "../../services/auth.service";
 import { useUIStore } from "../../store/uiStore";
@@ -24,6 +25,8 @@ export function ResetPasswordScreen({ route }: ResetPasswordScreenProps) {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   async function handleReset() {
     if (newPassword.length < 8) {
@@ -51,22 +54,48 @@ export function ResetPasswordScreen({ route }: ResetPasswordScreenProps) {
       <Text className="text-2xl font-bold text-text mb-2">{t("auth.resetPasswordTitle")}</Text>
       <Text className="text-text-muted mb-8">{t("auth.resetPasswordBody")}</Text>
 
-      <TextInput
-        className="bg-surface text-text px-4 py-3 rounded-lg mb-4 border border-border"
-        placeholder={t("auth.newPassword")}
-        placeholderTextColor={colors.textMuted}
-        secureTextEntry
-        value={newPassword}
-        onChangeText={setNewPassword}
-      />
-      <TextInput
-        className="bg-surface text-text px-4 py-3 rounded-lg mb-6 border border-border"
-        placeholder={t("auth.confirmPassword")}
-        placeholderTextColor={colors.textMuted}
-        secureTextEntry
-        value={confirmPassword}
-        onChangeText={setConfirmPassword}
-      />
+      <View className="mb-4">
+        <TextInput
+          className="bg-surface text-text px-4 py-3 rounded-lg border border-border pr-12"
+          placeholder={t("auth.newPassword")}
+          placeholderTextColor={colors.textMuted}
+          secureTextEntry={!showNewPassword}
+          value={newPassword}
+          onChangeText={setNewPassword}
+        />
+        <TouchableOpacity
+          onPress={() => setShowNewPassword(!showNewPassword)}
+          className="absolute right-3 top-3"
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
+          <Ionicons
+            name={showNewPassword ? "eye-off" : "eye"}
+            size={22}
+            color={colors.textMuted}
+          />
+        </TouchableOpacity>
+      </View>
+      <View className="mb-6">
+        <TextInput
+          className="bg-surface text-text px-4 py-3 rounded-lg border border-border pr-12"
+          placeholder={t("auth.confirmPassword")}
+          placeholderTextColor={colors.textMuted}
+          secureTextEntry={!showConfirmPassword}
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
+        />
+        <TouchableOpacity
+          onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+          className="absolute right-3 top-3"
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
+          <Ionicons
+            name={showConfirmPassword ? "eye-off" : "eye"}
+            size={22}
+            color={colors.textMuted}
+          />
+        </TouchableOpacity>
+      </View>
 
       <TouchableOpacity
         className="bg-primary py-3 rounded-lg items-center mb-4"

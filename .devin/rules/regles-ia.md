@@ -39,22 +39,7 @@ Ces règles s'appliquent à tout agent (Devin/Cascade) travaillant sur ce repo.
 - Rate limiting sur les routes d'auth et d'import.
 - Toute réponse d'erreur API a un format cohérent (`{ error: { code, message } }`), jamais de stack trace exposée en prod.
 
-## 5. Synchronisation web ↔ mobile — non négociable
-
-- Le dossier `apps/web` est la **version desktop ViteJS + React** de l'application mobile `apps/mobile`. Les deux sont des clients du même backend et exposent les mêmes fonctionnalités.
-- **Règle absolue** : toute création de logique métier (hook, service, store, utilitaire), tout nouvel écran/page, toute nouvelle fonctionnalité doit être implémentée **simultanément** sur les deux plateformes.
-- Correspondance des dossiers :
-  - `apps/mobile/src/screens/` ↔ `apps/web/src/pages/`
-  - `apps/mobile/src/components/` ↔ `apps/web/src/components/`
-  - `apps/mobile/src/hooks/` ↔ `apps/web/src/hooks/`
-  - `apps/mobile/src/services/` ↔ `apps/web/src/services/`
-  - `apps/mobile/src/store/` ↔ `apps/web/src/store/`
-  - `apps/mobile/src/config/` ↔ `apps/web/src/config/`
-- Les deux versions doivent rester en **parité fonctionnelle** : mêmes endpoints API consommés, mêmes validations Zod, mêmes états de chargement/erreur, mêmes flux utilisateur.
-- Une tâche n'est **pas terminée** tant que les deux plateformes ne sont pas synchronisées.
-- Si une feature ne peut pas exister sur une plateforme (ex : module natif mobile sans équivalent web), documenter explicitement la raison et marquer avec `[?]`.
-
-## 5b. Remote Config — configuration dynamique non négociable
+## 5. Remote Config — configuration dynamique non négociable
 
 - Les valeurs de configuration **runtime** (`backend_url`, flags, etc.) sont stockées dans MongoDB (collection `mobile_config`) et servies via l'endpoint public `GET /internal/mobile-config` (cache process-level 30s côté backend).
 - Côté mobile et web, `remoteConfigService` (singleton) charge la config au lancement (**init bloquant** dans le bootstrap), la cache localement (AsyncStorage côté mobile, localStorage côté web), et la rafraîchit toutes les 5 min + au retour foreground (AppState / visibilitychange).

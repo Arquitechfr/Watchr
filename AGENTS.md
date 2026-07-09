@@ -91,8 +91,7 @@ watchr/
 2. **pnpm uniquement**, jamais npm/yarn/bun dans les commandes ou la doc.
 3. **Sources de données** : TMDB est la source de données principale. Le parser d'import GDPR TV Time reste tolérant (détection de colonnes par header) et produit un rapport d'erreurs ligne par ligne.
 4. **Planification obligatoire** : toute nouvelle feature ou changement architectural doit faire l'objet d'un plan validé avant implémentation.
-5. **Synchronisation web ↔ mobile obligatoire** : le dossier `apps/web` est la version desktop (ViteJS + React) de l'application mobile `apps/mobile`. Les deux applications partagent la même logique métier, les mêmes écrans/pages, les mêmes hooks et services. Toute nouvelle fonctionnalité, tout nouvel écran, toute nouvelle logique métier (hook, service, store) doit être implémentée **simultanément** côté mobile **et** côté web. Les deux versions doivent rester en parité fonctionnelle. Une tâche n'est pas terminée tant que les deux plateformes ne sont pas synchronisées.
-6. **Internationalisation (i18n)** : l'application supporte `en` et `fr`.
+5. **Internationalisation (i18n)** : l'application supporte `en` et `fr`.
    - Côté mobile, tout texte UI doit passer par `useI18n` et `t()` (interdiction de laisser du texte en dur dans les composants/écrans).
    - Les fichiers de traduction sont splités par langue, côté mobile **et** backend :
      - Mobile : `apps/mobile/src/i18n/locales/<lang>.ts` (agrégés dans `translations.ts`)

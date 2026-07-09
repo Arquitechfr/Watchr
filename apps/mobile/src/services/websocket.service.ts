@@ -1,5 +1,5 @@
 import { io, Socket } from "socket.io-client";
-import * as SecureStore from "expo-secure-store";
+import { getItem as secureGetItem } from "../utils/secureStorage";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { log } from "../utils/logger";
 import { useAuthStore } from "../store/authStore";
@@ -89,7 +89,7 @@ class WebSocketService {
   private async refreshTokenAndReconnect(): Promise<void> {
     try {
       log("WebSocket", "token refresh on WS auth error");
-      const refreshToken = await SecureStore.getItemAsync("refreshToken");
+      const refreshToken = await secureGetItem("refreshToken");
       if (!refreshToken) {
         log("WebSocket", "no refresh token — logging out");
         await useAuthStore.getState().logout();

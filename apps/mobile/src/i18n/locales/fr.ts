@@ -302,6 +302,13 @@ const fr = {
       spoilerWarningMessage: "Tu n'as pas encore vu « {{title}} ». Les commentaires pourraient contenir des spoilers.",
       proceedAnyway: "Afficher quand même",
       markWatchedAndProceed: "Marquer comme vu et lire",
+      reactionError: "Impossible de réagir",
+      edited: "modifié",
+      repliesTo: "Réponses à {{username}}",
+      original: "Original",
+      loadMore: "Charger plus",
+      loadingMore: "Chargement…",
+      tapToClose: "Touchez pour fermer",
     },
     import: {
       title: "Importer des données",

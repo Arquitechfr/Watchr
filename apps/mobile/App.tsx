@@ -14,10 +14,13 @@ import { useLocaleInvalidation } from "./src/hooks/useLocaleInvalidation";
 import { ReactNode } from "react";
 import { ThemeProvider } from "./src/theme/ThemeProvider";
 import { useTheme } from "./src/theme/useTheme";
-import { registerWidgetTaskHandler } from 'react-native-android-widget';
-import { widgetTaskHandler } from './src/widgets/widgetTaskHandler';
+import { Platform } from 'react-native';
 
-registerWidgetTaskHandler(widgetTaskHandler);
+if (Platform.OS !== 'web') {
+  const { registerWidgetTaskHandler } = require('react-native-android-widget');
+  const { widgetTaskHandler } = require('./src/widgets/widgetTaskHandler');
+  registerWidgetTaskHandler(widgetTaskHandler);
+}
 
 Sentry.init({
   dsn: "https://bf2e227cd3abf6f8e316e40c13f874dc@o4511684973428736.ingest.de.sentry.io/4511684992893008",

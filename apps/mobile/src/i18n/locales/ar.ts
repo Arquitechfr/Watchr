@@ -298,6 +298,13 @@ const ar = {
       spoilerWarningMessage: "لم تشاهد \"{{title}}\" بعد. التعليقات قد تحتوي على حرق.",
       proceedAnyway: "عرض على أي حال",
       markWatchedAndProceed: "تحديد كمشاهد وقراءة",
+      reactionError: "تعذر التفاعل",
+      edited: "مُعدّل",
+      repliesTo: "ردود على {{username}}",
+      original: "أصلي",
+      loadMore: "تحميل المزيد",
+      loadingMore: "جارٍ التحميل…",
+      tapToClose: "اضغط للإغلاق",
     },
     import: {
       title: "استيراد البيانات",

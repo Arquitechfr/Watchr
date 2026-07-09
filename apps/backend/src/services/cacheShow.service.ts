@@ -316,7 +316,27 @@ export async function syncEpisodesForShow(show: ShowDocument, language = "en-US"
     }
 
     freshShow.lastEpisodesSyncedAt = new Date();
-    await freshShow.save();
+
+    const plainShow = freshShow.toObject();
+
+    const updateDoc: Record<string, unknown> = {
+      lastEpisodesSyncedAt: freshShow.lastEpisodesSyncedAt,
+      seasons: plainShow.seasons,
+    };
+
+    if (plainShow.nextEpisodeToAir) {
+      updateDoc.nextEpisodeToAir = plainShow.nextEpisodeToAir;
+    }
+
+    if (plainShow.translations) {
+      const translationsObj: Record<string, unknown> = {};
+      for (const [lang, tr] of Object.entries(plainShow.translations)) {
+        translationsObj[lang] = tr;
+      }
+      updateDoc.translations = translationsObj;
+    }
+
+    await Show.findByIdAndUpdate(freshShow._id, { $set: updateDoc });
   } finally {
     // Release lock only if we still own it
     await deleteRedisKeyIfMatch(lockKey, lockValue);

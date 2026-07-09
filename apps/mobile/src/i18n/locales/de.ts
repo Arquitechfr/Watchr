@@ -298,6 +298,13 @@ const de = {
       spoilerWarningMessage: "Du hast \"{{title}}\" noch nicht gesehen. Kommentare könnten Spoiler enthalten.",
       proceedAnyway: "Trotzdem ansehen",
       markWatchedAndProceed: "Als gesehen markieren und lesen",
+      reactionError: "Reaktion nicht möglich",
+      edited: "bearbeitet",
+      repliesTo: "Antworten an {{username}}",
+      original: "Original",
+      loadMore: "Mehr laden",
+      loadingMore: "Laden…",
+      tapToClose: "Zum Schließen tippen",
     },
     import: {
       title: "Daten importieren",

@@ -302,6 +302,13 @@ const en = {
       spoilerWarningMessage: "You haven't watched \"{{title}}\" yet. Comments may contain spoilers.",
       proceedAnyway: "View anyway",
       markWatchedAndProceed: "Mark as watched and read",
+      reactionError: "Unable to react",
+      edited: "edited",
+      repliesTo: "Replies to {{username}}",
+      original: "Original",
+      loadMore: "Load more",
+      loadingMore: "Loading more…",
+      tapToClose: "Tap to close",
     },
     import: {
       title: "Import data",

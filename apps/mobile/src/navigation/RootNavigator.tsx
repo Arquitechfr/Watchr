@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { Linking } from "react-native";
+import { Linking, Platform } from "react-native";
 import { NavigationContainer, LinkingOptions } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useQuery } from "@tanstack/react-query";
@@ -74,6 +74,8 @@ export function RootNavigator() {
   useThemeSync();
 
   useEffect(() => {
+    if (Platform.OS === 'web') return;
+
     let subscription: import("expo-notifications").Subscription | undefined;
 
     (async () => {
@@ -110,13 +112,23 @@ export function RootNavigator() {
   }, [isAuthenticated]);
 
   const linking: LinkingOptions<RootStackParamList> = {
-    prefixes: ["watchr://"],
+    prefixes: Platform.OS === "web" ? [window.location.origin] : ["watchr://"],
     config: {
       screens: {
         Auth: "",
         ResetPassword: "reset-password",
         ShowDetail: "show",
         ShowComments: "comments",
+        Main: {
+          path: "main",
+          screens: {
+            Series: "series",
+            Movies: "movies",
+            Search: "search",
+            News: "news",
+            Profile: "profile",
+          },
+        },
       },
     },
   };

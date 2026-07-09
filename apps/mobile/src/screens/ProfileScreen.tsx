@@ -1,7 +1,7 @@
-import { Text, TouchableOpacity, ActivityIndicator, View, ScrollView } from "react-native";
+import { Text, TouchableOpacity, ActivityIndicator, View, ScrollView, Platform } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import * as SecureStore from "expo-secure-store";
+import { getItem as secureGetItem } from "../utils/secureStorage";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { useAuthStore } from "../store/authStore";
@@ -49,7 +49,7 @@ export function ProfileScreen() {
     log("Logout", "start");
     setIsLoading(true);
     try {
-      const refreshToken = await SecureStore.getItemAsync("refreshToken");
+      const refreshToken = await secureGetItem("refreshToken");
       if (refreshToken) {
         log("Logout", "calling api");
         await logout(refreshToken);
@@ -75,6 +75,7 @@ export function ProfileScreen() {
 
   return (
     <ScreenContainer className="px-4 pt-6" edges={["top", "left", "right"]}>
+      <View style={Platform.OS === "web" ? { maxWidth: 600, alignSelf: "center", width: "100%" } : undefined}>
       <MainHeader rightElement={<ProfileMenuButton />} />
       <ScrollView showsVerticalScrollIndicator={false} contentContainerClassName="pb-24">
         <View className="items-center mb-6">
@@ -166,6 +167,7 @@ export function ProfileScreen() {
           )}
         </TouchableOpacity>
       </ScrollView>
+      </View>
     </ScreenContainer>
   );
 }

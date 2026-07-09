@@ -17,6 +17,7 @@ export interface Comment {
   userId: string;
   authorUsername: string;
   authorAvatarUrl?: string;
+  parentId?: string;
   content: string;
   images: string[];
   isSpoiler: boolean;
@@ -136,7 +137,7 @@ export async function addReaction(id: string, emoji: string): Promise<void> {
 
 export async function removeReaction(id: string, emoji: string): Promise<void> {
   log("CommentsService", "removeReaction", { id, emoji });
-  await api.delete(`/comments/${id}/reactions`, { data: { emoji } });
+  await api.post(`/comments/${id}/reactions/remove`, { emoji });
   log("CommentsService", "removeReaction success");
 }
 

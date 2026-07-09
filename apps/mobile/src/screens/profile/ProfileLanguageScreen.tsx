@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { ScreenContainer } from "../../components/ScreenContainer";
 import { useI18n } from "../../i18n/useI18n";
@@ -21,6 +21,7 @@ export function ProfileLanguageScreen() {
 
   return (
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]}>
+      <View style={Platform.OS === "web" ? { maxWidth: 600, alignSelf: "center", width: "100%" } : undefined}>
       <Text className="text-text-muted text-center mb-6">{t("screens.profile.language")}</Text>
       <View className="gap-3">
         {SUPPORTED_LOCALES.map((lang) => (
@@ -40,6 +41,7 @@ export function ProfileLanguageScreen() {
             )}
           </TouchableOpacity>
         ))}
+      </View>
       </View>
     </ScreenContainer>
   );

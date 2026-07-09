@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { View, Text, Image, ScrollView, TouchableOpacity, RefreshControl } from "react-native";
+import { View, Text, Image, ScrollView, TouchableOpacity, RefreshControl, Platform, useWindowDimensions } from "react-native";
 import { useRoute, useNavigation, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useShowDetails } from "../hooks/useShowDetails";
@@ -56,6 +56,8 @@ export function ShowDetailScreen() {
   const { showSnackbar, showAlert } = useUIStore();
   const { t } = useI18n();
   const colors = useThemeColors();
+  const { width } = useWindowDimensions();
+  const isDesktopWeb = Platform.OS === "web" && width >= 768;
   const isValidTmdbId = Number.isFinite(tmdbId) && tmdbId > 0;
 
   const { data: show, isLoading, isRefetching, isError, refetch } = useShowDetails(tmdbId);
@@ -399,10 +401,16 @@ export function ShowDetailScreen() {
       />
       <ScrollView
         className="flex-1 bg-background"
-        contentContainerStyle={{ paddingBottom: 100 }}
+        contentContainerStyle={{
+          paddingBottom: 100,
+          ...(isDesktopWeb ? { flexDirection: "row", flexWrap: "wrap", paddingHorizontal: 16, paddingTop: 16 } : {}),
+        }}
         refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={() => throttledRefresh(handleRefresh)} tintColor={colors.primary} />}
       >
-        <View className="w-full h-96 overflow-hidden bg-surface-light">
+        <View
+          className="overflow-hidden bg-surface-light"
+          style={isDesktopWeb ? { width: 280, aspectRatio: 2 / 3, borderRadius: 12, marginRight: 24 } : { width: "100%", height: 384 }}
+        >
           {posterUrl ? (
             <Image
               source={{ uri: posterUrl }}
@@ -411,13 +419,13 @@ export function ShowDetailScreen() {
               resizeMode="cover"
             />
           ) : (
-            <View className="w-full h-96 bg-surface-light items-center justify-center">
+            <View className="w-full h-full bg-surface-light items-center justify-center">
               <Text className="text-text-muted">{t("common.noImage")}</Text>
             </View>
           )}
         </View>
 
-        <View className="px-4">
+        <View className={isDesktopWeb ? "flex-1 px-4" : "px-4"} style={isDesktopWeb ? { flex: 1 } : undefined}>
           {show.overview && (
             <View className="mb-4">
               <Text className="text-lg font-semibold text-text mb-2">{t("screens.showDetail.synopsis")}</Text>

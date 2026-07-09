@@ -1,5 +1,5 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
-import * as SecureStore from "expo-secure-store";
+import { getItem as secureGetItem } from "../utils/secureStorage";
 import { log } from "../utils/logger";
 import { useAuthStore, waitForHydration } from "../store/authStore";
 import { useLocaleStore } from "../store/localeStore";
@@ -95,7 +95,7 @@ api.interceptors.response.use(
 
       try {
         log("API", "refresh token start");
-        const refreshToken = await SecureStore.getItemAsync("refreshToken");
+        const refreshToken = await secureGetItem("refreshToken");
         if (!refreshToken) {
           throw new Error("No refresh token");
         }

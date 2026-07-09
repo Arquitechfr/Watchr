@@ -1,7 +1,7 @@
+import { Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import * as Localization from "expo-localization";
 import {
   SupportedLocale,
   normalizeLocale,
@@ -15,7 +15,15 @@ interface LocaleState {
   hydrate: () => Promise<void>;
 }
 
-const DEVICE_LOCALE = normalizeLocale(Localization.getLocales()[0]?.languageTag ?? "en");
+function getDeviceLocale(): string {
+  if (Platform.OS === 'web') {
+    return navigator.language || 'en';
+  }
+  const Localization = require('expo-localization');
+  return Localization.getLocales()[0]?.languageTag ?? 'en';
+}
+
+const DEVICE_LOCALE = normalizeLocale(getDeviceLocale());
 
 export const useLocaleStore = create<LocaleState>()(
   persist(

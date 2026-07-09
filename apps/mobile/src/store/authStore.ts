@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import * as SecureStore from "expo-secure-store";
+import { getItem as secureGetItem, setItem as secureSetItem, deleteItem as secureDeleteItem } from "../utils/secureStorage";
 import { log } from "../utils/logger";
 import { remoteConfigService } from "../services/remoteConfig";
 
@@ -61,8 +61,8 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   setTokens: async (accessToken, refreshToken) => {
     log("AuthStore", "setTokens");
-    await SecureStore.setItemAsync("accessToken", accessToken);
-    await SecureStore.setItemAsync("refreshToken", refreshToken);
+    await secureSetItem("accessToken", accessToken);
+    await secureSetItem("refreshToken", refreshToken);
     const userId = decodeJwtUserId(accessToken);
     set({ accessToken, userId, isAuthenticated: true });
     log("AuthStore", "tokens saved");
@@ -73,16 +73,16 @@ export const useAuthStore = create<AuthState>((set) => ({
   logout: async () => {
     const { websocketService } = await import("../services/websocket.service");
     websocketService.disconnect();
-    await SecureStore.deleteItemAsync("accessToken");
-    await SecureStore.deleteItemAsync("refreshToken");
+    await secureDeleteItem("accessToken");
+    await secureDeleteItem("refreshToken");
     set({ accessToken: null, userId: null, isAuthenticated: false });
   },
 
   hydrate: async () => {
     log("AuthStore", "hydrate start");
     try {
-      const accessToken = await SecureStore.getItemAsync("accessToken");
-      const refreshToken = await SecureStore.getItemAsync("refreshToken");
+      const accessToken = await secureGetItem("accessToken");
+      const refreshToken = await secureGetItem("refreshToken");
 
       if (!accessToken || !refreshToken) {
         log("AuthStore", "hydrate done — no tokens");
@@ -111,13 +111,13 @@ export const useAuthStore = create<AuthState>((set) => ({
           const data = (await response.json()) as { accessToken: string; refreshToken: string };
           currentAccessToken = data.accessToken;
           currentRefreshToken = data.refreshToken;
-          await SecureStore.setItemAsync("accessToken", currentAccessToken);
-          await SecureStore.setItemAsync("refreshToken", currentRefreshToken);
+          await secureSetItem("accessToken", currentAccessToken);
+          await secureSetItem("refreshToken", currentRefreshToken);
           log("AuthStore", "hydrate refresh success");
         } catch (refreshErr) {
           log("AuthStore", "hydrate refresh failed", refreshErr);
-          await SecureStore.deleteItemAsync("accessToken");
-          await SecureStore.deleteItemAsync("refreshToken");
+          await secureDeleteItem("accessToken");
+          await secureDeleteItem("refreshToken");
           set({ accessToken: null, userId: null, isAuthenticated: false, isHydrated: true });
           return;
         }

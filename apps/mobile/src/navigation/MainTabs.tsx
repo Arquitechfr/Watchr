@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
-import { View, Text } from "react-native";
+import { Platform, useWindowDimensions, View, Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { DesktopSidebar } from "../components/DesktopSidebar";
 import { SeriesScreen } from "../screens/SeriesScreen";
 import { MoviesScreen } from "../screens/MoviesScreen";
 import { SearchScreen } from "../screens/SearchScreen";
@@ -51,6 +53,13 @@ export function MainTabs() {
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
   const tabBarHeight = 64 + insets.bottom;
+  const { width } = useWindowDimensions();
+  const isDesktopWeb = Platform.OS === "web" && width >= 768;
+  const [activeTab, setActiveTab] = useState<"Series" | "Movies" | "Search" | "News" | "Profile">("Series");
+
+  function handleTabPress(tab: "Series" | "Movies" | "Search" | "News" | "Profile") {
+    setActiveTab(tab);
+  }
 
   useRealtimeNotifications();
   useTrackingRealtime();
@@ -78,6 +87,26 @@ export function MainTabs() {
         <Text style={{ color: colors.background, fontSize: 11, fontWeight: "700" }}>
           {unreadCount > 99 ? "99+" : unreadCount}
         </Text>
+      </View>
+    );
+  }
+
+  if (isDesktopWeb) {
+    const SCREENS: Record<typeof activeTab, React.FC> = {
+      Series: SeriesScreen,
+      Movies: MoviesScreen,
+      Search: SearchScreen,
+      News: NewsScreen,
+      Profile: ProfileScreen,
+    };
+    const ActiveScreen = SCREENS[activeTab];
+
+    return (
+      <View className="flex-1 flex-row bg-background">
+        <DesktopSidebar activeTab={activeTab} onTabPress={handleTabPress} />
+        <View className="flex-1">
+          <ActiveScreen />
+        </View>
       </View>
     );
   }

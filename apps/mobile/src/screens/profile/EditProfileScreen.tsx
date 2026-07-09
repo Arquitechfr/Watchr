@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Text, TouchableOpacity, TextInput, ActivityIndicator, Alert } from "react-native";
+import { View, Text, TouchableOpacity, TextInput, ActivityIndicator, Alert, Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -120,6 +120,7 @@ export function EditProfileScreen() {
 
   return (
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]}>
+      <View style={Platform.OS === "web" ? { maxWidth: 600, alignSelf: "center", width: "100%" } : undefined}>
       <View className="items-center mb-8">
         <TouchableOpacity onPress={pickAvatar} disabled={avatarMutation.isPending} activeOpacity={0.8}>
           <View className="relative">
@@ -224,6 +225,7 @@ export function EditProfileScreen() {
             )}
           </TouchableOpacity>
         )}
+      </View>
       </View>
     </ScreenContainer>
   );

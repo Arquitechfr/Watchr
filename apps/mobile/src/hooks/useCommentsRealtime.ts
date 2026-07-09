@@ -31,6 +31,8 @@ export function useCommentsRealtime(showId: string | null): void {
         log("useCommentsRealtime", "event", { event, showId });
         queryClient.invalidateQueries({ queryKey: [COMMENTS_QUERY_KEY, showId] });
         queryClient.invalidateQueries({ queryKey: [COMMENTS_QUERY_KEY, "count", showId] });
+        queryClient.invalidateQueries({ queryKey: [COMMENTS_QUERY_KEY, "replies"] });
+        queryClient.invalidateQueries({ queryKey: [COMMENTS_QUERY_KEY, "single"] });
       });
       handlers.push(unsub);
     }

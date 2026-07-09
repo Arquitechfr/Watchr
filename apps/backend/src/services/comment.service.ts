@@ -1,4 +1,4 @@
-import { Types, PipelineStage } from "mongoose";
+import { Types, PipelineStage, FilterQuery } from "mongoose";
 import { Comment, IComment } from "../models/comment.model.js";
 import { CommentLike } from "../models/commentLike.model.js";
 import { CommentReaction } from "../models/commentReaction.model.js";
@@ -43,6 +43,7 @@ export interface CommentItem {
   userId: string;
   authorUsername: string;
   authorAvatarUrl?: string;
+  parentId?: string;
   content: string;
   images: string[];
   isSpoiler: boolean;
@@ -191,6 +192,7 @@ function buildCommentItem(
     userId: comment.userId.toString(),
     authorUsername: userInfo?.username ?? "Unknown",
     authorAvatarUrl: userInfo?.avatarUrl,
+    parentId: comment.parentId?.toString(),
     content: comment.content,
     images: comment.images ?? [],
     isSpoiler: comment.isSpoiler ?? false,
@@ -257,24 +259,19 @@ export async function createComment(userId: string, input: CreateCommentInput) {
       images: comment.images,
       isSpoiler: comment.isSpoiler,
       likesCount: comment.likesCount,
+      replyCount: comment.replyCount,
       createdAt: comment.createdAt.toISOString(),
       updatedAt: comment.updatedAt.toISOString(),
     },
   });
 
-  return {
-    id: comment._id.toString(),
-    userId: comment.userId.toString(),
-    showId: comment.showId.toString(),
-    episodeRef: comment.episodeRef,
-    parentId: comment.parentId?.toString(),
-    content: comment.content,
-    images: comment.images,
-    isSpoiler: comment.isSpoiler,
-    likesCount: comment.likesCount,
-    createdAt: comment.createdAt.toISOString(),
-    updatedAt: comment.updatedAt.toISOString(),
-  };
+  const [likedIds, reactionMap, userMap] = await Promise.all([
+    getLikedCommentIds(userId, [comment._id.toString()]),
+    getReactionsForComments(userId, [comment._id.toString()]),
+    getUserInfoMap([comment.userId.toString()]),
+  ]);
+
+  return buildCommentItem(comment, likedIds, reactionMap, userMap);
 }
 
 export async function updateComment(userId: string, commentId: string, input: UpdateCommentInput) {
@@ -292,22 +289,18 @@ export async function updateComment(userId: string, commentId: string, input: Up
       id: comment._id.toString(),
       content: comment.content,
       images: comment.images,
+      isSpoiler: comment.isSpoiler,
       updatedAt: comment.updatedAt.toISOString(),
     },
   });
 
-  return {
-    id: comment._id.toString(),
-    userId: comment.userId.toString(),
-    showId: comment.showId.toString(),
-    episodeRef: comment.episodeRef,
-    parentId: comment.parentId?.toString(),
-    content: comment.content,
-    images: comment.images,
-    likesCount: comment.likesCount,
-    createdAt: comment.createdAt.toISOString(),
-    updatedAt: comment.updatedAt.toISOString(),
-  };
+  const [likedIds, reactionMap, userMap] = await Promise.all([
+    getLikedCommentIds(userId, [comment._id.toString()]),
+    getReactionsForComments(userId, [comment._id.toString()]),
+    getUserInfoMap([comment.userId.toString()]),
+  ]);
+
+  return buildCommentItem(comment, likedIds, reactionMap, userMap);
 }
 
 export async function deleteComment(userId: string, commentId: string) {
@@ -635,8 +628,9 @@ export async function getCommentCount(
 ): Promise<{ total: number }> {
   await validateShowExists(showId);
 
-  const filter: { showId: Types.ObjectId; episodeRef?: { season: number; episode: number } } = {
+  const filter: FilterQuery<IComment> = {
     showId: new Types.ObjectId(showId),
+    parentId: { $exists: false },
   };
 
   if (episodeRef) {

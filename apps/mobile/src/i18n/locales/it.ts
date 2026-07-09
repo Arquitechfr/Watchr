@@ -298,6 +298,13 @@ const it = {
       spoilerWarningMessage: "Non hai ancora visto \"{{title}}\". I commenti potrebbero contenere spoiler.",
       proceedAnyway: "Mostra comunque",
       markWatchedAndProceed: "Segna come visto e leggi",
+      reactionError: "Impossibile reagire",
+      edited: "modificato",
+      repliesTo: "Risposte a {{username}}",
+      original: "Originale",
+      loadMore: "Carica altro",
+      loadingMore: "Caricamento…",
+      tapToClose: "Tocca per chiudere",
     },
     import: {
       title: "Importa dati",

@@ -10,7 +10,7 @@ export const episodeRefSchema = z
 export const createCommentSchema = z.object({
   showId: z.string().min(1, "Show ID is required"),
   episodeRef: episodeRefSchema,
-  parentId: z.string().optional(),
+  parentId: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid parentId format").optional(),
   content: z.string().min(1, "Content is required").max(2000, "Content is too long"),
   images: z.array(z.string().url()).max(3).optional(),
   isSpoiler: z.boolean().optional().default(false),

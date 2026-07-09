@@ -31,8 +31,8 @@ import {
   useUpdateComment,
 } from "../hooks/useComments";
 import { RootStackParamList } from "../navigation/RootNavigator";
-import { log } from "../utils/logger";
 import { useI18n } from "../i18n/useI18n";
+import { useCommentsRealtime } from "../hooks/useCommentsRealtime";
 
 type CommentThreadRouteProp = RouteProp<RootStackParamList, "CommentThread">;
 type CommentThreadNavigationProp = NativeStackNavigationProp<RootStackParamList, "CommentThread">;
@@ -49,6 +49,8 @@ export function CommentThreadScreen() {
 
   const [page, setPage] = useState(1);
   const limit = 20;
+
+  useCommentsRealtime(showId);
 
   const { data: parentComment, isLoading: isLoadingParent } = useComment(commentId);
   const { data: repliesData, isLoading: isLoadingReplies, refetch } = useReplies(commentId, page, limit);
@@ -71,7 +73,9 @@ export function CommentThreadScreen() {
     addReaction.isPending ||
     removeReaction.isPending;
 
-  const headerTitle = `${t("screens.comments.title")} · ${title}`;
+  const headerTitle = parentComment
+    ? t("screens.comments.repliesTo", { username: parentComment.authorUsername })
+    : `${t("screens.comments.title")} · ${title}`;
 
   const handleReply = (content: string, images?: string[], isSpoiler?: boolean) => {
     createComment.mutate(
@@ -118,18 +122,16 @@ export function CommentThreadScreen() {
   const handleAddReaction = (id: string, emoji: string) => {
     addReaction.mutate(
       { id, emoji },
-      { onError: () => showSnackbar(t("screens.comments.likeError"), "error") },
+      { onError: () => showSnackbar(t("screens.comments.reactionError"), "error") },
     );
   };
 
   const handleRemoveReaction = (id: string, emoji: string) => {
     removeReaction.mutate(
       { id, emoji },
-      { onError: () => showSnackbar(t("screens.comments.likeError"), "error") },
+      { onError: () => showSnackbar(t("screens.comments.reactionError"), "error") },
     );
   };
-
-  log("CommentThread", "render", { commentId, repliesTotal: repliesData?.total ?? 0 });
 
   const replies = repliesData?.replies ?? [];
   const totalReplies = repliesData?.total ?? 0;
@@ -167,43 +169,42 @@ export function CommentThreadScreen() {
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
       className="flex-1 bg-background"
     >
       <ScreenContainer edges={["top", "left", "right"]}>
-        <View className="px-4 py-3 border-b border-border flex-row items-center justify-between">
+        <View className="px-4 py-3 border-b border-border flex-row items-center">
           <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.7} className="p-1">
             <Ionicons name="arrow-back" size={24} color={colors.text} />
           </TouchableOpacity>
-          <Text className="text-text font-semibold text-lg flex-1 text-center mx-2" numberOfLines={1}>
+          <Text className="text-text font-semibold text-base flex-1 text-center mx-2" numberOfLines={1}>
             {headerTitle}
           </Text>
           <View className="w-8" />
         </View>
-        <View className="flex-1 px-4 pt-4">
+        <View className="flex-1 px-4 pt-3">
           <FlatList
             data={replies}
             keyExtractor={(item) => item.id}
             ListHeaderComponent={renderParentComment}
             renderItem={({ item }) => (
-              <View className="flex-row">
-                <View className="border-l-2 border-border ml-4 pl-3 flex-1 mb-3 mt-1">
-                  <CommentItem
-                    comment={item}
-                    showId={showId}
-                    title={title}
-                    season={season}
-                    episode={episode}
-                    isPending={isPending}
-                    onEdit={handleEdit}
-                    onDelete={handleDelete}
-                    onLike={handleLike}
-                    onUnlike={handleUnlike}
-                    onAddReaction={handleAddReaction}
-                    onRemoveReaction={handleRemoveReaction}
-                    variant="reply"
-                  />
-                </View>
+              <View className="border-l-2 border-border/50 ml-4 pl-3 mb-2.5 mt-0.5">
+                <CommentItem
+                  comment={item}
+                  showId={showId}
+                  title={title}
+                  season={season}
+                  episode={episode}
+                  isPending={isPending}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                  onLike={handleLike}
+                  onUnlike={handleUnlike}
+                  onAddReaction={handleAddReaction}
+                  onRemoveReaction={handleRemoveReaction}
+                  variant="reply"
+                />
               </View>
             )}
             ListEmptyComponent={
@@ -221,7 +222,7 @@ export function CommentThreadScreen() {
                   className="py-3 items-center"
                   activeOpacity={0.7}
                 >
-                  <Text className="text-primary font-semibold">{t("common.seeAll")}</Text>
+                  <Text className="text-primary text-sm font-semibold">{t("screens.comments.loadMore")}</Text>
                 </TouchableOpacity>
               ) : null
             }
@@ -229,6 +230,8 @@ export function CommentThreadScreen() {
               <RefreshControl refreshing={isLoadingReplies} onRefresh={refetch} tintColor={colors.primary} />
             }
             contentContainerStyle={{ paddingBottom: 16 }}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="interactive"
           />
           {isAuthenticated && (
             <View

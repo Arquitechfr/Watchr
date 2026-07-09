@@ -159,8 +159,8 @@ router.post(
   }),
 );
 
-router.delete(
-  "/:id/reactions",
+router.post(
+  "/:id/reactions/remove",
   validateRequest(reactionBodySchema, undefined, commentParamsSchema),
   asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;

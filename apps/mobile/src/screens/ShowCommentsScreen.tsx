@@ -45,7 +45,7 @@ export function ShowCommentsScreen() {
 
   const [sort, setSort] = useState<CommentSort>("recent");
   const query = season !== undefined && episode !== undefined ? { season, episode, sort } : { sort };
-  const { data, isLoading, refetch } = useCommentsForShow(showId, query);
+  const { data, isLoading, isRefetching, refetch } = useCommentsForShow(showId, query);
   const throttledRefresh = useRefreshRateLimit();
   const createComment = useCreateComment(showId, query);
   const updateComment = useUpdateComment(showId, query);
@@ -83,11 +83,13 @@ export function ShowCommentsScreen() {
     );
   };
 
-  const handleReply = (content: string, parentId: string) => {
+  const handleReply = (content: string, parentId: string, images?: string[], isSpoiler?: boolean) => {
     createComment.mutate(
       { 
         content, 
         parentId,
+        images,
+        isSpoiler,
         ...(season !== undefined && episode !== undefined ? { episodeRef: { season, episode } } : {})
       },
       { onError: () => showSnackbar(t("screens.comments.replyError"), "error") },
@@ -120,40 +122,38 @@ export function ShowCommentsScreen() {
   const handleAddReaction = (id: string, emoji: string) => {
     addReaction.mutate(
       { id, emoji },
-      { onError: () => showSnackbar(t("screens.comments.likeError"), "error") },
+      { onError: () => showSnackbar(t("screens.comments.reactionError"), "error") },
     );
   };
 
   const handleRemoveReaction = (id: string, emoji: string) => {
     removeReaction.mutate(
       { id, emoji },
-      { onError: () => showSnackbar(t("screens.comments.likeError"), "error") },
+      { onError: () => showSnackbar(t("screens.comments.reactionError"), "error") },
     );
   };
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
       className="flex-1 bg-background"
     >
       <ScreenContainer edges={["top", "left", "right"]}>
-        <View className="px-4 py-3 border-b border-border flex-row items-center justify-between">
+        <View className="px-4 py-3 border-b border-border flex-row items-center">
           <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.7} className="p-1">
             <Ionicons name="arrow-back" size={24} color={colors.text} />
           </TouchableOpacity>
-          <Text className="text-text font-semibold text-lg flex-1 text-center mx-2" numberOfLines={1}>
+          <Text className="text-text font-semibold text-base flex-1 text-center mx-2" numberOfLines={1}>
             {headerTitle}
           </Text>
           <View className="w-8" />
         </View>
-        <View className="flex-1 px-4 pt-4">
-          {season !== undefined && episode !== undefined && (
-            <Text className="text-text-muted mb-4">
-              {title} — {t("screens.showDetail.season")} {season}, {t("screens.showDetail.episode")} {episode}
-            </Text>
-          )}
-          <CommentsSortBar sort={sort} onSortChange={setSort} />
-          <View className="flex-1">
+        <View className="flex-1">
+          <View className="px-4 pt-3 pb-2">
+            <CommentsSortBar sort={sort} onSortChange={setSort} />
+          </View>
+          <View className="flex-1 px-4">
             <CommentsList
               comments={data?.comments ?? []}
               showId={showId}
@@ -162,7 +162,7 @@ export function ShowCommentsScreen() {
               episode={episode}
               isLoading={isLoading}
               isPending={isPending}
-              refreshing={isLoading}
+              refreshing={isRefetching}
               onRefresh={() => throttledRefresh(refetch)}
               onReply={handleReply}
               onEdit={handleEdit}
@@ -174,7 +174,7 @@ export function ShowCommentsScreen() {
             />
           </View>
           {isAuthenticated && (
-            <View className="py-3 border-t border-border" style={{ paddingBottom: Math.max(insets.bottom, 12) }} >
+            <View className="px-4 py-2.5 border-t border-border" style={{ paddingBottom: Math.max(insets.bottom, 8) }}>
               <CommentInput
                 placeholder={t("screens.comments.placeholder")}
                 onSubmit={handleCreate}

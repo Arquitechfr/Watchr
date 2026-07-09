@@ -15,7 +15,7 @@ interface CommentsListProps {
   isPending?: boolean;
   refreshing?: boolean;
   onRefresh?: () => void;
-  onReply?: (content: string, parentId: string) => void;
+  onReply?: (content: string, parentId: string, images?: string[], isSpoiler?: boolean) => void;
   onEdit?: (id: string, content: string, images?: string[], isSpoiler?: boolean) => void;
   onDelete?: (id: string) => void;
   onLike?: (id: string) => void;
@@ -85,6 +85,8 @@ export function CommentsList({
       )}
       refreshControl={onRefresh ? <RefreshControl refreshing={refreshing ?? false} onRefresh={onRefresh} tintColor={colors.primary} /> : undefined}
       contentContainerStyle={{ paddingBottom: 16 }}
+      keyboardShouldPersistTaps="handled"
+      keyboardDismissMode="interactive"
     />
   );
 }

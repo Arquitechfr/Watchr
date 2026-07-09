@@ -16,6 +16,7 @@ export function usePushNotifications() {
 
   useEffect(() => {
     if (!isAuthenticated) return;
+    if (Platform.OS === 'web') return;
 
     async function setup() {
       const Notifications = await import("expo-notifications");

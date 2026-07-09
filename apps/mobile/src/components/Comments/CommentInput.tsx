@@ -26,7 +26,7 @@ export function CommentInput({
   initialValue = "",
   initialImages = [],
   initialIsSpoiler = false,
-  submitLabel,
+  submitLabel: _submitLabel,
   isPending,
   onSubmit,
   onCancel,
@@ -100,7 +100,7 @@ export function CommentInput({
   }
 
   return (
-    <View className="bg-surface rounded-lg p-3">
+    <View className="bg-surface-light rounded-2xl px-3 py-2.5">
       <TextInput
         value={content}
         onChangeText={setContent}
@@ -108,91 +108,103 @@ export function CommentInput({
         placeholderTextColor={colors.textMuted}
         multiline
         maxLength={2000}
-        className="text-text min-h-[60px] text-base leading-relaxed"
+        className="text-text min-h-[44px] text-sm leading-relaxed pb-2"
         editable={!isPending}
       />
-      <View className="flex-row items-center justify-end mt-2">
-        <Text className="text-text-muted text-xs mr-3">{content.length}/2000</Text>
-        <TouchableOpacity
-          onPress={pickImages}
-          disabled={isPending || uploadingCount > 0 || selectedImages.length >= MAX_IMAGES}
-          className="mr-3 p-1"
-          activeOpacity={0.7}
-        >
-          {uploadingCount > 0 ? (
-            <ActivityIndicator size="small" color={colors.primary} />
-          ) : (
-            <Ionicons name="image-outline" size={22} color={colors.textMuted} />
-          )}
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => setShowEmojiPicker((prev) => !prev)}
-          disabled={isPending}
-          className="mr-3 p-1"
-          activeOpacity={0.7}
-        >
-          <Ionicons name="happy-outline" size={22} color={colors.textMuted} />
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => setIsSpoiler((prev) => !prev)}
-          disabled={isPending}
-          className="flex-row items-center mr-3 p-1"
-          activeOpacity={0.7}
-        >
-          <Ionicons
-            name={isSpoiler ? "eye-off" : "eye-off-outline"}
-            size={22}
-            color={isSpoiler ? colors.danger : colors.textMuted}
-          />
-          {isSpoiler && (
-            <Text className="text-danger text-xs font-semibold ml-1">{t("screens.comments.spoiler")}</Text>
-          )}
-        </TouchableOpacity>
-        {onCancel && (
-          <TouchableOpacity onPress={onCancel} disabled={isPending} className="mr-3" activeOpacity={0.7}>
-            <Text className="text-text-muted">{t("common.cancel")}</Text>
-          </TouchableOpacity>
-        )}
-        <TouchableOpacity
-          onPress={handleSubmit}
-          disabled={isPending || !content.trim()}
-          className="flex-row items-center bg-primary px-4 py-2 rounded-lg disabled:opacity-50"
-          activeOpacity={0.7}
-        >
-          <Ionicons name="send-outline" size={16} color={colors.background} />
-          <Text className="text-background font-semibold ml-2">{submitLabel ?? t("common.send")}</Text>
-        </TouchableOpacity>
-      </View>
+
       {selectedImages.length > 0 && (
-        <View className="flex-row flex-wrap mt-2 border-t border-border pt-2">
+        <View className="flex-row flex-wrap gap-1.5 mb-2">
           {selectedImages.map((img, idx) => (
-            <View key={idx} className="relative mr-2 mb-2">
+            <View key={idx} className="relative">
               <Image
                 source={{ uri: img }}
-                style={{ width: 80, height: 80, borderRadius: 8 }}
+                style={{ width: 70, height: 70, borderRadius: 10 }}
                 resizeMode="cover"
               />
               <TouchableOpacity
                 onPress={() => removeImage(idx)}
-                className="absolute -top-1 -right-1 items-center justify-center rounded-full"
-                style={{ width: 20, height: 20, backgroundColor: colors.danger }}
+                className="absolute -top-1.5 -right-1.5 items-center justify-center rounded-full"
+                style={{ width: 22, height: 22, backgroundColor: colors.danger }}
               >
-                <Ionicons name="close" size={12} color={colors.text} />
+                <Ionicons name="close" size={12} color="#fff" />
               </TouchableOpacity>
             </View>
           ))}
         </View>
       )}
+
+      <View className="flex-row items-center justify-between mt-1">
+        <View className="flex-row items-center gap-2">
+          <TouchableOpacity
+            onPress={pickImages}
+            disabled={isPending || uploadingCount > 0 || selectedImages.length >= MAX_IMAGES}
+            activeOpacity={0.7}
+          >
+            {uploadingCount > 0 ? (
+              <ActivityIndicator size="small" color={colors.primary} />
+            ) : (
+              <Ionicons name="image-outline" size={20} color={colors.textMuted} />
+            )}
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => setShowEmojiPicker((prev) => !prev)}
+            disabled={isPending}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="happy-outline" size={20} color={showEmojiPicker ? colors.primary : colors.textMuted} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => setIsSpoiler((prev) => !prev)}
+            disabled={isPending}
+            activeOpacity={0.7}
+            className={`flex-row items-center px-2 py-1 rounded-full ${isSpoiler ? "bg-danger/15" : ""}`}
+          >
+            <Ionicons
+              name={isSpoiler ? "eye-off" : "eye-off-outline"}
+              size={16}
+              color={isSpoiler ? colors.danger : colors.textMuted}
+            />
+            {isSpoiler && (
+              <Text className="text-danger text-xs font-semibold ml-1">{t("screens.comments.spoiler")}</Text>
+            )}
+          </TouchableOpacity>
+        </View>
+
+        <View className="flex-row items-center gap-2">
+          <Text className="text-text-muted text-xs">{content.length}/2000</Text>
+          {onCancel && (
+            <TouchableOpacity onPress={onCancel} disabled={isPending} activeOpacity={0.7}>
+              <Text className="text-text-muted text-sm">{t("common.cancel")}</Text>
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity
+            onPress={handleSubmit}
+            disabled={isPending || !content.trim()}
+            activeOpacity={0.7}
+            className="items-center justify-center rounded-full"
+            style={{
+              width: 34,
+              height: 34,
+              backgroundColor: content.trim() ? colors.primary : colors.surface,
+            }}
+          >
+            <Ionicons name="send" size={16} color={content.trim() ? "#fff" : colors.textMuted} />
+          </TouchableOpacity>
+        </View>
+      </View>
+
       {showEmojiPicker && (
         <View className="flex-row flex-wrap mt-2 border-t border-border pt-2">
           {QUICK_EMOJIS.map((emoji) => (
             <TouchableOpacity
               key={emoji}
               onPress={() => insertEmoji(emoji)}
-              className="w-10 h-10 items-center justify-center"
+              className="w-9 h-9 items-center justify-center"
               activeOpacity={0.7}
             >
-              <Text className="text-2xl">{emoji}</Text>
+              <Text className="text-xl">{emoji}</Text>
             </TouchableOpacity>
           ))}
         </View>

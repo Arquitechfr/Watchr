@@ -17,6 +17,38 @@ const DEFAULT_SIZE: Record<ImageType, string> = {
   profile: "w200",
 };
 
+const VALID_SIZES: Record<ImageType, string[]> = {
+  poster: ["w92", "w154", "w185", "w342", "w500", "w780", "original"],
+  still: ["w92", "w185", "w300", "w500", "original"],
+  backdrop: ["w300", "w780", "w1280", "original"],
+  profile: ["w45", "w185", "w300", "h632", "original"],
+};
+
+function extractWidthPx(size: string): number | null {
+  if (size === "original") return Infinity;
+  const match = size.match(/^[wh](\d+)$/);
+  return match ? parseInt(match[1], 10) : null;
+}
+
+export function normalizeSize(type: ImageType, size: string): string {
+  const valid = VALID_SIZES[type];
+  if (valid.includes(size)) return size;
+  const requestedPx = extractWidthPx(size);
+  if (requestedPx === null) return DEFAULT_SIZE[type];
+  let best = valid[0];
+  let bestDiff = Infinity;
+  for (const candidate of valid) {
+    const candidatePx = extractWidthPx(candidate);
+    if (candidatePx === null) continue;
+    const diff = Math.abs(candidatePx - requestedPx);
+    if (diff < bestDiff) {
+      bestDiff = diff;
+      best = candidate;
+    }
+  }
+  return best;
+}
+
 export function getImageUrl(size: string, imagePath: string): string {
   const normalizedPath = imagePath.startsWith("/") ? imagePath : `/${imagePath}`;
   return `${TMDB_IMAGE_BASE}/${size}${normalizedPath}`;
@@ -27,8 +59,9 @@ export async function proxyImage(
   size: string,
   imagePath: string,
 ): Promise<{ buffer: Buffer; contentType: string }> {
+  const normalizedSize = normalizeSize(type, size);
   const normalizedPath = imagePath.startsWith("/") ? imagePath : `/${imagePath}`;
-  const cacheKey = `${type}_${size}_${normalizedPath.replace(/\//g, "_")}`;
+  const cacheKey = `${type}_${normalizedSize}_${normalizedPath.replace(/\//g, "_")}`;
   const cachePath = path.join(CACHE_DIR, cacheKey);
 
   const cached = await readCachedImage(cachePath);
@@ -37,7 +70,7 @@ export async function proxyImage(
     return cached;
   }
 
-  const url = getImageUrl(size, imagePath);
+  const url = getImageUrl(normalizedSize, imagePath);
   log("ImageService", "fetch", { url });
 
   try {

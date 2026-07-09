@@ -60,12 +60,7 @@ export async function getNews(sourceId?: string, limit: number = 30): Promise<Ne
   log("NewsService", "fetch", { sourceId: source.id, url: source.url });
 
   try {
-    const response = await axios.get<string>(source.url, {
-      timeout: 10_000,
-      headers: {
-        "User-Agent": "Watchr/1.0 (RSS reader)",
-      },
-    });
+    const response = await fetchWithRetry(source.url);
 
     const parsed = parser.parse(response.data) as {
       rss?: {
@@ -104,8 +99,44 @@ export async function getNews(sourceId?: string, limit: number = 30): Promise<Ne
     return articles;
   } catch (err) {
     logError("NewsService", "fetch failed", err, { sourceId: source.id });
+    if (cached) {
+      log("NewsService", "serving stale cache", { sourceId: source.id });
+      try {
+        return JSON.parse(cached) as NewsArticle[];
+      } catch {
+        // Cache corrupt, fall through to error
+      }
+    }
     throw new ApiError(502, "NEWS_FETCH_ERROR", "Failed to fetch news feed");
   }
+}
+
+async function fetchWithRetry(url: string, maxRetries = 2): Promise<{ data: string }> {
+  const headers = {
+    "User-Agent": "Watchr/1.0 (RSS reader; +https://watchr.me)",
+    Accept: "application/rss+xml, application/xml, text/xml, */*",
+    "Accept-Encoding": "gzip",
+  };
+
+  let lastErr: unknown;
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const response = await axios.get<string>(url, {
+        timeout: 15_000,
+        headers,
+        decompress: true,
+      });
+      return { data: response.data };
+    } catch (err) {
+      lastErr = err;
+      if (attempt < maxRetries) {
+        const backoffMs = 1000 * Math.pow(2, attempt);
+        log("NewsService", "fetch retry", { url, attempt: attempt + 1, backoffMs });
+        await new Promise((resolve) => setTimeout(resolve, backoffMs));
+      }
+    }
+  }
+  throw lastErr;
 }
 
 function cleanText(value: unknown): string | undefined {

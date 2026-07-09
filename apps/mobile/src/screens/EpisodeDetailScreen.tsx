@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
   Share,
   RefreshControl,
+  Platform,
+  useWindowDimensions,
 } from "react-native";
 import { useRoute, useNavigation, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -52,6 +54,8 @@ export function EpisodeDetailScreen() {
   const { t, dateFnsLocale } = useI18n();
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
+  const isDesktopWeb = Platform.OS === "web" && width >= 768;
 
   const { data: show, isLoading: isLoadingShow, isError: isErrorShow, refetch: refetchShow } = useShowDetails(tmdbId);
   const {
@@ -300,18 +304,21 @@ export function EpisodeDetailScreen() {
         contentContainerStyle={{ paddingBottom: 120 }}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={() => throttledRefresh(refetch)} tintColor={colors.primary} />}
       >
-        <View className="relative">
+        <View className="relative" style={isDesktopWeb ? { width: "100%", alignItems: "center" } : undefined}>
           {stillUrl ? (
-            <Image source={{ uri: stillUrl }} className="w-full h-64 bg-surface-light" resizeMode="cover" />
+            <Image source={{ uri: stillUrl }} className="bg-surface-light" style={isDesktopWeb ? { width: "100%", maxWidth: 800, height: 320, borderRadius: 12 } : { width: "100%", height: 256 }} resizeMode="cover" />
           ) : (
-            <View className="w-full h-64 bg-surface-light items-center justify-center">
+            <View className="bg-surface-light items-center justify-center" style={isDesktopWeb ? { width: "100%", maxWidth: 800, height: 320, borderRadius: 12 } : { width: "100%", height: 256 }}>
               <Ionicons name="image-outline" size={64} color={colors.textMuted} />
             </View>
           )}
-          <View className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background to-transparent" />
+          {!isDesktopWeb && <View className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background to-transparent" />}
         </View>
 
-        <View className="px-4 -mt-6">
+        <View
+          className={isDesktopWeb ? "mt-6 px-4 self-center w-full" : "px-4 -mt-6"}
+          style={isDesktopWeb ? { maxWidth: 800 } : undefined}
+        >
           <View className="flex-row items-center mb-1">
             <Text className="text-primary font-bold text-base">S{season}E{episodeNumber}</Text>
             {isWatched && (

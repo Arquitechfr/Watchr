@@ -107,6 +107,8 @@ export function useCreateComment(showId: string, query?: ListCommentsQuery) {
           ...data,
           images: data.images ?? [],
           reactions: data.reactions ?? [],
+          replyCount: data.replyCount ?? 0,
+          likedByMe: data.likedByMe ?? false,
         };
         queryClient.setQueryData<ListCommentsResult>(listKey, {
           ...prevList,

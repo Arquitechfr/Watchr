@@ -9,7 +9,7 @@ Ces règles s'appliquent à tout agent travaillant sur ce repo.
 ## 0. URLs de production
 
 - **Site web (landing page)** : https://watchr.me
-- **Site web (version desktop mobile)** : https://app.watchr.me
+- **Web app (Expo Web, version desktop de l'app mobile)** : https://app.watchr.me — même codebase que l'app mobile, lancée via `expo start --web`
 - **API backend** : https://api.watchr.me
 
 ## 1. Comportement général
@@ -51,12 +51,21 @@ Ces règles s'appliquent à tout agent travaillant sur ce repo.
 - Toute nouvelle valeur de configuration runtime doit être : (1) ajoutée à `DEFAULT_REMOTE_CONFIG` dans `config/defaults.ts` côté mobile, (2) seedée en MongoDB via le CLI, (3) documentée dans le plan de la feature.
 - Fichiers clés : `apps/backend/src/models/MobileConfig.ts`, `apps/backend/src/routes/internal/mobileConfig.routes.ts`, `apps/backend/scripts/mobile-config-cli.ts`, `apps/mobile/src/config/defaults.ts`, `apps/mobile/src/services/remoteConfig.ts`, `apps/mobile/src/hooks/useRemoteConfig.ts`.
 
-## 6. Spécifique mobile (Expo sans prebuild)
+## 6. Spécifique mobile & web (Expo + react-native-web)
 
 - **Aucune lib nécessitant du code natif custom** ou un dev client non standard. Vérifier la compatibilité Expo Go avant d'ajouter une dépendance, si pas le choix demande l'autorisation a l'utilisateur.
 - Pas de `Context` pour l'état complexe (utiliser Zustand). Pas de prop drilling au-delà de 2 niveaux.
 - États de chargement et d'erreur obligatoires sur tout écran consommant une query réseau (pas de "flash" d'écran vide).
 - **Internationalisation** : tout texte UI dans les composants/écrans mobile passe par `useI18n`/`t()`. Les dates utilisent `dateFnsLocale`. Les messages d'erreur API passent par `useErrorMessage`. Les traductions sont splitées par langue dans `apps/mobile/src/i18n/locales/<lang>.ts` (mobile) et `apps/backend/src/i18n/locales/<lang>.ts` (backend). **Toute nouvelle clé ou modification doit être répercutée dans tous les fichiers de locale de chaque côté** — les fichiers `en.ts` et `fr.ts` (et toute autre langue supportée) doivent rester en parité parfaite. Une tâche n'est pas terminée tant que toutes les langues ne sont pas synchronisées.
+
+### 6b. Compatibilité Web — non négociable
+
+- L'app mobile Expo sert aussi de **web app desktop** via `react-native-web` (`expo start --web`). Toute nouvelle page, composant, hook ou service doit être compatible web.
+- **Guards `Platform.OS`** : tout usage de module natif (`expo-notifications`, `expo-secure-store`, `expo-file-system`, `expo-sharing`, `react-native-android-widget`) doit être conditionné par `Platform.OS !== 'web'` ou abstrait derrière un wrapper cross-platform.
+- **Stockage sécurisé** : jamais d'import direct de `expo-secure-store` hors de `src/utils/secureStorage.ts`. Ce wrapper utilise `localStorage` sur web.
+- **Layout responsive** : tout écran doit s'adapter au desktop via breakpoints Tailwind (`md:`, `lg:`) ou `useWindowDimensions()`. Les bottom tabs → sidebar sur large screen. Contenu centré avec `max-w-*` sur desktop.
+- **Pas de régression mobile** : les adaptations web ne doivent jamais modifier le comportement mobile. Tout guard `Platform.OS === 'web'` doit préserver le flow native intact.
+- **Test web obligatoire** : `pnpm --filter mobile web` doit lancer sans crash. Vérifier les écrans touchés par la feature.
 
 ## 7. Definition of Done
 
@@ -65,6 +74,8 @@ Une tâche n'est considérée terminée que si :
 - [ ] Erreurs et edge cases gérés (réseau down, 401/403, données vides, import malformé)
 - [ ] Hypothèses non confirmées documentées avec `[?]` dans la description du changement
 - [ ] **Remote Config** : si la feature introduit une valeur de configuration runtime, celle-ci est ajoutée à `DEFAULT_REMOTE_CONFIG` (mobile), seedée en MongoDB, et aucune URL backend n'est hardcodée
+- [ ] **Compatibilité Web** : la feature fonctionne sur `pnpm --filter mobile web` — guards `Platform.OS` en place pour les modules natifs, layout responsive desktop, pas de crash web
+- [ ] **Pas de régression mobile** : le comportement sur mobile (iOS/Android) est préservé à l'identique
 - [ ] **mobile** is **Source of truth** par rapport autres.
 - [ ] Utilisez tous les **MCP** que vous jugez pertinents pour votre demande.
 - [ ] Toujours mettre en place des logiques optimistic pour l'utilisateur via du UI et UX moderne.

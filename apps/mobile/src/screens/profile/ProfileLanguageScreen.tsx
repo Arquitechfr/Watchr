@@ -3,45 +3,20 @@ import { Ionicons } from "@expo/vector-icons";
 import { ScreenContainer } from "../../components/ScreenContainer";
 import { useI18n } from "../../i18n/useI18n";
 import { useLocaleStore } from "../../store/localeStore";
-import { useUIStore } from "../../store/uiStore";
-import { useErrorMessage } from "../../services/api";
-import { updateLanguage } from "../../services/auth.service";
+import { useChangeLocale } from "../../hooks/useChangeLocale";
 import { useThemeColors } from "../../theme/useThemeColors";
-import { SUPPORTED_LOCALES, type SupportedLocale } from "../../i18n/translations";
-
-const LANG_FLAGS: Record<SupportedLocale, string> = {
-  fr: "🇫🇷",
-  en: "🇬🇧",
-  es: "🇪🇸",
-  pt: "🇵🇹",
-  de: "🇩🇪",
-  it: "🇮🇹",
-  ar: "🇸🇦",
-};
-
-const LANG_LABELS: Record<SupportedLocale, string> = {
-  fr: "screens.profile.languageFrench",
-  en: "screens.profile.languageEnglish",
-  es: "screens.profile.languageSpanish",
-  pt: "screens.profile.languagePortuguese",
-  de: "screens.profile.languageGerman",
-  it: "screens.profile.languageItalian",
-  ar: "screens.profile.languageArabic",
-};
+import { SUPPORTED_LOCALES, LANG_FLAGS, LANG_LABELS, type SupportedLocale } from "../../i18n/translations";
 
 export function ProfileLanguageScreen() {
   const { t, locale } = useI18n();
   const colors = useThemeColors();
   const setLocale = useLocaleStore((state) => state.setLocale);
-  const { showSnackbar } = useUIStore();
-  const getErrorMessage = useErrorMessage();
+  const changeLocale = useChangeLocale();
 
   function handleLanguageChange(lang: SupportedLocale) {
     if (lang === locale) return;
     setLocale(lang);
-    updateLanguage(lang).catch((error) => {
-      showSnackbar(t("screens.profile.languageSyncError"), "error");
-    });
+    changeLocale(lang);
   }
 
   return (

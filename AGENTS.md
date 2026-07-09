@@ -19,15 +19,11 @@ Délai : livraison MVP avant le 15/07/2026.
 | Auth | JWT (access + refresh) |
 | Validation | Zod (backend et frontend) |
 | Mobile | React Native + Expo (dev client, **prebuild autorisé**) |
-| Web (desktop) | ViteJS + React 19 + React Router |
-| État mobile & web | Zustand + TanStack Query |
+| État mobile | Zustand + TanStack Query |
 | Navigation mobile | React Navigation (native-stack, bottom-tabs) |
-| Navigation web | React Router DOM |
-| Réseau mobile & web | Axios |
+| Réseau mobile | Axios |
 | Stockage local mobile | expo-secure-store (tokens), AsyncStorage (cache léger) |
-| Stockage local web | localStorage (tokens), sessionStorage (cache léger) |
 | Style mobile | NativeWind |
-| Style web | TailwindCSS |
 | Package manager | pnpm exclusivement |
 | Lint/Format | ESLint + Prettier |
 | Tests | Vitest |
@@ -56,16 +52,6 @@ watchr/
 │   │   │   ├── store/
 │   │   │   └── navigation/
 │   │   └── package.json
-│   └── web/                      # Version desktop ViteJS du mobile
-│       ├── src/
-│       │   ├── pages/            # Équivalent des screens mobile
-│       │   ├── components/
-│       │   ├── hooks/
-│       │   ├── services/
-│       │   ├── store/
-│       │   ├── i18n/
-│       │   └── theme/
-│       └── package.json
 ├── pnpm-workspace.yaml
 └── AGENTS.md
 ```
@@ -75,14 +61,14 @@ watchr/
 - Install : `pnpm install` (à la racine, workspace)
 - Backend dev : `pnpm --filter backend dev`
 - Mobile dev : `pnpm --filter mobile start` (dev client Expo, prebuild autorisé)
-- Web dev : `pnpm --filter web dev` (ViteJS dev server)
 - Remote config CLI : `pnpm --filter backend mobile-config set <key> <value> [type]` (types: string, number, boolean, json)
 - Remote config list : `pnpm --filter backend mobile-config list`
 - Remote config seed : `pnpm --filter backend mobile-config:seed` (peuple avec les valeurs par défaut)
 
 ## URLs de production
 
-- **Site web** : https://watchr.me
+- **Site web (landing page)** : https://watchr.me
+- **Site web expo (version desktop de mobile app)** : https://app.watchr.me
 - **API backend** : https://api.watchr.me
 
 ## Contraintes et principes actifs
@@ -100,5 +86,6 @@ watchr/
    - Les messages d'erreur API utilisent le hook `useErrorMessage` ; les messages snackbar utilisent des clés de traduction.
    - **Synchronisation obligatoire** : toute nouvelle clé ou modification de traduction doit être répercutée dans **tous** les fichiers de locale (`en.ts`, `fr.ts`, et toute autre langue supportée) côté mobile **et** backend. Les fichiers doivent rester en parité parfaite. Une tâche n'est pas terminée tant que toutes les langues ne sont pas à jour.
    - **Synchronisation obligatoire** : toute nouvelle clé ou modification de traduction doit être répercutée dans **tous** les fichiers de locale (`en.ts`, `fr.ts`, et toute autre langue supportée) côté mobile **et** backend. Les fichiers doivent rester en parité parfaite. Une tâche n'est pas terminée tant que toutes les langues ne sont pas à jour.
-   - **mobile** is **Source of truth** par rapport au web ou autres. 
+   - **mobile** is **Source of truth** par rapport au autres. 
    - Utilisez tous les MCP que vous jugez pertinents pour votre demande.
+   - Toujours mettre en place des logiques optimistic pour l'utilisateur via du UI et UX moderne.

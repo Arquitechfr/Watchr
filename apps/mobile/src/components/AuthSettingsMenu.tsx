@@ -2,8 +2,9 @@ import { useState } from "react";
 import { View, TouchableOpacity, Text, Modal, TouchableWithoutFeedback } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocaleStore } from "../store/localeStore";
+import { useChangeLocale } from "../hooks/useChangeLocale";
 import { useTheme } from "../theme/useTheme";
-import { SUPPORTED_LOCALES } from "../i18n/translations";
+import { SUPPORTED_LOCALES, LANG_FLAGS } from "../i18n/translations";
 import type { ThemePreference } from "../store/themeStore";
 import { useThemeColors } from "../theme/useThemeColors";
 
@@ -11,6 +12,7 @@ export function AuthSettingsMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const locale = useLocaleStore((s) => s.locale);
   const setLocale = useLocaleStore((s) => s.setLocale);
+  const changeLocale = useChangeLocale();
   const { preference, setPreference } = useTheme();
   const colors = useThemeColors();
 
@@ -19,16 +21,6 @@ export function AuthSettingsMenu() {
     { value: "light", label: "Light" },
     { value: "dark", label: "Dark" },
   ];
-
-  const LANG_FLAGS: Record<string, string> = {
-    fr: "🇫🇷",
-    en: "🇬🇧",
-    es: "🇪🇸",
-    pt: "🇵🇹",
-    de: "🇩🇪",
-    it: "🇮🇹",
-    ar: "🇸🇦",
-  };
 
   return (
     <>
@@ -61,6 +53,7 @@ export function AuthSettingsMenu() {
                         key={lang}
                         onPress={() => {
                           setLocale(lang);
+                          changeLocale(lang);
                           setIsOpen(false);
                         }}
                         className={`flex-1 py-2 rounded-md items-center ${

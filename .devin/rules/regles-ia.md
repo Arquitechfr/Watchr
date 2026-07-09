@@ -4,11 +4,12 @@ trigger: always_on
 
 # Règles IA — Watchr
 
-Ces règles s'appliquent à tout agent (Devin/Cascade) travaillant sur ce repo.
+Ces règles s'appliquent à tout agent travaillant sur ce repo.
 
 ## 0. URLs de production
 
-- **Site web (frontend)** : https://watchr.me
+- **Site web (landing page)** : https://watchr.me
+- **Site web (version desktop mobile)** : https://app.watchr.me
 - **API backend** : https://api.watchr.me
 
 ## 1. Comportement général
@@ -42,17 +43,17 @@ Ces règles s'appliquent à tout agent (Devin/Cascade) travaillant sur ce repo.
 ## 5. Remote Config — configuration dynamique non négociable
 
 - Les valeurs de configuration **runtime** (`backend_url`, flags, etc.) sont stockées dans MongoDB (collection `mobile_config`) et servies via l'endpoint public `GET /internal/mobile-config` (cache process-level 30s côté backend).
-- Côté mobile et web, `remoteConfigService` (singleton) charge la config au lancement (**init bloquant** dans le bootstrap), la cache localement (AsyncStorage côté mobile, localStorage côté web), et la rafraîchit toutes les 5 min + au retour foreground (AppState / visibilitychange).
+- Côté mobile, `remoteConfigService` (singleton) charge la config au lancement (**init bloquant** dans le bootstrap), la cache localement (AsyncStorage côté mobile), et la rafraîchit toutes les 5 min + au retour foreground (AppState / visibilitychange).
 - **Écriture = CLI uniquement** : `pnpm --filter backend mobile-config set <key> <value> [type]`. Jamais d'endpoint HTTP d'écriture (décision de sécurité : un endpoint d'écriture sur `backend_url` est un vecteur d'attaque disproportionné).
 - **Lecture = endpoint public sans auth** : le payload ne contient aucune donnée sensible par design.
 - **L'URL backend ne doit jamais être hardcodée** dans le code : utiliser `remoteConfigService.getConfig().backend_url` ou `getApiBaseUrl()` (exporté depuis `services/api.ts`).
 - Les valeurs **build-time** (Firebase, EAS, Sentry) restent dans `.env` et ne peuvent pas être dynamiques (inlinées par Expo/Vite à build time).
-- Toute nouvelle valeur de configuration runtime doit être : (1) ajoutée à `DEFAULT_REMOTE_CONFIG` dans `config/defaults.ts` côté mobile **et** web, (2) seedée en MongoDB via le CLI, (3) documentée dans le plan de la feature.
-- Fichiers clés : `apps/backend/src/models/MobileConfig.ts`, `apps/backend/src/routes/internal/mobileConfig.routes.ts`, `apps/backend/scripts/mobile-config-cli.ts`, `apps/{mobile,web}/src/config/defaults.ts`, `apps/{mobile,web}/src/services/remoteConfig.ts`, `apps/{mobile,web}/src/hooks/useRemoteConfig.ts`.
+- Toute nouvelle valeur de configuration runtime doit être : (1) ajoutée à `DEFAULT_REMOTE_CONFIG` dans `config/defaults.ts` côté mobile, (2) seedée en MongoDB via le CLI, (3) documentée dans le plan de la feature.
+- Fichiers clés : `apps/backend/src/models/MobileConfig.ts`, `apps/backend/src/routes/internal/mobileConfig.routes.ts`, `apps/backend/scripts/mobile-config-cli.ts`, `apps/mobile/src/config/defaults.ts`, `apps/mobile/src/services/remoteConfig.ts`, `apps/mobile/src/hooks/useRemoteConfig.ts`.
 
 ## 6. Spécifique mobile (Expo sans prebuild)
 
-- **Aucune lib nécessitant du code natif custom** ou un dev client non standard. Vérifier la compatibilité Expo Go avant d'ajouter une dépendance.
+- **Aucune lib nécessitant du code natif custom** ou un dev client non standard. Vérifier la compatibilité Expo Go avant d'ajouter une dépendance, si pas le choix demande l'autorisation a l'utilisateur.
 - Pas de `Context` pour l'état complexe (utiliser Zustand). Pas de prop drilling au-delà de 2 niveaux.
 - États de chargement et d'erreur obligatoires sur tout écran consommant une query réseau (pas de "flash" d'écran vide).
 - **Internationalisation** : tout texte UI dans les composants/écrans mobile passe par `useI18n`/`t()`. Les dates utilisent `dateFnsLocale`. Les messages d'erreur API passent par `useErrorMessage`. Les traductions sont splitées par langue dans `apps/mobile/src/i18n/locales/<lang>.ts` (mobile) et `apps/backend/src/i18n/locales/<lang>.ts` (backend). **Toute nouvelle clé ou modification doit être répercutée dans tous les fichiers de locale de chaque côté** — les fichiers `en.ts` et `fr.ts` (et toute autre langue supportée) doivent rester en parité parfaite. Une tâche n'est pas terminée tant que toutes les langues ne sont pas synchronisées.
@@ -63,7 +64,7 @@ Une tâche n'est considérée terminée que si :
 - [ ] Code sans placeholder ni `console.log` de debug oublié
 - [ ] Erreurs et edge cases gérés (réseau down, 401/403, données vides, import malformé)
 - [ ] Hypothèses non confirmées documentées avec `[?]` dans la description du changement
-- [ ] **Synchronisation web ↔ mobile** : la feature existe et fonctionne sur les deux plateformes (mobile et web), ou une raison documentée justifie l'absence sur l'une d'elles
-- [ ] **Remote Config** : si la feature introduit une valeur de configuration runtime, celle-ci est ajoutée à `DEFAULT_REMOTE_CONFIG` (mobile + web), seedée en MongoDB, et aucune URL backend n'est hardcodée
-- mobile is Source of truth par rapport au web ou autres.
-- Utilisez tous les MCP que vous jugez pertinents pour votre demande.
+- [ ] **Remote Config** : si la feature introduit une valeur de configuration runtime, celle-ci est ajoutée à `DEFAULT_REMOTE_CONFIG` (mobile), seedée en MongoDB, et aucune URL backend n'est hardcodée
+- [ ] **mobile** is **Source of truth** par rapport autres.
+- [ ] Utilisez tous les **MCP** que vous jugez pertinents pour votre demande.
+- [ ] Toujours mettre en place des logiques optimistic pour l'utilisateur via du UI et UX moderne.

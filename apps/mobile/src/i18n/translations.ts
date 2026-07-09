@@ -10,6 +10,26 @@ export const SUPPORTED_LOCALES = ["en", "fr", "es", "pt", "de", "it", "ar"] as c
 
 export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
 
+export const LANG_FLAGS: Record<SupportedLocale, string> = {
+  fr: "🇫🇷",
+  en: "🇬🇧",
+  es: "🇪🇸",
+  pt: "🇵🇹",
+  de: "🇩🇪",
+  it: "🇮🇹",
+  ar: "🇸🇦",
+};
+
+export const LANG_LABELS: Record<SupportedLocale, string> = {
+  fr: "screens.profile.languageFrench",
+  en: "screens.profile.languageEnglish",
+  es: "screens.profile.languageSpanish",
+  pt: "screens.profile.languagePortuguese",
+  de: "screens.profile.languageGerman",
+  it: "screens.profile.languageItalian",
+  ar: "screens.profile.languageArabic",
+};
+
 export const translations = { en, fr, es, pt, de, it, ar } as const;
 
 export type Translations = typeof fr;

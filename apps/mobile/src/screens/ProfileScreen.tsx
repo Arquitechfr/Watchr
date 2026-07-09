@@ -1,4 +1,4 @@
-import { Text, TouchableOpacity, ActivityIndicator, View, ScrollView, Platform } from "react-native";
+import { Text, TouchableOpacity, ActivityIndicator, View, ScrollView, Platform, useWindowDimensions } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { getItem as secureGetItem } from "../utils/secureStorage";
@@ -36,6 +36,8 @@ export function ProfileScreen() {
   const colors = useThemeColors();
   const getErrorMessage = useErrorMessage();
   const [isLoading, setIsLoading] = useState(false);
+  const { width } = useWindowDimensions();
+  const isDesktopWeb = Platform.OS === "web" && width >= 768;
 
   const { data: me, isLoading: meLoading } = useQuery({ queryKey: ["me"], queryFn: getMe });
   const { data: stats, isLoading: statsLoading } = useUserStats();
@@ -75,7 +77,7 @@ export function ProfileScreen() {
 
   return (
     <ScreenContainer className="px-4 pt-6" edges={["top", "left", "right"]}>
-      <View style={Platform.OS === "web" ? { maxWidth: 600, alignSelf: "center", width: "100%" } : undefined}>
+      <View style={Platform.OS === "web" ? { maxWidth: 800, alignSelf: "center", width: "100%" } : undefined}>
       <MainHeader rightElement={<ProfileMenuButton />} />
       <ScrollView showsVerticalScrollIndicator={false} contentContainerClassName="pb-24">
         <View className="items-center mb-6">
@@ -111,17 +113,13 @@ export function ProfileScreen() {
             </View>
           </View>
         ) : stats && (
-          <View className="mb-6">
+          <View className="mb-8">
             <Text className="text-text font-semibold text-base mb-3">{t("screens.profile.statsTitle")}</Text>
-            <View className="flex-row gap-3 mb-3">
+            <View className="flex-row flex-wrap gap-3 mb-3">
               <StatCard icon="tv-outline" value={stats.tvCount} label={t("screens.profile.statsShowsFollowed")} />
               <StatCard icon="film-outline" value={stats.movieCount} label={t("screens.profile.statsMoviesFollowed")} />
-            </View>
-            <View className="flex-row gap-3 mb-3">
               <StatCard icon="play-circle-outline" value={stats.episodesWatched} label={t("screens.profile.statsEpisodesWatched")} />
               <StatCard icon="time-outline" value={`${stats.hoursWatched}h`} label={t("screens.profile.statsHoursWatched")} />
-            </View>
-            <View className="flex-row gap-3">
               <StatCard icon="chatbubble-outline" value={stats.commentsCount} label={t("screens.profile.statsComments")} />
               <StatCard icon="heart-outline" value={stats.reactionsCount + stats.likesCount} label={t("screens.profile.statsReactions")} />
             </View>
@@ -140,12 +138,13 @@ export function ProfileScreen() {
           </View>
         )}
 
-        <View className="mb-6">
-          <FavoriteCarousel items={tvFavorites} type="tv" onRefetch={tvFavoritesQuery.refetch} />
-        </View>
-
-        <View className="mb-6">
-          <FavoriteCarousel items={movieFavorites} type="movie" onRefetch={movieFavoritesQuery.refetch} />
+        <View className="mb-8" style={isDesktopWeb ? { flexDirection: "row", gap: 16 } : undefined}>
+          <View style={isDesktopWeb ? { flex: 1 } : undefined} className="mb-8">
+            <FavoriteCarousel items={tvFavorites} type="tv" onRefetch={tvFavoritesQuery.refetch} />
+          </View>
+          <View style={isDesktopWeb ? { flex: 1 } : undefined} className="mb-8">
+            <FavoriteCarousel items={movieFavorites} type="movie" onRefetch={movieFavoritesQuery.refetch} />
+          </View>
         </View>
 
         {stats && (

@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Text, TextInput, TouchableOpacity, ActivityIndicator, Image, View } from "react-native";
+import { useState, useEffect } from "react";
+import { Text, TextInput, TouchableOpacity, ActivityIndicator, Image, View, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -32,6 +32,21 @@ export function LoginScreen() {
   const [showForm, setShowForm] = useState(false);
   const insets = useSafeAreaInsets();
 
+  useEffect(() => {
+    if (Platform.OS !== "web") return;
+    const params = new URLSearchParams(window.location.search);
+    const accessToken = params.get("accessToken");
+    const refreshToken = params.get("refreshToken");
+    if (accessToken && refreshToken) {
+      log("Login", "Google OAuth redirect: tokens found in URL");
+      setTokens(accessToken, refreshToken).then(() => {
+        syncPreferencesToBackend();
+        showSnackbar(t("auth.connectedWithGoogle"), "success");
+        window.history.replaceState({}, "", window.location.pathname);
+      });
+    }
+  }, []);
+
   async function handleLogin() {
     log("Login", "start", { email: email.trim() });
     if (!email.trim() || !password.trim()) {
@@ -60,7 +75,8 @@ export function LoginScreen() {
   }
 
   return (
-    <ScreenContainer className="px-6 justify-center">
+    <ScreenContainer className="px-6 justify-center" fullWidth>
+      <View style={Platform.OS === "web" ? { maxWidth: 400, width: "100%", alignSelf: "center" } : undefined}>
       <View style={{ top: insets.top + 8, zIndex: 50 }} className="absolute right-4">
         <AuthSettingsMenu />
       </View>
@@ -134,6 +150,7 @@ export function LoginScreen() {
       <TouchableOpacity onPress={() => navigation.navigate("ForgotPassword")} className="mt-4">
         <Text className="text-primary text-center">{t("auth.forgotPassword")}</Text>
       </TouchableOpacity>
+      </View>
     </ScreenContainer>
   );
 }

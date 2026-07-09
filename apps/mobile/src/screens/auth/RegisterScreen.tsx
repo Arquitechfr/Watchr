@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Text, TextInput, TouchableOpacity, ActivityIndicator, Image, View } from "react-native";
+import { Text, TextInput, TouchableOpacity, ActivityIndicator, Image, View, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -63,7 +63,8 @@ export function RegisterScreen() {
   }
 
   return (
-    <ScreenContainer className="px-6 justify-center">
+    <ScreenContainer className="px-6 justify-center" fullWidth>
+      <View style={Platform.OS === "web" ? { maxWidth: 400, width: "100%", alignSelf: "center" } : undefined}>
       <View style={{ top: insets.top + 8, zIndex: 50 }} className="absolute right-4">
         <AuthSettingsMenu />
       </View>
@@ -133,6 +134,7 @@ export function RegisterScreen() {
           <Text className="text-primary">{t("auth.loginLink")}</Text>
         </Text>
       </TouchableOpacity>
+      </View>
     </ScreenContainer>
   );
 }

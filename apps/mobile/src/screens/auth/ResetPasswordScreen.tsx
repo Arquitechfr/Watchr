@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Text, TextInput, TouchableOpacity, ActivityIndicator } from "react-native";
+import { Text, TextInput, TouchableOpacity, ActivityIndicator, View, Platform } from "react-native";
 import { RouteProp } from "@react-navigation/native";
 import { resetPassword } from "../../services/auth.service";
 import { useUIStore } from "../../store/uiStore";
@@ -46,7 +46,8 @@ export function ResetPasswordScreen({ route }: ResetPasswordScreenProps) {
   }
 
   return (
-    <ScreenContainer className="px-6 justify-center">
+    <ScreenContainer className="px-6 justify-center" fullWidth>
+      <View style={Platform.OS === "web" ? { maxWidth: 400, width: "100%", alignSelf: "center" } : undefined}>
       <Text className="text-2xl font-bold text-text mb-2">{t("auth.resetPasswordTitle")}</Text>
       <Text className="text-text-muted mb-8">{t("auth.resetPasswordBody")}</Text>
 
@@ -78,6 +79,7 @@ export function ResetPasswordScreen({ route }: ResetPasswordScreenProps) {
           <Text className="text-background font-semibold text-base">{t("auth.resetPasswordButton")}</Text>
         )}
       </TouchableOpacity>
+      </View>
     </ScreenContainer>
   );
 }

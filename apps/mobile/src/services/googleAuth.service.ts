@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { Platform } from "react-native";
 import Constants from "expo-constants";
 import { log } from "../utils/logger";
 import { loginWithGoogle, linkGoogleAccount } from "./auth.service";
@@ -26,10 +27,10 @@ function isExpoGo(): boolean {
 }
 
 async function getFirebaseIdToken(): Promise<string> {
-  if (isExpoGo()) {
-    log("GoogleLink", "using web flow (Expo Go)");
+  if (Platform.OS === "web" || isExpoGo()) {
+    log("GoogleLink", "using web flow");
     const { auth } = await import("../config/firebase");
-    const { GoogleAuthProvider, signInWithPopup, linkWithPopup } = await import("firebase/auth");
+    const { GoogleAuthProvider, signInWithPopup } = await import("firebase/auth");
     const provider = new GoogleAuthProvider();
     const result = await signInWithPopup(auth, provider);
     const idToken = await result.user.getIdToken();
@@ -50,8 +51,8 @@ export function useGoogleAuth(
   const prompt = useCallback(async () => {
     setIsLoading(true);
     try {
-      if (isExpoGo()) {
-        log("GoogleAuth", "using web flow (Expo Go)");
+      if (Platform.OS === "web" || isExpoGo()) {
+        log("GoogleAuth", "using web flow");
         const tokens = await signInWithGoogleWeb();
         onSuccess(tokens);
       } else {

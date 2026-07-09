@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Text, TextInput, TouchableOpacity, ActivityIndicator } from "react-native";
+import { Text, TextInput, TouchableOpacity, ActivityIndicator, View, Platform } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { requestPasswordReset } from "../../services/auth.service";
@@ -40,7 +40,8 @@ export function ForgotPasswordScreen() {
   }
 
   return (
-    <ScreenContainer className="px-6 justify-center">
+    <ScreenContainer className="px-6 justify-center" fullWidth>
+      <View style={Platform.OS === "web" ? { maxWidth: 400, width: "100%", alignSelf: "center" } : undefined}>
       <Text className="text-2xl font-bold text-text mb-2">{t("auth.forgotPasswordTitle")}</Text>
       <Text className="text-text-muted mb-8">{t("auth.forgotPasswordBody")}</Text>
 
@@ -75,6 +76,7 @@ export function ForgotPasswordScreen() {
       <TouchableOpacity onPress={() => navigation.navigate("Login")}>
         <Text className="text-primary text-center">{t("auth.backToLogin")}</Text>
       </TouchableOpacity>
+      </View>
     </ScreenContainer>
   );
 }

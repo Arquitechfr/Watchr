@@ -96,11 +96,15 @@ export const useAuthStore = create<AuthState>((set) => ({
       if (isTokenExpired(accessToken)) {
         log("AuthStore", "access token expired, refreshing");
         try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 5000);
           const response = await fetch(`${remoteConfigService.getConfig().backend_url}/api/auth/refresh`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ refreshToken }),
+            signal: controller.signal,
           });
+          clearTimeout(timeoutId);
           if (!response.ok) {
             throw new Error(`Refresh failed: ${response.status}`);
           }
@@ -123,6 +127,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       log("AuthStore", "hydrate done", { isAuthenticated: true });
       set({ accessToken: currentAccessToken, userId, isAuthenticated: true, isHydrated: true });
       const { websocketService } = await import("../services/websocket.service");
+      await websocketService.loadLastEventTimestamp();
       websocketService.connect();
     } catch (err) {
       log("AuthStore", "hydrate error", err);

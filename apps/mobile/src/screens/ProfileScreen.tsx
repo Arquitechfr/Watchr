@@ -15,6 +15,7 @@ import { StreakBadge } from "../components/Profile/StreakBadge";
 import { GenreBreakdown } from "../components/Profile/GenreBreakdown";
 import { FavoriteCarousel } from "../components/Profile/FavoriteCarousel";
 import { RecentActivity } from "../components/Profile/RecentActivity";
+import { Skeleton } from "../components/Skeleton";
 import { useErrorMessage } from "../services/api";
 import { logout, getMe } from "../services/auth.service";
 import { log } from "../utils/logger";
@@ -36,8 +37,8 @@ export function ProfileScreen() {
   const getErrorMessage = useErrorMessage();
   const [isLoading, setIsLoading] = useState(false);
 
-  const { data: me } = useQuery({ queryKey: ["me"], queryFn: getMe });
-  const { data: stats } = useUserStats();
+  const { data: me, isLoading: meLoading } = useQuery({ queryKey: ["me"], queryFn: getMe });
+  const { data: stats, isLoading: statsLoading } = useUserStats();
   const tvFavoritesQuery = useFavorites("tv");
   const movieFavoritesQuery = useFavorites("movie");
 
@@ -78,16 +79,37 @@ export function ProfileScreen() {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerClassName="pb-24">
         <View className="items-center mb-6">
           <Avatar url={me?.avatarUrl} size={80} />
-          <Text className="text-text text-lg font-bold mt-3">{me?.username ?? "..."}</Text>
-          <Text className="text-text-muted text-sm">{me?.email}</Text>
-          {memberSinceFormatted && (
-            <Text className="text-text-muted text-xs mt-1">
-              {t("screens.profile.memberSince", { date: memberSinceFormatted })}
-            </Text>
+          {meLoading ? (
+            <View className="items-center mt-3">
+              <Skeleton width={120} height={18} className="mb-2" />
+              <Skeleton width={180} height={14} />
+            </View>
+          ) : (
+            <>
+              <Text className="text-text text-lg font-bold mt-3">{me?.username ?? "..."}</Text>
+              <Text className="text-text-muted text-sm">{me?.email}</Text>
+              {memberSinceFormatted && (
+                <Text className="text-text-muted text-xs mt-1">
+                  {t("screens.profile.memberSince", { date: memberSinceFormatted })}
+                </Text>
+              )}
+            </>
           )}
         </View>
 
-        {stats && (
+        {statsLoading ? (
+          <View className="mb-6">
+            <Skeleton width={140} height={20} className="mb-3" />
+            <View className="flex-row gap-3 mb-3">
+              <Skeleton width={"48%"} height={80} borderRadius={12} />
+              <Skeleton width={"48%"} height={80} borderRadius={12} />
+            </View>
+            <View className="flex-row gap-3 mb-3">
+              <Skeleton width={"48%"} height={80} borderRadius={12} />
+              <Skeleton width={"48%"} height={80} borderRadius={12} />
+            </View>
+          </View>
+        ) : stats && (
           <View className="mb-6">
             <Text className="text-text font-semibold text-base mb-3">{t("screens.profile.statsTitle")}</Text>
             <View className="flex-row gap-3 mb-3">

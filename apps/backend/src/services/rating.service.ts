@@ -2,6 +2,7 @@ import { Types } from "mongoose";
 import { Rating } from "../models/rating.model.js";
 import { Show } from "../models/show.model.js";
 import { ApiError } from "../middleware/error.middleware.js";
+import { getRedisValue, setRedisValue, invalidateRedisPattern } from "../lib/redis.js";
 
 export interface UpsertRatingInput {
   showId: string;
@@ -28,6 +29,16 @@ function normalizeValue(value: number): number {
 }
 
 export async function getCommunityRatings(showId: string): Promise<CommunityRatings> {
+  const cacheKey = `community-ratings:${showId}`;
+  const cached = await getRedisValue(cacheKey);
+  if (cached) {
+    try {
+      return JSON.parse(cached) as CommunityRatings;
+    } catch {
+      // Cache corrupt, proceed to compute
+    }
+  }
+
   const show = await Show.findById(showId).lean();
   if (!show) {
     return { show: null, episodes: [] };
@@ -82,7 +93,9 @@ export async function getCommunityRatings(showId: string): Promise<CommunityRati
     count: e.count,
   }));
 
-  return { show: communityShow, episodes: communityEpisodes };
+  const result = { show: communityShow, episodes: communityEpisodes };
+  await setRedisValue(cacheKey, JSON.stringify(result), 60);
+  return result;
 }
 
 export async function upsertRating(userId: string, input: UpsertRatingInput) {
@@ -119,6 +132,7 @@ export async function upsertRating(userId: string, input: UpsertRatingInput) {
     { new: true, upsert: true },
   );
 
+  await invalidateRedisPattern(`community-ratings:${input.showId}`);
   const community = await getCommunityRatings(input.showId);
 
   return { rating, community };

@@ -1,5 +1,6 @@
 import { io, Socket } from "socket.io-client";
 import * as SecureStore from "expo-secure-store";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { log } from "../utils/logger";
 import { useAuthStore } from "../store/authStore";
 import { remoteConfigService } from "./remoteConfig";
@@ -13,6 +14,7 @@ class WebSocketService {
   private isConnecting = false;
   private lastEventTimestamp: number = Date.now();
   private connectionStateListeners: Set<ConnectionStateListener> = new Set();
+  private tsPersistTimer: ReturnType<typeof setInterval> | null = null;
 
   getConnectionState(): WsConnectionState {
     if (!this.socket) return "disconnected";
@@ -47,7 +49,7 @@ class WebSocketService {
       auth: { token: accessToken },
       transports: ["websocket"],
       reconnection: true,
-      reconnectionAttempts: 5,
+      reconnectionAttempts: 20,
       reconnectionDelay: 1000,
       reconnectionDelayMax: 10000,
     });
@@ -159,6 +161,30 @@ class WebSocketService {
 
   updateLastEventTimestamp(timestamp: number): void {
     this.lastEventTimestamp = Math.max(this.lastEventTimestamp, timestamp);
+    this.persistLastEventTimestamp();
+  }
+
+  private async persistLastEventTimestamp(): Promise<void> {
+    try {
+      await AsyncStorage.setItem("lastEventTimestamp", String(this.lastEventTimestamp));
+    } catch {
+      // Non-critical, ignore
+    }
+  }
+
+  async loadLastEventTimestamp(): Promise<void> {
+    try {
+      const stored = await AsyncStorage.getItem("lastEventTimestamp");
+      if (stored) {
+        const ts = parseInt(stored, 10);
+        if (!isNaN(ts)) {
+          this.lastEventTimestamp = ts;
+          log("WebSocket", "loaded lastEventTimestamp from storage", { ts });
+        }
+      }
+    } catch {
+      // Non-critical, ignore
+    }
   }
 }
 

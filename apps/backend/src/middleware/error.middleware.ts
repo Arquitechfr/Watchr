@@ -1,7 +1,7 @@
-/* eslint-disable no-console */
 import { NextFunction, Request, Response } from "express";
 import { env } from "../config/env.js";
 import { translate } from "../i18n/index.js";
+import { logError } from "../lib/logger.js";
 
 export class ApiError extends Error {
   constructor(
@@ -23,11 +23,7 @@ export const errorMiddleware = (
 ): void => {
   const lang = req.language;
   if (err instanceof ApiError) {
-    if (env.NODE_ENV === "production") {
-      console.error(`API error ${err.status} ${err.code}: ${err.message}`);
-    } else {
-      console.error(`API error ${err.status} ${err.code}: ${err.message}`, err.cause);
-    }
+    logError("ErrorMiddleware", `API error ${err.status} ${err.code}`, err, { path: req.path, method: req.method, cause: err.cause });
     res.status(err.status).json({
       error: {
         code: err.code,
@@ -37,7 +33,7 @@ export const errorMiddleware = (
     return;
   }
 
-  console.error("Unhandled error:", err);
+  logError("ErrorMiddleware", "Unhandled error", err, { path: req.path, method: req.method });
   const message = env.NODE_ENV === "production" ? translate("UNKNOWN", lang) : err.message;
   res.status(500).json({
     error: {

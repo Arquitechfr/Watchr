@@ -9,6 +9,14 @@ import {
 import { Types } from "mongoose";
 import { WatchEntry } from "../models/watchEntry.model.js";
 import { IShow, getShowTitle, getTranslationValue } from "../models/show.model.js";
+import { getRedisValue, setRedisValue, deleteRedisKey } from "../lib/redis.js";
+
+export async function invalidateUpcomingCache(userId: string): Promise<void> {
+  await Promise.all([
+    deleteRedisKey(`upcoming:${userId}:en`),
+    deleteRedisKey(`upcoming:${userId}:fr`),
+  ]);
+}
 
 export interface UpcomingEpisode {
   showId: string;
@@ -33,6 +41,16 @@ export interface UpcomingCalendar {
 }
 
 export async function getUpcomingEpisodes(userId: string, language = "en"): Promise<UpcomingCalendar> {
+  const cacheKey = `upcoming:${userId}:${language}`;
+  const cached = await getRedisValue(cacheKey);
+  if (cached) {
+    try {
+      return JSON.parse(cached) as UpcomingCalendar;
+    } catch {
+      // Cache corrupt, continue to DB
+    }
+  }
+
   const entries = await WatchEntry.find({
     userId: new Types.ObjectId(userId),
     status: { $in: ["watching", "plan_to_watch"] },
@@ -139,5 +157,7 @@ export async function getUpcomingEpisodes(userId: string, language = "en"): Prom
     }
   }
 
-  return { today, thisWeek, nextWeek, later };
+  const result = { today, thisWeek, nextWeek, later };
+  await setRedisValue(cacheKey, JSON.stringify(result), 60);
+  return result;
 }

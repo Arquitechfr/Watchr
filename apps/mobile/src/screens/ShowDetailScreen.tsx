@@ -4,7 +4,7 @@ import { useRoute, useNavigation, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useShowDetails } from "../hooks/useShowDetails";
 import { useTrackingEntry } from "../hooks/useTrackingEntry";
-import { useUpsertTracking, useToggleEpisode, useMarkUpTo, useMarkAllAired, useDeleteTracking } from "../hooks/useTracking";
+import { useUpsertTracking, useUpsertWithProgress, useToggleEpisode, useMarkUpTo, useMarkAllAired, useDeleteTracking } from "../hooks/useTracking";
 import { useRatingsForShow, useUpsertRating } from "../hooks/useRatings";
 import { useCommentCount } from "../hooks/useComments";
 import { useShowDetailsRealtime } from "../hooks/useShowDetailsRealtime";
@@ -58,11 +58,12 @@ export function ShowDetailScreen() {
   const colors = useThemeColors();
   const isValidTmdbId = Number.isFinite(tmdbId) && tmdbId > 0;
 
-  const { data: show, isLoading, isError, refetch } = useShowDetails(tmdbId);
+  const { data: show, isLoading, isRefetching, isError, refetch } = useShowDetails(tmdbId);
   const { data: trackingEntry, refetch: refetchTrackingEntry } = useTrackingEntry(show?.id ?? "");
   const { data: ratings, refetch: refetchRatings } = useRatingsForShow(show?.id ?? "");
   const throttledRefresh = useRefreshRateLimit();
   const upsertTracking = useUpsertTracking(show?.id ?? "", tmdbId);
+  const upsertWithProgress = useUpsertWithProgress(show?.id ?? "", tmdbId);
   const toggleEpisode = useToggleEpisode(show?.id ?? "", tmdbId);
   const markUpTo = useMarkUpTo(show?.id ?? "", tmdbId);
   const markAllAired = useMarkAllAired(show?.id ?? "", tmdbId);
@@ -76,7 +77,7 @@ export function ShowDetailScreen() {
 
   useEffect(() => {
     log("ShowDetail", "mount", { tmdbId, title });
-  }, [navigation, title]);
+  }, [tmdbId, title]);
 
   useEffect(() => {
     if (show) {
@@ -89,7 +90,7 @@ export function ShowDetailScreen() {
         networksCount: show.networks?.length ?? 0,
       });
     }
-  }, [show, tmdbId]);
+  }, [show?.cast, show?.crew, show?.genres, show?.networks, tmdbId]);
 
   const progress = useMemo(() => {
     if (!show || show.type !== "tv") {
@@ -109,7 +110,7 @@ export function ShowDetailScreen() {
   }, [trackingEntry]);
 
   const isAnyPending =
-    upsertTracking.isPending || markUpTo.isPending || markAllAired.isPending || toggleEpisode.isPending || upsertRating.isPending;
+    upsertTracking.isPending || upsertWithProgress.isPending || markUpTo.isPending || markAllAired.isPending || toggleEpisode.isPending || upsertRating.isPending;
 
   const handleRefresh = () => {
     refetch();
@@ -173,33 +174,44 @@ export function ShowDetailScreen() {
 
     log("ShowDetail", "save tracking", { showId: show.id, ...payload });
 
-    upsertTracking.mutate(
-      {
-        currentSeason: payload.currentSeason,
-        currentEpisode: payload.currentEpisode,
-      },
-      {
-        onSuccess: () => {
-          if (show.type === "tv" && payload.currentSeason && payload.currentEpisode) {
-            markUpTo.mutate(
-              {
-                season: payload.currentSeason,
-                episode: payload.currentEpisode,
-                includePrevious: payload.includePrevious,
-              },
-              {
-                onError: () => showSnackbar(t("screens.showDetail.updateProgressError"), "error"),
-              },
-            );
-          }
-          if (payload.rating !== undefined && payload.rating !== null) {
-            upsertRating.mutate({ value: payload.rating });
-          }
-          setTrackingModalVisible(false);
+    if (show.type === "tv" && payload.currentSeason && payload.currentEpisode) {
+      upsertWithProgress.mutate(
+        {
+          currentSeason: payload.currentSeason,
+          currentEpisode: payload.currentEpisode,
+          markUpTo: {
+            season: payload.currentSeason,
+            episode: payload.currentEpisode,
+            includePrevious: payload.includePrevious,
+          },
         },
-        onError: () => showSnackbar(t("screens.showDetail.updateTrackingError"), "error"),
-      },
-    );
+        {
+          onSuccess: () => {
+            if (payload.rating !== undefined && payload.rating !== null) {
+              upsertRating.mutate({ value: payload.rating });
+            }
+            setTrackingModalVisible(false);
+          },
+          onError: () => showSnackbar(t("screens.showDetail.updateTrackingError"), "error"),
+        },
+      );
+    } else {
+      upsertTracking.mutate(
+        {
+          currentSeason: payload.currentSeason,
+          currentEpisode: payload.currentEpisode,
+        },
+        {
+          onSuccess: () => {
+            if (payload.rating !== undefined && payload.rating !== null) {
+              upsertRating.mutate({ value: payload.rating });
+            }
+            setTrackingModalVisible(false);
+          },
+          onError: () => showSnackbar(t("screens.showDetail.updateTrackingError"), "error"),
+        },
+      );
+    }
   };
 
   const handleToggleEpisode = (season: number, episode: number, watched: boolean) => {
@@ -388,7 +400,7 @@ export function ShowDetailScreen() {
       <ScrollView
         className="flex-1 bg-background"
         contentContainerStyle={{ paddingBottom: 100 }}
-        refreshControl={<RefreshControl refreshing={isLoading} onRefresh={() => throttledRefresh(handleRefresh)} tintColor={colors.primary} />}
+        refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={() => throttledRefresh(handleRefresh)} tintColor={colors.primary} />}
       >
         <View className="w-full h-96 overflow-hidden bg-surface-light">
           {posterUrl ? (

@@ -16,6 +16,7 @@ import {
   toggleEpisode,
   unmarkSeasonEpisodes,
   upsertTracking,
+  upsertWithProgress,
 } from "../services/tracking.service.js";
 import {
   addToWatchlistByTmdbParamsSchema,
@@ -30,6 +31,7 @@ import {
   unmarkSeasonSchema,
   unwatchedSchema,
   upsertTrackingSchema,
+  upsertWithProgressSchema,
 } from "../validators/tracking.validator.js";
 import { validateRequest } from "../validators/validateRequest.js";
 import { asyncHandler } from "../lib/asyncHandler.js";
@@ -123,6 +125,16 @@ router.post(
   asyncHandler(async (req: Request, res: Response) => {
     const { showId } = req.params;
     const entry = await upsertTracking(req.userId!, showId, req.body);
+    res.json(entry);
+  }),
+);
+
+router.post(
+  "/:showId/upsert-with-progress",
+  validateRequest(upsertWithProgressSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { showId } = req.params;
+    const entry = await upsertWithProgress(req.userId!, showId, req.body);
     res.json(entry);
   }),
 );

@@ -61,10 +61,15 @@ export async function setRedisValue(key: string, value: string, ttlSeconds: numb
 export async function invalidateRedisPattern(pattern: string): Promise<void> {
   if (!redisAvailable) return;
   try {
-    const keys = await redisClient.keys(pattern);
-    if (keys.length > 0) {
-      await redisClient.del(...keys);
-    }
+    let cursor = "0";
+    do {
+      const reply = await redisClient.scan(cursor, "MATCH", pattern, "COUNT", 100);
+      cursor = reply[0];
+      const keys = reply[1];
+      if (keys.length > 0) {
+        await redisClient.del(...keys);
+      }
+    } while (cursor !== "0");
   } catch (err) {
     logError("Redis", "invalidate failed", err);
   }
@@ -76,5 +81,24 @@ export async function deleteRedisKey(key: string): Promise<void> {
     await redisClient.del(key);
   } catch (err) {
     logError("Redis", "delete failed", err);
+  }
+}
+
+const RELEASE_LOCK_SCRIPT = `
+if redis.call("get", KEYS[1]) == ARGV[1] then
+  return redis.call("del", KEYS[1])
+else
+  return 0
+end
+`;
+
+export async function deleteRedisKeyIfMatch(key: string, value: string): Promise<boolean> {
+  if (!redisAvailable) return false;
+  try {
+    const result = await redisClient.eval(RELEASE_LOCK_SCRIPT, 1, key, value);
+    return result === 1;
+  } catch (err) {
+    logError("Redis", "delete if match failed", err);
+    return false;
   }
 }

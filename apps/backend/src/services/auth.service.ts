@@ -38,7 +38,7 @@ export async function registerUser(email: string, password: string): Promise<Tok
     console.error("Failed to send signup webhook:", err),
   );
 
-  return await issueTokenPair(user._id.toString());
+  return await issueTokenPair(user._id.toString(), user.preferredLanguage);
 }
 
 export async function loginUser(email: string, password: string): Promise<TokenPair> {
@@ -53,7 +53,7 @@ export async function loginUser(email: string, password: string): Promise<TokenP
     throw new ApiError(401, "INVALID_CREDENTIALS", "Invalid email or password");
   }
 
-  return await issueTokenPair(user._id.toString());
+  return await issueTokenPair(user._id.toString(), user.preferredLanguage);
 }
 
 export async function loginWithFirebase(idToken: string): Promise<TokenPair> {
@@ -91,7 +91,7 @@ export async function loginWithFirebase(idToken: string): Promise<TokenPair> {
     );
   }
 
-  return await issueTokenPair(user._id.toString());
+  return await issueTokenPair(user._id.toString(), user.preferredLanguage);
 }
 
 export async function refreshAccessToken(refreshToken: string): Promise<TokenPair> {
@@ -111,7 +111,7 @@ export async function refreshAccessToken(refreshToken: string): Promise<TokenPai
     { $pull: { refreshTokens: { tokenHash } } },
   );
 
-  return await issueTokenPair(user._id.toString());
+  return await issueTokenPair(user._id.toString(), user.preferredLanguage);
 }
 
 export async function revokeRefreshToken(refreshToken: string): Promise<void> {
@@ -122,8 +122,12 @@ export async function revokeRefreshToken(refreshToken: string): Promise<void> {
   );
 }
 
-export async function issueTokenPair(userId: string): Promise<TokenPair> {
-  const accessToken = jwt.sign({ sub: userId }, env.JWT_ACCESS_SECRET, {
+export async function issueTokenPair(userId: string, preferredLanguage?: string): Promise<TokenPair> {
+  const payload: Record<string, unknown> = { sub: userId };
+  if (preferredLanguage) {
+    payload.lang = preferredLanguage;
+  }
+  const accessToken = jwt.sign(payload, env.JWT_ACCESS_SECRET, {
     expiresIn: ACCESS_TOKEN_TTL_SECONDS,
   });
   const refreshToken = generateRefreshToken();
@@ -134,15 +138,13 @@ export async function issueTokenPair(userId: string): Promise<TokenPair> {
   await User.updateOne(
     { _id: userId },
     { $push: { refreshTokens: { tokenHash, expiresAt, createdAt: new Date() } } },
-  ).catch((err) => {
-    console.error("Failed to store refresh token:", err);
-  });
+  );
 
   return { accessToken, refreshToken };
 }
 
-export function verifyAccessToken(token: string): { sub: string } {
-  return jwt.verify(token, env.JWT_ACCESS_SECRET) as { sub: string };
+export function verifyAccessToken(token: string): { sub: string; lang?: string } {
+  return jwt.verify(token, env.JWT_ACCESS_SECRET) as { sub: string; lang?: string };
 }
 
 export async function getMe(userId: string) {

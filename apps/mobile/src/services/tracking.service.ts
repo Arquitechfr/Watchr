@@ -42,6 +42,17 @@ export interface UpsertTrackingInput {
   status?: WatchStatus;
 }
 
+export interface UpsertWithProgressInput {
+  status?: WatchStatus;
+  currentSeason?: number;
+  currentEpisode?: number;
+  markUpTo?: {
+    season: number;
+    episode: number;
+    includePrevious: boolean;
+  };
+}
+
 export interface ToggleEpisodeInput {
   season: number;
   episode: number;
@@ -78,6 +89,16 @@ export async function upsertTracking(
   log("TrackingService", "upsert", { showId, ...input });
   const response = await api.post<WatchEntry>(`/tracking/${showId}`, input);
   log("TrackingService", "upsert response", { status: response.data.status });
+  return response.data;
+}
+
+export async function upsertWithProgress(
+  showId: string,
+  input: UpsertWithProgressInput,
+): Promise<WatchEntry> {
+  log("TrackingService", "upsertWithProgress", { showId, ...input });
+  const response = await api.post<WatchEntry>(`/tracking/${showId}/upsert-with-progress`, input);
+  log("TrackingService", "upsertWithProgress response", { status: response.data.status });
   return response.data;
 }
 

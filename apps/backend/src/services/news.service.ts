@@ -4,6 +4,7 @@ import { ApiError } from "../middleware/error.middleware.js";
 import { log, logError } from "../lib/logger.js";
 import { NewsSource } from "../models/newsSource.model.js";
 import type { SupportedLocale } from "../i18n/translations.js";
+import { getRedisValue, setRedisValue } from "../lib/redis.js";
 
 export interface NewsArticle {
   title: string;
@@ -36,6 +37,16 @@ export async function getDefaultSourceId(locale: SupportedLocale): Promise<strin
 }
 
 export async function getNews(sourceId?: string, limit: number = 30): Promise<NewsArticle[]> {
+  const cacheKey = `news:${sourceId ?? "default"}:${limit}`;
+  const cached = await getRedisValue(cacheKey);
+  if (cached) {
+    try {
+      return JSON.parse(cached) as NewsArticle[];
+    } catch {
+      // Cache corrupt, proceed to fetch
+    }
+  }
+
   let source = null;
 
   if (sourceId) {
@@ -89,6 +100,7 @@ export async function getNews(sourceId?: string, limit: number = 30): Promise<Ne
       });
 
     log("NewsService", "articles", { count: articles.length });
+    await setRedisValue(cacheKey, JSON.stringify(articles), 120);
     return articles;
   } catch (err) {
     logError("NewsService", "fetch failed", err, { sourceId: source.id });

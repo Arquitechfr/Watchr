@@ -11,12 +11,27 @@ export function getApiBaseUrl(): string {
 }
 
 export const api = axios.create({
-  baseURL: "",
-  timeout: 15000,
+  baseURL: getApiBaseUrl(),
+  timeout: 10000,
   headers: {
     "Content-Type": "application/json",
   },
 });
+
+remoteConfigService.subscribe((config) => {
+  api.defaults.baseURL = `${config.backend_url}/api`;
+});
+
+const PUBLIC_ENDPOINT_PREFIXES = [
+  "/shows/",
+  "/news/",
+  "/internal/",
+];
+
+function isPublicEndpoint(url: string | undefined): boolean {
+  if (!url) return false;
+  return PUBLIC_ENDPOINT_PREFIXES.some((prefix) => url.startsWith(prefix));
+}
 
 let isRefreshing = false;
 let refreshSubscribers: Array<(token: string) => void> = [];
@@ -37,10 +52,9 @@ function onTokenRefreshFailed() {
 }
 
 api.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
-  config.baseURL = getApiBaseUrl();
   log("API", "request", { method: config.method, url: config.url });
   let token = useAuthStore.getState().accessToken;
-  if (!token) {
+  if (!token && !isPublicEndpoint(config.url)) {
     await waitForHydration();
     token = useAuthStore.getState().accessToken;
   }

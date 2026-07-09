@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import { Types, PipelineStage } from "mongoose";
 import { Comment, IComment } from "../models/comment.model.js";
 import { CommentLike } from "../models/commentLike.model.js";
 import { CommentReaction } from "../models/commentReaction.model.js";
@@ -378,21 +378,76 @@ export async function listCommentsForShow(
       break;
   }
 
-  const topLevelComments = await Comment.find(topLevelFilter)
-    .sort(sortOption)
-    .skip((query.page - 1) * query.limit)
-    .limit(query.limit);
+  const userObjectId = new Types.ObjectId(userId);
 
-  const commentIds = topLevelComments.map((c) => c._id.toString());
-  const userIds = [...new Set(topLevelComments.map((c) => c.userId.toString()))];
-  const [likedIds, reactionMap, userMap] = await Promise.all([
-    getLikedCommentIds(userId, commentIds),
-    getReactionsForComments(userId, commentIds),
-    getUserInfoMap(userIds),
-  ]);
+  const pipeline: PipelineStage[] = [
+    { $match: topLevelFilter },
+    { $sort: sortOption },
+    { $skip: (query.page - 1) * query.limit },
+    { $limit: query.limit },
+    {
+      $lookup: {
+        from: "users",
+        localField: "userId",
+        foreignField: "_id",
+        as: "author",
+        pipeline: [{ $project: { username: 1, avatarUrl: 1 } }],
+      },
+    },
+    {
+      $lookup: {
+        from: "commentlikes",
+        let: { commentId: "$_id" },
+        pipeline: [
+          { $match: { $expr: { $and: [{ $eq: ["$userId", userObjectId] }, { $eq: ["$commentId", "$$commentId"] }] } } },
+          { $limit: 1 },
+        ],
+        as: "myLike",
+      },
+    },
+    {
+      $lookup: {
+        from: "commentreactions",
+        localField: "_id",
+        foreignField: "commentId",
+        as: "allReactions",
+        pipeline: [
+          {
+            $group: {
+              _id: "$emoji",
+              count: { $sum: 1 },
+              reactedByMe: { $max: { $cond: [{ $eq: ["$userId", userObjectId] }, true, false] } },
+            },
+          },
+        ],
+      },
+    },
+  ];
 
-  const comments = topLevelComments.map((comment) => {
-    return buildCommentItem(comment, likedIds, reactionMap, userMap);
+  const rawComments = await Comment.aggregate(pipeline);
+
+  const comments: CommentItem[] = rawComments.map((doc) => {
+    const author = doc.author?.[0];
+    const reactions: ReactionItem[] = (doc.allReactions ?? []).map((r: { _id: string; count: number; reactedByMe: boolean }) => ({
+      emoji: r._id,
+      count: r.count,
+      reactedByMe: r.reactedByMe,
+    }));
+    return {
+      id: doc._id.toString(),
+      userId: doc.userId.toString(),
+      authorUsername: author?.username ?? "Unknown",
+      authorAvatarUrl: author?.avatarUrl,
+      content: doc.content,
+      images: doc.images ?? [],
+      isSpoiler: doc.isSpoiler ?? false,
+      likesCount: doc.likesCount,
+      replyCount: doc.replyCount ?? 0,
+      likedByMe: (doc.myLike ?? []).length > 0,
+      reactions,
+      createdAt: doc.createdAt.toISOString(),
+      updatedAt: doc.updatedAt.toISOString(),
+    };
   });
 
   return {

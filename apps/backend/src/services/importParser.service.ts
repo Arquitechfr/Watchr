@@ -78,7 +78,7 @@ export async function processImport(
         if (!match) {
           result.failed++;
           result.errors.push({ line, reason: `Ambiguous or no match for "${record.title}"` });
-          await updateProgress(jobId, userId, result);
+          if (result.processed % 10 === 0) await updateProgress(jobId, userId, result);
           continue;
         }
 
@@ -121,9 +121,15 @@ export async function processImport(
         result.errors.push({ line, reason });
       }
 
-      await updateProgress(jobId, userId, result);
-      await sleep(250);
+      if (result.processed % 10 === 0) {
+        await updateProgress(jobId, userId, result);
+      }
+      if (result.processed % 50 === 0) {
+        await sleep(50);
+      }
     }
+
+    await updateProgress(jobId, userId, result);
 
     await ImportJob.findByIdAndUpdate(jobId, {
       status: "completed",

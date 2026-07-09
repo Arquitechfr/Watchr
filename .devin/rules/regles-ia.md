@@ -80,4 +80,5 @@ Une tâche n'est considérée terminée que si :
 - [ ] Hypothèses non confirmées documentées avec `[?]` dans la description du changement
 - [ ] **Synchronisation web ↔ mobile** : la feature existe et fonctionne sur les deux plateformes (mobile et web), ou une raison documentée justifie l'absence sur l'une d'elles
 - [ ] **Remote Config** : si la feature introduit une valeur de configuration runtime, celle-ci est ajoutée à `DEFAULT_REMOTE_CONFIG` (mobile + web), seedée en MongoDB, et aucune URL backend n'est hardcodée
-- mobile is Source of truth par rapport au web ou autres. 
+- mobile is Source of truth par rapport au web ou autres.
+- Utilisez tous les MCP que vous jugez pertinents pour votre demande.

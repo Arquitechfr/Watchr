@@ -15,6 +15,17 @@ export const upsertTrackingSchema = z.object({
   currentEpisode: z.coerce.number().int().min(1).optional(),
 });
 
+export const upsertWithProgressSchema = z.object({
+  status: watchStatusSchema.optional(),
+  currentSeason: z.coerce.number().int().min(0).optional(),
+  currentEpisode: z.coerce.number().int().min(1).optional(),
+  markUpTo: z.object({
+    season: z.coerce.number().int().min(0),
+    episode: z.coerce.number().int().min(1),
+    includePrevious: z.boolean().default(true),
+  }).optional(),
+});
+
 export const toggleDroppedSchema = z.object({
   dropped: z.boolean(),
 });

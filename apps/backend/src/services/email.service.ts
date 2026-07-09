@@ -1,8 +1,8 @@
-/* eslint-disable no-console */
 import nodemailer from "nodemailer";
 import { env } from "../config/env.js";
 import { SupportedLocale } from "../i18n/translations.js";
 import { welcomeTemplate, resetPasswordTemplate } from "./emailTemplates.js";
+import { log, logError } from "../lib/logger.js";
 
 interface SendEmailParams {
   to: string;
@@ -32,11 +32,22 @@ function getTransporter(): nodemailer.Transporter | null {
   return transporter;
 }
 
+const emailMetrics = {
+  sent: 0,
+  failed: 0,
+  skipped: 0,
+};
+
+export function getEmailMetrics() {
+  return { ...emailMetrics };
+}
+
 async function sendEmail(params: SendEmailParams): Promise<boolean> {
   const client = getTransporter();
 
   if (!client) {
-    console.warn("[EmailService] SMTP credentials not configured — skipping email send");
+    emailMetrics.skipped++;
+    log("EmailService", "SMTP not configured, skipping send", { to: params.to });
     return false;
   }
 
@@ -47,10 +58,12 @@ async function sendEmail(params: SendEmailParams): Promise<boolean> {
       subject: params.subject,
       html: params.html,
     });
-    console.log(`[EmailService] Email sent to ${params.to}: ${params.subject}`);
+    emailMetrics.sent++;
+    log("EmailService", "email sent", { to: params.to, subject: params.subject });
     return true;
   } catch (err) {
-    console.error(`[EmailService] Failed to send email to ${params.to}:`, err);
+    emailMetrics.failed++;
+    logError("EmailService", "failed to send email", err, { to: params.to, subject: params.subject });
     return false;
   }
 }

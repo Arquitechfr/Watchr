@@ -12,7 +12,7 @@ import {
   TmdbShowDetails,
   tmdbService,
 } from "./tmdb.service.js";
-import { invalidateRedisPattern, setRedisValue, getRedisValue, deleteRedisKey } from "../lib/redis.js";
+import { invalidateRedisPattern, setRedisValue, getRedisValue, deleteRedisKeyIfMatch } from "../lib/redis.js";
 import { log, logError } from "../lib/logger.js";
 import { wsEvents } from "../lib/wsEvents.js";
 
@@ -227,7 +227,7 @@ export async function syncEpisodesForShow(show: ShowDocument, language = "en-US"
 
   const normalizedLanguage = language.split("-")[0];
   const lockKey = `episode-sync-lock:${show.tmdbId}`;
-  const lockValue = Date.now().toString();
+  const lockValue = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
   // Try to acquire lock
   const existingLock = await getRedisValue(lockKey);
@@ -318,8 +318,8 @@ export async function syncEpisodesForShow(show: ShowDocument, language = "en-US"
     freshShow.lastEpisodesSyncedAt = new Date();
     await freshShow.save();
   } finally {
-    // Release lock
-    await deleteRedisKey(lockKey);
+    // Release lock only if we still own it
+    await deleteRedisKeyIfMatch(lockKey, lockValue);
   }
 
   // Reload again to return latest version

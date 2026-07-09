@@ -8,6 +8,8 @@ import { getTranslationValue, ShowTranslation, Season } from "../models/show.mod
 import { log } from "../lib/logger.js";
 import { wsEvents } from "../lib/wsEvents.js";
 import { getAiredEpisodeCount, getAiredWatchedCount } from "../lib/episodeUtils.js";
+import { getRedisValue, setRedisValue, deleteRedisKey } from "../lib/redis.js";
+import { invalidateUpcomingCache } from "./upcoming.service.js";
 
 function isShowEnded(status?: string): boolean {
   return ["ended", "canceled", "cancelled"].includes(status?.toLowerCase() ?? "");
@@ -119,7 +121,7 @@ export async function listTracking(
       translations?: Map<string, ShowTranslation> | Record<string, ShowTranslation>;
     };
     const showId = populatedShow._id?.toString() ?? entry.showId.toString();
-    const status = calculateWatchStatus(populatedShow, entry as { status?: WatchStatus; watchedEpisodes: WatchedEpisode[] });
+    const status = entry.status;
     const translation = getTranslationValue(populatedShow.translations, language);
     const title = translation?.title ?? populatedShow.title ?? "Unknown";
     return {
@@ -218,7 +220,7 @@ export async function listLibrary(
     };
 
     const showId = show._id?.toString() ?? entry.showId.toString();
-    const status = calculateWatchStatus(show, entry as { status?: WatchStatus; watchedEpisodes: WatchedEpisode[] });
+    const status = entry.status;
     const translation = getTranslationValue(show.translations, language);
     const title = translation?.title ?? show.title ?? "Unknown";
     return {
@@ -276,7 +278,7 @@ export async function getTrackingEntry(userId: string, showId: string): Promise<
     status?: string;
     seasons?: Season[];
   };
-  const status = calculateWatchStatus(populatedShow, entry as { status?: WatchStatus; watchedEpisodes: WatchedEpisode[] });
+  const status = entry.status;
   const totalEpisodes = getAiredEpisodeCount(populatedShow.seasons ?? []);
   const watchedCount = getAiredWatchedCount(entry.watchedEpisodes, populatedShow.seasons ?? []);
   return {
@@ -331,6 +333,7 @@ export async function addToWatchlistByTmdb(
   });
 
   log("TrackingService", "watchlist entry created", { tmdbId, showId: show._id.toString() });
+  await invalidateUnwatchedCache(userId);
   wsEvents.emit("tracking:updated", { userId, showId: show._id.toString() });
   return entry;
 }
@@ -428,6 +431,92 @@ export async function upsertTracking(
     { new: true, upsert: true, setDefaultsOnInsert: true },
   );
 
+  await invalidateUnwatchedCache(userId);
+  wsEvents.emit("tracking:updated", { userId, showId });
+  return entry;
+}
+
+export async function upsertWithProgress(
+  userId: string,
+  showId: string,
+  input: {
+    status?: WatchStatus;
+    currentSeason?: number;
+    currentEpisode?: number;
+    markUpTo?: { season: number; episode: number; includePrevious: boolean };
+  },
+) {
+  const show = await Show.findById(showId);
+  if (!show) {
+    throw new ApiError(404, "SHOW_NOT_FOUND", "Show not found");
+  }
+
+  const existing = await WatchEntry.findOne({
+    userId: new Types.ObjectId(userId),
+    showId: new Types.ObjectId(showId),
+  }).lean();
+
+  const status = input.status || calculateWatchStatus(show, {
+    status: existing?.status === "dropped" ? "dropped" : undefined,
+    watchedEpisodes: existing?.watchedEpisodes ?? [],
+  });
+
+  let watchedEpisodes = existing?.watchedEpisodes ?? [];
+
+  if (input.markUpTo) {
+    const { season, episode, includePrevious } = input.markUpTo;
+    const watchedKeys = new Set(watchedEpisodes.map((ep) => `${ep.season}-${ep.episode}`));
+    const toAdd: WatchedEpisode[] = [];
+
+    for (const s of show.seasons ?? []) {
+      for (const ep of s.episodes ?? []) {
+        if (!ep.airDate || ep.airDate > new Date()) continue;
+        if (includePrevious) {
+          if (s.seasonNumber < season || (s.seasonNumber === season && ep.episodeNumber <= episode)) {
+            const key = `${s.seasonNumber}-${ep.episodeNumber}`;
+            if (!watchedKeys.has(key)) {
+              toAdd.push({ season: s.seasonNumber, episode: ep.episodeNumber, watchedAt: new Date() });
+            }
+          }
+        } else {
+          if (s.seasonNumber === season && ep.episodeNumber === episode) {
+            const key = `${s.seasonNumber}-${ep.episodeNumber}`;
+            if (!watchedKeys.has(key)) {
+              toAdd.push({ season: s.seasonNumber, episode: ep.episodeNumber, watchedAt: new Date() });
+            }
+          }
+        }
+      }
+    }
+    watchedEpisodes = [...watchedEpisodes, ...toAdd];
+  }
+
+  if (input.markUpTo && existing?.status !== "dropped") {
+    const newStatus = calculateWatchStatus(show, { watchedEpisodes });
+    if (newStatus !== "plan_to_watch") {
+      watchedEpisodes = watchedEpisodes;
+    }
+  }
+
+  const finalStatus = input.markUpTo && existing?.status !== "dropped"
+    ? calculateWatchStatus(show, { watchedEpisodes })
+    : status;
+
+  const entry = await WatchEntry.findOneAndUpdate(
+    { userId: new Types.ObjectId(userId), showId: new Types.ObjectId(showId) },
+    {
+      $set: {
+        status: finalStatus,
+        watchedEpisodes,
+        currentSeason: input.currentSeason ?? input.markUpTo?.season,
+        currentEpisode: input.currentEpisode ?? input.markUpTo?.episode,
+        updatedAt: new Date(),
+      },
+    },
+    { new: true, upsert: true, setDefaultsOnInsert: true },
+  );
+
+  await invalidateUnwatchedCache(userId);
   wsEvents.emit("tracking:updated", { userId, showId });
   return entry;
 }
@@ -474,6 +563,7 @@ export async function toggleEpisode(
 
   entry.updatedAt = new Date();
   await entry.save();
+  await invalidateUnwatchedCache(userId);
   wsEvents.emit("tracking:updated", { userId, showId });
   return entry;
 }
@@ -541,6 +631,7 @@ export async function markEpisodesUpTo(
     entry.status = calculateWatchStatus(show, entry);
   }
   await entry.save();
+  await invalidateUnwatchedCache(userId);
   wsEvents.emit("tracking:updated", { userId, showId });
   return entry;
 }
@@ -602,6 +693,7 @@ export async function markAllAiredEpisodes(
     entry.status = calculateWatchStatus(show, entry);
   }
   await entry.save();
+  await invalidateUnwatchedCache(userId);
   wsEvents.emit("tracking:updated", { userId, showId });
   return entry;
 }
@@ -614,6 +706,7 @@ export async function deleteTracking(userId: string, showId: string) {
   if (result.deletedCount === 0) {
     throw new ApiError(404, "TRACKING_NOT_FOUND", "Tracking entry not found");
   }
+  await invalidateUnwatchedCache(userId);
   wsEvents.emit("tracking:updated", { userId, showId });
 }
 
@@ -649,6 +742,7 @@ export async function unmarkSeasonEpisodes(
     entry.status = calculateWatchStatus(show, entry);
   }
   await entry.save();
+  await invalidateUnwatchedCache(userId);
   wsEvents.emit("tracking:updated", { userId, showId });
   return entry;
 }
@@ -687,11 +781,34 @@ export interface UnwatchedMovie {
 
 export type UnwatchedResult = { shows: UnwatchedShow[] } | { movies: UnwatchedMovie[] };
 
+async function invalidateUnwatchedCache(userId: string): Promise<void> {
+  const patterns = [
+    `unwatched:${userId}:all:en`,
+    `unwatched:${userId}:all:fr`,
+    `unwatched:${userId}:tv:en`,
+    `unwatched:${userId}:tv:fr`,
+    `unwatched:${userId}:movie:en`,
+    `unwatched:${userId}:movie:fr`,
+  ];
+  await Promise.all(patterns.map((key) => deleteRedisKey(key)));
+  await invalidateUpcomingCache(userId);
+}
+
 export async function getUnwatched(
   userId: string,
   type?: "tv" | "movie",
   language = "en",
 ): Promise<UnwatchedResult> {
+  const cacheKey = `unwatched:${userId}:${type ?? "all"}:${language}`;
+  const cached = await getRedisValue(cacheKey);
+  if (cached) {
+    try {
+      return JSON.parse(cached) as UnwatchedResult;
+    } catch {
+      // Cache corrupt, continue to DB
+    }
+  }
+
   const filter: { userId: Types.ObjectId } = {
     userId: new Types.ObjectId(userId),
   };
@@ -741,7 +858,9 @@ export async function getUnwatched(
         };
       });
     log("TrackingService", "getUnwatched movies", { count: movies.length });
-    return { movies };
+    const result = { movies };
+    await setRedisValue(cacheKey, JSON.stringify(result), 60);
+    return result;
   }
 
   const shows: UnwatchedShow[] = [];
@@ -853,7 +972,7 @@ export async function getUnwatched(
       title: localizedTitle,
       posterPath: populatedShow.posterPath ?? null,
       type: "tv",
-      status: calculateWatchStatus({ ...populatedShow, seasons: localizedSeasons }, entry as { status?: WatchStatus; watchedEpisodes: WatchedEpisode[] }),
+      status: entry.status,
       isEnded: isShowEnded(populatedShow.status),
       unwatchedEpisodes: unwatchedEpisodes.sort(
         (a, b) => new Date(b.airDate!).getTime() - new Date(a.airDate!).getTime(),
@@ -880,7 +999,9 @@ export async function getUnwatched(
   shows.push(...withUnwatched, ...upToDate);
 
   log("TrackingService", "getUnwatched shows", { count: shows.length });
-  return { shows };
+  const result = { shows };
+  await setRedisValue(cacheKey, JSON.stringify(result), 60);
+  return result;
 }
 
 export async function toggleDropped(userId: string, showId: string, dropped: boolean) {
@@ -908,6 +1029,7 @@ export async function toggleDropped(userId: string, showId: string, dropped: boo
     : calculateWatchStatus(show, { watchedEpisodes: entry.watchedEpisodes });
   entry.updatedAt = new Date();
   await entry.save();
+  await invalidateUnwatchedCache(userId);
   wsEvents.emit("tracking:updated", { userId, showId });
   return entry;
 }

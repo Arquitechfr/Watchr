@@ -7,6 +7,7 @@ import {
 import {
   listTracking,
   upsertTracking,
+  upsertWithProgress,
   toggleEpisode,
   deleteTracking,
   markUpTo,
@@ -20,6 +21,7 @@ import {
   BatchAddResult,
   WatchStatus,
   UpsertTrackingInput,
+  UpsertWithProgressInput,
   ToggleEpisodeInput,
   MarkUpToInput,
   MarkAllAiredInput,
@@ -126,7 +128,49 @@ export function useUpsertTracking(showId: string, tmdbId?: number) {
     },
     onSuccess: () => {
       log("useTracking", "upsert success", { showId });
-      queryClient.invalidateQueries({ queryKey: [TRACKING_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: ["tracking", "entry", showId] });
+      queryClient.invalidateQueries({ queryKey: ["tracking", "list"] });
+      if (tmdbId) {
+        queryClient.invalidateQueries({ queryKey: ["shows", "details", tmdbId] });
+      }
+    },
+  });
+}
+
+export function useUpsertWithProgress(showId: string, tmdbId?: number) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (input: UpsertWithProgressInput) => upsertWithProgress(showId, input),
+    onMutate: async (input) => {
+      log("useTracking", "upsertWithProgress mutate", { showId, ...input });
+      await queryClient.cancelQueries({ queryKey: ["tracking", "entry", showId] });
+      const previousEntry = queryClient.getQueryData<WatchEntry | null>(["tracking", "entry", showId]);
+
+      updateTrackingEntryCache(queryClient, showId, (entry) => {
+        if (!entry) return entry;
+        return {
+          ...entry,
+          status: input.status ?? entry.status,
+          currentSeason: input.currentSeason ?? input.markUpTo?.season ?? entry.currentSeason,
+          currentEpisode: input.currentEpisode ?? input.markUpTo?.episode ?? entry.currentEpisode,
+        };
+      });
+
+      return { previousEntry };
+    },
+    onError: (err, _input, context) => {
+      log("useTracking", "upsertWithProgress error", { showId, err });
+      if (context?.previousEntry !== undefined) {
+        queryClient.setQueryData(["tracking", "entry", showId], context.previousEntry);
+      }
+    },
+    onSuccess: () => {
+      log("useTracking", "upsertWithProgress success", { showId });
+      queryClient.invalidateQueries({ queryKey: ["tracking", "entry", showId] });
+      queryClient.invalidateQueries({ queryKey: ["tracking", "list"] });
+      queryClient.invalidateQueries({ queryKey: ["unwatched"] });
+      queryClient.invalidateQueries({ queryKey: ["upcoming"] });
       if (tmdbId) {
         queryClient.invalidateQueries({ queryKey: ["shows", "details", tmdbId] });
       }
@@ -203,7 +247,8 @@ export function useToggleEpisode(showId: string, tmdbId?: number) {
       }
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: [TRACKING_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: ["tracking", "entry", showId] });
+      queryClient.invalidateQueries({ queryKey: ["tracking", "list"] });
       queryClient.invalidateQueries({ queryKey: ["unwatched"] });
       queryClient.invalidateQueries({ queryKey: ["upcoming"] });
       if (tmdbId) {
@@ -242,7 +287,8 @@ export function useMarkUpTo(showId: string, tmdbId?: number) {
     },
     onSuccess: () => {
       log("useTracking", "markUpTo success", { showId });
-      queryClient.invalidateQueries({ queryKey: [TRACKING_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: ["tracking", "entry", showId] });
+      queryClient.invalidateQueries({ queryKey: ["tracking", "list"] });
       queryClient.invalidateQueries({ queryKey: ["unwatched"] });
       queryClient.invalidateQueries({ queryKey: ["upcoming"] });
       if (tmdbId) {
@@ -271,7 +317,8 @@ export function useMarkAllAired(showId: string, tmdbId?: number) {
     },
     onSuccess: () => {
       log("useTracking", "markAllAired success", { showId });
-      queryClient.invalidateQueries({ queryKey: [TRACKING_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: ["tracking", "entry", showId] });
+      queryClient.invalidateQueries({ queryKey: ["tracking", "list"] });
       queryClient.invalidateQueries({ queryKey: ["unwatched"] });
       queryClient.invalidateQueries({ queryKey: ["upcoming"] });
       if (tmdbId) {
@@ -311,7 +358,8 @@ export function useToggleDropped(showId: string, tmdbId?: number) {
     },
     onSuccess: () => {
       log("useTracking", "toggleDropped success", { showId });
-      queryClient.invalidateQueries({ queryKey: [TRACKING_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: ["tracking", "entry", showId] });
+      queryClient.invalidateQueries({ queryKey: ["tracking", "list"] });
       if (tmdbId) {
         queryClient.invalidateQueries({ queryKey: ["shows", "details", tmdbId] });
       }
@@ -360,7 +408,8 @@ export function useDeleteTracking(showId: string, tmdbId?: number) {
     },
     onSuccess: () => {
       log("useTracking", "delete success", { showId });
-      queryClient.invalidateQueries({ queryKey: [TRACKING_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: ["tracking", "entry", showId] });
+      queryClient.invalidateQueries({ queryKey: ["tracking", "list"] });
       queryClient.invalidateQueries({ queryKey: ["unwatched"] });
       queryClient.invalidateQueries({ queryKey: ["upcoming"] });
       queryClient.invalidateQueries({ queryKey: ["library"] });
@@ -381,8 +430,8 @@ export function useQuickAddToWatchlist() {
     },
     onSuccess: () => {
       log("useTracking", "quickAdd success");
-      queryClient.invalidateQueries({ queryKey: [TRACKING_QUERY_KEY] });
-      queryClient.invalidateQueries({ queryKey: [TRACKING_QUERY_KEY, "tmdb-ids"] });
+      queryClient.invalidateQueries({ queryKey: ["tracking", "list"] });
+      queryClient.invalidateQueries({ queryKey: ["tracking", "tmdb-ids"] });
     },
     onError: (err) => {
       log("useTracking", "quickAdd error", { err });
@@ -430,7 +479,7 @@ export function useQuickMarkWatched() {
       log("useTracking", "quickMarkWatched success");
       queryClient.invalidateQueries({ queryKey: ["upcoming"] });
       queryClient.invalidateQueries({ queryKey: ["unwatched"] });
-      queryClient.invalidateQueries({ queryKey: [TRACKING_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: ["tracking", "list"] });
     },
   });
 }
@@ -461,7 +510,7 @@ export function useQuickMarkAllAired() {
       log("useTracking", "quickMarkAllAired success");
       queryClient.invalidateQueries({ queryKey: ["upcoming"] });
       queryClient.invalidateQueries({ queryKey: ["unwatched"] });
-      queryClient.invalidateQueries({ queryKey: [TRACKING_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: ["tracking", "list"] });
     },
   });
 }
@@ -493,7 +542,7 @@ export function useQuickMarkMovieWatched() {
     onSuccess: () => {
       log("useTracking", "quickMarkMovieWatched success");
       queryClient.invalidateQueries({ queryKey: ["unwatched"] });
-      queryClient.invalidateQueries({ queryKey: [TRACKING_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: ["tracking", "list"] });
       queryClient.invalidateQueries({ queryKey: ["library"] });
     },
   });
@@ -519,8 +568,8 @@ export function useAddToWatchlistBatch() {
     },
     onSuccess: (data) => {
       log("useTracking", "batchAdd success", { added: data.added, failed: data.failed });
-      queryClient.invalidateQueries({ queryKey: [TRACKING_QUERY_KEY] });
-      queryClient.invalidateQueries({ queryKey: [TRACKING_QUERY_KEY, "tmdb-ids"] });
+      queryClient.invalidateQueries({ queryKey: ["tracking", "list"] });
+      queryClient.invalidateQueries({ queryKey: ["tracking", "tmdb-ids"] });
     },
     onError: (err) => {
       log("useTracking", "batchAdd error", { err });
@@ -561,7 +610,8 @@ export function useUnmarkSeason(showId: string, tmdbId?: number) {
     },
     onSuccess: () => {
       log("useTracking", "unmarkSeason success", { showId });
-      queryClient.invalidateQueries({ queryKey: [TRACKING_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: ["tracking", "entry", showId] });
+      queryClient.invalidateQueries({ queryKey: ["tracking", "list"] });
       queryClient.invalidateQueries({ queryKey: ["unwatched"] });
       queryClient.invalidateQueries({ queryKey: ["upcoming"] });
       if (tmdbId) {

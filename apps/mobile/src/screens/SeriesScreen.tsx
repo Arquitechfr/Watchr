@@ -104,7 +104,9 @@ function UnwatchedList({
     );
   }
 
-  log("SeriesScreen:UnwatchedList", "flattened episodes", { count: episodes.length });
+  if (__DEV__) {
+    log("SeriesScreen:UnwatchedList", "flattened episodes", { count: episodes.length });
+  }
 
   if (viewMode === "grid") {
     return (
@@ -360,13 +362,15 @@ export function SeriesScreen() {
     ? `${quickMarkWatched.variables.showId}-${quickMarkWatched.variables.season}-${quickMarkWatched.variables.episode}`
     : undefined;
 
-  log("SeriesScreen", "state", {
-    activeTab,
-    unwatchedCount: unwatchedData?.shows.length ?? 0,
-    isUnwatchedLoading,
-    isUnwatchedError,
-    upcomingKeys: upcomingData ? Object.keys(upcomingData) : null,
-  });
+  if (__DEV__) {
+    log("SeriesScreen", "state", {
+      activeTab,
+      unwatchedCount: unwatchedData?.shows.length ?? 0,
+      isUnwatchedLoading,
+      isUnwatchedError,
+      upcomingKeys: upcomingData ? Object.keys(upcomingData) : null,
+    });
+  }
 
   function handleEpisodePress(item: FlattenedEpisode) {
     if (!item.tmdbId) return;

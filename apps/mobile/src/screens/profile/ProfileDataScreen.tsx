@@ -37,7 +37,7 @@ export function ProfileDataScreen() {
   const navigation = useNavigation<NavigationProp>();
 
   return (
-    <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]}>
+    <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
       <View className="flex-row items-center mb-6">
         <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.7} className="p-1 mr-3">
           <Ionicons name="arrow-back" size={24} color={colors.text} />

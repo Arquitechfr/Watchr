@@ -10,7 +10,7 @@ export function ProfileAboutScreen() {
   const version = Constants.expoConfig?.version ?? "1.0.0";
 
   return (
-    <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]}>
+    <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
       <View className="items-center mb-8 mt-4">
         <Text className="text-3xl font-bold text-primary mb-2">Watchr</Text>
         <Text className="text-text-muted text-sm">

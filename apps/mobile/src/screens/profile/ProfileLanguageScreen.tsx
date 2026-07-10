@@ -20,7 +20,7 @@ export function ProfileLanguageScreen() {
   }
 
   return (
-    <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]}>
+    <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
       <Text className="text-text-muted text-center mb-6">{t("screens.profile.language")}</Text>
       <View className="gap-3">
         {SUPPORTED_LOCALES.map((lang) => (

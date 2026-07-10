@@ -288,6 +288,7 @@ const es = {
       deleteConfirmTitle: "Eliminar comentario",
       deleteConfirmMessage: "¿Seguro que quieres eliminarlo?",
       maxImages: "Máximo 3 imágenes por comentario",
+      rejectedToxic: "Tu comentario fue marcado como inapropiado por nuestro sistema de moderación automática.",
       spoiler: "Spoiler",
       containsSpoiler: "Contiene spoilers",
       reveal: "Mostrar",

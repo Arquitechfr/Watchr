@@ -164,6 +164,7 @@ const errorMessageKeys: Record<string, string> = {
   UNAUTHORIZED: "errors.unauthorized",
   ACCOUNT_BANNED: "auth.accountBanned",
   ACCOUNT_SUSPENDED: "auth.accountSuspended",
+  COMMENT_REJECTED_TOXIC: "comments.rejectedToxic",
 };
 
 export function getErrorMessage(

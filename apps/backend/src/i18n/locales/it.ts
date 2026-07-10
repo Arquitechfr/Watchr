@@ -46,6 +46,7 @@ const it = {
     CANNOT_REPORT_OWN: "Non puoi segnalare il tuo stesso commento.",
     AUTH_DISABLED: "L'autenticazione è temporaneamente disabilitata.",
     MAINTENANCE_MODE: "Watchr è in manutenzione. Riprova più tardi.",
+    COMMENT_REJECTED_TOXIC: "Il tuo commento è stato segnalato come inappropriato dal nostro sistema di moderazione automatica.",
   },
   notifications: {
     commentReplyTitle: "Nuova risposta al tuo commento",

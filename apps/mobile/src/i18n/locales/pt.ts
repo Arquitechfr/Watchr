@@ -288,6 +288,7 @@ const pt = {
       deleteConfirmTitle: "Excluir comentário",
       deleteConfirmMessage: "Deseja realmente excluir este comentário?",
       maxImages: "Máximo 3 imagens por comentário",
+      rejectedToxic: "Seu comentário foi sinalizado como inadequado pelo nosso sistema de moderação automática.",
       spoiler: "Spoiler",
       containsSpoiler: "Este comentário contém spoilers",
       reveal: "Mostrar",

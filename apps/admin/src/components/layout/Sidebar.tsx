@@ -10,6 +10,7 @@ import {
   Mail,
   Settings,
   Download,
+  BrainCircuit,
   LogOut,
   Moon,
   Sun,
@@ -27,9 +28,10 @@ const navItems = [
   { to: "/news-sources", label: "News Sources", icon: Newspaper },
   { to: "/shows", label: "Shows", icon: Tv },
   { to: "/notifications", label: "Notifications", icon: Bell },
-  { to: "/email-logs", label: "Email", icon: Mail },
+  { to: "/email", label: "Email", icon: Mail },
   { to: "/config", label: "Remote Config", icon: Settings },
   { to: "/imports", label: "Import Jobs", icon: Download },
+  { to: "/ai", label: "AI", icon: BrainCircuit },
 ];
 
 interface SidebarProps {

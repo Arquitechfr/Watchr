@@ -82,7 +82,7 @@ function EpisodeRow({ episode, markWatchedLabel }: { episode: WidgetEpisode; mar
       >
         {episode.posterUrl ? (
           <ImageWidget
-            image={episode.posterUrl}
+            image={episode.posterUrl as `https://${string}`}
             imageWidth={32}
             imageHeight={48}
             style={{ borderRadius: 4, marginRight: 8 }}

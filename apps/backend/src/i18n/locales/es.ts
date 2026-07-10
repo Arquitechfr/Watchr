@@ -46,6 +46,7 @@ const es = {
     CANNOT_REPORT_OWN: "No puedes reportar tu propio comentario.",
     AUTH_DISABLED: "La autenticación está temporalmente deshabilitada.",
     MAINTENANCE_MODE: "Watchr está en mantenimiento. Inténtelo de nuevo más tarde.",
+    COMMENT_REJECTED_TOXIC: "Tu comentario fue marcado como inapropiado por nuestro sistema de moderación automática.",
   },
   notifications: {
     commentReplyTitle: "Nueva respuesta a tu comentario",

@@ -292,6 +292,7 @@ const en = {
       deleteConfirmTitle: "Delete comment",
       deleteConfirmMessage: "Do you really want to delete this comment?",
       maxImages: "Maximum 3 images per comment",
+      rejectedToxic: "Your comment was flagged as inappropriate by our automated moderation system.",
       spoiler: "Spoiler",
       containsSpoiler: "This comment contains spoilers",
       reveal: "Reveal",

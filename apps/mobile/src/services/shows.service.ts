@@ -167,3 +167,41 @@ export async function fetchDiscoverSectionItems(sectionId: string, page: number)
   log("ShowsService", "discover section items response", { sectionId, count: response.data.items.length });
   return response.data;
 }
+
+export interface RecommendationItem {
+  tmdbId: number;
+  type: "tv" | "movie";
+  title: string;
+  posterPath?: string;
+  overview?: string;
+  reason: string;
+}
+
+export interface RecommendationResult {
+  recommendations: RecommendationItem[];
+  source: "ai" | "fallback";
+}
+
+export async function getRecommendations(): Promise<RecommendationResult> {
+  log("ShowsService", "recommendations");
+  const response = await api.get<RecommendationResult>("/shows/recommendations");
+  log("ShowsService", "recommendations response", { count: response.data.recommendations.length, source: response.data.source });
+  return response.data;
+}
+
+export interface AISearchResult {
+  results: SearchResultItem[];
+  source: "ai" | "fallback";
+  parsedQuery?: {
+    keywords: string[];
+    genres: string[];
+    yearRange?: [number, number];
+  };
+}
+
+export async function aiSearchShows(query: string): Promise<AISearchResult> {
+  log("ShowsService", "ai-search", { query });
+  const response = await api.get<AISearchResult>("/shows/ai-search", { params: { q: query } });
+  log("ShowsService", "ai-search response", { count: response.data.results.length, source: response.data.source });
+  return response.data;
+}

@@ -15,6 +15,7 @@ const Notifications = lazy(() => import("./pages/Notifications").then((m) => ({ 
 const EmailLogs = lazy(() => import("./pages/EmailLogs").then((m) => ({ default: m.EmailLogs })));
 const RemoteConfig = lazy(() => import("./pages/RemoteConfig").then((m) => ({ default: m.RemoteConfig })));
 const ImportJobs = lazy(() => import("./pages/ImportJobs").then((m) => ({ default: m.ImportJobs })));
+const AI = lazy(() => import("./pages/AI").then((m) => ({ default: m.AI })));
 
 function PageLoader() {
   return (
@@ -45,9 +46,10 @@ export default function App() {
             <Route path="/news-sources" element={<NewsSources />} />
             <Route path="/shows" element={<Shows />} />
             <Route path="/notifications" element={<Notifications />} />
-            <Route path="/email-logs" element={<EmailLogs />} />
+            <Route path="/email" element={<EmailLogs />} />
             <Route path="/config" element={<RemoteConfig />} />
             <Route path="/imports" element={<ImportJobs />} />
+            <Route path="/ai" element={<AI />} />
           </Route>
         </Routes>
       </Suspense>

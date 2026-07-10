@@ -8,6 +8,7 @@ import { ApiError } from "../middleware/error.middleware.js";
 import { PushNotificationService } from "./pushNotification.service.js";
 import { wsEvents } from "../lib/wsEvents.js";
 import { getShowTitle } from "../models/show.model.js";
+import { moderateComment } from "./aiModeration.service.js";
 
 export interface CreateCommentInput {
   showId: string;
@@ -207,11 +208,20 @@ function buildCommentItem(
 
 export async function createComment(userId: string, input: CreateCommentInput) {
   await validateUserExists(userId);
-  await validateShowExists(input.showId);
+  const show = await validateShowExists(input.showId);
 
   if (input.parentId) {
     await validateParentComment(input.parentId, input.showId);
   }
+
+  const showTitle = getShowTitle(show, "en");
+  const moderation = await moderateComment(input.content, showTitle);
+
+  if (moderation.isToxic && moderation.confidence >= 0.8) {
+    throw new ApiError(422, "COMMENT_REJECTED_TOXIC", "Your comment was flagged as inappropriate by our automated moderation system");
+  }
+
+  const isSpoiler = input.isSpoiler ?? moderation.isSpoiler;
 
   const comment = await Comment.create({
     userId: new Types.ObjectId(userId),
@@ -220,7 +230,7 @@ export async function createComment(userId: string, input: CreateCommentInput) {
     parentId: input.parentId ? new Types.ObjectId(input.parentId) : undefined,
     content: input.content,
     images: input.images ?? [],
-    isSpoiler: input.isSpoiler ?? false,
+    isSpoiler,
   });
 
   if (input.parentId) {

@@ -288,6 +288,7 @@ const it = {
       deleteConfirmTitle: "Elimina commento",
       deleteConfirmMessage: "Vuoi davvero eliminarlo?",
       maxImages: "Max 3 immagini per commento",
+      rejectedToxic: "Il tuo commento è stato segnalato come inappropriato dal nostro sistema di moderazione automatica.",
       spoiler: "Spoiler",
       containsSpoiler: "Contiene spoiler",
       reveal: "Mostra",

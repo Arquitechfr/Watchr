@@ -14,6 +14,7 @@ interface ConfigEntry {
   key: string;
   value: string;
   type: string;
+  description: string;
   updatedAt: string;
   updatedBy: string;
 }
@@ -24,6 +25,7 @@ export function RemoteConfig() {
   const [editing, setEditing] = useState<ConfigEntry | null>(null);
   const [editValue, setEditValue] = useState("");
   const [editType, setEditType] = useState("string");
+  const [editDescription, setEditDescription] = useState("");
 
   async function load() {
     setLoading(true);
@@ -45,12 +47,13 @@ export function RemoteConfig() {
     setEditing(entry);
     setEditValue(entry.value);
     setEditType(entry.type);
+    setEditDescription(entry.description ?? "");
   }
 
   async function handleSave() {
     if (!editing) return;
     try {
-      await api.put(`/admin/config/${editing.key}`, { value: editValue, type: editType });
+      await api.put(`/admin/config/${editing.key}`, { value: editValue, type: editType, description: editDescription });
       setEditing(null);
       load();
     } catch (err) {
@@ -95,6 +98,10 @@ export function RemoteConfig() {
                 <option value="json">json</option>
               </select>
             </div>
+            <div>
+              <label className="mb-1.5 block text-sm text-text-muted">Description</label>
+              <Input value={editDescription} onChange={(e) => setEditDescription(e.target.value)} placeholder="Optional description" />
+            </div>
             <div className="flex gap-2">
               <Button onClick={handleSave}>Save</Button>
               <Button variant="outline" onClick={() => setEditing(null)}>Cancel</Button>
@@ -111,6 +118,7 @@ export function RemoteConfig() {
                 <TableHead>Key</TableHead>
                 <TableHead className="hidden md:table-cell">Value</TableHead>
                 <TableHead className="hidden md:table-cell">Type</TableHead>
+                <TableHead className="hidden xl:table-cell">Description</TableHead>
                 <TableHead className="hidden lg:table-cell">Updated</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
@@ -119,14 +127,14 @@ export function RemoteConfig() {
               {loading
                 ? Array.from({ length: 3 }).map((_, i) => (
                     <TableRow key={i}>
-                      {Array.from({ length: 5 }).map((_, j) => (
+                      {Array.from({ length: 6 }).map((_, j) => (
                         <TableCell key={j}><Skeleton height={20} /></TableCell>
                       ))}
                     </TableRow>
                   ))
                 : config.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="p-0">
+                      <TableCell colSpan={6} className="p-0">
                         <EmptyState
                           title="No config entries found"
                           description="No remote config keys have been set. Use the CLI to seed default values."
@@ -141,6 +149,7 @@ export function RemoteConfig() {
                       <TableCell className="hidden md:table-cell">
                         <Badge className="bg-surface-light text-text-muted">{entry.type}</Badge>
                       </TableCell>
+                      <TableCell className="hidden xl:table-cell text-text-muted text-xs max-w-xs truncate">{entry.description}</TableCell>
                       <TableCell className="text-text-muted text-xs hidden lg:table-cell">{formatDate(entry.updatedAt)}</TableCell>
                       <TableCell>
                         <div className="flex gap-1">

@@ -46,6 +46,7 @@ const ar = {
     CANNOT_REPORT_OWN: "لا يمكنك الإبلاغ عن تعليقك الخاص.",
     AUTH_DISABLED: "المصادقة معطلة مؤقتاً.",
     MAINTENANCE_MODE: "واتشر تحت الصيانة. يرجى المحاولة مرة أخرى لاحقاً.",
+    COMMENT_REJECTED_TOXIC: "تم وضع علامة على تعليقك كغير لائق من قبل نظام الإشراف التلقائي لدينا.",
   },
   notifications: {
     commentReplyTitle: "رد جديد على تعليقك",

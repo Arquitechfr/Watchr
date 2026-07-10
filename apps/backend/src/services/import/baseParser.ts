@@ -9,6 +9,7 @@ import { sleep } from "../../lib/rateLimiter.js";
 import { ShowDocument } from "../cacheShow.service.js";
 import { scheduleShowRefresh } from "../../workers/episodeSync.worker.js";
 import { ParsedRecord, IParser } from "./types.js";
+import { aiFuzzyMatch } from "../aiImport.service.js";
 
 export abstract class BaseParser implements IParser {
   abstract readonly source: import("./types.js").ImportSource;
@@ -91,6 +92,12 @@ export async function matchShow(
 
   if (movieMatch) {
     return { show: await findOrCreateShow(movieMatch.id, "movie"), type: "movie" };
+  }
+
+  // AI fuzzy matching fallback
+  const aiMatch = await aiFuzzyMatch(record);
+  if (aiMatch) {
+    return { show: await findOrCreateShow(aiMatch.tmdbId, aiMatch.type), type: aiMatch.type };
   }
 
   return null;

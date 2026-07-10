@@ -288,6 +288,7 @@ const ar = {
       deleteConfirmTitle: "حذف التعليق",
       deleteConfirmMessage: "هل تريد حذفه فعلاً؟",
       maxImages: "حد أقصى 3 صور لكل تعليق",
+      rejectedToxic: "تم وضع علامة على تعليقك كغير لائق من قبل نظام الإشراف التلقائي لدينا.",
       spoiler: "حرق",
       containsSpoiler: "يحتوي على حرق",
       reveal: "إظهار",

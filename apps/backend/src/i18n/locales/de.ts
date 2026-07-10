@@ -46,6 +46,7 @@ const de = {
     CANNOT_REPORT_OWN: "Du kannst deinen eigenen Kommentar nicht melden.",
     AUTH_DISABLED: "Die Authentifizierung ist vorübergehend deaktiviert.",
     MAINTENANCE_MODE: "Watchr befindet sich in Wartung. Bitte versuchen Sie es später erneut.",
+    COMMENT_REJECTED_TOXIC: "Dein Kommentar wurde von unserem automatischen Moderationssystem als unangemessen markiert.",
   },
   notifications: {
     commentReplyTitle: "Neue Antwort auf deinen Kommentar",

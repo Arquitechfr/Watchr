@@ -1,6 +1,8 @@
 import { Router, Request, Response } from "express";
 import { requireAuth } from "../middleware/requireAuth.middleware.js";
 import { getShowDetails, getSeasonDetails, searchShows, getDiscoverSections, getDiscoverSectionItems } from "../services/show.service.js";
+import { aiSearchShows } from "../services/aiSearch.service.js";
+import { getRecommendations } from "../services/recommendation.service.js";
 import { searchSchema, tmdbIdParamSchema, seasonParamSchema, discoverSectionParamSchema, discoverSectionQuerySchema } from "../validators/show.validator.js";
 import { validateRequest } from "../validators/validateRequest.js";
 import { asyncHandler } from "../lib/asyncHandler.js";
@@ -18,6 +20,24 @@ router.get(
     const { q } = req.query as { q: string };
     const results = await searchShows(q, req.language);
     res.json({ results });
+  }),
+);
+
+router.get(
+  "/ai-search",
+  validateRequest(undefined, searchSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { q } = req.query as { q: string };
+    const results = await aiSearchShows(q, req.language);
+    res.json(results);
+  }),
+);
+
+router.get(
+  "/recommendations",
+  asyncHandler(async (req: Request, res: Response) => {
+    const results = await getRecommendations(req.userId!, req.language);
+    res.json(results);
   }),
 );
 

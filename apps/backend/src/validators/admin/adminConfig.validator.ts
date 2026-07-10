@@ -7,4 +7,5 @@ export const configKeyParamSchema = z.object({
 export const setConfigSchema = z.object({
   value: z.string(),
   type: z.enum(["string", "number", "boolean", "json"]),
+  description: z.string().optional(),
 });

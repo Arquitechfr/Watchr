@@ -12,6 +12,7 @@ import { listShowsQuerySchema, syncShowSchema, showIdParamSchema, tmdbIdParamSch
 import { configKeyParamSchema, setConfigSchema } from "../../validators/admin/adminConfig.validator.js";
 import { listImportsQuerySchema } from "../../validators/admin/adminImport.validator.js";
 import { improveTextSchema } from "../../validators/admin/adminAi.validator.js";
+import { listAiLogsQuerySchema, aiLogIdParamSchema, aiStatsQuerySchema, aiFlagParamSchema, setAiFlagSchema } from "../../validators/admin/adminAiLog.validator.js";
 import { listReportsQuerySchema, reportIdParamSchema } from "../../validators/report.validator.js";
 import { mistralService } from "../../services/mistral.service.js";
 import { getAdminStats, getUserGrowth, getCommentActivity, getShowTypeBreakdown } from "../../services/admin/adminStats.service.js";
@@ -25,6 +26,7 @@ import { listAllImports, getImportStats } from "../../services/admin/adminImport
 import { getEmailHistory, getEmailStats, getEmailDetail, sendBroadcastEmail, sendTargetedEmail } from "../../services/admin/adminEmail.service.js";
 import { getJobStatus } from "../../services/admin/jobQueue.service.js";
 import { listReports, resolveReport, dismissReport, getReportStats } from "../../services/report.service.js";
+import { getAiStats, getAiLogs, getAiLogDetail, getAiStatus, getAiFlags, setAiFlag } from "../../services/admin/adminAi.service.js";
 
 const router: Router = Router();
 
@@ -419,7 +421,7 @@ router.put(
   "/config/:key",
   validateRequest(setConfigSchema, undefined, configKeyParamSchema),
   asyncHandler(async (req: Request, res: Response) => {
-    const result = await setConfig(req.params.key, req.body.value, req.body.type, req.userId!);
+    const result = await setConfig(req.params.key, req.body.value, req.body.type, req.userId!, req.body.description);
     res.json(result);
   }),
 );
@@ -539,29 +541,108 @@ router.get(
 );
 
 // AI
+router.get(
+  "/ai/stats",
+  validateRequest(undefined, aiStatsQuerySchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const days = Number(req.query.days) || 30;
+    const stats = await getAiStats(days);
+    res.json(stats);
+  }),
+);
+
+router.get(
+  "/ai/logs",
+  validateRequest(undefined, listAiLogsQuerySchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const query = req.query as unknown as {
+      service?: string;
+      status?: "success" | "error";
+      startDate?: string;
+      endDate?: string;
+      search?: string;
+      page: number;
+      limit: number;
+    };
+    const result = await getAiLogs({
+      service: query.service,
+      status: query.status,
+      startDate: query.startDate,
+      endDate: query.endDate,
+      search: query.search,
+      page: query.page,
+      limit: query.limit,
+    });
+    res.json(result);
+  }),
+);
+
+router.get(
+  "/ai/logs/:id",
+  validateRequest(undefined, undefined, aiLogIdParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const detail = await getAiLogDetail(req.params.id);
+    if (!detail) {
+      res.status(404).json({ error: { code: "NOT_FOUND", message: "AI log not found" } });
+      return;
+    }
+    res.json(detail);
+  }),
+);
+
+router.get(
+  "/ai/status",
+  asyncHandler(async (_req: Request, res: Response) => {
+    const status = await getAiStatus();
+    res.json(status);
+  }),
+);
+
+router.get(
+  "/ai/flags",
+  asyncHandler(async (_req: Request, res: Response) => {
+    const flags = await getAiFlags();
+    res.json(flags);
+  }),
+);
+
+router.put(
+  "/ai/flags/:key",
+  validateRequest(setAiFlagSchema, undefined, aiFlagParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const result = await setAiFlag(req.params.key, req.body.value, req.userId!);
+    res.json(result);
+  }),
+);
+
 router.post(
   "/ai/improve-text",
   validateRequest(improveTextSchema),
   asyncHandler(async (req: Request, res: Response) => {
+    const { text, format } = req.body as { text: string; format: "plain" | "html" };
+
     if (!mistralService.isConfigured()) {
-      res.status(503).json({ error: { code: "MISTRAL_NOT_CONFIGURED", message: "Mistral AI service is not configured" } });
+      res.json({ improvedText: text, aiWarning: true });
       return;
     }
-
-    const { text, format } = req.body as { text: string; format: "plain" | "html" };
 
     const systemPrompt =
       format === "html"
         ? "Improve the following text: correct spelling, grammar, and style. Keep it concise and engaging. Return ONLY the improved text, no explanations. Preserve the HTML structure and tags. Only improve the text content within the HTML."
         : "Improve the following text: correct spelling, grammar, and style. Keep it concise and engaging. Return ONLY the improved text, no explanations.";
 
-    const result = await mistralService.chat({
+    const result = await mistralService.safeChat({
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: text },
       ],
       temperature: 0.3,
     });
+
+    if (!result) {
+      res.json({ improvedText: text, aiWarning: true });
+      return;
+    }
 
     res.json({ improvedText: result.content });
   }),

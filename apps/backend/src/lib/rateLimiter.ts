@@ -36,3 +36,4 @@ export function sleep(ms: number): Promise<void> {
 }
 
 export const tmdbRateLimiter = new TokenBucket(40, 10_000);
+export const mistralRateLimiter = new TokenBucket(10, 60_000);

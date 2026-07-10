@@ -9,6 +9,7 @@ export async function listAllConfig() {
     key: e.key,
     value: e.value,
     type: e.type,
+    description: e.description ?? "",
     updatedAt: e.updatedAt.toISOString(),
     updatedBy: e.updatedBy,
   }));
@@ -19,15 +20,19 @@ export async function setConfig(
   value: string,
   type: "string" | "number" | "boolean" | "json",
   updatedBy: string,
+  description?: string,
 ) {
   const existing = await MobileConfig.findOne({ key });
   if (existing) {
     existing.value = value;
     existing.type = type;
     existing.updatedBy = updatedBy;
+    if (description !== undefined) {
+      existing.description = description;
+    }
     await existing.save();
   } else {
-    await MobileConfig.create({ key, value, type, updatedBy });
+    await MobileConfig.create({ key, value, type, updatedBy, description: description ?? "" });
   }
 
   invalidateMobileConfigCache();
@@ -42,7 +47,7 @@ export async function setConfig(
     wsEvents.emit("remote_config_update", { key, value: parsedValue });
   }
 
-  return { key, value, type, updatedBy };
+  return { key, value, type, description: description ?? "", updatedBy };
 }
 
 export async function deleteConfig(key: string): Promise<void> {

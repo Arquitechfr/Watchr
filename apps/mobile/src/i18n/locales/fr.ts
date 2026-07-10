@@ -292,6 +292,7 @@ const fr = {
       deleteConfirmTitle: "Supprimer le commentaire",
       deleteConfirmMessage: "Cette action est irréversible.",
       maxImages: "Maximum 3 images par commentaire",
+      rejectedToxic: "Ton commentaire a été signalé comme inapproprié par notre système de modération automatique.",
       spoiler: "Spoiler",
       containsSpoiler: "Ce commentaire contient des spoilers",
       reveal: "Révéler",

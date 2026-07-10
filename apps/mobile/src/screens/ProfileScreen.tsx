@@ -25,6 +25,7 @@ import { RootStackParamList } from "../navigation/RootNavigator";
 import { useThemeColors } from "../theme/useThemeColors";
 import { useState } from "react";
 import { useI18n } from "../i18n/useI18n";
+import { Seo } from "../components/Seo";
 import { useUserStats } from "../hooks/useStats";
 import { useYearInReview } from "../hooks/useYearInReview";
 import { useFavorites } from "../hooks/useFavorites";
@@ -89,6 +90,7 @@ export function ProfileScreen() {
 
   return (
     <ScreenContainer className="px-4 pt-6" edges={["top", "left", "right"]}>
+      <Seo title={t("seo.profile")} />
       <View style={Platform.OS === "web" ? { maxWidth: 800, alignSelf: "center", width: "100%", flex: 1 } : undefined}>
       <MainHeader rightElement={<ProfileMenuButton />} />
       <ScrollView showsVerticalScrollIndicator={false} contentContainerClassName="pb-24">

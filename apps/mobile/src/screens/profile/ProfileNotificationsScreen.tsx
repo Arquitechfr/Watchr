@@ -7,6 +7,7 @@ import {
   useUpdateNotificationPreferences,
 } from "../../hooks/useNotificationPreferences";
 import { NotificationPreferences } from "../../services/auth.service";
+import { Seo } from "../../components/Seo";
 
 const OFFSET_STEP = 15;
 const OFFSET_MIN = -60;
@@ -72,6 +73,7 @@ export function ProfileNotificationsScreen() {
 
   return (
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
+      <Seo title={t("seo.profileNotifications")} />
       <Text className="text-text-muted text-center mb-6">{t("screens.profile.notifications")}</Text>
       <View className="gap-3">
         <View

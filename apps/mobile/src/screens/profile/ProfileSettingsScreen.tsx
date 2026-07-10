@@ -6,6 +6,7 @@ import { ScreenContainer } from "../../components/ScreenContainer";
 import { useI18n } from "../../i18n/useI18n";
 import { useThemeColors } from "../../theme/useThemeColors";
 import { RootStackParamList } from "../../navigation/RootNavigator";
+import { Seo } from "../../components/Seo";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -38,6 +39,7 @@ export function ProfileSettingsScreen() {
 
   return (
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
+      <Seo title={t("seo.profileSettings")} />
       <View className="flex-row items-center mb-6">
         <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.7} className="p-1 mr-3">
           <Ionicons name="arrow-back" size={24} color={colors.text} />

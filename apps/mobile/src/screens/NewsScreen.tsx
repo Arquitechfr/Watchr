@@ -13,6 +13,7 @@ import { useRefreshRateLimit } from "../hooks/useRefreshRateLimit";
 import { useThemeColors } from "../theme/useThemeColors";
 import { useState } from "react";
 import { useI18n } from "../i18n/useI18n";
+import { Seo } from "../components/Seo";
 
 export function NewsScreen() {
   const { t } = useI18n();
@@ -35,6 +36,7 @@ export function NewsScreen() {
 
   return (
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]}>
+      <Seo title={t("seo.news")} />
       <MainHeader />
 
       <TouchableOpacity

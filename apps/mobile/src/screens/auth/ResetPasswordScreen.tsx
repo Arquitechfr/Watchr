@@ -9,6 +9,7 @@ import { useThemeColors } from "../../theme/useThemeColors";
 import { ScreenContainer } from "../../components/ScreenContainer";
 import { useI18n } from "../../i18n/useI18n";
 import { AuthStackParamList } from "../../navigation/AuthStack";
+import { Seo } from "../../components/Seo";
 
 type ResetPasswordRouteProp = RouteProp<AuthStackParamList, "ResetPassword">;
 
@@ -50,6 +51,7 @@ export function ResetPasswordScreen({ route }: ResetPasswordScreenProps) {
 
   return (
     <ScreenContainer className="px-6 justify-center" fullWidth>
+      <Seo title={t("seo.resetPassword")} />
       <View style={Platform.OS === "web" ? { maxWidth: 400, width: "100%", alignSelf: "center" } : undefined}>
       <Text className="text-2xl font-bold text-text mb-2">{t("auth.resetPasswordTitle")}</Text>
       <Text className="text-text-muted mb-8">{t("auth.resetPasswordBody")}</Text>

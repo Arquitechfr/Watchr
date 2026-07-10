@@ -34,6 +34,7 @@ import { RootStackParamList } from "../navigation/RootNavigator";
 import { useI18n } from "../i18n/useI18n";
 import { useErrorMessage } from "../services/api";
 import { useCommentsRealtime } from "../hooks/useCommentsRealtime";
+import { Seo } from "../components/Seo";
 
 type CommentThreadRouteProp = RouteProp<RootStackParamList, "CommentThread">;
 type CommentThreadNavigationProp = NativeStackNavigationProp<RootStackParamList, "CommentThread">;
@@ -179,6 +180,7 @@ export function CommentThreadScreen() {
       className="flex-1 bg-background"
     >
       <ScreenContainer edges={["top", "left", "right"]} fullWidth>
+        <Seo title={headerTitle} />
         <View className="px-4 py-3 border-b border-border flex-row items-center">
           <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.7} className="p-1">
             <Ionicons name="arrow-back" size={24} color={colors.text} />

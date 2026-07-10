@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Text, TouchableOpacity, ActivityIndicator, Share, Linking } from "react-native";
+import { View, Text, TouchableOpacity, ActivityIndicator, Share, Linking, Platform } from "react-native";
 import { WebView } from "react-native-webview";
 import { useRoute, useNavigation, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -65,11 +65,20 @@ export function NewsArticleDetailScreen() {
             <Text className="text-text-muted text-sm mt-3">{t("screens.news.loadingArticle")}</Text>
           </View>
         )}
-        <WebView
-          source={{ uri: link }}
-          onLoadEnd={() => setIsLoading(false)}
-          style={{ flex: 1, backgroundColor: colors.background }}
-        />
+        {Platform.OS === "web" ? (
+          <iframe
+            src={link}
+            onLoad={() => setIsLoading(false)}
+            style={{ flex: 1, width: "100%", height: "100%", border: "none", backgroundColor: colors.background }}
+            title={title}
+          />
+        ) : (
+          <WebView
+            source={{ uri: link }}
+            onLoadEnd={() => setIsLoading(false)}
+            style={{ flex: 1, backgroundColor: colors.background }}
+          />
+        )}
       </View>
     </ScreenContainer>
   );

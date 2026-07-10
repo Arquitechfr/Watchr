@@ -9,6 +9,7 @@ import { useThemeColors } from "../../theme/useThemeColors";
 import { ScreenContainer } from "../../components/ScreenContainer";
 import { AuthStackParamList } from "../../navigation/AuthStack";
 import { useI18n } from "../../i18n/useI18n";
+import { Seo } from "../../components/Seo";
 
 type NavigationProp = NativeStackNavigationProp<AuthStackParamList, "ForgotPassword">;
 
@@ -41,6 +42,7 @@ export function ForgotPasswordScreen() {
 
   return (
     <ScreenContainer className="px-6 justify-center" fullWidth>
+      <Seo title={t("seo.forgotPassword")} />
       <View style={Platform.OS === "web" ? { maxWidth: 400, width: "100%", alignSelf: "center" } : undefined}>
       <Text className="text-2xl font-bold text-text mb-2">{t("auth.forgotPasswordTitle")}</Text>
       <Text className="text-text-muted mb-8">{t("auth.forgotPasswordBody")}</Text>

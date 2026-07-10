@@ -7,6 +7,7 @@ import { useThemeColors } from "../theme/useThemeColors";
 import { useI18n } from "../i18n/useI18n";
 import { log } from "../utils/logger";
 import { downloadAndShareExport, ExportFormat } from "../services/export.service";
+import { Seo } from "../components/Seo";
 
 interface ExportOptionProps {
   icon: string;
@@ -59,6 +60,7 @@ export function ExportScreen() {
 
   return (
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
+      <Seo title={t("seo.export")} />
       <ScrollView className="flex-1 bg-background">
         <Text className="text-2xl font-bold text-text mb-2">{t("screens.export.title")}</Text>
         <Text className="text-text-muted mb-6">{t("screens.export.description")}</Text>

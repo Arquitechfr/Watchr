@@ -5,6 +5,7 @@ import { useI18n } from "../../i18n/useI18n";
 import { useLocaleStore } from "../../store/localeStore";
 import { useChangeLocale } from "../../hooks/useChangeLocale";
 import { useThemeColors } from "../../theme/useThemeColors";
+import { Seo } from "../../components/Seo";
 import { SUPPORTED_LOCALES, LANG_FLAGS, LANG_LABELS, type SupportedLocale } from "../../i18n/translations";
 
 export function ProfileLanguageScreen() {
@@ -21,6 +22,7 @@ export function ProfileLanguageScreen() {
 
   return (
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
+      <Seo title={t("seo.profileLanguage")} />
       <Text className="text-text-muted text-center mb-6">{t("screens.profile.language")}</Text>
       <View className="gap-3">
         {SUPPORTED_LOCALES.map((lang) => (

@@ -16,6 +16,7 @@ import { useErrorMessage } from "../services/api";
 import { useThemeColors } from "../theme/useThemeColors";
 import { useI18n } from "../i18n/useI18n";
 import { log } from "../utils/logger";
+import { Seo } from "../components/Seo";
 
 const TMDB_IMG_BASE = "https://image.tmdb.org/t/p/w200";
 
@@ -144,6 +145,7 @@ export function ImportReviewScreen({ route }: ImportReviewScreenProps) {
 
   return (
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
+      <Seo title={t("seo.importReview")} />
       <View className="flex-row items-center justify-between mb-4">
         <Text className="text-2xl font-bold text-text">{t("screens.importReview.title")}</Text>
         <Text className="text-text-muted text-sm">

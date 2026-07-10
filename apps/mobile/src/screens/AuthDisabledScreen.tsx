@@ -2,6 +2,7 @@ import { View, Text, Image, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useI18n } from "../i18n/useI18n";
 import { useThemeColors } from "../theme/useThemeColors";
+import { Seo } from "../components/Seo";
 
 export function AuthDisabledScreen() {
   const { t } = useI18n();
@@ -19,6 +20,7 @@ export function AuthDisabledScreen() {
         paddingBottom: insets.bottom,
       }}
     >
+      <Seo title={t("seo.authDisabled")} />
       <View
         style={
           Platform.OS === "web"

@@ -8,6 +8,7 @@ import { useErrorMessage } from "../../services/api";
 import { updateThemePreference, type Me } from "../../services/auth.service";
 import { useThemeColors } from "../../theme/useThemeColors";
 import { useState } from "react";
+import { Seo } from "../../components/Seo";
 
 const OPTIONS: { value: ThemePreference; labelKey: string; icon: "phone-portrait" | "sunny" | "moon" }[] = [
   { value: "system", labelKey: "screens.profile.appearanceSystem", icon: "phone-portrait" },
@@ -41,6 +42,7 @@ export function ProfileAppearanceScreen() {
 
   return (
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
+      <Seo title={t("seo.profileAppearance")} />
       <Text className="text-text-muted text-center mb-6">{t("screens.profile.appearance")}</Text>
       <View className="gap-3">
         {OPTIONS.map((opt) => (

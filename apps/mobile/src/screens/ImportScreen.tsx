@@ -28,6 +28,7 @@ import { useErrorMessage } from "../services/api";
 import { useThemeColors } from "../theme/useThemeColors";
 import { useI18n } from "../i18n/useI18n";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Seo } from "../components/Seo";
 
 const SOURCE_ICONS: Record<string, string> = {
   tvtime: "📺",
@@ -198,6 +199,7 @@ export function ImportScreen() {
 
   return (
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
+      <Seo title={t("seo.import")} />
       <ScrollView className="flex-1 bg-background">
         <Text className="text-2xl font-bold text-text mb-2">{t("screens.import.title")}</Text>
         <Text className="text-text-muted mb-6">{t("screens.import.description")}</Text>

@@ -18,6 +18,7 @@ import { syncPreferencesToBackend } from "../../hooks/useSyncPreferences";
 import { AuthStackParamList } from "../../navigation/AuthStack";
 import { useI18n } from "../../i18n/useI18n";
 import { useRemoteConfig } from "../../hooks/useRemoteConfig";
+import { Seo } from "../../components/Seo";
 
 type NavigationProp = NativeStackNavigationProp<AuthStackParamList, "Login">;
 
@@ -81,6 +82,7 @@ export function LoginScreen() {
 
   return (
     <ScreenContainer className="px-6 justify-center" fullWidth>
+      <Seo title={t("seo.login")} />
       <View style={Platform.OS === "web" ? { maxWidth: 400, width: "100%", alignSelf: "center" } : undefined}>
       <View style={{ top: insets.top + 8, zIndex: 50 }} className="absolute right-4">
         <AuthSettingsMenu />

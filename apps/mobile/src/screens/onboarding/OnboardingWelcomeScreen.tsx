@@ -3,6 +3,7 @@ import { ScreenContainer } from "../../components/ScreenContainer";
 import { OnboardingSkipButton } from "./OnboardingSkipButton";
 import { useI18n } from "../../i18n/useI18n";
 import { useThemeColors } from "../../theme/useThemeColors";
+import { Seo } from "../../components/Seo";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 type OnboardingStackParamList = {
@@ -22,6 +23,7 @@ export function OnboardingWelcomeScreen({ navigation, onSkip }: OnboardingWelcom
 
   return (
     <ScreenContainer>
+      <Seo title={t("seo.onboarding")} />
       <View className="flex-1 items-center justify-center px-6">
         <Text className="text-text text-3xl font-bold text-center mb-4">
           {t("screens.onboarding.welcomeTitle")}

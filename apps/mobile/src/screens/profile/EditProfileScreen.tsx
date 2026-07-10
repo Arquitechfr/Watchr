@@ -11,6 +11,7 @@ import { useUIStore } from "../../store/uiStore";
 import { useErrorMessage } from "../../services/api";
 import { useThemeColors } from "../../theme/useThemeColors";
 import { useAvatarUpload } from "../../hooks/useAvatarUpload";
+import { Seo } from "../../components/Seo";
 
 export function EditProfileScreen() {
   const { t } = useI18n();
@@ -92,6 +93,7 @@ export function EditProfileScreen() {
 
   return (
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
+      <Seo title={t("seo.editProfile")} />
       <View className="items-center mb-8">
         <TouchableOpacity onPress={pickAvatar} disabled={isAvatarUploading} activeOpacity={0.8}>
           <View className="relative">

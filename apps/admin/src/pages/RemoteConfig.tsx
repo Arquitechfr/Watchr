@@ -1,0 +1,152 @@
+import { useEffect, useState } from "react";
+import { Trash2, Edit } from "lucide-react";
+import api from "../lib/api";
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/Card";
+import { Button } from "../components/ui/Button";
+import { Input } from "../components/ui/Input";
+import { Badge } from "../components/ui/Badge";
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "../components/ui/Table";
+import { Skeleton } from "../components/ui/Skeleton";
+import { formatDate } from "../lib/utils";
+
+interface ConfigEntry {
+  key: string;
+  value: string;
+  type: string;
+  updatedAt: string;
+  updatedBy: string;
+}
+
+export function RemoteConfig() {
+  const [config, setConfig] = useState<ConfigEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState<ConfigEntry | null>(null);
+  const [editValue, setEditValue] = useState("");
+  const [editType, setEditType] = useState("string");
+
+  async function load() {
+    setLoading(true);
+    try {
+      const { data } = await api.get("/admin/config");
+      setConfig(data);
+    } catch (err) {
+      console.error("Failed to load config:", err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  function startEdit(entry: ConfigEntry) {
+    setEditing(entry);
+    setEditValue(entry.value);
+    setEditType(entry.type);
+  }
+
+  async function handleSave() {
+    if (!editing) return;
+    try {
+      await api.put(`/admin/config/${editing.key}`, { value: editValue, type: editType });
+      setEditing(null);
+      load();
+    } catch (err) {
+      console.error("Failed to update config:", err);
+    }
+  }
+
+  async function handleDelete(key: string) {
+    if (!confirm(`Delete config key "${key}"?`)) return;
+    try {
+      await api.delete(`/admin/config/${key}`);
+      load();
+    } catch (err) {
+      console.error("Failed to delete config:", err);
+    }
+  }
+
+  return (
+    <div>
+      <h1 className="text-2xl font-bold mb-6">Remote Config</h1>
+
+      {editing && (
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Edit: {editing.key}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <label className="mb-1.5 block text-sm text-text-muted">Value</label>
+              <Input value={editValue} onChange={(e) => setEditValue(e.target.value)} />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-sm text-text-muted">Type</label>
+              <select
+                value={editType}
+                onChange={(e) => setEditType(e.target.value)}
+                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-text"
+              >
+                <option value="string">string</option>
+                <option value="number">number</option>
+                <option value="boolean">boolean</option>
+                <option value="json">json</option>
+              </select>
+            </div>
+            <div className="flex gap-2">
+              <Button onClick={handleSave}>Save</Button>
+              <Button variant="outline" onClick={() => setEditing(null)}>Cancel</Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      <Card>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Key</TableHead>
+                <TableHead>Value</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>Updated</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {loading
+                ? Array.from({ length: 3 }).map((_, i) => (
+                    <TableRow key={i}>
+                      {Array.from({ length: 5 }).map((_, j) => (
+                        <TableCell key={j}><Skeleton height={20} /></TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                : config.map((entry) => (
+                    <TableRow key={entry.key}>
+                      <TableCell className="font-mono text-xs font-medium">{entry.key}</TableCell>
+                      <TableCell className="font-mono text-xs text-text-muted max-w-xs truncate">{entry.value}</TableCell>
+                      <TableCell>
+                        <Badge className="bg-surface-light text-text-muted">{entry.type}</Badge>
+                      </TableCell>
+                      <TableCell className="text-text-muted text-xs">{formatDate(entry.updatedAt)}</TableCell>
+                      <TableCell>
+                        <div className="flex gap-1">
+                          <Button variant="ghost" size="icon" onClick={() => startEdit(entry)} title="Edit">
+                            <Edit size={16} />
+                          </Button>
+                          <Button variant="ghost" size="icon" onClick={() => handleDelete(entry.key)} title="Delete">
+                            <Trash2 size={16} className="text-danger" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

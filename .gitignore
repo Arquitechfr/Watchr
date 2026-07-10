@@ -54,3 +54,4 @@ apps/web/public/.well-known/assetlinks.json
 apps/backend/test-firebase.ts
 apps/backend/test-sentry.ts
 AUDIT_CHANGES.md
+apps/backend/src/scripts/promote-admin.ts

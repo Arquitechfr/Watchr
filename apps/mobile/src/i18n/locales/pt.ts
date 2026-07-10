@@ -187,6 +187,7 @@ const pt = {
       settings: "Ajustes",
       myData: "Meus dados",
       memberSince: "Membro desde {{date}}",
+      lastLogin: "Último acesso: {{date}}",
       statsTitle: "Estatísticas",
       statsShowsFollowed: "Séries seguidas",
       statsMoviesFollowed: "Filmes seguidos",

@@ -53,6 +53,9 @@ export async function loginUser(email: string, password: string): Promise<TokenP
     throw new ApiError(401, "INVALID_CREDENTIALS", "Invalid email or password");
   }
 
+  user.lastLoginAt = new Date();
+  await user.save();
+
   return await issueTokenPair(user._id.toString(), user.preferredLanguage);
 }
 
@@ -90,6 +93,9 @@ export async function loginWithFirebase(idToken: string): Promise<TokenPair> {
       console.error("Failed to send signup webhook:", err),
     );
   }
+
+  user.lastLoginAt = new Date();
+  await user.save();
 
   return await issueTokenPair(user._id.toString(), user.preferredLanguage);
 }
@@ -148,7 +154,7 @@ export function verifyAccessToken(token: string): { sub: string; lang?: string }
 }
 
 export async function getMe(userId: string) {
-  const user = await User.findById(userId).select("email username usernameChanged avatarUrl preferredLanguage themePreference hasCompletedOnboarding firebaseUid createdAt").lean();
+  const user = await User.findById(userId).select("email username usernameChanged avatarUrl preferredLanguage themePreference hasCompletedOnboarding firebaseUid createdAt lastLoginAt role").lean();
   if (!user) {
     throw new ApiError(404, "USER_NOT_FOUND", "User not found");
   }
@@ -163,6 +169,8 @@ export async function getMe(userId: string) {
     hasCompletedOnboarding: user.hasCompletedOnboarding ?? false,
     googleLinked: !!user.firebaseUid,
     createdAt: user.createdAt.toISOString(),
+    lastLoginAt: user.lastLoginAt?.toISOString() ?? null,
+    role: user.role,
   };
 }
 

@@ -187,6 +187,7 @@ const ar = {
       settings: "الإعدادات",
       myData: "بياناتي",
       memberSince: "عضو منذ {{date}}",
+      lastLogin: "آخر تسجيل دخول: {{date}}",
       statsTitle: "الإحصائيات",
       statsShowsFollowed: "مسلسلات متابعة",
       statsMoviesFollowed: "أفلام متابعة",

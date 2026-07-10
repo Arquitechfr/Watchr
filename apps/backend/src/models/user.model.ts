@@ -29,6 +29,8 @@ export interface IUser extends Document {
   notificationPreferences: NotificationPreferences;
   expoPushToken?: string;
   hasCompletedOnboarding: boolean;
+  role: "user" | "admin";
+  lastLoginAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -125,6 +127,16 @@ const userSchema = new Schema<IUser>(
     hasCompletedOnboarding: {
       type: Boolean,
       default: false,
+    },
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "user",
+      index: true,
+    },
+    lastLoginAt: {
+      type: Date,
+      default: null,
     },
   },
   { timestamps: true },

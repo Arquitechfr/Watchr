@@ -78,6 +78,11 @@ export function ProfileScreen() {
     ? format(memberSinceDate, "MMMM yyyy", { locale: dateFnsLocale })
     : "";
 
+  const lastLoginDate = me?.lastLoginAt ? new Date(me.lastLoginAt) : null;
+  const lastLoginFormatted = lastLoginDate
+    ? format(lastLoginDate, "d MMM yyyy 'at' HH:mm", { locale: dateFnsLocale })
+    : "";
+
   return (
     <ScreenContainer className="px-4 pt-6" edges={["top", "left", "right"]}>
       <View style={Platform.OS === "web" ? { maxWidth: 800, alignSelf: "center", width: "100%" } : undefined}>
@@ -111,6 +116,11 @@ export function ProfileScreen() {
               {memberSinceFormatted && (
                 <Text className="text-text-muted text-xs mt-1">
                   {t("screens.profile.memberSince", { date: memberSinceFormatted })}
+                </Text>
+              )}
+              {lastLoginFormatted && (
+                <Text className="text-text-muted text-xs mt-0.5">
+                  {t("screens.profile.lastLogin", { date: lastLoginFormatted })}
                 </Text>
               )}
             </>

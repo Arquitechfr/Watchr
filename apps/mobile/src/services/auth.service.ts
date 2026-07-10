@@ -61,6 +61,8 @@ export interface Me {
   hasCompletedOnboarding: boolean;
   googleLinked: boolean;
   createdAt: string;
+  lastLoginAt: string | null;
+  role: "user" | "admin";
 }
 
 export async function getMe(): Promise<Me> {

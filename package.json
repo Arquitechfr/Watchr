@@ -8,7 +8,8 @@
     "test": "pnpm --filter backend test",
     "typecheck": "pnpm --filter backend typecheck && pnpm --filter mobile typecheck",
     "dev": "concurrently \"pnpm --filter backend dev\" \"pnpm --filter mobile start\"",
-    "mobile": "pnpm --filter mobile start"
+    "mobile": "pnpm --filter mobile start",
+    "dev:admin": "concurrently \"pnpm --filter backend dev\" \"pnpm --filter admin dev\""
   },
   "devDependencies": {
     "eslint": "^9.5.0",

@@ -187,6 +187,7 @@ const de = {
       settings: "Einstellungen",
       myData: "Meine Daten",
       memberSince: "Mitglied seit {{date}}",
+      lastLogin: "Letzte Anmeldung: {{date}}",
       statsTitle: "Statistiken",
       statsShowsFollowed: "Serien verfolgt",
       statsMoviesFollowed: "Filme verfolgt",

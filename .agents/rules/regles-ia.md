@@ -11,6 +11,7 @@ Ces règles s'appliquent à tout agent travaillant sur ce repo.
 - **Site web (landing page)** : https://watchr.me
 - **Web app (Expo Web, version desktop de l'app mobile)** : https://app.watchr.me — même codebase que l'app mobile, lancée via `expo start --web`
 - **API backend** : https://api.watchr.me
+- **Backoffice admin** : https://backoffice.watchr.me
 
 ## 1. Comportement général
 
@@ -44,7 +45,7 @@ Ces règles s'appliquent à tout agent travaillant sur ce repo.
 
 - Les valeurs de configuration **runtime** (`backend_url`, flags, etc.) sont stockées dans MongoDB (collection `mobile_config`) et servies via l'endpoint public `GET /internal/mobile-config` (cache process-level 30s côté backend).
 - Côté mobile, `remoteConfigService` (singleton) charge la config au lancement (**init bloquant** dans le bootstrap), la cache localement (AsyncStorage côté mobile), et la rafraîchit toutes les 5 min + au retour foreground (AppState / visibilitychange).
-- **Écriture = CLI uniquement** : `pnpm --filter backend mobile-config set <key> <value> [type]`. Jamais d'endpoint HTTP d'écriture (décision de sécurité : un endpoint d'écriture sur `backend_url` est un vecteur d'attaque disproportionné).
+- **Écriture = CLI uniquement** : `pnpm --filter backend mobile-config set <key> <value> [type]`. Jamais d'endpoint HTTP d'écriture public (décision de sécurité : un endpoint d'écriture sur `backend_url` est un vecteur d'attaque disproportionné). **Exception** : l'API admin (`/api/admin/config`) peut écrire la config car authentifiée + autorisée via `requireAdmin`.
 - **Lecture = endpoint public sans auth** : le payload ne contient aucune donnée sensible par design.
 - **L'URL backend ne doit jamais être hardcodée** dans le code : utiliser `remoteConfigService.getConfig().backend_url` ou `getApiBaseUrl()` (exporté depuis `services/api.ts`).
 - Les valeurs **build-time** (Firebase, EAS, Sentry) restent dans `.env` et ne peuvent pas être dynamiques (inlinées par Expo/Vite à build time).
@@ -67,7 +68,18 @@ Ces règles s'appliquent à tout agent travaillant sur ce repo.
 - **Pas de régression mobile** : les adaptations web ne doivent jamais modifier le comportement mobile. Tout guard `Platform.OS === 'web'` doit préserver le flow native intact.
 - **Test web obligatoire** : `pnpm --filter mobile web` doit lancer sans crash. Vérifier les écrans touchés par la feature.
 
-## 7. Definition of Done
+## 7. Backoffice Admin (apps/admin)
+
+- Le backoffice est une app ViteJS séparée (React + Tailwind + shadcn/ui), partageant le backend Express via des routes dédiées `/api/admin/*`.
+- **Auth** : réutilise le JWT existant. Le modèle User a un champ `role` (`"user" | "admin"`, default `"user"`). Le middleware `requireAdmin` protège toutes les routes `/api/admin/*`.
+- **Thème** : aligné sur le mobile — mêmes couleurs (`#1A1614` dark bg, `#C65D3A` primary, `#F5F0EB` text). Dark mode par défaut.
+- **Sécurité** : toutes les routes admin sont validées avec Zod. Le broadcast push est batché et loggé dans `NotificationLog`.
+- **Remote Config** : l'admin peut lire/écrire la MobileConfig via l'UI (endpoint `requireAdmin`), en complément du CLI existant.
+- **Pas de régression backend** : les routes admin sont additive — aucun changement aux routes existantes utilisées par le mobile.
+- **i18n** : le backoffice n'est pas internationalisé par défaut (interface admin en anglais).
+- **Test admin** : `pnpm --filter admin dev` doit lancer sans crash avant de considérer une tâche admin terminée.
+
+## 8. Definition of Done
 
 Une tâche n'est considérée terminée que si :
 - [ ] Code sans placeholder ni `console.log` de debug oublié
@@ -75,6 +87,7 @@ Une tâche n'est considérée terminée que si :
 - [ ] Hypothèses non confirmées documentées avec `[?]` dans la description du changement
 - [ ] **Remote Config** : si la feature introduit une valeur de configuration runtime, celle-ci est ajoutée à `DEFAULT_REMOTE_CONFIG` (mobile), seedée en MongoDB, et aucune URL backend n'est hardcodée
 - [ ] **Compatibilité Web** : la feature fonctionne sur `pnpm --filter mobile web` — guards `Platform.OS` en place pour les modules natifs, layout responsive desktop, pas de crash web
+- [ ] **Backoffice Admin** : si la feature touche le backoffice, `pnpm --filter admin dev` lance sans crash, routes admin validées avec Zod, pas de régression backend
 - [ ] **Pas de régression mobile** : le comportement sur mobile (iOS/Android) est préservé à l'identique
 - [ ] **mobile** is **Source of truth** par rapport autres.
 - [ ] Utilisez tous les **MCP** que vous jugez pertinents pour votre demande.

@@ -29,6 +29,10 @@ Délai : livraison MVP avant le 15/07/2026.
 | Package manager | pnpm exclusivement |
 | Lint/Format | ESLint + Prettier |
 | Tests | Vitest |
+| Admin backoffice | ViteJS + React 18 + TypeScript |
+| Admin UI | TailwindCSS + shadcn/ui (Radix primitives) |
+| Admin state | Zustand |
+| Admin routing | React Router v6 |
 
 ## Structure du repo
 
@@ -55,6 +59,19 @@ watchr/
 │   │   │   └── navigation/
 │   │   ├── App.tsx              # Entry point — mobile + web
 │   │   └── package.json
+│   ├── admin/                          # NOUVEAU — backoffice admin
+│   │   ├── src/
+│   │   │   ├── pages/
+│   │   │   ├── components/
+│   │   │   │   ├── ui/                # shadcn/ui
+│   │   │   │   ├── layout/
+│   │   │   │   └── shared/
+│   │   │   ├── hooks/
+│   │   │   ├── lib/                   # api client, utils
+│   │   │   ├── store/                 # Zustand
+│   │   │   └── types/
+│   │   ├── package.json
+│   │   └── vite.config.ts
 ├── pnpm-workspace.yaml
 └── AGENTS.md
 ```
@@ -69,12 +86,16 @@ watchr/
 - Remote config CLI : `pnpm --filter backend mobile-config set <key> <value> [type]` (types: string, number, boolean, json)
 - Remote config list : `pnpm --filter backend mobile-config list`
 - Remote config seed : `pnpm --filter backend mobile-config:seed` (peuple avec les valeurs par défaut)
+- Admin dev : `pnpm --filter admin dev` (ViteJS, port 5173)
+- Admin build : `pnpm --filter admin build`
+- Promote admin : `pnpm --filter backend promote-admin <email>` (promeut un user au rôle admin)
 
 ## URLs de production
 
 - **Site web (landing page)** : https://watchr.me
 - **Web app (Expo Web, version desktop de l'app mobile)** : https://app.watchr.me
 - **API backend** : https://api.watchr.me
+- **Backoffice admin** : https://backoffice.watchr.me
 
 ## Contraintes et principes actifs
 
@@ -101,3 +122,11 @@ watchr/
    - **Navigation web** : le linking `watchr://` ne fonctionne pas sur web. Les paths URL browser doivent être configurés dans le `linking` config de React Navigation.
    - **Pas de régression mobile** : les adaptations web ne doivent jamais modifier le comportement mobile existant. Tout guard web doit préserver le flow native intact.
    - **Test web** : vérifier `pnpm --filter mobile web` lance sans crash avant de considérer une tâche terminée.
+7. **Backoffice Admin (apps/admin)** : le backoffice est une app ViteJS séparée (React + Tailwind + shadcn/ui), partageant le backend Express via des routes dédiées `/api/admin/*`.
+   - **Auth** : réutilise le JWT existant. Le modèle User a un champ `role` (`"user" | "admin"`, default `"user"`). Le middleware `requireAdmin` protège toutes les routes `/api/admin/*`.
+   - **Thème** : aligné sur le mobile — mêmes couleurs (`#1A1614` dark bg, `#C65D3A` primary, `#F5F0EB` text). Dark mode par défaut.
+   - **Sécurité** : toutes les routes admin sont validées avec Zod. Le broadcast push est batché et loggé dans `NotificationLog`.
+   - **Remote Config** : l'admin peut lire/écrire la MobileConfig via l'UI (endpoint `requireAdmin`), en complément du CLI existant. La règle "CLI uniquement" est étendue : l'écriture via l'API admin est autorisée car authentifiée + autorisée.
+   - **Pas de régression backend** : les routes admin sont additive — aucun changement aux routes existantes utilisées par le mobile.
+   - **i18n** : le backoffice n'est pas internationalisé par défaut (interface admin en anglais). Si du texte utilisateur apparaît, utiliser l'anglais.
+   - **Test admin** : `pnpm --filter admin dev` doit lancer sans crash avant de considérer une tâche admin terminée.

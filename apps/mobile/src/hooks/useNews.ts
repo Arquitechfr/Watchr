@@ -24,7 +24,7 @@ export function useNews(sourceId: string | null) {
     queryKey: [NEWS_QUERY_KEY, { sourceId, locale }],
     queryFn: () => getNews(sourceId ?? undefined, locale),
     staleTime: 15 * 60 * 1000,
-    enabled: isHydrated && !!sourceId,
+    enabled: isHydrated,
     placeholderData: keepPreviousData,
   });
 }

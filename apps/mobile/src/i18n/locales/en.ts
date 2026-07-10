@@ -191,6 +191,7 @@ const en = {
       settings: "Settings",
       myData: "My data",
       memberSince: "Member since {{date}}",
+      lastLogin: "Last login: {{date}}",
       statsTitle: "Statistics",
       statsShowsFollowed: "Shows followed",
       statsMoviesFollowed: "Movies followed",

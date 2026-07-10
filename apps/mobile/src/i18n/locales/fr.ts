@@ -191,6 +191,7 @@ const fr = {
       settings: "Paramètres",
       myData: "Mes données",
       memberSince: "Membre depuis {{date}}",
+      lastLogin: "Dernière connexion : {{date}}",
       statsTitle: "Statistiques",
       statsShowsFollowed: "Séries suivies",
       statsMoviesFollowed: "Films suivis",

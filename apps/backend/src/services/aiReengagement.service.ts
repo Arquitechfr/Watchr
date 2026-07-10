@@ -4,8 +4,6 @@ import { log, logError } from "../lib/logger.js";
 import { MobileConfig } from "../models/MobileConfig.js";
 import { User } from "../models/user.model.js";
 import { WatchEntry } from "../models/watchEntry.model.js";
-import { Show } from "../models/show.model.js";
-import { getShowTitle } from "../models/show.model.js";
 import { languageNameForLocale } from "./aiLanguageMap.js";
 import type { SupportedLocale } from "../i18n/translations.js";
 

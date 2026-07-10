@@ -1,5 +1,4 @@
-import { mistralService } from "./mistral.service.js";
-import { log, logError } from "../lib/logger.js";
+import { log } from "../lib/logger.js";
 import { MobileConfig } from "../models/MobileConfig.js";
 import { User } from "../models/user.model.js";
 import { WatchEntry } from "../models/watchEntry.model.js";

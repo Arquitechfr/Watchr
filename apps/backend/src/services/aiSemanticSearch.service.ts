@@ -90,11 +90,10 @@ export async function semanticSearchShows(
       tmdbId: c.id,
       title: c.name ?? c.title ?? "",
       posterPath: c.poster_path ?? undefined,
-      backdropPath: c.backdrop_path ?? undefined,
       overview: c.overview,
       type: c.media_type as "tv" | "movie",
-      voteAverage: c.vote_average,
-      releaseDate: c.release_date ?? c.first_air_date,
+      firstAirDate: c.release_date ?? c.first_air_date,
+      source: "tmdb" as const,
     }));
     return { results, source: "fallback" };
   }
@@ -111,11 +110,10 @@ export async function semanticSearchShows(
     tmdbId: candidate.id,
     title: candidate.name ?? candidate.title ?? "",
     posterPath: candidate.poster_path ?? undefined,
-    backdropPath: candidate.backdrop_path ?? undefined,
     overview: candidate.overview,
     type: candidate.media_type as "tv" | "movie",
-    voteAverage: candidate.vote_average,
-    releaseDate: candidate.release_date ?? candidate.first_air_date,
+    firstAirDate: candidate.release_date ?? candidate.first_air_date,
+    source: "tmdb" as const,
   }));
 
   const similarities = topResults.map((s: { score: number }) => s.score);
@@ -144,11 +142,10 @@ async function fallbackSemanticSearch(
       tmdbId: c.id,
       title: c.name ?? c.title ?? "",
       posterPath: c.poster_path ?? undefined,
-      backdropPath: c.backdrop_path ?? undefined,
       overview: c.overview,
       type: c.media_type as "tv" | "movie",
-      voteAverage: c.vote_average,
-      releaseDate: c.release_date ?? c.first_air_date,
+      firstAirDate: c.release_date ?? c.first_air_date,
+      source: "tmdb" as const,
     }));
 
   return { results, source: "fallback" };

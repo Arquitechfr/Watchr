@@ -1,10 +1,9 @@
 import { mistralService } from "../mistral.service.js";
-import { log, logError } from "../../lib/logger.js";
+import { logError } from "../../lib/logger.js";
 import { MobileConfig } from "../../models/MobileConfig.js";
 import { Comment } from "../../models/comment.model.js";
 import { Show } from "../../models/show.model.js";
 import { getShowTitle } from "../../models/show.model.js";
-import { User } from "../../models/user.model.js";
 import { Report } from "../../models/report.model.js";
 import type { SupportedLocale } from "../../i18n/translations.js";
 

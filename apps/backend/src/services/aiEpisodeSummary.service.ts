@@ -1,6 +1,6 @@
 import { mistralService } from "./mistral.service.js";
 import { tmdbService } from "./tmdb.service.js";
-import { log, logError } from "../lib/logger.js";
+import { log } from "../lib/logger.js";
 import { MobileConfig } from "../models/MobileConfig.js";
 import { getRedisValue, setRedisValue } from "../lib/redis.js";
 import { toTmdbLanguage } from "./show.service.js";

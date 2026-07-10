@@ -83,7 +83,7 @@ export default defineConfig({
             "@radix-ui/react-toast",
           ],
           charts: ["recharts"],
-          editor: ["react-quill"],
+          editor: ["react-quill-new"],
           icons: ["lucide-react"],
           utils: ["axios", "date-fns", "zod", "zustand", "clsx", "tailwind-merge", "class-variance-authority"],
         },

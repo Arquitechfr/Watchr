@@ -1,6 +1,6 @@
 import { useMemo } from "react";
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.bubble.css";
+import ReactQuill from "react-quill-new";
+import "react-quill-new/dist/quill.bubble.css";
 
 interface RichTextEditorProps {
   value: string;

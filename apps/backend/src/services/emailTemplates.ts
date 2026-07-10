@@ -12,20 +12,50 @@ export function baseHtml(innerHtml: string, locale?: SupportedLocale | string | 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <title>Watchr</title>
+  <style>
+    /* Dark mode (default — brand colors) */
+    .email-body { background-color: #1A1614 !important; }
+    .email-card { background-color: #211C19 !important; }
+    .email-heading { color: #F5F0EB !important; }
+    .email-body-text { color: #C4BDB6 !important; }
+    .email-footer { color: #8B8278 !important; }
+    .email-cta { background-color: #C65D3A !important; color: #F5F0EB !important; }
+    .email-copyright { color: #8B8278 !important; }
+
+    /* Light mode override */
+    @media (prefers-color-scheme: light) {
+      .email-body { background-color: #F5F0EB !important; }
+      .email-card { background-color: #FFFFFF !important; }
+      .email-heading { color: #1A1614 !important; }
+      .email-body-text { color: #4A4239 !important; }
+      .email-footer { color: #8B8278 !important; }
+      .email-cta { background-color: #C65D3A !important; color: #FFFFFF !important; }
+      .email-copyright { color: #8B8278 !important; }
+    }
+
+    /* Outlook safe-mode (always dark) */
+    [data-ogsb] .email-body { background-color: #1A1614 !important; }
+    [data-ogsb] .email-card { background-color: #211C19 !important; }
+    [data-ogsb] .email-heading { color: #F5F0EB !important; }
+    [data-ogsb] .email-body-text { color: #C4BDB6 !important; }
+    [data-ogsb] .email-footer { color: #8B8278 !important; }
+    [data-ogsb] .email-cta { background-color: #C65D3A !important; color: #F5F0EB !important; }
+    [data-ogsb] .email-copyright { color: #8B8278 !important; }
+  </style>
 </head>
-<body style="margin:0;padding:0;background-color:#1A1614;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#1A1614;min-height:100vh;">
+<body class="email-body" style="margin:0;padding:0;background-color:#1A1614;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" class="email-body" style="background-color:#1A1614;min-height:100vh;">
     <tr>
       <td align="center" style="padding:40px 20px;">
         <img src="${logoUrl}" alt="Watchr" width="48" height="48" style="display:block;margin:0 auto 24px auto;border-radius:8px;" />
-        <table role="presentation" width="500" cellpadding="0" cellspacing="0" border="0" style="background-color:#211C19;border-radius:12px;overflow:hidden;">
+        <table role="presentation" width="500" cellpadding="0" cellspacing="0" border="0" class="email-card" style="background-color:#211C19;border-radius:12px;overflow:hidden;">
           <tr>
             <td style="padding:32px 40px;">
               ${innerHtml}
             </td>
           </tr>
         </table>
-        <p style="color:#8B8278;font-size:0.8rem;margin-top:24px;text-align:center;">Watchr &copy; ${new Date().getFullYear()}</p>
+        <p class="email-copyright" style="color:#8B8278;font-size:0.8rem;margin-top:24px;text-align:center;">Watchr &copy; ${new Date().getFullYear()}</p>
       </td>
     </tr>
   </table>
@@ -45,11 +75,11 @@ export function welcomeTemplate(
   return {
     subject,
     html: baseHtml(`
-      <h1 style="color:#F5F0EB;font-size:1.5rem;margin:0 0 16px 0;font-weight:700;">${heading}</h1>
-      <p style="color:#C4BDB6;font-size:1rem;line-height:1.6;margin:0 0 24px 0;">
+      <h1 class="email-heading" style="color:#F5F0EB;font-size:1.5rem;margin:0 0 16px 0;font-weight:700;">${heading}</h1>
+      <p class="email-body-text" style="color:#C4BDB6;font-size:1rem;line-height:1.6;margin:0 0 24px 0;">
         ${body}
       </p>
-      <a href="watchr://" style="display:inline-block;background-color:#C65D3A;color:#F5F0EB;text-decoration:none;padding:12px 32px;border-radius:8px;font-weight:600;font-size:0.95rem;">
+      <a href="watchr://" class="email-cta" style="display:inline-block;background-color:#C65D3A;color:#F5F0EB;text-decoration:none;padding:12px 32px;border-radius:8px;font-weight:600;font-size:0.95rem;">
         ${cta}
       </a>
     `, locale),
@@ -69,14 +99,14 @@ export function resetPasswordTemplate(
   return {
     subject,
     html: baseHtml(`
-      <h1 style="color:#F5F0EB;font-size:1.5rem;margin:0 0 16px 0;font-weight:700;">${heading}</h1>
-      <p style="color:#C4BDB6;font-size:1rem;line-height:1.6;margin:0 0 24px 0;">
+      <h1 class="email-heading" style="color:#F5F0EB;font-size:1.5rem;margin:0 0 16px 0;font-weight:700;">${heading}</h1>
+      <p class="email-body-text" style="color:#C4BDB6;font-size:1rem;line-height:1.6;margin:0 0 24px 0;">
         ${body}
       </p>
-      <a href="${params.resetUrl}" style="display:inline-block;background-color:#C65D3A;color:#F5F0EB;text-decoration:none;padding:12px 32px;border-radius:8px;font-weight:600;font-size:0.95rem;">
+      <a href="${params.resetUrl}" class="email-cta" style="display:inline-block;background-color:#C65D3A;color:#F5F0EB;text-decoration:none;padding:12px 32px;border-radius:8px;font-weight:600;font-size:0.95rem;">
         ${cta}
       </a>
-      <p style="color:#8B8278;font-size:0.85rem;margin:24px 0 0 0;">
+      <p class="email-footer" style="color:#8B8278;font-size:0.85rem;margin:24px 0 0 0;">
         ${footer}
       </p>
     `, locale),
@@ -106,18 +136,18 @@ export function banNotificationTemplate(
   let extraHtml = "";
   if (params.suspendedUntil) {
     const suspendedUntilText = translateEmail("banSuspendedUntil", locale, { date: params.suspendedUntil });
-    extraHtml = `<p style="color:#C4BDB6;font-size:0.95rem;line-height:1.6;margin:16px 0 0 0;">${suspendedUntilText}</p>`;
+    extraHtml = `<p class="email-body-text" style="color:#C4BDB6;font-size:0.95rem;line-height:1.6;margin:16px 0 0 0;">${suspendedUntilText}</p>`;
   }
 
   return {
     subject,
     html: baseHtml(`
-      <h1 style="color:#F5F0EB;font-size:1.5rem;margin:0 0 16px 0;font-weight:700;">${heading}</h1>
-      <p style="color:#C4BDB6;font-size:1rem;line-height:1.6;margin:0 0 24px 0;">
+      <h1 class="email-heading" style="color:#F5F0EB;font-size:1.5rem;margin:0 0 16px 0;font-weight:700;">${heading}</h1>
+      <p class="email-body-text" style="color:#C4BDB6;font-size:1rem;line-height:1.6;margin:0 0 24px 0;">
         ${body}
       </p>
       ${extraHtml}
-      <p style="color:#8B8278;font-size:0.85rem;margin:24px 0 0 0;">
+      <p class="email-footer" style="color:#8B8278;font-size:0.85rem;margin:24px 0 0 0;">
         ${footer}
       </p>
     `, locale),
@@ -139,11 +169,11 @@ export function commentDeletedTemplate(
   return {
     subject,
     html: baseHtml(`
-      <h1 style="color:#F5F0EB;font-size:1.5rem;margin:0 0 16px 0;font-weight:700;">${heading}</h1>
-      <p style="color:#C4BDB6;font-size:1rem;line-height:1.6;margin:0 0 24px 0;">
+      <h1 class="email-heading" style="color:#F5F0EB;font-size:1.5rem;margin:0 0 16px 0;font-weight:700;">${heading}</h1>
+      <p class="email-body-text" style="color:#C4BDB6;font-size:1rem;line-height:1.6;margin:0 0 24px 0;">
         ${body}
       </p>
-      <p style="color:#8B8278;font-size:0.85rem;margin:24px 0 0 0;">
+      <p class="email-footer" style="color:#8B8278;font-size:0.85rem;margin:24px 0 0 0;">
         ${footer}
       </p>
     `, locale),
@@ -165,11 +195,11 @@ export function commentHiddenTemplate(
   return {
     subject,
     html: baseHtml(`
-      <h1 style="color:#F5F0EB;font-size:1.5rem;margin:0 0 16px 0;font-weight:700;">${heading}</h1>
-      <p style="color:#C4BDB6;font-size:1rem;line-height:1.6;margin:0 0 24px 0;">
+      <h1 class="email-heading" style="color:#F5F0EB;font-size:1.5rem;margin:0 0 16px 0;font-weight:700;">${heading}</h1>
+      <p class="email-body-text" style="color:#C4BDB6;font-size:1rem;line-height:1.6;margin:0 0 24px 0;">
         ${body}
       </p>
-      <p style="color:#8B8278;font-size:0.85rem;margin:24px 0 0 0;">
+      <p class="email-footer" style="color:#8B8278;font-size:0.85rem;margin:24px 0 0 0;">
         ${footer}
       </p>
     `, locale),
@@ -191,11 +221,11 @@ export function commentSpoilerTemplate(
   return {
     subject,
     html: baseHtml(`
-      <h1 style="color:#F5F0EB;font-size:1.5rem;margin:0 0 16px 0;font-weight:700;">${heading}</h1>
-      <p style="color:#C4BDB6;font-size:1rem;line-height:1.6;margin:0 0 24px 0;">
+      <h1 class="email-heading" style="color:#F5F0EB;font-size:1.5rem;margin:0 0 16px 0;font-weight:700;">${heading}</h1>
+      <p class="email-body-text" style="color:#C4BDB6;font-size:1rem;line-height:1.6;margin:0 0 24px 0;">
         ${body}
       </p>
-      <p style="color:#8B8278;font-size:0.85rem;margin:24px 0 0 0;">
+      <p class="email-footer" style="color:#8B8278;font-size:0.85rem;margin:24px 0 0 0;">
         ${footer}
       </p>
     `, locale),

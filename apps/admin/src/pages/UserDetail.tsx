@@ -10,6 +10,16 @@ import { EmptyState } from "../components/ui/EmptyState";
 import { Dialog } from "../components/ui/Dialog";
 import { formatDate } from "../lib/utils";
 
+const LANGUAGE_FLAGS: Record<string, string> = {
+  en: "🇬🇧",
+  fr: "🇫🇷",
+  es: "🇪🇸",
+  pt: "🇵🇹",
+  de: "🇩🇪",
+  it: "🇮🇹",
+  ar: "🇸🇦",
+};
+
 interface UserDetail {
   id: string;
   email: string;
@@ -210,7 +220,7 @@ export function UserDetail() {
             </div>
             <div className="flex justify-between">
               <span className="text-text-muted">Language</span>
-              <span>{user.preferredLanguage ?? "—"}</span>
+              <span>{user.preferredLanguage ? `${LANGUAGE_FLAGS[user.preferredLanguage] ?? ""} ${user.preferredLanguage}` : "—"}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-text-muted">Theme</span>

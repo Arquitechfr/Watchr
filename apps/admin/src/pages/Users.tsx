@@ -36,13 +36,13 @@ interface UsersResponse {
 }
 
 const LANGUAGE_FLAGS: Record<string, string> = {
-  en: "🇬🇧 EN",
-  fr: "🇫🇷 FR",
-  es: "🇪🇸 ES",
-  pt: "🇵🇹 PT",
-  de: "🇩🇪 DE",
-  it: "🇮🇹 IT",
-  ar: "🇸🇦 AR",
+  en: "🇬🇧",
+  fr: "🇫🇷",
+  es: "🇪🇸",
+  pt: "🇵🇹",
+  de: "🇩🇪",
+  it: "🇮🇹",
+  ar: "🇸🇦",
 };
 
 const LANGUAGE_NAMES: Record<string, string> = {

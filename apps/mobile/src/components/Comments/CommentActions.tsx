@@ -179,10 +179,10 @@ export function CommentActions({
             <Ionicons name="create-outline" size={16} color={colors.primary} />
             <Text className="text-primary text-sm ml-1">{t("common.edit")}</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={handleDelete} activeOpacity={0.7} className="flex-row items-center">
+          {/* <TouchableOpacity onPress={handleDelete} activeOpacity={0.7} className="flex-row items-center">
             <Ionicons name="trash-outline" size={16} color={colors.danger} />
             <Text className="text-danger text-sm ml-1">{t("common.delete")}</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       )}
 

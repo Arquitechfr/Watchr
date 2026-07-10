@@ -558,6 +558,7 @@ router.get(
     const query = req.query as unknown as {
       service?: string;
       status?: "success" | "error";
+      feature?: string;
       startDate?: string;
       endDate?: string;
       search?: string;
@@ -567,6 +568,7 @@ router.get(
     const result = await getAiLogs({
       service: query.service,
       status: query.status,
+      feature: query.feature,
       startDate: query.startDate,
       endDate: query.endDate,
       search: query.search,
@@ -637,6 +639,7 @@ router.post(
         { role: "user", content: text },
       ],
       temperature: 0.3,
+      feature: "improve_text",
     });
 
     if (!result) {

@@ -91,6 +91,7 @@ export async function getAiStats(days = 30) {
 export async function getAiLogs(filters: {
   service?: string;
   status?: "success" | "error";
+  feature?: string;
   startDate?: string;
   endDate?: string;
   search?: string;
@@ -101,6 +102,7 @@ export async function getAiLogs(filters: {
 
   if (filters.service) query.service = filters.service;
   if (filters.status) query.status = filters.status;
+  if (filters.feature) query.feature = filters.feature;
 
   if (filters.startDate || filters.endDate) {
     const dateFilter: Record<string, Date> = {};
@@ -113,6 +115,7 @@ export async function getAiLogs(filters: {
     query.$or = [
       { service: { $regex: filters.search, $options: "i" } },
       { action: { $regex: filters.search, $options: "i" } },
+      { feature: { $regex: filters.search, $options: "i" } },
       { errorMessage: { $regex: filters.search, $options: "i" } },
       { aiModel: { $regex: filters.search, $options: "i" } },
     ];
@@ -132,6 +135,7 @@ export async function getAiLogs(filters: {
       id: log._id.toString(),
       service: log.service,
       action: log.action,
+      feature: log.feature,
       status: log.status,
       model: log.aiModel,
       tokens: log.tokens,
@@ -155,12 +159,15 @@ export async function getAiLogDetail(id: string) {
     id: log._id.toString(),
     service: log.service,
     action: log.action,
+    feature: log.feature,
     status: log.status,
     model: log.aiModel,
     tokens: log.tokens,
     latencyMs: log.latencyMs,
     userId: log.userId?.toString(),
     errorMessage: log.errorMessage ?? null,
+    prompt: log.prompt ?? null,
+    response: log.response ?? null,
     metadata: log.metadata ?? {},
     createdAt: log.createdAt.toISOString(),
   };

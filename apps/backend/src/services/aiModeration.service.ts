@@ -60,6 +60,7 @@ export async function moderateComment(content: string, showTitle?: string): Prom
     temperature: 0.1,
     responseFormat: { type: "json_object" },
     maxTokens: 200,
+    feature: "content_moderation",
   });
 
   if (!result) {

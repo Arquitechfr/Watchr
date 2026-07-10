@@ -53,12 +53,15 @@ interface AiLogEntry {
   id: string;
   service: string;
   action: string;
+  feature: string;
   status: "success" | "error";
   model: string;
   tokens: { prompt: number; completion: number; total: number };
   latencyMs: number;
   userId: string | null;
   errorMessage: string | null;
+  prompt: string | null;
+  response: string | null;
   metadata: Record<string, unknown>;
   createdAt: string;
 }
@@ -69,6 +72,24 @@ interface AiLogsResponse {
   page: number;
   limit: number;
 }
+
+const FEATURE_LABELS: Record<string, string> = {
+  content_moderation: "Content Moderation",
+  ai_search: "AI Search",
+  recommendations: "Recommendations",
+  import_matching: "Import Matching",
+  improve_text: "Improve Text",
+  unknown: "Unknown",
+};
+
+const FEATURE_COLORS: Record<string, string> = {
+  content_moderation: "bg-purple-500/20 text-purple-400",
+  ai_search: "bg-blue-500/20 text-blue-400",
+  recommendations: "bg-green-500/20 text-green-400",
+  import_matching: "bg-yellow-500/20 text-yellow-400",
+  improve_text: "bg-pink-500/20 text-pink-400",
+  unknown: "bg-gray-500/20 text-gray-400",
+};
 
 const STATUS_COLORS: Record<string, string> = {
   success: "bg-green-500/20 text-green-400",
@@ -99,7 +120,7 @@ export function AI() {
   const [logs, setLogs] = useState<AiLogsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
-  const [filters, setFilters] = useState({ service: "", status: "", search: "" });
+  const [filters, setFilters] = useState({ service: "", status: "", feature: "", search: "" });
   const [detail, setDetail] = useState<AiLogEntry | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
   const [togglingFlag, setTogglingFlag] = useState<string | null>(null);
@@ -110,6 +131,7 @@ export function AI() {
       const params: Record<string, unknown> = { page, limit: 20 };
       if (filters.service) params.service = filters.service;
       if (filters.status) params.status = filters.status;
+      if (filters.feature) params.feature = filters.feature;
       if (filters.search) params.search = filters.search;
 
       const [statusRes, statsRes, flagsRes, logsRes] = await Promise.all([
@@ -158,7 +180,7 @@ export function AI() {
   }
 
   function resetFilters() {
-    setFilters({ service: "", status: "", search: "" });
+    setFilters({ service: "", status: "", feature: "", search: "" });
     setPage(1);
   }
 
@@ -390,6 +412,21 @@ export function AI() {
                 <option value="error">Error</option>
               </select>
             </div>
+            <div>
+              <label className="mb-1.5 block text-sm text-text-muted">Feature</label>
+              <select
+                value={filters.feature}
+                onChange={(e) => setFilters({ ...filters, feature: e.target.value })}
+                className="rounded-md border border-border bg-background px-3 py-2 text-sm text-text"
+              >
+                <option value="">All</option>
+                <option value="content_moderation">Content Moderation</option>
+                <option value="ai_search">AI Search</option>
+                <option value="recommendations">Recommendations</option>
+                <option value="import_matching">Import Matching</option>
+                <option value="improve_text">Improve Text</option>
+              </select>
+            </div>
             <div className="flex-1 min-w-[200px]">
               <label className="mb-1.5 block text-sm text-text-muted">Search</label>
               <div className="relative">
@@ -397,7 +434,7 @@ export function AI() {
                 <Input
                   value={filters.search}
                   onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-                  placeholder="Service, action, model..."
+                  placeholder="Service, action, feature, model..."
                   className="pl-9"
                 />
               </div>
@@ -417,6 +454,7 @@ export function AI() {
             <TableHeader>
               <TableRow>
                 <TableHead>Service</TableHead>
+                <TableHead className="hidden md:table-cell">Feature</TableHead>
                 <TableHead className="hidden md:table-cell">Action</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="hidden md:table-cell">Tokens</TableHead>
@@ -429,18 +467,18 @@ export function AI() {
               {loading
                 ? Array.from({ length: 5 }).map((_, i) => (
                     <TableRow key={i}>
-                      {Array.from({ length: 7 }).map((_, j) => (
+                      {Array.from({ length: 8 }).map((_, j) => (
                         <TableCell key={j}><Skeleton height={20} /></TableCell>
                       ))}
                     </TableRow>
                   ))
                 : logs && logs.logs.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={7} className="p-0">
+                      <TableCell colSpan={8} className="p-0">
                         <EmptyState
                           icon={BrainCircuit}
                           title="No AI logs found"
-                          description={filters.service || filters.status || filters.search ? "Try adjusting your filters." : "No AI calls have been logged yet."}
+                          description={filters.service || filters.status || filters.feature || filters.search ? "Try adjusting your filters." : "No AI calls have been logged yet."}
                         />
                       </TableCell>
                     </TableRow>
@@ -448,6 +486,11 @@ export function AI() {
                 : logs?.logs.map((log) => (
                     <TableRow key={log.id} className="cursor-pointer" onClick={() => openDetail(log)}>
                       <TableCell className="font-medium">{log.service}</TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        <Badge className={FEATURE_COLORS[log.feature] ?? FEATURE_COLORS.unknown}>
+                          {FEATURE_LABELS[log.feature] ?? log.feature}
+                        </Badge>
+                      </TableCell>
                       <TableCell className="text-text-muted hidden md:table-cell">{log.action}</TableCell>
                       <TableCell>
                         <Badge className={STATUS_COLORS[log.status] ?? "bg-gray-500/20 text-gray-400"}>
@@ -506,6 +549,12 @@ export function AI() {
                 <p className="font-medium">{detail.service}</p>
               </div>
               <div>
+                <p className="text-text-muted mb-1">Feature</p>
+                <Badge className={FEATURE_COLORS[detail.feature] ?? FEATURE_COLORS.unknown}>
+                  {FEATURE_LABELS[detail.feature] ?? detail.feature}
+                </Badge>
+              </div>
+              <div>
                 <p className="text-text-muted mb-1">Action</p>
                 <p className="font-medium">{detail.action}</p>
               </div>
@@ -538,6 +587,20 @@ export function AI() {
                 <p className="font-medium">{formatDate(detail.createdAt)}</p>
               </div>
             </div>
+
+            {detail.prompt && (
+              <div>
+                <p className="text-text-muted mb-1 text-sm">Prompt sent to AI</p>
+                <pre className="text-xs bg-background rounded-md p-3 overflow-auto max-h-48 border border-border whitespace-pre-wrap">{detail.prompt}</pre>
+              </div>
+            )}
+
+            {detail.response && (
+              <div>
+                <p className="text-text-muted mb-1 text-sm">AI Response</p>
+                <pre className="text-xs bg-background rounded-md p-3 overflow-auto max-h-48 border border-border whitespace-pre-wrap">{detail.response}</pre>
+              </div>
+            )}
 
             {detail.errorMessage && (
               <div>

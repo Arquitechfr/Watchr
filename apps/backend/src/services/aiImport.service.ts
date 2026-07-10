@@ -52,6 +52,7 @@ IMDB ID: ${record.imdbId ?? "none"}`;
     temperature: 0.1,
     responseFormat: { type: "json_object" },
     maxTokens: 150,
+    feature: "import_matching",
   });
 
   if (!result) {

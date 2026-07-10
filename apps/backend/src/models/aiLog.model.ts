@@ -3,6 +3,7 @@ import { Schema, model, Document, Types } from "mongoose";
 export interface IAiLog extends Document {
   service: string;
   action: string;
+  feature: string;
   status: "success" | "error";
   aiModel: string;
   tokens: {
@@ -13,6 +14,8 @@ export interface IAiLog extends Document {
   latencyMs: number;
   userId?: Types.ObjectId;
   errorMessage?: string;
+  prompt?: string;
+  response?: string;
   metadata: {
     promptLength?: number;
     responseLength?: number;
@@ -27,6 +30,7 @@ const aiLogSchema = new Schema<IAiLog>(
   {
     service: { type: String, required: true },
     action: { type: String, required: true },
+    feature: { type: String, required: true, default: "unknown" },
     status: { type: String, enum: ["success", "error"], required: true },
     aiModel: { type: String, required: true },
     tokens: {
@@ -37,6 +41,8 @@ const aiLogSchema = new Schema<IAiLog>(
     latencyMs: { type: Number, default: 0 },
     userId: { type: Schema.Types.ObjectId, ref: "User" },
     errorMessage: { type: String },
+    prompt: { type: String },
+    response: { type: String },
     metadata: {
       type: Schema.Types.Mixed,
       default: {},
@@ -47,6 +53,7 @@ const aiLogSchema = new Schema<IAiLog>(
 
 aiLogSchema.index({ service: 1, createdAt: -1 });
 aiLogSchema.index({ status: 1, createdAt: -1 });
+aiLogSchema.index({ feature: 1, createdAt: -1 });
 aiLogSchema.index({ userId: 1 });
 aiLogSchema.index({ createdAt: 1 }, { expireAfterSeconds: 2592000 });
 

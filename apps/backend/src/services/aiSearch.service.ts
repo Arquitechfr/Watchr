@@ -49,6 +49,7 @@ Examples:
     temperature: 0.1,
     responseFormat: { type: "json_object" },
     maxTokens: 200,
+    feature: "ai_search",
   });
 
   if (!result) {

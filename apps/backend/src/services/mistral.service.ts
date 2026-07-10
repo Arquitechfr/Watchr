@@ -16,6 +16,7 @@ export interface MistralChatParams {
   temperature?: number;
   maxTokens?: number;
   responseFormat?: { type: "text" | "json_object" };
+  feature?: string;
 }
 
 export interface MistralChatResult {
@@ -87,6 +88,9 @@ class MistralService {
 
     const startTime = Date.now();
     const totalPromptLength = messages.reduce((sum, m) => sum + m.content.length, 0);
+    const feature = params.feature ?? "unknown";
+    const promptText = messages.map((m) => `[${m.role}] ${m.content}`).join("\n");
+    const MAX_LOG_LENGTH = 5000;
 
     try {
       const result = await client.chat.complete({
@@ -109,6 +113,7 @@ class MistralService {
       AiLog.create({
         service: "MistralService",
         action: "chat",
+        feature,
         status: "success",
         aiModel: result.model ?? model,
         tokens: {
@@ -117,6 +122,8 @@ class MistralService {
           total: result.usage?.totalTokens ?? 0,
         },
         latencyMs,
+        prompt: promptText.slice(0, MAX_LOG_LENGTH),
+        response: textContent.slice(0, MAX_LOG_LENGTH),
         metadata: {
           promptLength: totalPromptLength,
           responseLength: textContent.length,
@@ -142,11 +149,13 @@ class MistralService {
       AiLog.create({
         service: "MistralService",
         action: "chat",
+        feature,
         status: "error",
         aiModel: model,
         tokens: { prompt: 0, completion: 0, total: 0 },
         latencyMs,
         errorMessage: message,
+        prompt: promptText.slice(0, MAX_LOG_LENGTH),
         metadata: {
           promptLength: totalPromptLength,
           messageCount: messages.length,

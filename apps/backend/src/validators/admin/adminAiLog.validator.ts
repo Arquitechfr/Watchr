@@ -3,6 +3,7 @@ import { z } from "zod";
 export const listAiLogsQuerySchema = z.object({
   service: z.string().optional(),
   status: z.enum(["success", "error"]).optional(),
+  feature: z.string().optional(),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
   search: z.string().optional(),

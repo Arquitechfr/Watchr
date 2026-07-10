@@ -132,6 +132,7 @@ Rules:
     temperature: 0.7,
     responseFormat: { type: "json_object" },
     maxTokens: 1500,
+    feature: "recommendations",
   });
 
   if (!result) {

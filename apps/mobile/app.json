@@ -38,41 +38,42 @@
         "projectId": "326c4789-7383-4a4c-9cd7-202f4bc90faf"
       }
     },
-      "plugins": [
-        "expo-font",
-        "expo-secure-store",
-        "./plugins/withCustomSplashScreen",
-        "expo-localization",
-        "expo-notifications",
-        "expo-dev-client",
-        "@react-native-google-signin/google-signin",
-        [
-          "@sentry/react-native/expo",
-          {
-            "dsn": "https://bf2e227cd3abf6f8e316e40c13f874dc@o4511684973428736.ingest.de.sentry.io/4511684992893008",
-            "organization": "arquitech-fq",
-            "project": "watchr-expo"
-          }
-        ],
-        [
-          "react-native-android-widget",
-          {
-            "widgets": [
-              {
-                "name": "UpNext",
-                "label": "Watchr Up Next",
-                "minWidth": "250dp",
-                "minHeight": "180dp",
-                "targetCellWidth": 4,
-                "targetCellHeight": 2,
-                "resizeMode": "horizontal|vertical",
-                "updatePeriodMillis": 1800000,
-                "description": "Episodes to watch & upcoming releases"
-              }
-            ]
-          }
-        ]
+    "plugins": [
+      "expo-font",
+      "expo-secure-store",
+      "./plugins/withCustomSplashScreen",
+      "expo-localization",
+      "expo-notifications",
+      "expo-dev-client",
+      "@react-native-google-signin/google-signin",
+      [
+        "@sentry/react-native/expo",
+        {
+          "dsn": "https://bf2e227cd3abf6f8e316e40c13f874dc@o4511684973428736.ingest.de.sentry.io/4511684992893008",
+          "organization": "arquitech-fq",
+          "project": "watchr-expo"
+        }
       ],
+      [
+        "react-native-android-widget",
+        {
+          "widgets": [
+            {
+              "name": "UpNext",
+              "label": "Watchr Up Next",
+              "minWidth": "250dp",
+              "minHeight": "180dp",
+              "targetCellWidth": 4,
+              "targetCellHeight": 2,
+              "resizeMode": "horizontal|vertical",
+              "updatePeriodMillis": 1800000,
+              "description": "Episodes to watch & upcoming releases"
+            }
+          ]
+        }
+      ],
+      "@sentry/react-native"
+    ],
     "owner": "arquitech"
   }
 }

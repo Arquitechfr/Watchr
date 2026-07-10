@@ -16,5 +16,11 @@
     "prettier": "^3.3.2",
     "typescript": "^5.5.2",
     "concurrently": "^8.2.2"
+  },
+  "pnpm": {
+    "overrides": {
+      "react": "19.2.3",
+      "react-dom": "19.2.3"
+    }
   }
 }

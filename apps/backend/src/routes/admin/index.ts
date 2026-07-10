@@ -11,7 +11,9 @@ import { jobIdParamSchema } from "../../validators/admin/adminJob.validator.js";
 import { listShowsQuerySchema, syncShowSchema, showIdParamSchema, tmdbIdParamSchema } from "../../validators/admin/adminShow.validator.js";
 import { configKeyParamSchema, setConfigSchema } from "../../validators/admin/adminConfig.validator.js";
 import { listImportsQuerySchema } from "../../validators/admin/adminImport.validator.js";
+import { improveTextSchema } from "../../validators/admin/adminAi.validator.js";
 import { listReportsQuerySchema, reportIdParamSchema } from "../../validators/report.validator.js";
+import { mistralService } from "../../services/mistral.service.js";
 import { getAdminStats, getUserGrowth, getCommentActivity, getShowTypeBreakdown } from "../../services/admin/adminStats.service.js";
 import { listUsers, getUserDetail, scheduleUserStatusAction, cancelBanAction, getBanHistory, updateUserRole, deleteUser } from "../../services/admin/adminUser.service.js";
 import { listAllComments, adminDeleteComment, adminBulkDeleteComments, adminMarkSpoiler, deleteAllUserComments, deleteAllComments } from "../../services/admin/adminComment.service.js";
@@ -533,6 +535,35 @@ router.get(
   asyncHandler(async (_req: Request, res: Response) => {
     const stats = await getImportStats();
     res.json(stats);
+  }),
+);
+
+// AI
+router.post(
+  "/ai/improve-text",
+  validateRequest(improveTextSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    if (!mistralService.isConfigured()) {
+      res.status(503).json({ error: { code: "MISTRAL_NOT_CONFIGURED", message: "Mistral AI service is not configured" } });
+      return;
+    }
+
+    const { text, format } = req.body as { text: string; format: "plain" | "html" };
+
+    const systemPrompt =
+      format === "html"
+        ? "Improve the following text: correct spelling, grammar, and style. Keep it concise and engaging. Return ONLY the improved text, no explanations. Preserve the HTML structure and tags. Only improve the text content within the HTML."
+        : "Improve the following text: correct spelling, grammar, and style. Keep it concise and engaging. Return ONLY the improved text, no explanations.";
+
+    const result = await mistralService.chat({
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: text },
+      ],
+      temperature: 0.3,
+    });
+
+    res.json({ improvedText: result.content });
   }),
 );
 

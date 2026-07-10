@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useRef, type FormEvent } from "react";
 import { Mail, Search, ChevronLeft, ChevronRight, Eye, Send, Loader2 } from "lucide-react";
 import api from "../lib/api";
+import { AiImproveButton } from "../components/ui/AiImproveButton";
 import { Card, CardHeader, CardTitle, CardContent } from "../components/ui/Card";
 import { Badge } from "../components/ui/Badge";
 import { Button } from "../components/ui/Button";
@@ -282,7 +283,14 @@ export function EmailLogs() {
           <CardContent>
             <form onSubmit={handleBroadcast} className="space-y-4">
               <div>
-                <label className="mb-1.5 block text-sm text-text-muted">Subject</label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-sm text-text-muted">Subject</label>
+                  <AiImproveButton
+                    value={broadcastForm.subject}
+                    onImproved={(text) => setBroadcastForm({ ...broadcastForm, subject: text })}
+                    format="plain"
+                  />
+                </div>
                 <Input
                   value={broadcastForm.subject}
                   onChange={(e) => setBroadcastForm({ ...broadcastForm, subject: e.target.value })}
@@ -291,7 +299,14 @@ export function EmailLogs() {
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-sm text-text-muted">Content</label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-sm text-text-muted">Content</label>
+                  <AiImproveButton
+                    value={broadcastForm.htmlContent}
+                    onImproved={(text) => setBroadcastForm({ ...broadcastForm, htmlContent: text })}
+                    format="html"
+                  />
+                </div>
                 <RichTextEditor
                   value={broadcastForm.htmlContent}
                   onChange={(val) => setBroadcastForm({ ...broadcastForm, htmlContent: val })}
@@ -376,7 +391,14 @@ export function EmailLogs() {
                 )}
               </div>
               <div>
-                <label className="mb-1.5 block text-sm text-text-muted">Subject</label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-sm text-text-muted">Subject</label>
+                  <AiImproveButton
+                    value={targetedForm.subject}
+                    onImproved={(text) => setTargetedForm({ ...targetedForm, subject: text })}
+                    format="plain"
+                  />
+                </div>
                 <Input
                   value={targetedForm.subject}
                   onChange={(e) => setTargetedForm({ ...targetedForm, subject: e.target.value })}
@@ -385,7 +407,14 @@ export function EmailLogs() {
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-sm text-text-muted">Content</label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-sm text-text-muted">Content</label>
+                  <AiImproveButton
+                    value={targetedForm.htmlContent}
+                    onImproved={(text) => setTargetedForm({ ...targetedForm, htmlContent: text })}
+                    format="html"
+                  />
+                </div>
                 <RichTextEditor
                   value={targetedForm.htmlContent}
                   onChange={(val) => setTargetedForm({ ...targetedForm, htmlContent: val })}

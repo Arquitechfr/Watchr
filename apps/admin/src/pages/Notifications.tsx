@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useRef, type FormEvent } from "react";
 import { Send, Search, ChevronLeft, ChevronRight, Eye, Bell, Loader2 } from "lucide-react";
 import api from "../lib/api";
+import { AiImproveButton } from "../components/ui/AiImproveButton";
 import { Card, CardHeader, CardTitle, CardContent } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
@@ -320,11 +321,25 @@ export function Notifications() {
           <CardContent>
             <form onSubmit={handleBroadcast} className="space-y-4">
               <div>
-                <label className="mb-1.5 block text-sm text-text-muted">Title</label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-sm text-text-muted">Title</label>
+                  <AiImproveButton
+                    value={broadcastForm.title}
+                    onImproved={(text) => setBroadcastForm({ ...broadcastForm, title: text })}
+                    format="plain"
+                  />
+                </div>
                 <Input value={broadcastForm.title} onChange={(e) => setBroadcastForm({ ...broadcastForm, title: e.target.value })} required maxLength={200} />
               </div>
               <div>
-                <label className="mb-1.5 block text-sm text-text-muted">Body</label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-sm text-text-muted">Body</label>
+                  <AiImproveButton
+                    value={broadcastForm.body}
+                    onImproved={(text) => setBroadcastForm({ ...broadcastForm, body: text })}
+                    format="plain"
+                  />
+                </div>
                 <Input value={broadcastForm.body} onChange={(e) => setBroadcastForm({ ...broadcastForm, body: e.target.value })} required maxLength={500} />
               </div>
               <div>
@@ -400,11 +415,25 @@ export function Notifications() {
                 )}
               </div>
               <div>
-                <label className="mb-1.5 block text-sm text-text-muted">Title</label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-sm text-text-muted">Title</label>
+                  <AiImproveButton
+                    value={targetedForm.title}
+                    onImproved={(text) => setTargetedForm({ ...targetedForm, title: text })}
+                    format="plain"
+                  />
+                </div>
                 <Input value={targetedForm.title} onChange={(e) => setTargetedForm({ ...targetedForm, title: e.target.value })} required maxLength={200} />
               </div>
               <div>
-                <label className="mb-1.5 block text-sm text-text-muted">Body</label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-sm text-text-muted">Body</label>
+                  <AiImproveButton
+                    value={targetedForm.body}
+                    onImproved={(text) => setTargetedForm({ ...targetedForm, body: text })}
+                    format="plain"
+                  />
+                </div>
                 <Input value={targetedForm.body} onChange={(e) => setTargetedForm({ ...targetedForm, body: e.target.value })} required maxLength={500} />
               </div>
               <Button type="submit" disabled={sending}>

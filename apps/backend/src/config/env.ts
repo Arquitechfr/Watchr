@@ -43,6 +43,7 @@ const envSchema = z.object({
   SENTRY_DSN: z.string().optional(),
   MAKE_WEBHOOK_URL: z.string().optional(),
   MAKE_API_KEY: z.string().optional(),
+  MISTRAL_API_KEY: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);

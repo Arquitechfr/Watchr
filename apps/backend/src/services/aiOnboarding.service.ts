@@ -10,7 +10,7 @@ import type { SupportedLocale } from "../i18n/translations.js";
 const CACHE_TTL = 6 * 60 * 60;
 
 async function isFeatureEnabled(): Promise<boolean> {
-  const entry = await MobileConfig.findOne({ key: "ai_onboarding_enabled" }).lean();
+  const entry = await MobileConfig.findOne({ key: "ai_onboarding_suggestions_enabled" }).lean();
   return entry?.value === "true";
 }
 

@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 import { requireAuth } from "../middleware/requireAuth.middleware.js";
 import { deleteRating, listRatingsForShow, upsertRating } from "../services/rating.service.js";
-import { upsertRatingSchema } from "../validators/rating.validator.js";
+import { upsertRatingSchema, showIdParamSchema, ratingIdParamSchema } from "../validators/rating.validator.js";
 import { validateRequest } from "../validators/validateRequest.js";
 import { asyncHandler } from "../lib/asyncHandler.js";
 
@@ -20,6 +20,7 @@ router.post(
 
 router.get(
   "/:showId",
+  validateRequest(undefined, undefined, showIdParamSchema),
   asyncHandler(async (req: Request, res: Response) => {
     const { showId } = req.params;
     const result = await listRatingsForShow(req.userId!, showId);
@@ -29,6 +30,7 @@ router.get(
 
 router.delete(
   "/:id",
+  validateRequest(undefined, undefined, ratingIdParamSchema),
   asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
     await deleteRating(req.userId!, id);

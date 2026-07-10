@@ -13,3 +13,11 @@ export const upsertRatingSchema = z.object({
   value: z.coerce.number().int().min(1).max(5),
   review: z.string().max(2000).optional(),
 });
+
+export const showIdParamSchema = z.object({
+  showId: z.string().min(1, "Show ID is required"),
+});
+
+export const ratingIdParamSchema = z.object({
+  id: z.string().min(1, "Rating ID is required"),
+});

@@ -13,6 +13,12 @@ export const seasonParamSchema = z.object({
   seasonNumber: z.coerce.number().int().positive(),
 });
 
+export const episodeParamSchema = z.object({
+  tmdbId: z.coerce.number().int().positive(),
+  seasonNumber: z.coerce.number().int().positive(),
+  episodeNumber: z.coerce.number().int().positive(),
+});
+
 export const discoverSectionParamSchema = z.object({
   sectionId: z.enum(["trending-tv", "trending-movie", "popular-tv", "popular-movie"]),
 });

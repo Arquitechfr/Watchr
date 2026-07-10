@@ -39,7 +39,14 @@ export async function getDefaultSourceId(locale: SupportedLocale): Promise<strin
 }
 
 export async function getNews(sourceId?: string, limit: number = 30, locale: string = "en"): Promise<NewsArticle[]> {
-  const cacheKey = `news:${sourceId ?? "default"}:${limit}`;
+  if (sourceId) {
+    return getNewsFromSingleSource(sourceId, limit, locale);
+  }
+  return getNewsFromAllSources(limit, locale);
+}
+
+async function getNewsFromSingleSource(sourceId: string, limit: number, locale: string): Promise<NewsArticle[]> {
+  const cacheKey = `news:${sourceId}:${limit}`;
   const cached = await getRedisValue(cacheKey);
   if (cached) {
     try {
@@ -49,53 +56,16 @@ export async function getNews(sourceId?: string, limit: number = 30, locale: str
     }
   }
 
-  let source = null;
-
-  if (sourceId) {
-    source = await NewsSource.findOne({ id: sourceId, isActive: true }).lean();
-  }
+  const source = await NewsSource.findOne({ id: sourceId, isActive: true }).lean();
 
   if (!source) {
     throw new ApiError(400, "INVALID_SOURCE", "Invalid news source");
   }
 
-  log("NewsService", "fetch", { sourceId: source.id, url: source.url });
+  log("NewsService", "fetch single source", { sourceId: source.id, url: source.url });
 
   try {
-    const response = await fetchWithRetry(source.url);
-
-    const parsed = parser.parse(response.data) as {
-      rss?: {
-        channel?: {
-          item?: Array<{
-            title?: string;
-            link?: string;
-            pubDate?: string;
-            description?: string;
-            "media:thumbnail"?: { url?: string } | Array<{ url?: string }>;
-            enclosure?: { url?: string } | Array<{ url?: string }>;
-          }>;
-        };
-      };
-    };
-
-    const items = parsed.rss?.channel?.item ?? [];
-    const articles = (Array.isArray(items) ? items : [items])
-      .slice(0, limit)
-      .map((item): NewsArticle => {
-        const thumbnail = item["media:thumbnail"];
-        const enclosure = item.enclosure;
-        const image = extractImageUrl(thumbnail) || extractImageUrl(enclosure);
-
-        return {
-          title: cleanText(item.title) || "Sans titre",
-          link: item.link || "",
-          pubDate: item.pubDate,
-          description: cleanText(item.description),
-          image,
-        };
-      });
-
+    const articles = await fetchAndParseFeed(source.url, limit);
     log("NewsService", "articles", { count: articles.length });
     const enriched = await enrichNewsWithSummaries(articles, locale);
     await setRedisValue(cacheKey, JSON.stringify(enriched), 120);
@@ -112,6 +82,88 @@ export async function getNews(sourceId?: string, limit: number = 30, locale: str
     }
     throw new ApiError(502, "NEWS_FETCH_ERROR", "Failed to fetch news feed");
   }
+}
+
+async function getNewsFromAllSources(limit: number, locale: string): Promise<NewsArticle[]> {
+  const cacheKey = `news:all:${locale}:${limit}`;
+  const cached = await getRedisValue(cacheKey);
+  if (cached) {
+    try {
+      return JSON.parse(cached) as NewsArticle[];
+    } catch {
+      // Cache corrupt, proceed to fetch
+    }
+  }
+
+  const sources = await NewsSource.find({ locale, isActive: true }).sort({ createdAt: 1 }).lean();
+  if (sources.length === 0) {
+    return [];
+  }
+
+  log("NewsService", "fetch all sources", { count: sources.length, locale });
+
+  const results = await Promise.allSettled(
+    sources.map((source) => fetchAndParseFeed(source.url, limit)),
+  );
+
+  const allArticles: NewsArticle[] = [];
+  for (let i = 0; i < results.length; i++) {
+    const result = results[i];
+    if (result.status === "fulfilled") {
+      allArticles.push(...result.value);
+    } else {
+      logError("NewsService", "source fetch failed", result.reason, { sourceId: sources[i].id });
+    }
+  }
+
+  allArticles.sort((a, b) => {
+    const dateA = a.pubDate ? new Date(a.pubDate).getTime() : 0;
+    const dateB = b.pubDate ? new Date(b.pubDate).getTime() : 0;
+    return dateB - dateA;
+  });
+
+  const sliced = allArticles.slice(0, limit);
+  log("NewsService", "aggregated articles", { total: allArticles.length, returned: sliced.length });
+
+  const enriched = await enrichNewsWithSummaries(sliced, locale);
+  await setRedisValue(cacheKey, JSON.stringify(enriched), 120);
+  return enriched;
+}
+
+async function fetchAndParseFeed(url: string, limit: number): Promise<NewsArticle[]> {
+  const response = await fetchWithRetry(url);
+
+  const parsed = parser.parse(response.data) as {
+    rss?: {
+      channel?: {
+        item?: Array<{
+          title?: string;
+          link?: string;
+          pubDate?: string;
+          description?: string;
+          "media:thumbnail"?: { url?: string } | Array<{ url?: string }>;
+          enclosure?: { url?: string } | Array<{ url?: string }>;
+        }>;
+      };
+    };
+  };
+
+  const items = parsed.rss?.channel?.item ?? [];
+  return (Array.isArray(items) ? items : [items])
+    .slice(0, limit)
+    .map((item): NewsArticle => {
+      const thumbnail = item["media:thumbnail"];
+      const enclosure = item.enclosure;
+      const image = extractImageUrl(thumbnail) || extractImageUrl(enclosure);
+
+      return {
+        title: cleanText(item.title) || "Sans titre",
+        link: item.link || "",
+        pubDate: item.pubDate,
+        description: cleanText(item.description),
+        image,
+      };
+    });
 }
 
 async function fetchWithRetry(url: string, maxRetries = 2): Promise<{ data: string }> {

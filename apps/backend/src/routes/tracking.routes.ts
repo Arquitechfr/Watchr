@@ -26,6 +26,7 @@ import {
   listTrackingSchema,
   markAllAiredSchema,
   markUpToSchema,
+  showIdParamSchema,
   toggleDroppedSchema,
   toggleEpisodeSchema,
   unmarkSeasonSchema,
@@ -109,6 +110,7 @@ router.post(
 
 router.get(
   "/:showId",
+  validateRequest(undefined, undefined, showIdParamSchema),
   asyncHandler(async (req: Request, res: Response) => {
     const { showId } = req.params;
     const entry = await getTrackingEntry(req.userId!, showId);
@@ -121,7 +123,7 @@ router.get(
 
 router.post(
   "/:showId",
-  validateRequest(upsertTrackingSchema),
+  validateRequest(upsertTrackingSchema, undefined, showIdParamSchema),
   asyncHandler(async (req: Request, res: Response) => {
     const { showId } = req.params;
     const entry = await upsertTracking(req.userId!, showId, req.body);
@@ -131,7 +133,7 @@ router.post(
 
 router.post(
   "/:showId/upsert-with-progress",
-  validateRequest(upsertWithProgressSchema),
+  validateRequest(upsertWithProgressSchema, undefined, showIdParamSchema),
   asyncHandler(async (req: Request, res: Response) => {
     const { showId } = req.params;
     const entry = await upsertWithProgress(req.userId!, showId, req.body);
@@ -141,7 +143,7 @@ router.post(
 
 router.patch(
   "/:showId/episodes",
-  validateRequest(toggleEpisodeSchema),
+  validateRequest(toggleEpisodeSchema, undefined, showIdParamSchema),
   asyncHandler(async (req: Request, res: Response) => {
     const { showId } = req.params;
     const { season, episode, watched } = req.body;
@@ -152,7 +154,7 @@ router.patch(
 
 router.patch(
   "/:showId/dropped",
-  validateRequest(toggleDroppedSchema),
+  validateRequest(toggleDroppedSchema, undefined, showIdParamSchema),
   asyncHandler(async (req: Request, res: Response) => {
     const { showId } = req.params;
     const { dropped } = req.body;
@@ -163,7 +165,7 @@ router.patch(
 
 router.post(
   "/:showId/mark-up-to",
-  validateRequest(markUpToSchema),
+  validateRequest(markUpToSchema, undefined, showIdParamSchema),
   asyncHandler(async (req: Request, res: Response) => {
     const { showId } = req.params;
     const { season, episode, includePrevious } = req.body;
@@ -174,7 +176,7 @@ router.post(
 
 router.post(
   "/:showId/mark-all-aired",
-  validateRequest(markAllAiredSchema),
+  validateRequest(markAllAiredSchema, undefined, showIdParamSchema),
   asyncHandler(async (req: Request, res: Response) => {
     const { showId } = req.params;
     const { season } = req.body;
@@ -185,7 +187,7 @@ router.post(
 
 router.post(
   "/:showId/unmark-season",
-  validateRequest(unmarkSeasonSchema),
+  validateRequest(unmarkSeasonSchema, undefined, showIdParamSchema),
   asyncHandler(async (req: Request, res: Response) => {
     const { showId } = req.params;
     const { season } = req.body;
@@ -196,6 +198,7 @@ router.post(
 
 router.delete(
   "/:showId",
+  validateRequest(undefined, undefined, showIdParamSchema),
   asyncHandler(async (req: Request, res: Response) => {
     const { showId } = req.params;
     await deleteTracking(req.userId!, showId);

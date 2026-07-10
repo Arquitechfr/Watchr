@@ -9,7 +9,7 @@ import { getOnboardingSuggestions } from "../services/aiOnboarding.service.js";
 import { semanticSearchShows } from "../services/aiSemanticSearch.service.js";
 import { getEpisodeSummary } from "../services/aiEpisodeSummary.service.js";
 import { getEnrichedTags } from "../services/aiEnrichedTags.service.js";
-import { searchSchema, tmdbIdParamSchema, seasonParamSchema, discoverSectionParamSchema, discoverSectionQuerySchema } from "../validators/show.validator.js";
+import { searchSchema, tmdbIdParamSchema, seasonParamSchema, episodeParamSchema, discoverSectionParamSchema, discoverSectionQuerySchema } from "../validators/show.validator.js";
 import { validateRequest } from "../validators/validateRequest.js";
 import { asyncHandler } from "../lib/asyncHandler.js";
 import { cacheResponse } from "../middleware/cache.middleware.js";
@@ -125,7 +125,7 @@ router.get(
 
 router.get(
   "/:tmdbId/seasons/:seasonNumber/episodes/:episodeNumber/summary",
-  validateRequest(undefined, undefined, seasonParamSchema),
+  validateRequest(undefined, undefined, episodeParamSchema),
   asyncHandler(async (req: Request, res: Response) => {
     const { tmdbId, seasonNumber, episodeNumber } = req.params;
     const summary = await getEpisodeSummary(

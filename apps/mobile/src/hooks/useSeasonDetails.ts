@@ -7,7 +7,7 @@ export function useSeasonDetails(tmdbId: number, seasonNumber: number) {
   return useQuery({
     queryKey: ["shows", "season", tmdbId, seasonNumber],
     queryFn: () => getSeasonDetails(tmdbId, seasonNumber),
-    enabled: isHydrated && Boolean(tmdbId) && Boolean(seasonNumber),
+    enabled: isHydrated && Number.isFinite(tmdbId) && tmdbId > 0 && Number.isFinite(seasonNumber) && seasonNumber > 0,
     staleTime: 2 * 60 * 1000,
   });
 }

@@ -7,7 +7,7 @@ export function useSimilarShows(tmdbId: number | undefined) {
   return useQuery<SimilarShowsResult>({
     queryKey: ["similar-shows", tmdbId],
     queryFn: () => getSimilarShows(tmdbId!),
-    enabled: isHydrated && Boolean(tmdbId),
+    enabled: isHydrated && Number.isFinite(tmdbId) && tmdbId! > 0,
     staleTime: 60 * 60 * 1000,
   });
 }

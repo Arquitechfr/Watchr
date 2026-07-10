@@ -4,17 +4,17 @@ import { asyncHandler } from "../../lib/asyncHandler.js";
 import { logError } from "../../lib/logger.js";
 import { validateRequest } from "../../validators/validateRequest.js";
 import { listUsersQuerySchema, userIdParamSchema, updateUserStatusSchema, updateUserRoleSchema, cancelBanSchema } from "../../validators/admin/adminUser.validator.js";
-import { listCommentsQuerySchema, commentIdParamSchema, markSpoilerSchema, bulkDeleteSchema } from "../../validators/admin/adminComment.validator.js";
+import { listCommentsQuerySchema, commentIdParamSchema, markSpoilerSchema, bulkDeleteSchema, aiCommentIdParamSchema } from "../../validators/admin/adminComment.validator.js";
 import { createNewsSourceSchema, updateNewsSourceSchema, newsSourceIdParamSchema } from "../../validators/admin/adminNews.validator.js";
 import { broadcastSchema, targetedSchema, notificationHistoryQuerySchema, notificationIdParamSchema } from "../../validators/admin/adminNotification.validator.js";
 import { emailHistoryQuerySchema, emailIdParamSchema, emailBroadcastSchema, emailTargetedSchema } from "../../validators/admin/adminEmail.validator.js";
 import { jobIdParamSchema } from "../../validators/admin/adminJob.validator.js";
-import { listShowsQuerySchema, syncShowSchema, showIdParamSchema, tmdbIdParamSchema } from "../../validators/admin/adminShow.validator.js";
+import { listShowsQuerySchema, syncShowSchema, showIdParamSchema, tmdbIdParamSchema, aiShowIdParamSchema } from "../../validators/admin/adminShow.validator.js";
 import { configKeyParamSchema, setConfigSchema } from "../../validators/admin/adminConfig.validator.js";
 import { listImportsQuerySchema } from "../../validators/admin/adminImport.validator.js";
 import { improveTextSchema } from "../../validators/admin/adminAi.validator.js";
 import { listAiLogsQuerySchema, aiLogIdParamSchema, aiStatsQuerySchema, aiFlagParamSchema, setAiFlagSchema } from "../../validators/admin/adminAiLog.validator.js";
-import { listReportsQuerySchema, reportIdParamSchema } from "../../validators/report.validator.js";
+import { listReportsQuerySchema, reportIdParamSchema, aiReportIdParamSchema } from "../../validators/report.validator.js";
 import { mistralService } from "../../services/mistral.service.js";
 import { getAdminStats, getUserGrowth, getCommentActivity, getShowTypeBreakdown } from "../../services/admin/adminStats.service.js";
 import { listUsers, getUserDetail, scheduleUserStatusAction, cancelBanAction, getBanHistory, updateUserRole, deleteUser } from "../../services/admin/adminUser.service.js";
@@ -665,6 +665,12 @@ router.post(
       const success = await sendWeeklyDigestToUser(userId);
       res.json({ success });
     } else {
+      const { MobileConfig } = await import("../../models/MobileConfig.js");
+      const flag = await MobileConfig.findOne({ key: "ai_email_digest_enabled" }).lean();
+      if (flag?.value !== "true") {
+        res.json({ message: "Weekly digest is disabled. Enable the 'Email Digest' AI flag first." });
+        return;
+      }
       sendWeeklyDigestBatch().catch((err) => logError("AdminDigest", "batch failed", err));
       res.json({ message: "Weekly digest batch started" });
     }
@@ -675,6 +681,12 @@ router.post(
 router.post(
   "/ai/reengagement",
   asyncHandler(async (_req: Request, res: Response) => {
+    const { MobileConfig } = await import("../../models/MobileConfig.js");
+    const flag = await MobileConfig.findOne({ key: "ai_reengagement_enabled" }).lean();
+    if (flag?.value !== "true") {
+      res.json({ message: "Re-engagement is disabled. Enable the 'Re-engagement' AI flag first." });
+      return;
+    }
     sendReengagementBatch().catch((err) => logError("AdminReengagement", "batch failed", err));
     res.json({ message: "Re-engagement batch started" });
   }),
@@ -690,7 +702,7 @@ router.get(
 
 router.post(
   "/ai/analyze-comment/:commentId",
-  validateRequest(undefined, undefined, commentIdParamSchema),
+  validateRequest(undefined, undefined, aiCommentIdParamSchema),
   asyncHandler(async (req: Request, res: Response) => {
     const { commentId } = req.params;
     const analysis = await analyzeComment(commentId);
@@ -700,7 +712,7 @@ router.post(
 
 router.post(
   "/ai/report-suggestion/:reportId",
-  validateRequest(undefined, undefined, reportIdParamSchema),
+  validateRequest(undefined, undefined, aiReportIdParamSchema),
   asyncHandler(async (req: Request, res: Response) => {
     const { reportId } = req.params;
     const suggestion = await suggestReportAction(reportId);
@@ -710,7 +722,7 @@ router.post(
 
 router.post(
   "/ai/show-description/:showId",
-  validateRequest(undefined, undefined, showIdParamSchema),
+  validateRequest(undefined, undefined, aiShowIdParamSchema),
   asyncHandler(async (req: Request, res: Response) => {
     const { showId } = req.params;
     const suggestion = await suggestShowDescription(showId, req.language);

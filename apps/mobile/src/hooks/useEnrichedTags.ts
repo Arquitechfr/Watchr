@@ -7,7 +7,7 @@ export function useEnrichedTags(tmdbId: number, type?: "tv" | "movie") {
   return useQuery({
     queryKey: ["shows", "enriched-tags", tmdbId, type],
     queryFn: () => getEnrichedTags(tmdbId, type),
-    enabled: isHydrated && Boolean(tmdbId),
+    enabled: isHydrated && Number.isFinite(tmdbId) && tmdbId > 0,
     staleTime: 24 * 60 * 60 * 1000,
     gcTime: 7 * 24 * 60 * 60 * 1000,
   });

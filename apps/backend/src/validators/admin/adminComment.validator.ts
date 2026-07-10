@@ -16,6 +16,10 @@ export const commentIdParamSchema = z.object({
   id: z.string().min(1),
 });
 
+export const aiCommentIdParamSchema = z.object({
+  commentId: z.string().min(1),
+});
+
 export const markSpoilerSchema = z.object({
   isSpoiler: z.boolean(),
 });

@@ -47,13 +47,14 @@ export async function getEpisodeSummary(
   if (!overview || overview.length < 20) {
     const fallback = overview || `${episodeName} of ${showName}, Season ${seasonNumber}`;
     const result: EpisodeSummaryResult = { summary: fallback, source: "tmdb" };
-    await setRedisValue(cacheKey, JSON.stringify(result), CACHE_TTL);
+    await setRedisValue(cacheKey, JSON.stringify(result), 300);
     return result;
   }
 
   const enabled = await isFeatureEnabled();
   if (!enabled || !mistralService.isConfigured()) {
     const result: EpisodeSummaryResult = { summary: overview, source: "tmdb" };
+    await setRedisValue(cacheKey, JSON.stringify(result), 300);
     return result;
   }
 

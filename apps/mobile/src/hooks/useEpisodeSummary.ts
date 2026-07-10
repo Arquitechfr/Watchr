@@ -7,7 +7,7 @@ export function useEpisodeSummary(tmdbId: number, seasonNumber: number, episodeN
   return useQuery({
     queryKey: ["shows", "episode-summary", tmdbId, seasonNumber, episodeNumber],
     queryFn: () => getEpisodeSummary(tmdbId, seasonNumber, episodeNumber),
-    enabled: isHydrated && Boolean(tmdbId) && Boolean(seasonNumber) && Boolean(episodeNumber),
+    enabled: isHydrated && Number.isFinite(tmdbId) && tmdbId > 0 && Number.isFinite(seasonNumber) && seasonNumber > 0 && Number.isFinite(episodeNumber) && episodeNumber > 0,
     staleTime: 24 * 60 * 60 * 1000,
     gcTime: 7 * 24 * 60 * 60 * 1000,
   });

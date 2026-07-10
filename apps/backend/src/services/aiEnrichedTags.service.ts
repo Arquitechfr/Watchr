@@ -8,7 +8,7 @@ import { toTmdbLanguage } from "./show.service.js";
 const CACHE_TTL = 30 * 24 * 60 * 60;
 
 async function isFeatureEnabled(): Promise<boolean> {
-  const entry = await MobileConfig.findOne({ key: "ai_enriched_tags_enabled" }).lean();
+  const entry = await MobileConfig.findOne({ key: "ai_tags_enrichment_enabled" }).lean();
   return entry?.value === "true";
 }
 
@@ -45,7 +45,7 @@ export async function getEnrichedTags(
 
   if (!overview || overview.length < 20) {
     const result: EnrichedTagsResult = { tags: genres as string[], source: "tmdb" };
-    await setRedisValue(cacheKey, JSON.stringify(result), CACHE_TTL);
+    await setRedisValue(cacheKey, JSON.stringify(result), 300);
     return result;
   }
 

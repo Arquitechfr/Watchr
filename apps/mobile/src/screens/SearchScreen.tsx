@@ -154,7 +154,7 @@ export function SearchScreen() {
             {selectedMood && moodData && moodData.recommendations.length > 0 && (
               <View className="mb-6">
                 <Text className="text-text font-semibold text-base mb-3">
-                  {t("screens.discover.moodResults")}
+                  {t("screens.search.moodResults")}
                 </Text>
                 <View className="flex-row flex-wrap gap-3">
                   {moodData.recommendations.map((item: MoodRecommendation) => (

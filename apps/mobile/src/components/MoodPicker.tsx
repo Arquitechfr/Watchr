@@ -24,7 +24,7 @@ export function MoodPicker({ selectedMood, onSelectMood }: MoodPickerProps) {
   return (
     <View className="mb-4">
       <Text className="text-text font-semibold text-base mb-3">
-        {t("screens.discover.moodTitle")}
+        {t("screens.search.moodTitle")}
       </Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerClassName="gap-2">
         {MOODS.map((mood) => {
@@ -51,7 +51,7 @@ export function MoodPicker({ selectedMood, onSelectMood }: MoodPickerProps) {
                 style={{ color: isSelected ? "#fff" : colors.text }}
                 className="text-sm font-medium"
               >
-                {t(`screens.discover.moods.${mood.key}`)}
+                {t(`screens.search.moods.${mood.key}`)}
               </Text>
             </TouchableOpacity>
           );

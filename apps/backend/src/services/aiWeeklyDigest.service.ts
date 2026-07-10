@@ -11,7 +11,7 @@ import { languageNameForLocale } from "./aiLanguageMap.js";
 import type { SupportedLocale } from "../i18n/translations.js";
 
 async function isFeatureEnabled(): Promise<boolean> {
-  const entry = await MobileConfig.findOne({ key: "ai_weekly_digest_enabled" }).lean();
+  const entry = await MobileConfig.findOne({ key: "ai_email_digest_enabled" }).lean();
   return entry?.value === "true";
 }
 

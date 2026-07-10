@@ -16,3 +16,7 @@ export const listReportsQuerySchema = z.object({
 export const reportIdParamSchema = z.object({
   id: z.string().min(1),
 });
+
+export const aiReportIdParamSchema = z.object({
+  reportId: z.string().min(1),
+});

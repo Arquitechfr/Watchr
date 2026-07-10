@@ -85,3 +85,7 @@ export const batchAddToWatchlistSchema = z.object({
     .min(1)
     .max(50),
 });
+
+export const showIdParamSchema = z.object({
+  showId: z.string().min(1, "Show ID is required"),
+});

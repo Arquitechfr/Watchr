@@ -143,7 +143,7 @@ export function ImportReviewScreen({ route }: ImportReviewScreenProps) {
   };
 
   return (
-    <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]}>
+    <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
       <View className="flex-row items-center justify-between mb-4">
         <Text className="text-2xl font-bold text-text">{t("screens.importReview.title")}</Text>
         <Text className="text-text-muted text-sm">

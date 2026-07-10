@@ -141,7 +141,7 @@ export function ShowCommentsScreen() {
       className="flex-1 bg-background"
     >
       <Seo title={`${t("seo.comments")} — ${title}`} />
-      <ScreenContainer edges={["top", "left", "right"]}>
+      <ScreenContainer edges={["top", "left", "right"]} fullWidth>
         <View className="px-4 py-3 border-b border-border flex-row items-center">
           <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.7} className="p-1">
             <Ionicons name="arrow-back" size={24} color={colors.text} />

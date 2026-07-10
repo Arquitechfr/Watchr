@@ -252,7 +252,7 @@ export function EpisodeDetailScreen() {
   if (isLoading || !show || !seasonDetails) {
     const headerTitle = title ?? `S${season}E${episodeNumber}`;
     return (
-      <ScreenContainer edges={["top", "left", "right"]}>
+      <ScreenContainer edges={["top", "left", "right"]} fullWidth>
         <DetailHeader title={headerTitle} onBack={() => navigation.goBack()} />
         <ScrollView className="flex-1 bg-background">
           <Skeleton width="100%" height={240} borderRadius={0} />
@@ -271,7 +271,7 @@ export function EpisodeDetailScreen() {
   if (isError) {
     const headerTitle = title ?? `S${season}E${episodeNumber}`;
     return (
-      <ScreenContainer edges={["top", "left", "right"]}>
+      <ScreenContainer edges={["top", "left", "right"]} fullWidth>
         <DetailHeader title={headerTitle} onBack={() => navigation.goBack()} />
         <NetworkError onRetry={() => refetch()} />
       </ScreenContainer>
@@ -281,7 +281,7 @@ export function EpisodeDetailScreen() {
   const headerTitle = title ?? episode?.name ?? `S${season}E${episodeNumber}`;
 
   return (
-    <ScreenContainer edges={["top", "left", "right"]}>
+    <ScreenContainer edges={["top", "left", "right"]} fullWidth>
       <Seo
         title={`${show?.title ? show.title + " — " : ""}S${season}E${episodeNumber}${episode?.name ? " — " + episode.name : ""}`}
         description={episode?.overview}

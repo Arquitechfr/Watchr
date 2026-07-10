@@ -326,7 +326,7 @@ export function ShowDetailScreen() {
 
   if (!isValidTmdbId) {
     return (
-      <ScreenContainer edges={["top", "left", "right"]}>
+      <ScreenContainer edges={["top", "left", "right"]} fullWidth>
         <DetailHeader title={title} onBack={() => navigation.goBack()} />
         <NetworkError
           message={t("errors.invalidShowId")}
@@ -338,7 +338,7 @@ export function ShowDetailScreen() {
 
   if (isLoading) {
     return (
-      <ScreenContainer edges={["top", "left", "right"]}>
+      <ScreenContainer edges={["top", "left", "right"]} fullWidth>
         <DetailHeader title={title} onBack={() => navigation.goBack()} />
         <View className="px-4 pt-4">
           <Skeleton width="100%" height={384} borderRadius={12} className="mb-4" />
@@ -355,7 +355,7 @@ export function ShowDetailScreen() {
 
   if (isError || !show) {
     return (
-      <ScreenContainer edges={["top", "left", "right"]}>
+      <ScreenContainer edges={["top", "left", "right"]} fullWidth>
         <DetailHeader title={title} onBack={() => navigation.goBack()} />
         <NetworkError onRetry={() => refetch()} />
       </ScreenContainer>
@@ -365,7 +365,7 @@ export function ShowDetailScreen() {
   const posterUrl = getPosterUrl(show.posterPath, 500);
 
   return (
-    <ScreenContainer edges={["top", "left", "right"]}>
+    <ScreenContainer edges={["top", "left", "right"]} fullWidth>
       <Seo
         title={show.title}
         description={show.overview}

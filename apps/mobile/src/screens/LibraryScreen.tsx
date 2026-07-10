@@ -168,7 +168,7 @@ export function LibraryScreen() {
   const gridCardWidth = (windowWidth - gridPadding * 2 - gridGap * (gridNumColumns - 1)) / gridNumColumns;
 
   return (
-    <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]}>
+    <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
       <Seo title={t("seo.library")} />
       <MainHeader rightElement={<ViewModeToggle />} />
 

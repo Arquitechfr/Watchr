@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Linking, Switch, Platform } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Linking, Switch } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import * as DocumentPicker from "expo-document-picker";
@@ -197,8 +197,7 @@ export function ImportScreen() {
   const { dateFnsLocale } = useI18n();
 
   return (
-    <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]}>
-      <View style={Platform.OS === "web" ? { maxWidth: 600, alignSelf: "center", width: "100%" } : undefined}>
+    <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
       <ScrollView className="flex-1 bg-background">
         <Text className="text-2xl font-bold text-text mb-2">{t("screens.import.title")}</Text>
         <Text className="text-text-muted mb-6">{t("screens.import.description")}</Text>
@@ -359,7 +358,6 @@ export function ImportScreen() {
           </View>
         )}
       </ScrollView>
-      </View>
     </ScreenContainer>
   );
 }

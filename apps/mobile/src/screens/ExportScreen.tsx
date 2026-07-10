@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Platform } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from "react-native";
 import { useState } from "react";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { useUIStore } from "../store/uiStore";
@@ -58,8 +58,7 @@ export function ExportScreen() {
   }
 
   return (
-    <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]}>
-      <View style={Platform.OS === "web" ? { maxWidth: 600, alignSelf: "center", width: "100%" } : undefined}>
+    <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
       <ScrollView className="flex-1 bg-background">
         <Text className="text-2xl font-bold text-text mb-2">{t("screens.export.title")}</Text>
         <Text className="text-text-muted mb-6">{t("screens.export.description")}</Text>
@@ -111,7 +110,6 @@ export function ExportScreen() {
           </View>
         )}
       </ScrollView>
-      </View>
     </ScreenContainer>
   );
 }

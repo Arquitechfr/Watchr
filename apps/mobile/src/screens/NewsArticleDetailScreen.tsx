@@ -41,7 +41,7 @@ export function NewsArticleDetailScreen() {
   }
 
   return (
-    <ScreenContainer className="flex-1" edges={["top", "left", "right"]}>
+    <ScreenContainer className="flex-1" edges={["top", "left", "right"]} fullWidth>
       <Seo title={title} url={link} />
       <View className="flex-row items-center px-3 py-3 border-b border-border">
         <TouchableOpacity onPress={() => navigation.goBack()} className="mr-3 p-1" hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>

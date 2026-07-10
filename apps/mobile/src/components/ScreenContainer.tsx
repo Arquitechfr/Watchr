@@ -15,7 +15,11 @@ export function ScreenContainer({
   edges = ["top", "left", "right", "bottom"],
   fullWidth = false,
 }: ScreenContainerProps) {
-  const desktopClass = Platform.OS === "web" && !fullWidth ? "w-full max-w-[1200px] mx-auto" : "";
+  const desktopClass = Platform.OS === "web" && !fullWidth
+    ? "w-full max-w-[1200px] mx-auto"
+    : Platform.OS === "web" && fullWidth
+      ? "w-full md:px-6 lg:px-10 xl:px-16"
+      : "";
   return (
     <SafeAreaView edges={edges} className={cn("flex-1 bg-background", desktopClass, className)}>
       {children}

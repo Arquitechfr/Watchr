@@ -42,6 +42,7 @@ import { Comment } from "../services/comments.service";
 import { useThemeColors } from "../theme/useThemeColors";
 import { log } from "../utils/logger";
 import { useI18n } from "../i18n/useI18n";
+import { Seo } from "../components/Seo";
 
 type EpisodeDetailRouteProp = RouteProp<RootStackParamList, "EpisodeDetail">;
 type EpisodeDetailNavigationProp = NativeStackNavigationProp<RootStackParamList, "EpisodeDetail">;
@@ -281,6 +282,12 @@ export function EpisodeDetailScreen() {
 
   return (
     <ScreenContainer edges={["top", "left", "right"]}>
+      <Seo
+        title={`${show?.title ? show.title + " — " : ""}S${season}E${episodeNumber}${episode?.name ? " — " + episode.name : ""}`}
+        description={episode?.overview}
+        image={episode?.stillPath ? getStillUrl(episode.stillPath, 500) : undefined}
+        type="video.episode"
+      />
       <DetailHeader
         title={headerTitle}
         onBack={() => navigation.goBack()}

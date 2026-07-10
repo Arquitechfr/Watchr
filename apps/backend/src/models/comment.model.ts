@@ -13,8 +13,11 @@ export interface IComment extends Document {
   content: string;
   images: string[];
   isSpoiler: boolean;
+  isHidden: boolean;
   likesCount: number;
   replyCount: number;
+  reportCount: number;
+  spoilerReportCount: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -67,6 +70,19 @@ const commentSchema = new Schema<IComment>(
       default: false,
     },
     replyCount: {
+      type: Number,
+      default: 0,
+    },
+    isHidden: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    reportCount: {
+      type: Number,
+      default: 0,
+    },
+    spoilerReportCount: {
       type: Number,
       default: 0,
     },

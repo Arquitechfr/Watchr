@@ -75,6 +75,8 @@ const fr = {
     emailAlreadyUsed: "Cet email est déjà utilisé.",
     invalidEmail: "Email invalide.",
     networkError: "Vérifie ta connexion internet.",
+    accountBanned: "Ce compte a été banni.",
+    accountSuspended: "Ce compte est suspendu.",
     genericError: "Une erreur est survenue. Réessaie.",
     forgotPassword: "Mot de passe oublié ?",
     forgotPasswordTitle: "Mot de passe oublié",
@@ -310,6 +312,21 @@ const fr = {
       loadMore: "Charger plus",
       loadingMore: "Chargement…",
       tapToClose: "Touchez pour fermer",
+      report: {
+        title: "Signaler le commentaire",
+        subtitle: "Pourquoi signalez-vous ce commentaire ?",
+        button: "Signaler",
+        submit: "Envoyer le signalement",
+        submitting: "Envoi…",
+        success: "Commentaire signalé. Merci !",
+        reasons: {
+          spam: "Spam ou contenu répétitif",
+          unmarked_spoiler: "Spoiler non signalé",
+          harassment: "Harcèlement ou intimidation",
+          inappropriate: "Contenu inapproprié",
+          off_topic: "Hors sujet",
+        },
+      },
     },
     import: {
       title: "Importer des données",
@@ -494,6 +511,25 @@ const fr = {
       noEpisode: "Aucun épisode",
       title: "À SUIVRE",
     },
+  },
+  trafficNotice: {
+    message: "Nos services subissent des ralentissements. Nous travaillons à la résolution du problème. Merci de votre patience.",
+  },
+  maintenance: {
+    title: "Watchr",
+    message: "Watchr est en maintenance. Nous revenons très bientôt.",
+  },
+  authDisabled: {
+    message: "La connexion et l'inscription sont temporairement désactivées. Veuillez réessayer plus tard.",
+  },
+  seo: {
+    defaultTitle: "Watchr — Suivez vos séries et films",
+    defaultDescription: "Suivez votre progression, notez les épisodes, découvrez de nouveaux contenus et importez vos données TV Time.",
+    library: "Ma bibliothèque",
+    search: "Rechercher",
+    series: "Mes séries",
+    movies: "Mes films",
+    comments: "Commentaires",
   },
 };
 

@@ -230,18 +230,20 @@ export async function createComment(userId: string, input: CreateCommentInput) {
     );
     const parentComment = await Comment.findById(input.parentId).select("userId").lean();
     if (parentComment && parentComment.userId.toString() !== userId) {
-      const [replier, show] = await Promise.all([
+      const [replier, recipient, show] = await Promise.all([
         User.findById(userId).select("username").lean(),
+        User.findById(parentComment.userId).select("preferredLanguage").lean(),
         Show.findById(input.showId).select("title translations").lean(),
       ]);
       if (replier && show) {
-        const showTitle = getShowTitle(show, "en");
+        const recipientLocale = recipient?.preferredLanguage;
+        const showTitle = getShowTitle(show, recipientLocale ?? "en");
         PushNotificationService.notifyCommentReply(
           parentComment.userId.toString(),
           replier.username,
           showTitle,
           input.showId,
-          undefined,
+          recipientLocale,
         ).catch((err) => console.error("Failed to send comment reply notification:", err));
       }
     }
@@ -348,6 +350,7 @@ export async function listCommentsForShow(
   const topLevelFilter = {
     ...matchFilter,
     parentId: { $exists: false },
+    isHidden: { $ne: true },
   };
 
   const total = await Comment.countDocuments(topLevelFilter);
@@ -485,7 +488,7 @@ export async function listRepliesForComment(
     throw new ApiError(404, "COMMENT_NOT_FOUND", "Comment not found");
   }
 
-  const filter = { parentId: new Types.ObjectId(commentId) };
+  const filter = { parentId: new Types.ObjectId(commentId), isHidden: { $ne: true } };
   const total = await Comment.countDocuments(filter);
 
   const replies = await Comment.find(filter)
@@ -540,18 +543,20 @@ export async function likeComment(userId: string, commentId: string) {
   }
 
   if (comment.userId.toString() !== userId) {
-    const [liker, show] = await Promise.all([
+    const [liker, recipient, show] = await Promise.all([
       User.findById(userId).select("username").lean(),
+      User.findById(comment.userId).select("preferredLanguage").lean(),
       Show.findById(comment.showId).select("title translations").lean(),
     ]);
     if (liker && show) {
-      const showTitle = getShowTitle(show, "en");
+      const recipientLocale = recipient?.preferredLanguage;
+      const showTitle = getShowTitle(show, recipientLocale ?? "en");
       PushNotificationService.notifyCommentLike(
         comment.userId.toString(),
         liker.username,
         showTitle,
         comment.showId.toString(),
-        undefined,
+        recipientLocale,
       ).catch((err) => console.error("Failed to send comment like notification:", err));
     }
   }
@@ -604,19 +609,21 @@ export async function addReaction(userId: string, commentId: string, emoji: stri
   }
 
   if (comment.userId.toString() !== userId) {
-    const [reactor, show] = await Promise.all([
+    const [reactor, recipient, show] = await Promise.all([
       User.findById(userId).select("username").lean(),
+      User.findById(comment.userId).select("preferredLanguage").lean(),
       Show.findById(comment.showId).select("title translations").lean(),
     ]);
     if (reactor && show) {
-      const showTitle = getShowTitle(show, "en");
+      const recipientLocale = recipient?.preferredLanguage;
+      const showTitle = getShowTitle(show, recipientLocale ?? "en");
       PushNotificationService.notifyCommentReaction(
         comment.userId.toString(),
         reactor.username,
         emoji,
         showTitle,
         comment.showId.toString(),
-        undefined,
+        recipientLocale,
       ).catch((err) => console.error("Failed to send comment reaction notification:", err));
     }
   }
@@ -631,6 +638,7 @@ export async function getCommentCount(
   const filter: FilterQuery<IComment> = {
     showId: new Types.ObjectId(showId),
     parentId: { $exists: false },
+    isHidden: { $ne: true },
   };
 
   if (episodeRef) {

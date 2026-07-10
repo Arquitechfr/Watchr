@@ -26,6 +26,7 @@ import { useCommentsRealtime } from "../hooks/useCommentsRealtime";
 import { RootStackParamList } from "../navigation/RootNavigator";
 import { log } from "../utils/logger";
 import { useI18n } from "../i18n/useI18n";
+import { Seo } from "../components/Seo";
 import type { CommentSort } from "../services/comments.service";
 
 type ShowCommentsRouteProp = RouteProp<RootStackParamList, "ShowComments">;
@@ -139,6 +140,7 @@ export function ShowCommentsScreen() {
       keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
       className="flex-1 bg-background"
     >
+      <Seo title={`${t("seo.comments")} — ${title}`} />
       <ScreenContainer edges={["top", "left", "right"]}>
         <View className="px-4 py-3 border-b border-border flex-row items-center">
           <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.7} className="p-1">

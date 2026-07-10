@@ -160,3 +160,11 @@ export async function listRepliesForComment(
   log("CommentsService", "listReplies response", { total: response.data.total });
   return response.data;
 }
+
+export type ReportReason = "spam" | "unmarked_spoiler" | "harassment" | "inappropriate" | "off_topic";
+
+export async function reportComment(commentId: string, reason: ReportReason): Promise<void> {
+  log("CommentsService", "report", { commentId, reason });
+  await api.post(`/comments/${commentId}/report`, { reason });
+  log("CommentsService", "report success");
+}

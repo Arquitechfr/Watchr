@@ -11,6 +11,7 @@ import {
   listRepliesQuerySchema,
   reactionBodySchema,
 } from "../validators/comment.validator.js";
+import { createReportSchema } from "../validators/report.validator.js";
 import {
   createComment,
   updateComment,
@@ -24,6 +25,7 @@ import {
   addReaction,
   removeReaction,
 } from "../services/comment.service.js";
+import { createReport } from "../services/report.service.js";
 
 const router: Router = Router();
 
@@ -167,6 +169,16 @@ router.post(
     const { emoji } = req.body;
     await removeReaction(req.userId!, id, emoji);
     res.status(204).send();
+  }),
+);
+
+router.post(
+  "/:id/report",
+  validateRequest(createReportSchema, undefined, commentParamsSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const result = await createReport(req.userId!, id, req.body.reason);
+    res.status(201).json(result);
   }),
 );
 

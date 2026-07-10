@@ -9,12 +9,16 @@ import { RootNavigator } from "./src/navigation/RootNavigator";
 import { Snackbar } from "./src/components/Snackbar";
 import { CustomAlert } from "./src/components/CustomAlert";
 import { SplashScreen } from "./src/components/SplashScreen";
+import { TrafficNoticeBanner } from "./src/components/TrafficNoticeBanner";
+import { MaintenanceScreen } from "./src/screens/MaintenanceScreen";
 import { useAppBootstrap } from "./src/hooks/useAppBootstrap";
 import { useLocaleInvalidation } from "./src/hooks/useLocaleInvalidation";
+import { useRemoteConfig } from "./src/hooks/useRemoteConfig";
 import { ReactNode } from "react";
 import { ThemeProvider } from "./src/theme/ThemeProvider";
 import { useTheme } from "./src/theme/useTheme";
 import { Platform } from 'react-native';
+import { HelmetProvider } from "react-helmet-async";
 
 if (Platform.OS !== 'web') {
   const { registerWidgetTaskHandler } = require('react-native-android-widget');
@@ -58,8 +62,28 @@ function LocaleInvalidationGate({ children }: { children: ReactNode }) {
 
 const AppInner = () => {
   const { isReady } = useAppBootstrap(queryClient);
+  const config = useRemoteConfig();
+
+  if (isReady && config.maintenance_enabled) {
+    return (
+      <HelmetProvider>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <QueryClientProvider client={queryClient}>
+            <SafeAreaProvider>
+              <ThemeProvider>
+                <StatusBarContent />
+                <MaintenanceScreen />
+                <SplashScreen visible={!isReady} />
+              </ThemeProvider>
+            </SafeAreaProvider>
+          </QueryClientProvider>
+        </GestureHandlerRootView>
+      </HelmetProvider>
+    );
+  }
 
   return (
+    <HelmetProvider>
     <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryClientProvider client={queryClient}>
         <LocaleInvalidationGate>
@@ -68,6 +92,7 @@ const AppInner = () => {
             <StatusBarContent />
             <View style={{ flex: 1, position: "relative" }}>
               {isReady && <RootNavigator />}
+              {isReady && <TrafficNoticeBanner />}
               <Snackbar />
               <CustomAlert />
             </View>
@@ -77,6 +102,7 @@ const AppInner = () => {
         </LocaleInvalidationGate>
       </QueryClientProvider>
     </GestureHandlerRootView>
+    </HelmetProvider>
   );
 };
 

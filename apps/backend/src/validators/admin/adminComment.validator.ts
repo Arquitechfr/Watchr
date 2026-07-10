@@ -3,7 +3,9 @@ import { z } from "zod";
 export const listCommentsQuerySchema = z.object({
   showId: z.string().optional(),
   userId: z.string().optional(),
-  isSpoiler: z.enum(["true", "false"]).optional().transform((v) => v === "true"),
+  isSpoiler: z.enum(["true", "false"]).transform((v) => v === "true").optional(),
+  isHidden: z.enum(["true", "false"]).transform((v) => v === "true").optional(),
+  minReports: z.coerce.number().int().min(0).optional(),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
   page: z.coerce.number().int().min(1).default(1),

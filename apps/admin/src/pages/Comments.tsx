@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { Trash2, AlertTriangle, ChevronLeft, ChevronRight } from "lucide-react";
+import { Trash2, AlertTriangle, ChevronLeft, ChevronRight, MessageSquare } from "lucide-react";
 import api from "../lib/api";
 import { Card, CardContent } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
 import { Badge } from "../components/ui/Badge";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "../components/ui/Table";
 import { Skeleton } from "../components/ui/Skeleton";
+import { EmptyState } from "../components/ui/EmptyState";
 import { formatDate } from "../lib/utils";
 
 interface CommentRow {
@@ -15,6 +16,9 @@ interface CommentRow {
   showId: string;
   content: string;
   isSpoiler: boolean;
+  isHidden: boolean;
+  reportCount: number;
+  spoilerReportCount: number;
   likesCount: number;
   replyCount: number;
   createdAt: string;
@@ -31,6 +35,7 @@ export function Comments() {
   const [data, setData] = useState<CommentsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [spoilerFilter, setSpoilerFilter] = useState("");
+  const [hiddenFilter, setHiddenFilter] = useState("");
   const [page, setPage] = useState(1);
   const limit = 20;
 
@@ -39,6 +44,7 @@ export function Comments() {
     try {
       const params: Record<string, string | number> = { page, limit };
       if (spoilerFilter) params.isSpoiler = spoilerFilter;
+      if (hiddenFilter) params.isHidden = hiddenFilter;
       const { data } = await api.get("/admin/comments", { params });
       setData(data);
     } catch (err) {
@@ -50,7 +56,7 @@ export function Comments() {
 
   useEffect(() => {
     load();
-  }, [spoilerFilter, page]);
+  }, [spoilerFilter, hiddenFilter, page]);
 
   async function handleDelete(commentId: string) {
     if (!confirm("Delete this comment?")) return;
@@ -77,18 +83,30 @@ export function Comments() {
     <div>
       <h1 className="text-2xl font-bold mb-6">Comments Moderation</h1>
 
-      <div className="flex gap-4 mb-4">
+      <div className="flex flex-col sm:flex-row gap-4 mb-4">
         <select
           value={spoilerFilter}
           onChange={(e) => {
             setSpoilerFilter(e.target.value);
             setPage(1);
           }}
-          className="rounded-md border border-border bg-background px-3 text-sm text-text"
+          className="rounded-md border border-border bg-background px-3 text-sm text-text w-full sm:w-auto"
         >
           <option value="">All comments</option>
           <option value="true">Spoilers only</option>
           <option value="false">Non-spoilers</option>
+        </select>
+        <select
+          value={hiddenFilter}
+          onChange={(e) => {
+            setHiddenFilter(e.target.value);
+            setPage(1);
+          }}
+          className="rounded-md border border-border bg-background px-3 text-sm text-text w-full sm:w-auto"
+        >
+          <option value="">All visibility</option>
+          <option value="true">Hidden only</option>
+          <option value="false">Visible only</option>
         </select>
       </div>
 
@@ -99,10 +117,12 @@ export function Comments() {
               <TableRow>
                 <TableHead>Content</TableHead>
                 <TableHead>Author</TableHead>
-                <TableHead>Spoiler</TableHead>
-                <TableHead>Likes</TableHead>
-                <TableHead>Replies</TableHead>
-                <TableHead>Date</TableHead>
+                <TableHead className="hidden md:table-cell">Spoiler</TableHead>
+                <TableHead className="hidden md:table-cell">Hidden</TableHead>
+                <TableHead className="hidden md:table-cell">Reports</TableHead>
+                <TableHead className="hidden lg:table-cell">Likes</TableHead>
+                <TableHead className="hidden lg:table-cell">Replies</TableHead>
+                <TableHead className="hidden md:table-cell">Date</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -110,25 +130,46 @@ export function Comments() {
               {loading
                 ? Array.from({ length: 5 }).map((_, i) => (
                     <TableRow key={i}>
-                      {Array.from({ length: 7 }).map((_, j) => (
+                      {Array.from({ length: 9 }).map((_, j) => (
                         <TableCell key={j}>
                           <Skeleton height={20} />
                         </TableCell>
                       ))}
                     </TableRow>
                   ))
+                : data && data.comments.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={9} className="p-0">
+                        <EmptyState
+                          icon={MessageSquare}
+                          title="No comments found"
+                          description={spoilerFilter || hiddenFilter ? "Try adjusting your filters." : "No comments have been posted yet."}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  )
                 : data?.comments.map((comment) => (
                     <TableRow key={comment.id}>
                       <TableCell className="max-w-xs truncate">{comment.content}</TableCell>
                       <TableCell className="text-text-muted">{comment.authorUsername}</TableCell>
-                      <TableCell>
+                      <TableCell className="hidden md:table-cell">
                         {comment.isSpoiler && (
                           <Badge className="bg-danger/20 text-danger">Spoiler</Badge>
                         )}
                       </TableCell>
-                      <TableCell>{comment.likesCount}</TableCell>
-                      <TableCell>{comment.replyCount}</TableCell>
-                      <TableCell className="text-text-muted text-xs">{formatDate(comment.createdAt)}</TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        {comment.isHidden && (
+                          <Badge className="bg-warning/20 text-warning">Hidden</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        {comment.reportCount > 0 && (
+                          <span className="text-warning font-semibold">{comment.reportCount}</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="hidden lg:table-cell">{comment.likesCount}</TableCell>
+                      <TableCell className="hidden lg:table-cell">{comment.replyCount}</TableCell>
+                      <TableCell className="text-text-muted text-xs hidden md:table-cell">{formatDate(comment.createdAt)}</TableCell>
                       <TableCell>
                         <div className="flex gap-1">
                           <Button

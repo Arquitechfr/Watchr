@@ -1,8 +1,12 @@
 import { User } from "../../models/user.model.js";
 import { NotificationLog } from "../../models/notificationLog.model.js";
+import { PushTicket } from "../../models/pushTicket.model.js";
+import { AdminJob } from "../../models/adminJob.model.js";
 import { PushNotificationService } from "../pushNotification.service.js";
+import { processJob } from "./jobQueue.service.js";
 import { ApiError } from "../../middleware/error.middleware.js";
-import { log, logError } from "../../lib/logger.js";
+import { logError } from "../../lib/logger.js";
+import type { Types } from "mongoose";
 
 export interface BroadcastInput {
   title: string;
@@ -19,68 +23,65 @@ export interface TargetedInput {
   data?: Record<string, unknown>;
 }
 
+interface TicketInfo {
+  status: "ok" | "error";
+  message?: string;
+  details?: { error?: string };
+}
+
+async function createPushTickets(
+  notificationLogId: Types.ObjectId,
+  tokens: string[],
+  tickets: TicketInfo[],
+): Promise<void> {
+  const docs = tokens.map((token, i) => ({
+    notificationLogId,
+    pushToken: token,
+    status: (tickets[i]?.status ?? "error") as "ok" | "error",
+    errorMessage: tickets[i]?.message,
+    errorDetails: tickets[i]?.details?.error,
+  }));
+  if (docs.length > 0) {
+    await PushTicket.insertMany(docs).catch((err) =>
+      logError("AdminNotification", "failed to save push tickets", err),
+    );
+  }
+}
+
 export async function sendBroadcast(
   sentBy: string,
   input: BroadcastInput,
-): Promise<{ targetCount: number; successCount: number; failureCount: number }> {
-  const filter: Record<string, unknown> = { expoPushToken: { $exists: true, $ne: null } };
-  if (input.target === "locale" && input.locale) {
-    filter.preferredLanguage = input.locale;
-  }
-
-  const users = await User.find(filter).select("expoPushToken preferredLanguage").lean();
-  const tokens = users.map((u) => u.expoPushToken).filter(Boolean) as string[];
-
-  let successCount = 0;
-  let failureCount = 0;
-
-  const BATCH_SIZE = 100;
-  for (let i = 0; i < tokens.length; i += BATCH_SIZE) {
-    const batch = tokens.slice(i, i + BATCH_SIZE);
-    try {
-      const messages = batch.map((token) => ({
-        to: token,
-        title: input.title,
-        body: input.body,
-        data: input.data,
-        sound: "default" as const,
-      }));
-
-      const tickets = await PushNotificationService.sendPushBatch(messages);
-      for (const ticket of tickets) {
-        if (ticket.status === "ok") {
-          successCount++;
-        } else {
-          failureCount++;
-        }
-      }
-    } catch (err) {
-      logError("AdminNotification", "broadcast batch failed", err, { batch: i / BATCH_SIZE });
-      failureCount += batch.length;
-    }
-  }
-
-  await NotificationLog.create({
-    type: "broadcast",
+): Promise<{ jobId: string }> {
+  const job = await AdminJob.create({
+    type: "push_broadcast",
+    status: "pending",
     title: input.title,
     body: input.body,
+    target: input.target,
+    locale: input.locale,
     data: input.data,
-    sentBy: sentBy,
-    targetCount: tokens.length,
-    successCount,
-    failureCount,
+    targetCount: 0,
+    successCount: 0,
+    failureCount: 0,
+    skippedCount: 0,
+    sentBy: sentBy as unknown as Types.ObjectId,
   });
 
-  log("AdminNotification", "broadcast complete", { targetCount: tokens.length, successCount, failureCount });
+  processJob(job._id.toString()).catch((err) => {
+    logError("AdminNotification", "background job failed", err, { jobId: job._id.toString() });
+  });
 
-  return { targetCount: tokens.length, successCount, failureCount };
+  return { jobId: job._id.toString() };
 }
 
 export async function sendTargeted(
   sentBy: string,
   input: TargetedInput,
 ): Promise<{ success: boolean }> {
-  const user = await User.findById(input.userId).select("expoPushToken notificationPreferences preferredLanguage").lean();
+  const isEmail = input.userId.includes("@");
+  const user = isEmail
+    ? await User.findOne({ email: input.userId.toLowerCase() }).select("expoPushToken notificationPreferences preferredLanguage").lean()
+    : await User.findById(input.userId).select("expoPushToken notificationPreferences preferredLanguage").lean();
   if (!user) {
     throw new ApiError(404, "USER_NOT_FOUND", "User not found");
   }
@@ -89,20 +90,30 @@ export async function sendTargeted(
   }
 
   try {
-    await PushNotificationService.sendPush(user.expoPushToken, input.title, input.body, input.data);
-    await NotificationLog.create({
+    const tickets = await PushNotificationService.sendPushBatch([
+      { to: user.expoPushToken, title: input.title, body: input.body, data: input.data, sound: "default" },
+    ]);
+
+    const ticket = tickets[0];
+    const success = ticket?.status === "ok";
+
+    const notificationLog = await NotificationLog.create({
       type: "targeted",
       title: input.title,
       body: input.body,
       data: input.data,
       sentBy: sentBy,
       targetCount: 1,
-      successCount: 1,
-      failureCount: 0,
+      successCount: success ? 1 : 0,
+      failureCount: success ? 0 : 1,
+      triggeredBy: "admin",
+      locale: user.preferredLanguage,
     });
-    return { success: true };
+
+    await createPushTickets(notificationLog._id, [user.expoPushToken], tickets);
+    return { success };
   } catch (err) {
-    await NotificationLog.create({
+    const notificationLog = await NotificationLog.create({
       type: "targeted",
       title: input.title,
       body: input.body,
@@ -111,19 +122,39 @@ export async function sendTargeted(
       targetCount: 1,
       successCount: 0,
       failureCount: 1,
+      triggeredBy: "admin",
+      locale: user.preferredLanguage,
     });
+
+    await createPushTickets(notificationLog._id, [user.expoPushToken], [
+      { status: "error", message: err instanceof Error ? err.message : String(err) },
+    ]);
     throw err;
   }
 }
 
-export async function getNotificationHistory(page: number, limit: number) {
+export interface NotificationHistoryFilters {
+  page: number;
+  limit: number;
+  type?: "broadcast" | "targeted" | "automated";
+  search?: string;
+}
+
+export async function getNotificationHistory(filters: NotificationHistoryFilters) {
+  const { page, limit, type, search } = filters;
+  const query: Record<string, unknown> = {};
+
+  if (type) query.type = type;
+  if (search) query.title = { $regex: search, $options: "i" };
+
   const [logs, total] = await Promise.all([
-    NotificationLog.find()
+    NotificationLog.find(query)
+      .populate("sentBy", "username email")
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit)
       .lean(),
-    NotificationLog.countDocuments(),
+    NotificationLog.countDocuments(query),
   ]);
 
   return {
@@ -132,14 +163,89 @@ export async function getNotificationHistory(page: number, limit: number) {
       type: l.type,
       title: l.title,
       body: l.body,
-      sentBy: l.sentBy.toString(),
+      data: l.data ?? null,
+      sentBy: l.sentBy
+        ? {
+            id: (l.sentBy as unknown as { _id: Types.ObjectId })._id.toString(),
+            username: (l.sentBy as unknown as { username?: string }).username ?? null,
+            email: (l.sentBy as unknown as { email?: string }).email ?? null,
+          }
+        : null,
       targetCount: l.targetCount,
       successCount: l.successCount,
       failureCount: l.failureCount,
+      triggeredBy: l.triggeredBy ?? null,
+      locale: l.locale ?? null,
       createdAt: l.createdAt.toISOString(),
     })),
     total,
     page,
     limit,
+  };
+}
+
+export async function getNotificationDetail(id: string) {
+  const log = await NotificationLog.findById(id)
+    .populate("sentBy", "username email")
+    .lean();
+
+  if (!log) return null;
+
+  const tickets = await PushTicket.find({ notificationLogId: log._id })
+    .sort({ createdAt: 1 })
+    .lean();
+
+  return {
+    id: log._id.toString(),
+    type: log.type,
+    title: log.title,
+    body: log.body,
+    data: log.data ?? null,
+    sentBy: log.sentBy
+      ? {
+          id: (log.sentBy as unknown as { _id: Types.ObjectId })._id.toString(),
+          username: (log.sentBy as unknown as { username?: string }).username ?? null,
+          email: (log.sentBy as unknown as { email?: string }).email ?? null,
+        }
+      : null,
+    targetCount: log.targetCount,
+    successCount: log.successCount,
+    failureCount: log.failureCount,
+    triggeredBy: log.triggeredBy ?? null,
+    locale: log.locale ?? null,
+    createdAt: log.createdAt.toISOString(),
+    tickets: tickets.map((t) => ({
+      id: t._id.toString(),
+      pushToken: t.pushToken.slice(0, 12) + "••••",
+      status: t.status,
+      errorMessage: t.errorMessage ?? null,
+      errorDetails: t.errorDetails ?? null,
+      createdAt: t.createdAt.toISOString(),
+    })),
+  };
+}
+
+export async function getNotificationStats() {
+  const [total, broadcast, targeted, automated, totalSuccess, totalFailure] = await Promise.all([
+    NotificationLog.countDocuments(),
+    NotificationLog.countDocuments({ type: "broadcast" }),
+    NotificationLog.countDocuments({ type: "targeted" }),
+    NotificationLog.countDocuments({ type: "automated" }),
+    NotificationLog.aggregate([{ $group: { _id: null, total: { $sum: "$successCount" } } }]),
+    NotificationLog.aggregate([{ $group: { _id: null, total: { $sum: "$failureCount" } } }]),
+  ]);
+
+  const successTotal = totalSuccess[0]?.total ?? 0;
+  const failureTotal = totalFailure[0]?.total ?? 0;
+  const grandTotal = successTotal + failureTotal;
+
+  return {
+    total,
+    broadcast,
+    targeted,
+    automated,
+    totalSuccess: successTotal,
+    totalFailure: failureTotal,
+    successRate: grandTotal > 0 ? Math.round((successTotal / grandTotal) * 100) : 0,
   };
 }

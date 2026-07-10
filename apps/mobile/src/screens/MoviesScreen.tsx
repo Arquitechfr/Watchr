@@ -21,6 +21,7 @@ import { UnwatchedMovie } from "../services/unwatched.service";
 import { getPosterUrl, SearchResultItem } from "../services/shows.service";
 import { useThemeColors } from "../theme/useThemeColors";
 import { useI18n } from "../i18n/useI18n";
+import { Seo } from "../components/Seo";
 import { WatchStatus } from "../services/tracking.service";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "ShowDetail">;
@@ -221,6 +222,7 @@ export function MoviesScreen() {
 
   return (
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]}>
+      <Seo title={t("seo.movies")} />
       <MainHeader
         rightElement={
           <>

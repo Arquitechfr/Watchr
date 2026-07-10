@@ -7,6 +7,7 @@ import { Input } from "../components/ui/Input";
 import { Badge } from "../components/ui/Badge";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "../components/ui/Table";
 import { Skeleton } from "../components/ui/Skeleton";
+import { EmptyState } from "../components/ui/EmptyState";
 import { formatDate } from "../lib/utils";
 
 interface ConfigEntry {
@@ -108,9 +109,9 @@ export function RemoteConfig() {
             <TableHeader>
               <TableRow>
                 <TableHead>Key</TableHead>
-                <TableHead>Value</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Updated</TableHead>
+                <TableHead className="hidden md:table-cell">Value</TableHead>
+                <TableHead className="hidden md:table-cell">Type</TableHead>
+                <TableHead className="hidden lg:table-cell">Updated</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -123,14 +124,24 @@ export function RemoteConfig() {
                       ))}
                     </TableRow>
                   ))
+                : config.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={5} className="p-0">
+                        <EmptyState
+                          title="No config entries found"
+                          description="No remote config keys have been set. Use the CLI to seed default values."
+                        />
+                      </TableCell>
+                    </TableRow>
+                  )
                 : config.map((entry) => (
                     <TableRow key={entry.key}>
                       <TableCell className="font-mono text-xs font-medium">{entry.key}</TableCell>
-                      <TableCell className="font-mono text-xs text-text-muted max-w-xs truncate">{entry.value}</TableCell>
-                      <TableCell>
+                      <TableCell className="font-mono text-xs text-text-muted max-w-xs truncate hidden md:table-cell">{entry.value}</TableCell>
+                      <TableCell className="hidden md:table-cell">
                         <Badge className="bg-surface-light text-text-muted">{entry.type}</Badge>
                       </TableCell>
-                      <TableCell className="text-text-muted text-xs">{formatDate(entry.updatedAt)}</TableCell>
+                      <TableCell className="text-text-muted text-xs hidden lg:table-cell">{formatDate(entry.updatedAt)}</TableCell>
                       <TableCell>
                         <div className="flex gap-1">
                           <Button variant="ghost" size="icon" onClick={() => startEdit(entry)} title="Edit">

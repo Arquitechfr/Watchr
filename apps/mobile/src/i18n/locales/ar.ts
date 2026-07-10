@@ -74,6 +74,8 @@ const ar = {
     invalidCredentials: "بريد أو كلمة مرور خاطئة.",
     emailAlreadyUsed: "هذا البريد مستخدم بالفعل.",
     networkError: "تحقق من اتصالك بالإنترنت.",
+    accountBanned: "تم حظر هذا الحساب.",
+    accountSuspended: "هذا الحساب موقوف.",
     genericError: "حدث خطأ. حاول مجددًا.",
     forgotPassword: "نسيت كلمة المرور؟",
     forgotPasswordTitle: "نسيت كلمة المرور",
@@ -306,6 +308,21 @@ const ar = {
       loadMore: "تحميل المزيد",
       loadingMore: "جارٍ التحميل…",
       tapToClose: "اضغط للإغلاق",
+      report: {
+        title: "الإبلاغ عن التعليق",
+        subtitle: "لماذا تبلغ عن هذا التعليق؟",
+        button: "إبلاغ",
+        submit: "إرسال البلاغ",
+        submitting: "جارٍ الإرسال…",
+        success: "تم الإبلاغ عن التعليق. شكرًا!",
+        reasons: {
+          spam: "رسائل مزعجة أو محتوى متكرر",
+          unmarked_spoiler: "سبويلر غير محدد",
+          harassment: "مضايقة أو تنمر",
+          inappropriate: "محتوى غير مناسب",
+          off_topic: "خارج الموضوع",
+        },
+      },
     },
     import: {
       title: "استيراد البيانات",
@@ -490,6 +507,25 @@ const ar = {
       noEpisode: "لا توجد حلقة",
       title: "التالي",
     },
+  },
+  trafficNotice: {
+    message: "خدماتنا تعاني من بطء. نحن نعمل على حل المشكلة. شكراً لصبركم.",
+  },
+  maintenance: {
+    title: "Watchr",
+    message: "واتشر تحت الصيانة. سنعود قريباً.",
+  },
+  authDisabled: {
+    message: "تسجيل الدخول والتسجيل معطلان مؤقتاً. يرجى المحاولة مرة أخرى لاحقاً.",
+  },
+  seo: {
+    defaultTitle: "Watchr — تتبع مسلسلاتك وأفلامك",
+    defaultDescription: "تتبع حالة المشاهدة، قيّم الحلقات، اكتشف محتوى جديد، واستورد بياناتك من TV Time.",
+    library: "مكتبتي",
+    search: "بحث",
+    series: "مسلسلاتي",
+    movies: "أفلامي",
+    comments: "التعليقات",
   },
 };
 

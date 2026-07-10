@@ -2,21 +2,27 @@ import { Router, Request, Response } from "express";
 import { requireAdmin } from "../../middleware/requireAdmin.middleware.js";
 import { asyncHandler } from "../../lib/asyncHandler.js";
 import { validateRequest } from "../../validators/validateRequest.js";
-import { listUsersQuerySchema, userIdParamSchema, updateUserStatusSchema, updateUserRoleSchema } from "../../validators/admin/adminUser.validator.js";
+import { listUsersQuerySchema, userIdParamSchema, updateUserStatusSchema, updateUserRoleSchema, cancelBanSchema } from "../../validators/admin/adminUser.validator.js";
 import { listCommentsQuerySchema, commentIdParamSchema, markSpoilerSchema, bulkDeleteSchema } from "../../validators/admin/adminComment.validator.js";
 import { createNewsSourceSchema, updateNewsSourceSchema, newsSourceIdParamSchema } from "../../validators/admin/adminNews.validator.js";
-import { broadcastSchema, targetedSchema, notificationHistoryQuerySchema } from "../../validators/admin/adminNotification.validator.js";
+import { broadcastSchema, targetedSchema, notificationHistoryQuerySchema, notificationIdParamSchema } from "../../validators/admin/adminNotification.validator.js";
+import { emailHistoryQuerySchema, emailIdParamSchema, emailBroadcastSchema, emailTargetedSchema } from "../../validators/admin/adminEmail.validator.js";
+import { jobIdParamSchema } from "../../validators/admin/adminJob.validator.js";
 import { listShowsQuerySchema, syncShowSchema, showIdParamSchema, tmdbIdParamSchema } from "../../validators/admin/adminShow.validator.js";
 import { configKeyParamSchema, setConfigSchema } from "../../validators/admin/adminConfig.validator.js";
 import { listImportsQuerySchema } from "../../validators/admin/adminImport.validator.js";
+import { listReportsQuerySchema, reportIdParamSchema } from "../../validators/report.validator.js";
 import { getAdminStats, getUserGrowth, getCommentActivity, getShowTypeBreakdown } from "../../services/admin/adminStats.service.js";
-import { listUsers, getUserDetail, updateUserStatus, updateUserRole, deleteUser } from "../../services/admin/adminUser.service.js";
+import { listUsers, getUserDetail, scheduleUserStatusAction, cancelBanAction, getBanHistory, updateUserRole, deleteUser } from "../../services/admin/adminUser.service.js";
 import { listAllComments, adminDeleteComment, adminBulkDeleteComments, adminMarkSpoiler } from "../../services/admin/adminComment.service.js";
 import { listAllNewsSources, createNewsSource, updateNewsSource, deleteNewsSource, toggleNewsSource } from "../../services/admin/adminNews.service.js";
-import { sendBroadcast, sendTargeted, getNotificationHistory } from "../../services/admin/adminNotification.service.js";
+import { sendBroadcast, sendTargeted, getNotificationHistory, getNotificationDetail, getNotificationStats } from "../../services/admin/adminNotification.service.js";
 import { listShows, forceSyncShow, deleteShow } from "../../services/admin/adminShow.service.js";
 import { listAllConfig, setConfig, deleteConfig } from "../../services/admin/adminConfig.service.js";
 import { listAllImports, getImportStats } from "../../services/admin/adminImport.service.js";
+import { getEmailHistory, getEmailStats, getEmailDetail, sendBroadcastEmail, sendTargetedEmail } from "../../services/admin/adminEmail.service.js";
+import { getJobStatus } from "../../services/admin/jobQueue.service.js";
+import { listReports, resolveReport, dismissReport, getReportStats } from "../../services/report.service.js";
 
 const router: Router = Router();
 
@@ -82,8 +88,31 @@ router.patch(
   "/users/:id/status",
   validateRequest(updateUserStatusSchema, undefined, userIdParamSchema),
   asyncHandler(async (req: Request, res: Response) => {
-    const result = await updateUserStatus(req.params.id, req.body.action);
+    const result = await scheduleUserStatusAction(req.params.id, req.userId!, {
+      action: req.body.action,
+      reason: req.body.reason,
+      delayHours: req.body.delayHours ?? 0,
+      durationDays: req.body.durationDays,
+    });
     res.json(result);
+  }),
+);
+
+router.get(
+  "/users/:id/ban-history",
+  validateRequest(undefined, undefined, userIdParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const history = await getBanHistory(req.params.id);
+    res.json(history);
+  }),
+);
+
+router.post(
+  "/users/:id/cancel-ban",
+  validateRequest(cancelBanSchema, undefined, userIdParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    await cancelBanAction(req.params.id, req.body.actionId);
+    res.json({ cancelled: true });
   }),
 );
 
@@ -114,6 +143,8 @@ router.get(
       showId?: string;
       userId?: string;
       isSpoiler?: boolean;
+      isHidden?: boolean;
+      minReports?: number;
       startDate?: string;
       endDate?: string;
       page: number;
@@ -123,6 +154,8 @@ router.get(
       showId: query.showId,
       userId: query.userId,
       isSpoiler: query.isSpoiler,
+      isHidden: query.isHidden,
+      minReports: query.minReports,
       startDate: query.startDate,
       endDate: query.endDate,
       page: query.page,
@@ -156,6 +189,57 @@ router.patch(
   asyncHandler(async (req: Request, res: Response) => {
     const result = await adminMarkSpoiler(req.params.id, req.body.isSpoiler);
     res.json(result);
+  }),
+);
+
+// Reports
+router.get(
+  "/reports",
+  validateRequest(undefined, listReportsQuerySchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const query = req.query as unknown as {
+      status?: string;
+      reason?: string;
+      startDate?: string;
+      endDate?: string;
+      page: number;
+      limit: number;
+    };
+    const result = await listReports({
+      status: query.status as "pending" | "resolved" | "dismissed" | undefined,
+      reason: query.reason as "spam" | "unmarked_spoiler" | "harassment" | "inappropriate" | "off_topic" | undefined,
+      startDate: query.startDate,
+      endDate: query.endDate,
+      page: query.page,
+      limit: query.limit,
+    });
+    res.json(result);
+  }),
+);
+
+router.get(
+  "/reports/stats",
+  asyncHandler(async (_req: Request, res: Response) => {
+    const stats = await getReportStats();
+    res.json(stats);
+  }),
+);
+
+router.patch(
+  "/reports/:id/resolve",
+  validateRequest(undefined, undefined, reportIdParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    await resolveReport(req.params.id, req.userId!);
+    res.status(204).send();
+  }),
+);
+
+router.patch(
+  "/reports/:id/dismiss",
+  validateRequest(undefined, undefined, reportIdParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    await dismissReport(req.params.id, req.userId!);
+    res.status(204).send();
   }),
 );
 
@@ -227,9 +311,40 @@ router.get(
   "/notifications/history",
   validateRequest(undefined, notificationHistoryQuerySchema),
   asyncHandler(async (req: Request, res: Response) => {
-    const query = req.query as unknown as { page: number; limit: number };
-    const result = await getNotificationHistory(query.page, query.limit);
+    const query = req.query as unknown as {
+      page: number;
+      limit: number;
+      type?: "broadcast" | "targeted" | "automated";
+      search?: string;
+    };
+    const result = await getNotificationHistory({
+      page: query.page,
+      limit: query.limit,
+      type: query.type,
+      search: query.search,
+    });
     res.json(result);
+  }),
+);
+
+router.get(
+  "/notifications/stats",
+  asyncHandler(async (_req: Request, res: Response) => {
+    const stats = await getNotificationStats();
+    res.json(stats);
+  }),
+);
+
+router.get(
+  "/notifications/:id",
+  validateRequest(undefined, undefined, notificationIdParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const detail = await getNotificationDetail(req.params.id);
+    if (!detail) {
+      res.status(404).json({ error: { code: "NOT_FOUND", message: "Notification not found" } });
+      return;
+    }
+    res.json(detail);
   }),
 );
 
@@ -296,6 +411,82 @@ router.delete(
   asyncHandler(async (req: Request, res: Response) => {
     await deleteConfig(req.params.key);
     res.status(204).send();
+  }),
+);
+
+// Emails
+router.post(
+  "/emails/broadcast",
+  validateRequest(emailBroadcastSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const result = await sendBroadcastEmail(req.userId!, req.body);
+    res.json(result);
+  }),
+);
+
+router.post(
+  "/emails/targeted",
+  validateRequest(emailTargetedSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const result = await sendTargetedEmail(req.userId!, req.body);
+    res.json(result);
+  }),
+);
+
+router.get(
+  "/emails/history",
+  validateRequest(undefined, emailHistoryQuerySchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const query = req.query as unknown as {
+      page: number;
+      limit: number;
+      status?: "sent" | "failed" | "skipped";
+      template?: "welcome" | "reset_password" | "ban_notification" | "comment_deleted" | "comment_hidden" | "comment_spoiler" | "custom";
+      search?: string;
+    };
+    const result = await getEmailHistory({
+      page: query.page,
+      limit: query.limit,
+      status: query.status,
+      template: query.template,
+      search: query.search,
+    });
+    res.json(result);
+  }),
+);
+
+router.get(
+  "/emails/stats",
+  asyncHandler(async (_req: Request, res: Response) => {
+    const stats = await getEmailStats();
+    res.json(stats);
+  }),
+);
+
+router.get(
+  "/emails/:id",
+  validateRequest(undefined, undefined, emailIdParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const detail = await getEmailDetail(req.params.id);
+    if (!detail) {
+      res.status(404).json({ error: { code: "NOT_FOUND", message: "Email log not found" } });
+      return;
+    }
+    res.json(detail);
+  }),
+);
+
+// Jobs (unified job status polling)
+router.get(
+  "/jobs/:id",
+  validateRequest(undefined, undefined, jobIdParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const job = await getJobStatus(req.params.id);
+    if (!job) {
+      res.status(404).json({ error: { code: "NOT_FOUND", message: "Job not found" } });
+      return;
+    }
+    res.json(job);
   }),
 );
 

@@ -3,9 +3,12 @@ import axios from "axios";
 import { env } from "../config/env.js";
 import { User } from "../models/user.model.js";
 import { NotificationPreferences } from "../models/user.model.js";
+import { NotificationLog } from "../models/notificationLog.model.js";
+import { PushTicket } from "../models/pushTicket.model.js";
 import { translateNotification } from "../i18n/index.js";
-import { SupportedLocale, DEFAULT_LOCALE } from "../i18n/translations.js";
+import { SupportedLocale, DEFAULT_LOCALE, normalizeLocale } from "../i18n/translations.js";
 import { wsEvents } from "../lib/wsEvents.js";
+import { logError } from "../lib/logger.js";
 
 const EXPO_PUSH_URL = "https://exp.host/--/api/v2/push/send";
 
@@ -85,10 +88,47 @@ async function sendToUser(
   await sendPush(user.expoPushToken, title, body, data);
 }
 
+async function logAutomatedNotification(
+  userId: string,
+  token: string,
+  title: string,
+  body: string,
+  data: Record<string, unknown> | undefined,
+  triggeredBy: string,
+  locale: SupportedLocale,
+): Promise<void> {
+  try {
+    const tickets = await sendPushBatch([{ to: token, title, body, data, sound: "default" }]);
+    const ticket = tickets[0];
+    const success = ticket?.status === "ok";
+
+    const notificationLog = await NotificationLog.create({
+      type: "automated",
+      title,
+      body,
+      data,
+      sentBy: userId,
+      targetCount: 1,
+      successCount: success ? 1 : 0,
+      failureCount: success ? 0 : 1,
+      triggeredBy,
+      locale,
+    });
+
+    await PushTicket.create({
+      notificationLogId: notificationLog._id,
+      pushToken: token,
+      status: ticket?.status ?? "error",
+      errorMessage: ticket?.message,
+      errorDetails: ticket?.details?.error,
+    }).catch((err) => logError("PushService", "failed to save push ticket", err));
+  } catch (err) {
+    logError("PushService", "logAutomatedNotification failed", err);
+  }
+}
+
 function getUserLocale(preferredLanguage?: string): SupportedLocale {
-  if (!preferredLanguage) return DEFAULT_LOCALE;
-  const base = preferredLanguage.split("-")[0].toLowerCase();
-  return (base === "fr" || base === "en") ? base as SupportedLocale : DEFAULT_LOCALE;
+  return normalizeLocale(preferredLanguage);
 }
 
 type BooleanPrefKey = {
@@ -98,12 +138,13 @@ type BooleanPrefKey = {
 async function checkPreference(
   userId: string,
   prefKey: BooleanPrefKey,
-): Promise<{ allowed: boolean; locale: SupportedLocale }> {
-  const user = await User.findById(userId).select("notificationPreferences preferredLanguage").lean();
-  if (!user) return { allowed: false, locale: DEFAULT_LOCALE };
+): Promise<{ allowed: boolean; locale: SupportedLocale; pushToken: string | null }> {
+  const user = await User.findById(userId).select("notificationPreferences preferredLanguage expoPushToken").lean();
+  if (!user) return { allowed: false, locale: DEFAULT_LOCALE, pushToken: null };
   return {
     allowed: user.notificationPreferences?.[prefKey] ?? true,
     locale: getUserLocale(user.preferredLanguage),
+    pushToken: user.expoPushToken ?? null,
   };
 }
 
@@ -119,8 +160,8 @@ export const PushNotificationService = {
     showId: string,
     locale: SupportedLocale | string | undefined,
   ): Promise<void> {
-    const { allowed, locale: userLocale } = await checkPreference(parentUserId, "commentReplies");
-    if (!allowed) return;
+    const { allowed, locale: userLocale, pushToken } = await checkPreference(parentUserId, "commentReplies");
+    if (!allowed || !pushToken) return;
 
     const resolvedLocale = locale ? (locale as SupportedLocale) : userLocale;
     const title = translateNotification("commentReplyTitle", resolvedLocale);
@@ -133,7 +174,7 @@ export const PushNotificationService = {
       notification: { type: "commentReply", title, body, data, createdAt: new Date().toISOString() },
     });
 
-    await sendToUser(parentUserId, title, body, data);
+    await logAutomatedNotification(parentUserId, pushToken, title, body, data, "comment_reply", resolvedLocale);
   },
 
   async notifyCommentReaction(
@@ -144,8 +185,8 @@ export const PushNotificationService = {
     showId: string,
     locale: SupportedLocale | string | undefined,
   ): Promise<void> {
-    const { allowed, locale: userLocale } = await checkPreference(commentOwnerId, "commentReactions");
-    if (!allowed) return;
+    const { allowed, locale: userLocale, pushToken } = await checkPreference(commentOwnerId, "commentReactions");
+    if (!allowed || !pushToken) return;
 
     const resolvedLocale = locale ? (locale as SupportedLocale) : userLocale;
     const title = translateNotification("commentReactionTitle", resolvedLocale);
@@ -162,7 +203,7 @@ export const PushNotificationService = {
       notification: { type: "commentReaction", title, body, data, createdAt: new Date().toISOString() },
     });
 
-    await sendToUser(commentOwnerId, title, body, data);
+    await logAutomatedNotification(commentOwnerId, pushToken, title, body, data, "comment_reaction", resolvedLocale);
   },
 
   async notifyCommentLike(
@@ -172,8 +213,8 @@ export const PushNotificationService = {
     showId: string,
     locale: SupportedLocale | string | undefined,
   ): Promise<void> {
-    const { allowed, locale: userLocale } = await checkPreference(commentOwnerId, "commentLikes");
-    if (!allowed) return;
+    const { allowed, locale: userLocale, pushToken } = await checkPreference(commentOwnerId, "commentLikes");
+    if (!allowed || !pushToken) return;
 
     const resolvedLocale = locale ? (locale as SupportedLocale) : userLocale;
     const title = translateNotification("commentLikeTitle", resolvedLocale);
@@ -189,7 +230,7 @@ export const PushNotificationService = {
       notification: { type: "commentLike", title, body, data, createdAt: new Date().toISOString() },
     });
 
-    await sendToUser(commentOwnerId, title, body, data);
+    await logAutomatedNotification(commentOwnerId, pushToken, title, body, data, "comment_like", resolvedLocale);
   },
 
   async notifyNewEpisode(
@@ -201,8 +242,8 @@ export const PushNotificationService = {
     tmdbId: number,
     locale: SupportedLocale | string | undefined,
   ): Promise<void> {
-    const { allowed, locale: userLocale } = await checkPreference(userId, "newReleases");
-    if (!allowed) return;
+    const { allowed, locale: userLocale, pushToken } = await checkPreference(userId, "newReleases");
+    if (!allowed || !pushToken) return;
 
     const resolvedLocale = locale ? (locale as SupportedLocale) : userLocale;
     const title = translateNotification("newEpisodeTitle", resolvedLocale);
@@ -219,7 +260,7 @@ export const PushNotificationService = {
       notification: { type: "newEpisode", title, body, data, createdAt: new Date().toISOString() },
     });
 
-    await sendToUser(userId, title, body, data);
+    await logAutomatedNotification(userId, pushToken, title, body, data, "new_episode", resolvedLocale);
   },
 
   async notifyNewRelease(
@@ -229,8 +270,8 @@ export const PushNotificationService = {
     tmdbId: number,
     locale: SupportedLocale | string | undefined,
   ): Promise<void> {
-    const { allowed, locale: userLocale } = await checkPreference(userId, "newReleases");
-    if (!allowed) return;
+    const { allowed, locale: userLocale, pushToken } = await checkPreference(userId, "newReleases");
+    if (!allowed || !pushToken) return;
 
     const resolvedLocale = locale ? (locale as SupportedLocale) : userLocale;
     const title = translateNotification("newReleaseTitle", resolvedLocale);
@@ -243,6 +284,98 @@ export const PushNotificationService = {
       notification: { type: "newRelease", title, body, data, createdAt: new Date().toISOString() },
     });
 
-    await sendToUser(userId, title, body, data);
+    await logAutomatedNotification(userId, pushToken, title, body, data, "new_release", resolvedLocale);
+  },
+
+  async notifyCommentDeleted(
+    userId: string,
+    showTitle: string,
+    showId: string,
+    locale: SupportedLocale | string | undefined,
+  ): Promise<void> {
+    const { allowed, locale: userLocale, pushToken } = await checkPreference(userId, "pushEnabled");
+    if (!allowed || !pushToken) return;
+
+    const resolvedLocale = locale ? (locale as SupportedLocale) : userLocale;
+    const title = translateNotification("commentDeletedTitle", resolvedLocale);
+    const body = translateNotification("commentDeletedBody", resolvedLocale, { show: showTitle });
+
+    const data = { screen: "comments", showId };
+
+    wsEvents.emit("notification:new", {
+      userId,
+      notification: { type: "commentDeleted", title, body, data, createdAt: new Date().toISOString() },
+    });
+
+    await logAutomatedNotification(userId, pushToken, title, body, data, "comment_deleted", resolvedLocale);
+  },
+
+  async notifyCommentHidden(
+    userId: string,
+    showTitle: string,
+    showId: string,
+    locale: SupportedLocale | string | undefined,
+  ): Promise<void> {
+    const { allowed, locale: userLocale, pushToken } = await checkPreference(userId, "pushEnabled");
+    if (!allowed || !pushToken) return;
+
+    const resolvedLocale = locale ? (locale as SupportedLocale) : userLocale;
+    const title = translateNotification("commentHiddenTitle", resolvedLocale);
+    const body = translateNotification("commentHiddenBody", resolvedLocale, { show: showTitle });
+
+    const data = { screen: "comments", showId };
+
+    wsEvents.emit("notification:new", {
+      userId,
+      notification: { type: "commentHidden", title, body, data, createdAt: new Date().toISOString() },
+    });
+
+    await logAutomatedNotification(userId, pushToken, title, body, data, "comment_hidden", resolvedLocale);
+  },
+
+  async notifyCommentAutoSpoiler(
+    userId: string,
+    showTitle: string,
+    showId: string,
+    locale: SupportedLocale | string | undefined,
+  ): Promise<void> {
+    const { allowed, locale: userLocale, pushToken } = await checkPreference(userId, "pushEnabled");
+    if (!allowed || !pushToken) return;
+
+    const resolvedLocale = locale ? (locale as SupportedLocale) : userLocale;
+    const title = translateNotification("commentAutoSpoilerTitle", resolvedLocale);
+    const body = translateNotification("commentAutoSpoilerBody", resolvedLocale, { show: showTitle });
+
+    const data = { screen: "comments", showId };
+
+    wsEvents.emit("notification:new", {
+      userId,
+      notification: { type: "commentAutoSpoiler", title, body, data, createdAt: new Date().toISOString() },
+    });
+
+    await logAutomatedNotification(userId, pushToken, title, body, data, "comment_auto_spoiler", resolvedLocale);
+  },
+
+  async notifyCommentAdminSpoiler(
+    userId: string,
+    showTitle: string,
+    showId: string,
+    locale: SupportedLocale | string | undefined,
+  ): Promise<void> {
+    const { allowed, locale: userLocale, pushToken } = await checkPreference(userId, "pushEnabled");
+    if (!allowed || !pushToken) return;
+
+    const resolvedLocale = locale ? (locale as SupportedLocale) : userLocale;
+    const title = translateNotification("commentAdminSpoilerTitle", resolvedLocale);
+    const body = translateNotification("commentAdminSpoilerBody", resolvedLocale, { show: showTitle });
+
+    const data = { screen: "comments", showId };
+
+    wsEvents.emit("notification:new", {
+      userId,
+      notification: { type: "commentAdminSpoiler", title, body, data, createdAt: new Date().toISOString() },
+    });
+
+    await logAutomatedNotification(userId, pushToken, title, body, data, "comment_admin_spoiler", resolvedLocale);
   },
 };

@@ -31,6 +31,10 @@ export interface IUser extends Document {
   hasCompletedOnboarding: boolean;
   role: "user" | "admin";
   lastLoginAt: Date | null;
+  isBanned: boolean;
+  bannedAt: Date | null;
+  suspendedUntil: Date | null;
+  banReason: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -137,6 +141,25 @@ const userSchema = new Schema<IUser>(
     lastLoginAt: {
       type: Date,
       default: null,
+    },
+    isBanned: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    bannedAt: {
+      type: Date,
+      default: null,
+    },
+    suspendedUntil: {
+      type: Date,
+      default: null,
+      index: true,
+    },
+    banReason: {
+      type: String,
+      default: null,
+      maxlength: 500,
     },
   },
   { timestamps: true },

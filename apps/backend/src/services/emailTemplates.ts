@@ -1,8 +1,12 @@
-import { SupportedLocale, DEFAULT_LOCALE } from "../i18n/translations.js";
+import { SupportedLocale, normalizeLocale } from "../i18n/translations.js";
+import { translateEmail } from "../i18n/index.js";
+import { env } from "../config/env.js";
 
-function baseHtml(innerHtml: string): string {
+export function baseHtml(innerHtml: string, locale?: SupportedLocale | string | undefined): string {
+  const lang = normalizeLocale(locale);
+  const logoUrl = `${env.PUBLIC_URL}/assets/icon.png`;
   return `<!DOCTYPE html>
-<html lang="en">
+<html lang="${lang}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,6 +16,7 @@ function baseHtml(innerHtml: string): string {
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;min-height:100vh;">
     <tr>
       <td align="center" style="padding:40px 20px;">
+        <img src="${logoUrl}" alt="Watchr" width="48" height="48" style="display:block;margin:0 auto 24px auto;border-radius:8px;" />
         <table width="500" cellpadding="0" cellspacing="0" style="background:#1a1a1a;border-radius:12px;overflow:hidden;">
           <tr>
             <td style="padding:32px 40px;">
@@ -31,34 +36,22 @@ export function welcomeTemplate(
   locale: SupportedLocale | string | undefined,
   params: { username: string },
 ): { subject: string; html: string } {
-  const lang = locale === "fr" ? "fr" : DEFAULT_LOCALE;
-
-  if (lang === "fr") {
-    return {
-      subject: "Bienvenue sur Watchr !",
-      html: baseHtml(`
-        <h1 style="color:#ffffff;font-size:1.5rem;margin:0 0 16px 0;">Bienvenue sur Watchr !</h1>
-        <p style="color:#aaaaaa;font-size:1rem;line-height:1.6;margin:0 0 24px 0;">
-          Bonjour ${params.username}, votre compte a été créé avec succès. Commencez à suivre vos séries et films préférés dès maintenant !
-        </p>
-        <a href="watchr://" style="display:inline-block;background:#6c5ce7;color:#ffffff;text-decoration:none;padding:12px 32px;border-radius:8px;font-weight:600;font-size:0.95rem;">
-          Commencer
-        </a>
-      `),
-    };
-  }
+  const subject = translateEmail("welcomeSubject", locale);
+  const heading = translateEmail("welcomeHeading", locale);
+  const body = translateEmail("welcomeBody", locale, { username: params.username });
+  const cta = translateEmail("welcomeCta", locale);
 
   return {
-    subject: "Welcome to Watchr!",
+    subject,
     html: baseHtml(`
-      <h1 style="color:#ffffff;font-size:1.5rem;margin:0 0 16px 0;">Welcome to Watchr!</h1>
+      <h1 style="color:#ffffff;font-size:1.5rem;margin:0 0 16px 0;">${heading}</h1>
       <p style="color:#aaaaaa;font-size:1rem;line-height:1.6;margin:0 0 24px 0;">
-        Hello ${params.username}, your account has been created successfully. Start tracking your favorite shows and movies now!
+        ${body}
       </p>
       <a href="watchr://" style="display:inline-block;background:#6c5ce7;color:#ffffff;text-decoration:none;padding:12px 32px;border-radius:8px;font-weight:600;font-size:0.95rem;">
-        Get started
+        ${cta}
       </a>
-    `),
+    `, locale),
   };
 }
 
@@ -66,39 +59,144 @@ export function resetPasswordTemplate(
   locale: SupportedLocale | string | undefined,
   params: { resetUrl: string },
 ): { subject: string; html: string } {
-  const lang = locale === "fr" ? "fr" : DEFAULT_LOCALE;
+  const subject = translateEmail("resetPasswordSubject", locale);
+  const heading = translateEmail("resetPasswordHeading", locale);
+  const body = translateEmail("resetPasswordBody", locale);
+  const cta = translateEmail("resetPasswordCta", locale);
+  const footer = translateEmail("resetPasswordFooter", locale);
 
-  if (lang === "fr") {
-    return {
-      subject: "Réinitialisez votre mot de passe",
-      html: baseHtml(`
-        <h1 style="color:#ffffff;font-size:1.5rem;margin:0 0 16px 0;">Réinitialisez votre mot de passe</h1>
-        <p style="color:#aaaaaa;font-size:1rem;line-height:1.6;margin:0 0 24px 0;">
-          Vous avez demandé à réinitialiser votre mot de passe. Cliquez sur le bouton ci-dessous pour choisir un nouveau mot de passe. Ce lien expire dans 15 minutes.
-        </p>
-        <a href="${params.resetUrl}" style="display:inline-block;background:#6c5ce7;color:#ffffff;text-decoration:none;padding:12px 32px;border-radius:8px;font-weight:600;font-size:0.95rem;">
-          Réinitialiser le mot de passe
-        </a>
-        <p style="color:#666;font-size:0.85rem;margin:24px 0 0 0;">
-          Si vous n'avez pas demandé cette réinitialisation, ignorez cet email.
-        </p>
-      `),
-    };
+  return {
+    subject,
+    html: baseHtml(`
+      <h1 style="color:#ffffff;font-size:1.5rem;margin:0 0 16px 0;">${heading}</h1>
+      <p style="color:#aaaaaa;font-size:1rem;line-height:1.6;margin:0 0 24px 0;">
+        ${body}
+      </p>
+      <a href="${params.resetUrl}" style="display:inline-block;background:#6c5ce7;color:#ffffff;text-decoration:none;padding:12px 32px;border-radius:8px;font-weight:600;font-size:0.95rem;">
+        ${cta}
+      </a>
+      <p style="color:#666;font-size:0.85rem;margin:24px 0 0 0;">
+        ${footer}
+      </p>
+    `, locale),
+  };
+}
+
+export function banNotificationTemplate(
+  locale: SupportedLocale | string | undefined,
+  params: {
+    username: string;
+    action: string;
+    reason: string;
+    effectiveDate: string;
+    suspendedUntil?: string;
+  },
+): { subject: string; html: string } {
+  const subject = translateEmail("banSubject", locale, { username: params.username });
+  const heading = translateEmail("banHeading", locale);
+  const body = translateEmail("banBody", locale, {
+    username: params.username,
+    action: params.action,
+    reason: params.reason,
+    effectiveDate: params.effectiveDate,
+  });
+  const footer = translateEmail("banFooter", locale);
+
+  let extraHtml = "";
+  if (params.suspendedUntil) {
+    const suspendedUntilText = translateEmail("banSuspendedUntil", locale, { date: params.suspendedUntil });
+    extraHtml = `<p style="color:#aaaaaa;font-size:0.95rem;line-height:1.6;margin:16px 0 0 0;">${suspendedUntilText}</p>`;
   }
 
   return {
-    subject: "Reset your password",
+    subject,
     html: baseHtml(`
-      <h1 style="color:#ffffff;font-size:1.5rem;margin:0 0 16px 0;">Reset your password</h1>
+      <h1 style="color:#ffffff;font-size:1.5rem;margin:0 0 16px 0;">${heading}</h1>
       <p style="color:#aaaaaa;font-size:1rem;line-height:1.6;margin:0 0 24px 0;">
-        You requested a password reset. Click the button below to choose a new password. This link expires in 15 minutes.
+        ${body}
       </p>
-      <a href="${params.resetUrl}" style="display:inline-block;background:#6c5ce7;color:#ffffff;text-decoration:none;padding:12px 32px;border-radius:8px;font-weight:600;font-size:0.95rem;">
-        Reset password
-      </a>
+      ${extraHtml}
       <p style="color:#666;font-size:0.85rem;margin:24px 0 0 0;">
-        If you didn't request this reset, ignore this email.
+        ${footer}
       </p>
-    `),
+    `, locale),
+  };
+}
+
+export function commentDeletedTemplate(
+  locale: SupportedLocale | string | undefined,
+  params: { username: string; showTitle: string },
+): { subject: string; html: string } {
+  const subject = translateEmail("commentDeletedSubject", locale);
+  const heading = translateEmail("commentDeletedHeading", locale);
+  const body = translateEmail("commentDeletedBody", locale, {
+    username: params.username,
+    show: params.showTitle,
+  });
+  const footer = translateEmail("commentDeletedFooter", locale);
+
+  return {
+    subject,
+    html: baseHtml(`
+      <h1 style="color:#ffffff;font-size:1.5rem;margin:0 0 16px 0;">${heading}</h1>
+      <p style="color:#aaaaaa;font-size:1rem;line-height:1.6;margin:0 0 24px 0;">
+        ${body}
+      </p>
+      <p style="color:#666;font-size:0.85rem;margin:24px 0 0 0;">
+        ${footer}
+      </p>
+    `, locale),
+  };
+}
+
+export function commentHiddenTemplate(
+  locale: SupportedLocale | string | undefined,
+  params: { username: string; showTitle: string },
+): { subject: string; html: string } {
+  const subject = translateEmail("commentHiddenSubject", locale);
+  const heading = translateEmail("commentHiddenHeading", locale);
+  const body = translateEmail("commentHiddenBody", locale, {
+    username: params.username,
+    show: params.showTitle,
+  });
+  const footer = translateEmail("commentHiddenFooter", locale);
+
+  return {
+    subject,
+    html: baseHtml(`
+      <h1 style="color:#ffffff;font-size:1.5rem;margin:0 0 16px 0;">${heading}</h1>
+      <p style="color:#aaaaaa;font-size:1rem;line-height:1.6;margin:0 0 24px 0;">
+        ${body}
+      </p>
+      <p style="color:#666;font-size:0.85rem;margin:24px 0 0 0;">
+        ${footer}
+      </p>
+    `, locale),
+  };
+}
+
+export function commentSpoilerTemplate(
+  locale: SupportedLocale | string | undefined,
+  params: { username: string; showTitle: string },
+): { subject: string; html: string } {
+  const subject = translateEmail("commentSpoilerSubject", locale);
+  const heading = translateEmail("commentSpoilerHeading", locale);
+  const body = translateEmail("commentSpoilerBody", locale, {
+    username: params.username,
+    show: params.showTitle,
+  });
+  const footer = translateEmail("commentSpoilerFooter", locale);
+
+  return {
+    subject,
+    html: baseHtml(`
+      <h1 style="color:#ffffff;font-size:1.5rem;margin:0 0 16px 0;">${heading}</h1>
+      <p style="color:#aaaaaa;font-size:1rem;line-height:1.6;margin:0 0 24px 0;">
+        ${body}
+      </p>
+      <p style="color:#666;font-size:0.85rem;margin:24px 0 0 0;">
+        ${footer}
+      </p>
+    `, locale),
   };
 }

@@ -7,6 +7,7 @@ import { Input } from "../components/ui/Input";
 import { Badge } from "../components/ui/Badge";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "../components/ui/Table";
 import { Skeleton } from "../components/ui/Skeleton";
+import { EmptyState } from "../components/ui/EmptyState";
 
 interface NewsSource {
   id: string;
@@ -71,7 +72,7 @@ export function NewsSources() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 gap-4">
         <h1 className="text-2xl font-bold">News Sources</h1>
         <Button onClick={() => setShowForm(!showForm)}>
           <Plus size={16} className="mr-2" /> Add Source
@@ -115,10 +116,10 @@ export function NewsSources() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>ID</TableHead>
+                <TableHead className="hidden md:table-cell">ID</TableHead>
                 <TableHead>Name</TableHead>
-                <TableHead>URL</TableHead>
-                <TableHead>Locale</TableHead>
+                <TableHead className="hidden md:table-cell">URL</TableHead>
+                <TableHead className="hidden md:table-cell">Locale</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
@@ -132,12 +133,23 @@ export function NewsSources() {
                       ))}
                     </TableRow>
                   ))
+                : sources.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="p-0">
+                        <EmptyState
+                          icon={Plus}
+                          title="No news sources found"
+                          description="No news sources have been configured yet. Click 'Add Source' to create one."
+                        />
+                      </TableCell>
+                    </TableRow>
+                  )
                 : sources.map((source) => (
                     <TableRow key={source.id}>
-                      <TableCell className="font-mono text-xs">{source.id}</TableCell>
+                      <TableCell className="font-mono text-xs hidden md:table-cell">{source.id}</TableCell>
                       <TableCell className="font-medium">{source.name}</TableCell>
-                      <TableCell className="text-text-muted text-xs truncate max-w-xs">{source.url}</TableCell>
-                      <TableCell>{source.locale}</TableCell>
+                      <TableCell className="text-text-muted text-xs truncate max-w-xs hidden md:table-cell">{source.url}</TableCell>
+                      <TableCell className="hidden md:table-cell">{source.locale}</TableCell>
                       <TableCell>
                         <Badge className={source.isActive ? "bg-success/20 text-success" : "bg-surface-light text-text-muted"}>
                           {source.isActive ? "Active" : "Inactive"}

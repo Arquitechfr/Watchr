@@ -28,6 +28,7 @@ import { SearchResultItem, DiscoverSection } from "../services/shows.service";
 import { useUIStore } from "../store/uiStore";
 import { log } from "../utils/logger";
 import { useI18n } from "../i18n/useI18n";
+import { Seo } from "../components/Seo";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "ShowDetail">;
 
@@ -105,6 +106,7 @@ export function SearchScreen() {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]}>
+        <Seo title={t("seo.search")} />
         <MainHeader />
         <TextInput
           className="bg-surface text-text px-4 py-3 rounded-lg mb-4 border border-border"

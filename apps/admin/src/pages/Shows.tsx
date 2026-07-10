@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Search, RefreshCw, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, RefreshCw, Trash2, ChevronLeft, ChevronRight, Tv } from "lucide-react";
 import api from "../lib/api";
 import { Card, CardContent } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
@@ -7,6 +7,7 @@ import { Input } from "../components/ui/Input";
 import { Badge } from "../components/ui/Badge";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "../components/ui/Table";
 import { Skeleton } from "../components/ui/Skeleton";
+import { EmptyState } from "../components/ui/EmptyState";
 import { formatDate } from "../lib/utils";
 
 interface ShowRow {
@@ -79,7 +80,7 @@ export function Shows() {
     <div>
       <h1 className="text-2xl font-bold mb-6">Shows</h1>
 
-      <div className="flex gap-4 mb-4">
+      <div className="flex flex-col sm:flex-row gap-4 mb-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={18} />
           <Input
@@ -92,7 +93,7 @@ export function Shows() {
         <select
           value={typeFilter}
           onChange={(e) => { setTypeFilter(e.target.value); setPage(1); }}
-          className="rounded-md border border-border bg-background px-3 text-sm text-text"
+          className="rounded-md border border-border bg-background px-3 text-sm text-text w-full sm:w-auto"
         >
           <option value="">All types</option>
           <option value="tv">TV</option>
@@ -106,9 +107,9 @@ export function Shows() {
             <TableHeader>
               <TableRow>
                 <TableHead>Title</TableHead>
-                <TableHead>TMDB ID</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Last Synced</TableHead>
+                <TableHead className="hidden md:table-cell">TMDB ID</TableHead>
+                <TableHead className="hidden md:table-cell">Type</TableHead>
+                <TableHead className="hidden lg:table-cell">Last Synced</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -121,14 +122,25 @@ export function Shows() {
                       ))}
                     </TableRow>
                   ))
+                : data && data.shows.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={5} className="p-0">
+                        <EmptyState
+                          icon={Tv}
+                          title="No shows found"
+                          description={search || typeFilter ? "Try adjusting your search or filters." : "No shows are cached in the database yet."}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  )
                 : data?.shows.map((show) => (
                     <TableRow key={show.id}>
                       <TableCell className="font-medium">{show.title}</TableCell>
-                      <TableCell className="text-text-muted">{show.tmdbId}</TableCell>
-                      <TableCell>
+                      <TableCell className="text-text-muted hidden md:table-cell">{show.tmdbId}</TableCell>
+                      <TableCell className="hidden md:table-cell">
                         <Badge className="bg-primary/20 text-primary">{show.type}</Badge>
                       </TableCell>
-                      <TableCell className="text-text-muted text-xs">{formatDate(show.updatedAt)}</TableCell>
+                      <TableCell className="text-text-muted text-xs hidden lg:table-cell">{formatDate(show.updatedAt)}</TableCell>
                       <TableCell>
                         <div className="flex gap-1">
                           <Button variant="ghost" size="icon" onClick={() => handleSync(show.tmdbId)} title="Force sync">

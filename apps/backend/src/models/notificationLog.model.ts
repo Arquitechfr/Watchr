@@ -9,6 +9,8 @@ export interface INotificationLog extends Document {
   targetCount: number;
   successCount: number;
   failureCount: number;
+  triggeredBy?: string;
+  locale?: string;
   createdAt: Date;
 }
 
@@ -27,6 +29,8 @@ const notificationLogSchema = new Schema<INotificationLog>(
     targetCount: { type: Number, default: 0 },
     successCount: { type: Number, default: 0 },
     failureCount: { type: Number, default: 0 },
+    triggeredBy: { type: String, required: false },
+    locale: { type: String, required: false },
   },
   { timestamps: { createdAt: true, updatedAt: false } },
 );

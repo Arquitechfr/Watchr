@@ -18,6 +18,7 @@ import { useThemeColors } from "../theme/useThemeColors";
 import { useI18n } from "../i18n/useI18n";
 import { useUIStore } from "../store/uiStore";
 import { RootStackParamList } from "../navigation/RootNavigator";
+import { Seo } from "../components/Seo";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "ShowDetail">;
 type LibraryRoute = RouteProp<RootStackParamList, "Library">;
@@ -168,6 +169,7 @@ export function LibraryScreen() {
 
   return (
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]}>
+      <Seo title={t("seo.library")} />
       <MainHeader rightElement={<ViewModeToggle />} />
 
       <LibraryTabs active={activeTab} onChange={handleTabChange} />

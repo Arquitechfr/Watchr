@@ -1,5 +1,7 @@
 import { MobileConfig } from "../../models/MobileConfig.js";
 import { ApiError } from "../../middleware/error.middleware.js";
+import { wsEvents } from "../../lib/wsEvents.js";
+import { invalidateMobileConfigCache } from "../../routes/internal/mobileConfig.routes.js";
 
 export async function listAllConfig() {
   const entries = await MobileConfig.find().sort({ key: 1 }).lean();
@@ -26,6 +28,18 @@ export async function setConfig(
     await existing.save();
   } else {
     await MobileConfig.create({ key, value, type, updatedBy });
+  }
+
+  invalidateMobileConfigCache();
+
+  const remoteConfigFlags = new Set([
+    "traffic_notice_enabled",
+    "auth_enabled",
+    "maintenance_enabled",
+  ]);
+  if (remoteConfigFlags.has(key)) {
+    const parsedValue = type === "boolean" ? value === "true" : value;
+    wsEvents.emit("remote_config_update", { key, value: parsedValue });
   }
 
   return { key, value, type, updatedBy };

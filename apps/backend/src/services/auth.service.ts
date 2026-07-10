@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { env } from "../config/env.js";
 import { firebaseAuth } from "../config/firebaseAdmin.js";
-import { User, NotificationPreferences } from "../models/user.model.js";
+import { User, NotificationPreferences, IUser } from "../models/user.model.js";
 import { generateRefreshToken, hashToken } from "../lib/hashToken.js";
 import { generateUniqueUsername } from "../lib/usernameGenerator.js";
 import { uploadAvatar as uploadAvatarToS3 } from "../services/upload.service.js";
@@ -18,6 +18,18 @@ const PASSWORD_RESET_TOKEN_TTL_SECONDS = 15 * 60;
 export interface TokenPair {
   accessToken: string;
   refreshToken: string;
+}
+
+export function checkUserCanLogin(user: IUser): void {
+  if (user.isBanned) {
+    throw new ApiError(403, "ACCOUNT_BANNED", "This account has been banned");
+  }
+  if (user.suspendedUntil && user.suspendedUntil > new Date()) {
+    throw new ApiError(403, "ACCOUNT_SUSPENDED", "This account is suspended");
+  }
+  if (user.suspendedUntil && user.suspendedUntil <= new Date()) {
+    user.suspendedUntil = null;
+  }
 }
 
 export async function registerUser(email: string, password: string): Promise<TokenPair> {
@@ -54,6 +66,7 @@ export async function loginUser(email: string, password: string): Promise<TokenP
   }
 
   user.lastLoginAt = new Date();
+  checkUserCanLogin(user);
   await user.save();
 
   return await issueTokenPair(user._id.toString(), user.preferredLanguage);
@@ -95,6 +108,7 @@ export async function loginWithFirebase(idToken: string): Promise<TokenPair> {
   }
 
   user.lastLoginAt = new Date();
+  checkUserCanLogin(user);
   await user.save();
 
   return await issueTokenPair(user._id.toString(), user.preferredLanguage);
@@ -111,6 +125,9 @@ export async function refreshAccessToken(refreshToken: string): Promise<TokenPai
   if (!stored || stored.expiresAt < new Date()) {
     throw new ApiError(401, "INVALID_REFRESH_TOKEN", "Refresh token expired or revoked");
   }
+
+  checkUserCanLogin(user);
+  await user.save();
 
   await User.updateOne(
     { _id: user._id },
@@ -154,7 +171,7 @@ export function verifyAccessToken(token: string): { sub: string; lang?: string }
 }
 
 export async function getMe(userId: string) {
-  const user = await User.findById(userId).select("email username usernameChanged avatarUrl preferredLanguage themePreference hasCompletedOnboarding firebaseUid createdAt lastLoginAt role").lean();
+  const user = await User.findById(userId).select("email username usernameChanged avatarUrl preferredLanguage themePreference hasCompletedOnboarding firebaseUid createdAt lastLoginAt role isBanned suspendedUntil banReason").lean();
   if (!user) {
     throw new ApiError(404, "USER_NOT_FOUND", "User not found");
   }
@@ -171,6 +188,9 @@ export async function getMe(userId: string) {
     createdAt: user.createdAt.toISOString(),
     lastLoginAt: user.lastLoginAt?.toISOString() ?? null,
     role: user.role,
+    isBanned: user.isBanned,
+    suspendedUntil: user.suspendedUntil?.toISOString() ?? null,
+    banReason: user.banReason,
   };
 }
 

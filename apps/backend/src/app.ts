@@ -4,9 +4,12 @@ import helmet from "helmet";
 import cors from "cors";
 import compression from "compression";
 import rateLimit from "express-rate-limit";
+import path from "path";
+import { fileURLToPath } from "url";
 import { env } from "./config/env.js";
 import { errorMiddleware } from "./middleware/error.middleware.js";
 import { detectLanguage } from "./middleware/detectLanguage.middleware.js";
+import { checkMaintenance } from "./middleware/maintenance.middleware.js";
 import { translate } from "./i18n/index.js";
 import authRoutes from "./routes/auth.routes.js";
 import showRoutes from "./routes/show.routes.js";
@@ -55,6 +58,11 @@ export function createApp(): Application {
   );
   app.use(express.json({ limit: "10mb" }));
   app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+  app.use("/assets", express.static(path.join(__dirname, "../assets")));
+
   app.use(detectLanguage);
 
   app.get("/health", (_req: Request, res: Response) => {
@@ -335,6 +343,8 @@ export function createApp(): Application {
 </html>
     `);
   });
+
+  app.use(checkMaintenance);
 
   app.use("/api/auth", authRoutes);
   app.use("/api/shows", showRoutes);

@@ -74,6 +74,8 @@ const de = {
     invalidCredentials: "E-Mail oder Passwort falsch.",
     emailAlreadyUsed: "Diese E-Mail wird bereits verwendet.",
     networkError: "Prüfe deine Internetverbindung.",
+    accountBanned: "Dieses Konto wurde gesperrt.",
+    accountSuspended: "Dieses Konto ist vorübergehend gesperrt.",
     genericError: "Etwas ist schiefgelaufen. Versuche es erneut.",
     forgotPassword: "Passwort vergessen?",
     forgotPasswordTitle: "Passwort vergessen",
@@ -306,6 +308,21 @@ const de = {
       loadMore: "Mehr laden",
       loadingMore: "Laden…",
       tapToClose: "Zum Schließen tippen",
+      report: {
+        title: "Kommentar melden",
+        subtitle: "Warum meldest du diesen Kommentar?",
+        button: "Melden",
+        submit: "Meldung senden",
+        submitting: "Senden…",
+        success: "Kommentar gemeldet. Danke!",
+        reasons: {
+          spam: "Spam oder wiederholende Inhalte",
+          unmarked_spoiler: "Spoiler nicht markiert",
+          harassment: "Belästigung oder Mobbing",
+          inappropriate: "Unangemessene Inhalte",
+          off_topic: "Off-Topic",
+        },
+      },
     },
     import: {
       title: "Daten importieren",
@@ -490,6 +507,25 @@ const de = {
       noEpisode: "Keine Episode",
       title: "WEITER",
     },
+  },
+  trafficNotice: {
+    message: "Unsere Dienste erleben Verlangsamungen. Wir arbeiten an der Lösung des Problems. Vielen Dank für Ihre Geduld.",
+  },
+  maintenance: {
+    title: "Watchr",
+    message: "Watchr befindet sich in Wartung. Wir sind bald zurück.",
+  },
+  authDisabled: {
+    message: "Anmeldung und Registrierung sind vorübergehend deaktiviert. Bitte versuchen Sie es später erneut.",
+  },
+  seo: {
+    defaultTitle: "Watchr — Verfolge deine Serien und Filme",
+    defaultDescription: "Verfolge deinen Status, bewerte Episoden, entdecke neue Inhalte und importiere deine TV Time Daten.",
+    library: "Meine Bibliothek",
+    search: "Suche",
+    series: "Meine Serien",
+    movies: "Meine Filme",
+    comments: "Kommentare",
   },
 };
 

@@ -1,12 +1,30 @@
 import { FilterQuery } from "mongoose";
 import { User } from "../../models/user.model.js";
+import { BanAction } from "../../models/banAction.model.js";
 import { Comment } from "../../models/comment.model.js";
 import { WatchEntry } from "../../models/watchEntry.model.js";
 import { Rating } from "../../models/rating.model.js";
 import { ImportJob } from "../../models/importJob.model.js";
 import { Favorite } from "../../models/favorite.model.js";
 import { ApiError } from "../../middleware/error.middleware.js";
+import { invalidateUserBanCache } from "../../middleware/requireAuth.middleware.js";
 import { getUserStats } from "../stats.service.js";
+import { EmailService } from "../email.service.js";
+import { PushNotificationService } from "../pushNotification.service.js";
+import { translateNotification, normalizeLocale } from "../../i18n/index.js";
+import { SupportedLocale } from "../../i18n/translations.js";
+import { scheduleBanActionJob, cancelBanActionJob } from "../../workers/banScheduler.worker.js";
+import { log, logError } from "../../lib/logger.js";
+
+const INTL_LOCALE_MAP: Record<SupportedLocale, string> = {
+  en: "en-US",
+  fr: "fr-FR",
+  es: "es-ES",
+  pt: "pt-PT",
+  de: "de-DE",
+  it: "it-IT",
+  ar: "ar",
+};
 
 export interface ListUsersQuery {
   search?: string;
@@ -52,7 +70,7 @@ export async function listUsers(query: ListUsersQuery): Promise<ListUsersResult>
 
   const [users, total] = await Promise.all([
     User.find(filter)
-      .select("email username avatarUrl role lastLoginAt createdAt hasCompletedOnboarding")
+      .select("email username avatarUrl role lastLoginAt createdAt hasCompletedOnboarding isBanned bannedAt suspendedUntil banReason preferredLanguage")
       .sort(sortOptions)
       .skip((page - 1) * limit)
       .limit(limit)
@@ -70,6 +88,11 @@ export async function listUsers(query: ListUsersQuery): Promise<ListUsersResult>
       lastLoginAt: u.lastLoginAt?.toISOString() ?? null,
       createdAt: u.createdAt.toISOString(),
       hasCompletedOnboarding: u.hasCompletedOnboarding,
+      isBanned: u.isBanned,
+      bannedAt: u.bannedAt?.toISOString() ?? null,
+      suspendedUntil: u.suspendedUntil?.toISOString() ?? null,
+      banReason: u.banReason,
+      preferredLanguage: u.preferredLanguage,
     })),
     total,
     page,
@@ -92,6 +115,10 @@ export interface AdminUserDetail {
   googleLinked: boolean;
   expoPushToken?: string;
   notificationPreferences: Record<string, unknown>;
+  isBanned: boolean;
+  bannedAt: string | null;
+  suspendedUntil: string | null;
+  banReason: string | null;
   stats: Awaited<ReturnType<typeof getUserStats>>;
   recentComments: Array<{
     id: string;
@@ -135,6 +162,10 @@ export async function getUserDetail(userId: string): Promise<AdminUserDetail> {
     googleLinked: !!user.firebaseUid,
     expoPushToken: user.expoPushToken,
     notificationPreferences: user.notificationPreferences as unknown as Record<string, unknown>,
+    isBanned: user.isBanned,
+    bannedAt: user.bannedAt?.toISOString() ?? null,
+    suspendedUntil: user.suspendedUntil?.toISOString() ?? null,
+    banReason: user.banReason,
     stats,
     recentComments: recentComments.map((c) => ({
       id: c._id.toString(),
@@ -149,10 +180,124 @@ export async function getUserDetail(userId: string): Promise<AdminUserDetail> {
   };
 }
 
-export async function updateUserStatus(
+export async function scheduleUserStatusAction(
   userId: string,
-  action: "ban" | "unban" | "suspend",
-): Promise<{ status: string }> {
+  adminId: string,
+  input: {
+    action: "ban" | "unban" | "suspend" | "unsuspend";
+    reason: string;
+    delayHours: number;
+    durationDays?: number;
+  },
+): Promise<{ scheduled: boolean; executionDate: Date; actionId: string }> {
+  const user = await User.findById(userId).select("email username preferredLanguage expoPushToken notificationPreferences");
+  if (!user) {
+    throw new ApiError(404, "USER_NOT_FOUND", "User not found");
+  }
+
+  const locale = normalizeLocale(user.preferredLanguage);
+  const now = new Date();
+  const executionDate = new Date(now.getTime() + input.delayHours * 3600 * 1000);
+  const isImmediate = input.delayHours === 0;
+
+  const banAction = await BanAction.create({
+    userId: user._id,
+    action: input.action,
+    reason: input.reason,
+    performedBy: adminId,
+    delayHours: input.delayHours,
+    scheduledAt: now,
+    executedAt: isImmediate ? now : null,
+    status: isImmediate ? "executed" : "pending",
+  });
+
+  const actionLabel = translateNotification(
+    input.action === "ban" ? "actionBan" : "actionSuspend",
+    locale,
+  );
+  const intlLocale = INTL_LOCALE_MAP[locale];
+  const effectiveDateStr = executionDate.toLocaleDateString(intlLocale, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  let suspendedUntilStr: string | undefined;
+  if (input.action === "suspend" && input.durationDays) {
+    const until = new Date(now.getTime() + input.durationDays * 24 * 3600 * 1000);
+    suspendedUntilStr = until.toLocaleDateString(intlLocale, {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  }
+
+  if (input.action === "ban" || input.action === "suspend") {
+    EmailService.sendBanNotificationEmail(
+      user.email,
+      user.username,
+      locale,
+      {
+        action: actionLabel,
+        reason: input.reason,
+        effectiveDate: effectiveDateStr,
+        suspendedUntil: suspendedUntilStr,
+      },
+    ).catch((err) => logError("BanService", "failed to send ban email", err, { userId }));
+
+    if (user.expoPushToken) {
+      const title = translateNotification("banTitle", locale);
+      const body = translateNotification("banBody", locale, { action: actionLabel, reason: input.reason });
+      PushNotificationService.sendPush(user.expoPushToken, title, body, { type: "ban_notice" }).catch((err) =>
+        logError("BanService", "failed to send ban push", err, { userId }),
+      );
+    }
+  }
+
+  if (isImmediate) {
+    await applyBanAction(user._id.toString(), input.action, input.reason, input.durationDays);
+  } else {
+    await scheduleBanActionJob(banAction._id.toString(), input.delayHours * 3600 * 1000);
+  }
+
+  log("BanService", "ban action scheduled", { userId, action: input.action, delayHours: input.delayHours });
+
+  return { scheduled: !isImmediate, executionDate, actionId: banAction._id.toString() };
+}
+
+export async function executeBanAction(actionId: string): Promise<void> {
+  const banAction = await BanAction.findById(actionId);
+  if (!banAction) {
+    logError("BanService", "ban action not found", null, { actionId });
+    return;
+  }
+  if (banAction.status !== "pending") {
+    log("BanService", "ban action already processed, skipping", { actionId, status: banAction.status });
+    return;
+  }
+
+  await applyBanAction(
+    banAction.userId.toString(),
+    banAction.action,
+    banAction.reason,
+    undefined,
+  );
+
+  banAction.executedAt = new Date();
+  banAction.status = "executed";
+  await banAction.save();
+
+  log("BanService", "ban action executed", { actionId, action: banAction.action });
+}
+
+async function applyBanAction(
+  userId: string,
+  action: "ban" | "unban" | "suspend" | "unsuspend",
+  reason: string,
+  durationDays?: number,
+): Promise<void> {
   const user = await User.findById(userId);
   if (!user) {
     throw new ApiError(404, "USER_NOT_FOUND", "User not found");
@@ -160,19 +305,73 @@ export async function updateUserStatus(
 
   switch (action) {
     case "ban":
-      user.hasCompletedOnboarding = false;
-      await User.updateOne({ _id: userId }, { $unset: { expoPushToken: "" } });
+      user.isBanned = true;
+      user.bannedAt = new Date();
+      user.suspendedUntil = null;
+      user.banReason = reason;
+      user.expoPushToken = undefined;
+      user.refreshTokens = [];
       break;
     case "unban":
-      user.hasCompletedOnboarding = user.hasCompletedOnboarding;
+      user.isBanned = false;
+      user.bannedAt = null;
+      user.suspendedUntil = null;
+      user.banReason = null;
       break;
     case "suspend":
-      await User.updateOne({ _id: userId }, { $unset: { expoPushToken: "" } });
+      user.suspendedUntil = new Date(Date.now() + (durationDays ?? 7) * 24 * 3600 * 1000);
+      user.isBanned = false;
+      user.banReason = reason;
+      user.expoPushToken = undefined;
+      user.refreshTokens = [];
+      break;
+    case "unsuspend":
+      user.suspendedUntil = null;
+      user.banReason = null;
       break;
   }
 
   await user.save();
-  return { status: action };
+  invalidateUserBanCache(userId);
+}
+
+export async function cancelBanAction(userId: string, actionId: string): Promise<void> {
+  const banAction = await BanAction.findOne({ _id: actionId, userId });
+  if (!banAction) {
+    throw new ApiError(404, "BAN_ACTION_NOT_FOUND", "Ban action not found");
+  }
+  if (banAction.status !== "pending") {
+    throw new ApiError(400, "BAN_ACTION_NOT_PENDING", "Ban action is not pending");
+  }
+
+  banAction.status = "cancelled";
+  await banAction.save();
+
+  await cancelBanActionJob(actionId);
+  log("BanService", "ban action cancelled", { actionId, userId });
+}
+
+export async function getBanHistory(userId: string): Promise<
+  Array<{
+    id: string;
+    action: string;
+    reason: string;
+    delayHours: number;
+    scheduledAt: string;
+    executedAt: string | null;
+    status: string;
+  }>
+> {
+  const actions = await BanAction.find({ userId }).sort({ scheduledAt: -1 }).lean();
+  return actions.map((a) => ({
+    id: a._id.toString(),
+    action: a.action,
+    reason: a.reason,
+    delayHours: a.delayHours,
+    scheduledAt: a.scheduledAt.toISOString(),
+    executedAt: a.executedAt?.toISOString() ?? null,
+    status: a.status,
+  }));
 }
 
 export async function updateUserRole(userId: string, role: "user" | "admin"): Promise<{ role: string }> {

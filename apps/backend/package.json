@@ -14,6 +14,7 @@
     "notifications-worker": "tsx watch --import ./src/instrument.ts src/workers/startNotificationWorker.ts",
     "news-worker": "tsx watch --import ./src/instrument.ts src/workers/startNewsSyncWorker.ts",
     "username-fix-worker": "tsx watch --import ./src/instrument.ts src/workers/startUsernameFixWorker.ts",
+    "ban-scheduler-worker": "tsx watch --import ./src/instrument.ts src/workers/startBanSchedulerWorker.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint .",

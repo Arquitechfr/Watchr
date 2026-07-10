@@ -81,6 +81,13 @@ api.interceptors.response.use(
                            originalRequest.url?.startsWith("/auth/firebase");
 
     if (error.response?.status === 401 && originalRequest && !originalRequest._retry && !isAuthEndpoint) {
+      // Check for ban/suspend codes on 403 before attempting refresh
+      const errData = error.response?.data as { error?: { code?: string } } | undefined;
+      const errCode = errData?.error?.code;
+      if (errCode === "ACCOUNT_BANNED" || errCode === "ACCOUNT_SUSPENDED") {
+        await useAuthStore.getState().logout();
+        return Promise.reject(error);
+      }
       if (isRefreshing) {
         return new Promise((resolve) => {
           subscribeTokenRefresh((token) => {
@@ -124,6 +131,15 @@ api.interceptors.response.use(
       }
     }
 
+    if (error.response?.status === 403) {
+      const errData = error.response?.data as { error?: { code?: string } } | undefined;
+      const errCode = errData?.error?.code;
+      if (errCode === "ACCOUNT_BANNED" || errCode === "ACCOUNT_SUSPENDED") {
+        await useAuthStore.getState().logout();
+        return Promise.reject(error);
+      }
+    }
+
     if (error.response) {
       log("API", "error response", { status: error.response.status, url: error.config?.url });
     } else {
@@ -146,6 +162,8 @@ const errorMessageKeys: Record<string, string> = {
   INVALID_REFRESH_TOKEN: "errors.unauthorized",
   RATE_LIMITED: "errors.unknown",
   UNAUTHORIZED: "errors.unauthorized",
+  ACCOUNT_BANNED: "auth.accountBanned",
+  ACCOUNT_SUSPENDED: "auth.accountSuspended",
 };
 
 export function getErrorMessage(

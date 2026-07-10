@@ -1,12 +1,21 @@
 import { useEffect, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Download, ChevronLeft, ChevronRight } from "lucide-react";
 import api from "../lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
 import { Badge } from "../components/ui/Badge";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "../components/ui/Table";
 import { Skeleton } from "../components/ui/Skeleton";
+import { EmptyState } from "../components/ui/EmptyState";
 import { formatDate } from "../lib/utils";
+
+interface ImportProgress {
+  total: number;
+  processed: number;
+  matched: number;
+  failed: number;
+  pendingReview?: number;
+}
 
 interface ImportRow {
   id: string;
@@ -14,7 +23,7 @@ interface ImportRow {
   email: string;
   source: string;
   status: string;
-  progress: number;
+  progress: ImportProgress;
   createdAt: string;
   completedAt: string | null;
 }
@@ -98,11 +107,11 @@ export function ImportJobs() {
         </div>
       )}
 
-      <div className="flex gap-4 mb-4">
+      <div className="flex flex-col sm:flex-row gap-4 mb-4">
         <select
           value={statusFilter}
           onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-          className="rounded-md border border-border bg-background px-3 text-sm text-text"
+          className="rounded-md border border-border bg-background px-3 text-sm text-text w-full sm:w-auto"
         >
           <option value="">All statuses</option>
           <option value="pending">Pending</option>
@@ -118,11 +127,11 @@ export function ImportJobs() {
             <TableHeader>
               <TableRow>
                 <TableHead>User</TableHead>
-                <TableHead>Source</TableHead>
+                <TableHead className="hidden md:table-cell">Source</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Progress</TableHead>
-                <TableHead>Created</TableHead>
-                <TableHead>Completed</TableHead>
+                <TableHead className="hidden lg:table-cell">Created</TableHead>
+                <TableHead className="hidden lg:table-cell">Completed</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -134,21 +143,41 @@ export function ImportJobs() {
                       ))}
                     </TableRow>
                   ))
+                : data && data.jobs.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="p-0">
+                        <EmptyState
+                          icon={Download}
+                          title="No import jobs found"
+                          description={statusFilter ? "Try adjusting your status filter." : "No import jobs have been created yet."}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  )
                 : data?.jobs.map((job) => (
                     <TableRow key={job.id}>
                       <TableCell>
                         <p className="font-medium">{job.username}</p>
                         <p className="text-xs text-text-muted">{job.email}</p>
                       </TableCell>
-                      <TableCell className="text-text-muted">{job.source}</TableCell>
+                      <TableCell className="text-text-muted hidden md:table-cell">{job.source}</TableCell>
                       <TableCell>
                         <Badge className={statusColors[job.status] ?? "bg-surface-light text-text-muted"}>
                           {job.status}
                         </Badge>
                       </TableCell>
-                      <TableCell>{job.progress}%</TableCell>
-                      <TableCell className="text-text-muted text-xs">{formatDate(job.createdAt)}</TableCell>
-                      <TableCell className="text-text-muted text-xs">{formatDate(job.completedAt)}</TableCell>
+                      <TableCell>
+                        <p className="font-medium">
+                          {job.progress.total > 0
+                            ? Math.round((job.progress.processed / job.progress.total) * 100)
+                            : 0}%
+                        </p>
+                        <p className="text-xs text-text-muted">
+                          {job.progress.processed}/{job.progress.total}
+                        </p>
+                      </TableCell>
+                      <TableCell className="text-text-muted text-xs hidden lg:table-cell">{formatDate(job.createdAt)}</TableCell>
+                      <TableCell className="text-text-muted text-xs hidden lg:table-cell">{formatDate(job.completedAt)}</TableCell>
                     </TableRow>
                   ))}
             </TableBody>

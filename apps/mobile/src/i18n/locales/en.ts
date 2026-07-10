@@ -75,6 +75,8 @@ const en = {
     emailAlreadyUsed: "This email is already in use.",
     invalidEmail: "Invalid email.",
     networkError: "Check your internet connection.",
+    accountBanned: "This account has been banned.",
+    accountSuspended: "This account is suspended.",
     genericError: "Something went wrong. Please try again.",
     forgotPassword: "Forgot password?",
     forgotPasswordTitle: "Forgot password",
@@ -310,6 +312,21 @@ const en = {
       loadMore: "Load more",
       loadingMore: "Loading more…",
       tapToClose: "Tap to close",
+      report: {
+        title: "Report comment",
+        subtitle: "Why are you reporting this comment?",
+        button: "Report",
+        submit: "Submit report",
+        submitting: "Submitting…",
+        success: "Comment reported. Thank you!",
+        reasons: {
+          spam: "Spam or repetitive content",
+          unmarked_spoiler: "Unmarked spoiler",
+          harassment: "Harassment or bullying",
+          inappropriate: "Inappropriate content",
+          off_topic: "Off-topic",
+        },
+      },
     },
     import: {
       title: "Import data",
@@ -494,6 +511,25 @@ const en = {
       noEpisode: "No episode",
       title: "UP NEXT",
     },
+  },
+  trafficNotice: {
+    message: "Our services are experiencing slowdowns. We are working on resolving the issue. Thank you for your patience.",
+  },
+  maintenance: {
+    title: "Watchr",
+    message: "Watchr is under maintenance. We'll be back soon.",
+  },
+  authDisabled: {
+    message: "Login and registration are temporarily disabled. Please try again later.",
+  },
+  seo: {
+    defaultTitle: "Watchr — Track your TV shows & movies",
+    defaultDescription: "Track your watch status, rate episodes, discover new content, and import your TV Time data.",
+    library: "My Library",
+    search: "Search",
+    series: "My Series",
+    movies: "My Movies",
+    comments: "Comments",
   },
 };
 

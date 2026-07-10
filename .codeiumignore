@@ -1,0 +1,78 @@
+# Windsurf / Devin Desktop — .codeiumignore
+# gitignore-style syntax. Controls which files are indexed for context awareness.
+# https://docs.devin.ai/desktop/context-awareness/windsurf-ignore
+
+# --- Dependencies ---
+node_modules/
+.pnpm-store/
+
+# --- Build output ---
+dist/
+build/
+*.tsbuildinfo
+.expo/
+web-build/
+
+# --- Lock files (large, not useful for context) ---
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# --- Environment & secrets ---
+.env
+.env.local
+.env.*.local
+*.pem
+*.keystore
+*.jks
+
+# --- Logs ---
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# --- Testing & coverage ---
+coverage/
+
+# --- IDE / OS ---
+.vscode/
+.idea/
+.vs/
+.DS_Store
+Thumbs.db
+
+# --- Temporary / cache ---
+uploads/
+tmp/
+.cache/
+
+# --- Credentials & Firebase ---
+apps/mobile/GoogleService-Info.plist
+apps/mobile/google-services.json
+apps/mobile/credentials/
+apps/mobile/credentials.json
+
+# --- Binary / assets (not useful for code context) ---
+*.apk
+*.ipa
+*.aab
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.ico
+*.woff
+*.woff2
+*.ttf
+*.eot
+*.mp4
+*.mp3
+
+# --- Git internals ---
+.git/
+
+# --- Misc project files ---
+template.md
+AUDIT_CHANGES.md

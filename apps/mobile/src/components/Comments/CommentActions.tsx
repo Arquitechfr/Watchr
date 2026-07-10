@@ -22,6 +22,7 @@ interface CommentActionsProps {
   onRemoveReaction?: (id: string, emoji: string) => void;
   onEdit?: () => void;
   onDelete?: () => void;
+  onReport?: () => void;
 }
 
 export function CommentActions({
@@ -38,6 +39,7 @@ export function CommentActions({
   onRemoveReaction,
   onEdit,
   onDelete,
+  onReport,
 }: CommentActionsProps) {
   const { t } = useI18n();
   const colors = useThemeColors();
@@ -116,6 +118,15 @@ export function CommentActions({
             <Ionicons name="ellipsis-horizontal" size={16} color={showMenu ? colors.primary : colors.textMuted} />
           </TouchableOpacity>
         )}
+        {!isOwn && (
+          <TouchableOpacity
+            onPress={() => setShowMenu((v) => !v)}
+            disabled={isPending}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="ellipsis-horizontal" size={16} color={showMenu ? colors.primary : colors.textMuted} />
+          </TouchableOpacity>
+        )}
 
         {showRepliesButton && (
           <TouchableOpacity onPress={onViewReplies} activeOpacity={0.7} className="ml-auto">
@@ -171,6 +182,15 @@ export function CommentActions({
           <TouchableOpacity onPress={handleDelete} activeOpacity={0.7} className="flex-row items-center">
             <Ionicons name="trash-outline" size={16} color={colors.danger} />
             <Text className="text-danger text-sm ml-1">{t("common.delete")}</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {showMenu && !isOwn && (
+        <View className="flex-row gap-4 mt-2 bg-surface-light rounded-lg px-3 py-2">
+          <TouchableOpacity onPress={() => { setShowMenu(false); onReport?.(); }} activeOpacity={0.7} className="flex-row items-center">
+            <Ionicons name="flag-outline" size={16} color={colors.danger} />
+            <Text className="text-danger text-sm ml-1">{t("comments.report.button")}</Text>
           </TouchableOpacity>
         </View>
       )}

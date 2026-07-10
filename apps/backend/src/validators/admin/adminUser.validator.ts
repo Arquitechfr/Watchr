@@ -14,7 +14,14 @@ export const userIdParamSchema = z.object({
 });
 
 export const updateUserStatusSchema = z.object({
-  action: z.enum(["ban", "unban", "suspend"]),
+  action: z.enum(["ban", "unban", "suspend", "unsuspend"]),
+  reason: z.string().min(1, "Reason is required").max(500),
+  delayHours: z.number().int().min(0).max(720).default(0),
+  durationDays: z.number().int().min(1).max(365).optional(),
+});
+
+export const cancelBanSchema = z.object({
+  actionId: z.string().min(1),
 });
 
 export const updateUserRoleSchema = z.object({

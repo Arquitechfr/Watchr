@@ -44,6 +44,7 @@ import { validateRequest } from "../validators/validateRequest.js";
 import { asyncHandler } from "../lib/asyncHandler.js";
 import { z } from "zod";
 import { requireAuth } from "../middleware/requireAuth.middleware.js";
+import { checkAuthEnabled } from "../middleware/authFlag.middleware.js";
 import { translate } from "../i18n/index.js";
 import { getUserStats } from "../services/stats.service.js";
 
@@ -77,6 +78,7 @@ const authRateLimiter = rateLimit({
 
 router.post(
   "/register",
+  checkAuthEnabled,
   authRateLimiter,
   validateRequest(registerSchema),
   asyncHandler(async (req: Request, res: Response) => {
@@ -88,6 +90,7 @@ router.post(
 
 router.post(
   "/login",
+  checkAuthEnabled,
   authRateLimiter,
   validateRequest(loginSchema),
   asyncHandler(async (req: Request, res: Response) => {
@@ -99,6 +102,7 @@ router.post(
 
 router.post(
   "/firebase",
+  checkAuthEnabled,
   authRateLimiter,
   validateRequest(firebaseLoginSchema),
   asyncHandler(async (req: Request, res: Response) => {
@@ -114,6 +118,7 @@ const googleInitSchema = z.object({
 
 router.post(
   "/google/init",
+  checkAuthEnabled,
   authRateLimiter,
   validateRequest(googleInitSchema),
   asyncHandler(async (req: Request, res: Response) => {
@@ -126,6 +131,7 @@ router.post(
 
 router.get(
   "/google/callback",
+  checkAuthEnabled,
   authRateLimiter,
   asyncHandler(async (req: Request, res: Response) => {
     const { code, state, error } = req.query as {

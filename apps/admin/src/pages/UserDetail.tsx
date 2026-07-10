@@ -6,6 +6,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "../components/ui/Card"
 import { Badge } from "../components/ui/Badge";
 import { Button } from "../components/ui/Button";
 import { Skeleton } from "../components/ui/Skeleton";
+import { EmptyState } from "../components/ui/EmptyState";
 import { formatDate } from "../lib/utils";
 
 interface UserDetail {
@@ -19,6 +20,10 @@ interface UserDetail {
   themePreference: string;
   hasCompletedOnboarding: boolean;
   googleLinked: boolean;
+  isBanned: boolean;
+  bannedAt: string | null;
+  suspendedUntil: string | null;
+  banReason: string | null;
   trackingCount: number;
   favoritesCount: number;
   ratingsCount: number;
@@ -26,17 +31,32 @@ interface UserDetail {
   recentComments: Array<{ id: string; content: string; showId: string; createdAt: string }>;
 }
 
+interface BanHistoryEntry {
+  id: string;
+  action: string;
+  reason: string;
+  delayHours: number;
+  scheduledAt: string;
+  executedAt: string | null;
+  status: string;
+}
+
 export function UserDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [user, setUser] = useState<UserDetail | null>(null);
+  const [banHistory, setBanHistory] = useState<BanHistoryEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function load() {
       try {
-        const { data } = await api.get(`/admin/users/${id}`);
-        setUser(data);
+        const [userRes, historyRes] = await Promise.all([
+          api.get(`/admin/users/${id}`),
+          api.get(`/admin/users/${id}/ban-history`),
+        ]);
+        setUser(userRes.data);
+        setBanHistory(historyRes.data);
       } catch (err) {
         console.error("Failed to load user:", err);
       } finally {
@@ -75,7 +95,7 @@ export function UserDetail() {
         <ArrowLeft size={16} className="mr-2" /> Back to Users
       </Button>
 
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-6">
         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary text-2xl font-bold text-background">
           {user.username.charAt(0).toUpperCase()}
         </div>
@@ -86,6 +106,14 @@ export function UserDetail() {
             <Badge className="bg-primary/20 text-primary">{user.role}</Badge>
             {user.googleLinked && (
               <Badge className="bg-surface-light text-text-muted">Google linked</Badge>
+            )}
+            {user.isBanned && (
+              <Badge className="bg-red-500/20 text-red-400">Banned</Badge>
+            )}
+            {user.suspendedUntil && new Date(user.suspendedUntil) > new Date() && (
+              <Badge className="bg-orange-500/20 text-orange-400">
+                Suspended until {formatDate(user.suspendedUntil)}
+              </Badge>
             )}
           </div>
         </div>
@@ -140,7 +168,11 @@ export function UserDetail() {
           </CardHeader>
           <CardContent className="space-y-3">
             {user.recentComments.length === 0 ? (
-              <p className="text-sm text-text-muted">No comments</p>
+              <EmptyState
+                icon={MessageSquare}
+                title="No comments"
+                description="This user hasn't posted any comments yet."
+              />
             ) : (
               user.recentComments.map((comment) => (
                 <div key={comment.id} className="border-b border-border pb-2 last:border-0">
@@ -148,6 +180,67 @@ export function UserDetail() {
                   <p className="text-xs text-text-muted mt-1">{formatDate(comment.createdAt)}</p>
                 </div>
               ))
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="mt-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Ban History</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {banHistory.length === 0 ? (
+              <EmptyState
+                title="No ban actions recorded"
+                description="This user has a clean record with no ban or suspension history."
+              />
+            ) : (
+              <div className="space-y-3">
+                {banHistory.map((entry) => (
+                  <div key={entry.id} className="border-b border-border pb-3 last:border-0">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Badge
+                          className={
+                            entry.action === "ban"
+                              ? "bg-red-500/20 text-red-400"
+                              : entry.action === "suspend"
+                                ? "bg-orange-500/20 text-orange-400"
+                                : "bg-green-500/20 text-green-400"
+                          }
+                        >
+                          {entry.action}
+                        </Badge>
+                        <Badge
+                          className={
+                            entry.status === "executed"
+                              ? "bg-surface-light text-text-muted"
+                              : entry.status === "pending"
+                                ? "bg-yellow-500/20 text-yellow-400"
+                                : "bg-gray-500/20 text-gray-400"
+                          }
+                        >
+                          {entry.status}
+                        </Badge>
+                      </div>
+                      <span className="text-xs text-text-muted">{formatDate(entry.scheduledAt)}</span>
+                    </div>
+                    <p className="mt-2 text-sm">{entry.reason}</p>
+                    {entry.delayHours > 0 && (
+                      <p className="mt-1 text-xs text-text-muted">
+                        Delay: {entry.delayHours}h
+                      </p>
+                    )}
+                    {entry.executedAt && (
+                      <p className="mt-1 text-xs text-text-muted">
+                        Executed: {formatDate(entry.executedAt)}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
             )}
           </CardContent>
         </Card>

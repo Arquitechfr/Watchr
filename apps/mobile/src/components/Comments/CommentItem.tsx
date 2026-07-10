@@ -10,6 +10,7 @@ import { Avatar } from "../Avatar";
 import { CommentInput } from "./CommentInput";
 import { CommentImageViewer } from "./CommentImageViewer";
 import { CommentActions } from "./CommentActions";
+import { ReportModal } from "./ReportModal";
 import { useI18n } from "../../i18n/useI18n";
 import { formatDistanceToNow } from "date-fns";
 
@@ -59,6 +60,7 @@ export function CommentItem({
   const [isEditing, setIsEditing] = useState(false);
   const [viewingImage, setViewingImage] = useState<string | null>(null);
   const [spoilerRevealed, setSpoilerRevealed] = useState(false);
+  const [reportVisible, setReportVisible] = useState(false);
   const isEdited = comment.updatedAt !== comment.createdAt;
 
   const isParent = variant === "parent";
@@ -198,6 +200,7 @@ export function CommentItem({
               onRemoveReaction={onRemoveReaction}
               onEdit={() => setIsEditing(true)}
               onDelete={() => onDelete?.(comment.id)}
+              onReport={() => setReportVisible(true)}
             />
           </View>
         </View>
@@ -218,6 +221,12 @@ export function CommentItem({
         visible={viewingImage !== null}
         imageUri={viewingImage}
         onClose={() => setViewingImage(null)}
+      />
+
+      <ReportModal
+        visible={reportVisible}
+        commentId={reportVisible ? comment.id : null}
+        onClose={() => setReportVisible(false)}
       />
     </View>
   );

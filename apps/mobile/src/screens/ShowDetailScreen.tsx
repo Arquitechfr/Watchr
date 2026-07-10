@@ -25,6 +25,7 @@ import { WatchStatus } from "../services/tracking.service";
 import { useUIStore } from "../store/uiStore";
 import { log } from "../utils/logger";
 import { useI18n } from "../i18n/useI18n";
+import { Seo } from "../components/Seo";
 
 type ShowDetailRouteProp = RouteProp<RootStackParamList, "ShowDetail">;
 type ShowDetailNavigationProp = NativeStackNavigationProp<RootStackParamList, "ShowDetail">;
@@ -365,6 +366,12 @@ export function ShowDetailScreen() {
 
   return (
     <ScreenContainer edges={["top", "left", "right"]}>
+      <Seo
+        title={show.title}
+        description={show.overview}
+        image={show.posterPath ? getPosterUrl(show.posterPath, 500) : undefined}
+        type="video.other"
+      />
       <DetailHeader
         title={show.title}
         onBack={() => navigation.goBack()}

@@ -5,6 +5,7 @@ import { useAuthStore } from "../store/authStore";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 import { Card, CardHeader, CardTitle, CardContent } from "../components/ui/Card";
+import icon from "../assets/icon.png";
 
 export function Login() {
   const navigate = useNavigate();
@@ -50,6 +51,7 @@ export function Login() {
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-center">
+            <img src={icon} alt="Watchr" className="mx-auto mb-3 h-16 w-16 rounded-xl" />
             <span className="text-primary">Watchr</span> Admin
           </CardTitle>
         </CardHeader>

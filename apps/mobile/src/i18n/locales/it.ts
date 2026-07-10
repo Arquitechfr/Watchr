@@ -74,6 +74,8 @@ const it = {
     invalidCredentials: "Email o password errati.",
     emailAlreadyUsed: "Questa email è già in uso.",
     networkError: "Controlla la connessione internet.",
+    accountBanned: "Questo account è stato bannato.",
+    accountSuspended: "Questo account è sospeso.",
     genericError: "Qualcosa è andato storto. Riprova.",
     forgotPassword: "Password dimenticata?",
     forgotPasswordTitle: "Password dimenticata",
@@ -306,6 +308,21 @@ const it = {
       loadMore: "Carica altro",
       loadingMore: "Caricamento…",
       tapToClose: "Tocca per chiudere",
+      report: {
+        title: "Segnala commento",
+        subtitle: "Perché stai segnalando questo commento?",
+        button: "Segnala",
+        submit: "Invia segnalazione",
+        submitting: "Invio…",
+        success: "Commento segnalato. Grazie!",
+        reasons: {
+          spam: "Spam o contenuto ripetitivo",
+          unmarked_spoiler: "Spoiler non segnalato",
+          harassment: "Molestie o bullismo",
+          inappropriate: "Contenuto inappropriato",
+          off_topic: "Fuori argomento",
+        },
+      },
     },
     import: {
       title: "Importa dati",
@@ -490,6 +507,25 @@ const it = {
       noEpisode: "Nessun episodio",
       title: "IN SEGUITO",
     },
+  },
+  trafficNotice: {
+    message: "I nostri servizi stanno subendo rallentamenti. Stiamo lavorando per risolvere il problema. Grazie per la vostra pazienza.",
+  },
+  maintenance: {
+    title: "Watchr",
+    message: "Watchr è in manutenzione. Torneremo presto.",
+  },
+  authDisabled: {
+    message: "Login e registrazione sono temporaneamente disabilitati. Riprova più tardi.",
+  },
+  seo: {
+    defaultTitle: "Watchr — Segui le tue serie e film",
+    defaultDescription: "Segui lo stato di visione, valuta gli episodi, scopri nuovi contenuti e importa i tuoi dati TV Time.",
+    library: "La mia libreria",
+    search: "Cerca",
+    series: "Le mie serie",
+    movies: "I miei film",
+    comments: "Commenti",
   },
 };
 

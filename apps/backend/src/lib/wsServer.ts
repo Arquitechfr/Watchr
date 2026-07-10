@@ -170,6 +170,14 @@ export function createWsServer(httpServer: HttpServer): IoServer {
     emitToShow(data.showId, "comment:reaction", data);
   });
 
+  wsEvents.on("comment:hidden", (data) => {
+    emitToShow(data.showId, "comment:hidden", data);
+  });
+
+  wsEvents.on("comment:spoiler", (data) => {
+    emitToShow(data.showId, "comment:spoiler", data);
+  });
+
   wsEvents.on("notification:new", (data) => {
     emitToUser(data.userId, "notification:new", data);
   });
@@ -190,6 +198,11 @@ export function createWsServer(httpServer: HttpServer): IoServer {
 
   wsEvents.on("news:new", (data) => {
     emitToRoom("news", "news:new", data);
+  });
+
+  wsEvents.on("remote_config_update", (data) => {
+    io.emit("remote_config_update", data);
+    wsMetrics.eventsSentTotal.labels({ event: "remote_config_update" }).inc();
   });
 
   return io;

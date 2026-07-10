@@ -17,6 +17,7 @@ import { AuthSettingsMenu } from "../../components/AuthSettingsMenu";
 import { syncPreferencesToBackend } from "../../hooks/useSyncPreferences";
 import { AuthStackParamList } from "../../navigation/AuthStack";
 import { useI18n } from "../../i18n/useI18n";
+import { useRemoteConfig } from "../../hooks/useRemoteConfig";
 
 type NavigationProp = NativeStackNavigationProp<AuthStackParamList, "Register">;
 
@@ -27,6 +28,8 @@ export function RegisterScreen() {
   const { t } = useI18n();
   const colors = useThemeColors();
   const getErrorMessage = useErrorMessage();
+  const config = useRemoteConfig();
+  const authDisabled = !config.auth_enabled;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -121,7 +124,7 @@ export function RegisterScreen() {
           <TouchableOpacity
             className="bg-primary py-3 rounded-lg items-center mb-4"
             onPress={handleRegister}
-            disabled={isLoading}
+            disabled={isLoading || authDisabled}
           >
             {isLoading ? (
               <ActivityIndicator color={colors.background} />
@@ -135,10 +138,17 @@ export function RegisterScreen() {
           <TouchableOpacity
             className="bg-primary py-3 rounded-lg items-center mb-4"
             onPress={() => setShowForm(true)}
+            disabled={authDisabled}
           >
             <Text className="text-background font-semibold text-base">{t("auth.registerWithEmail")}</Text>
           </TouchableOpacity>
         </Animated.View>
+      )}
+
+      {authDisabled && (
+        <Text className="text-text-muted text-center text-sm mb-4">
+          {t("authDisabled.message")}
+        </Text>
       )}
 
       <GoogleSignInButton label={t("auth.googleSignUp")} />

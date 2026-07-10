@@ -4,7 +4,7 @@ import { Server as IoServer } from "socket.io";
 import { io as ioClient, Socket as ClientSocket } from "socket.io-client";
 import { createWsServer } from "../src/lib/wsServer.js";
 import { wsEvents } from "../src/lib/wsEvents.js";
-import jwt from "jsonwebtoken";
+import * as jwt from "jsonwebtoken";
 import { env } from "../src/config/env.js";
 
 const TEST_PORT = 4999;
@@ -194,5 +194,23 @@ describe("WebSocket E2E", () => {
     expect(data).toMatchObject({ articles: [{ title: "Breaking" }] });
 
     client.disconnect();
+  });
+
+  it("should deliver remote_config_update to all clients", async () => {
+    const tokenA = createTestToken("user-config-a");
+    const tokenB = createTestToken("user-config-b");
+    const clientA = await connectClient(tokenA);
+    const clientB = await connectClient(tokenB);
+
+    const eventPromiseA = waitForEvent(clientA, "remote_config_update");
+    const eventPromiseB = waitForEvent(clientB, "remote_config_update");
+    wsEvents.emit("remote_config_update", { key: "traffic_notice_enabled", value: true });
+
+    const [dataA, dataB] = await Promise.all([eventPromiseA, eventPromiseB]);
+    expect(dataA).toMatchObject({ key: "traffic_notice_enabled", value: true });
+    expect(dataB).toMatchObject({ key: "traffic_notice_enabled", value: true });
+
+    clientA.disconnect();
+    clientB.disconnect();
   });
 });

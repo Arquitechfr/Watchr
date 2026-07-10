@@ -6,7 +6,9 @@ import { useQuery } from "@tanstack/react-query";
 import { NetworkError } from "../components/NetworkError";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { useAuthStore } from "../store/authStore";
+import { useRemoteConfig } from "../hooks/useRemoteConfig";
 import { AuthStack } from "./AuthStack";
+import { AuthDisabledScreen } from "../screens/AuthDisabledScreen";
 import { MainTabs } from "./MainTabs";
 import { OnboardingStack } from "./OnboardingStack";
 import { ShowDetailScreen } from "../screens/ShowDetailScreen";
@@ -58,6 +60,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export function RootNavigator() {
   const { isAuthenticated } = useAuthStore();
+  const config = useRemoteConfig();
   const navigationRef = useRef<any>(null);
 
   const meQuery = useQuery<Me>({
@@ -184,8 +187,10 @@ export function RootNavigator() {
             <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
             <Stack.Screen name="NewsArticleDetail" component={NewsArticleDetailScreen} />
           </>
-        ) : (
+        ) : config.auth_enabled ? (
           <Stack.Screen name="Auth" component={AuthStack} />
+        ) : (
+          <Stack.Screen name="Auth" component={AuthDisabledScreen} />
         )}
       </Stack.Navigator>
     </NavigationContainer>

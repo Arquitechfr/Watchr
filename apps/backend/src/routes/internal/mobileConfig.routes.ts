@@ -6,6 +6,10 @@ const router = Router();
 let cache: { data: Record<string, unknown>; expiresAt: number } | null = null;
 const CACHE_TTL_MS = 30_000;
 
+export function invalidateMobileConfigCache(): void {
+  cache = null;
+}
+
 function parseValue(raw: string, type: string): unknown {
   switch (type) {
     case "number":

@@ -63,6 +63,9 @@ export interface Me {
   createdAt: string;
   lastLoginAt: string | null;
   role: "user" | "admin";
+  isBanned?: boolean;
+  suspendedUntil?: string | null;
+  banReason?: string | null;
 }
 
 export async function getMe(): Promise<Me> {

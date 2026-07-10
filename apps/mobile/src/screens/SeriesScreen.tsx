@@ -25,6 +25,7 @@ import { UnwatchedShow, UnwatchedEpisode } from "../services/unwatched.service";
 import { UpcomingEpisode } from "../services/upcoming.service";
 import { useThemeColors } from "../theme/useThemeColors";
 import { useI18n } from "../i18n/useI18n";
+import { Seo } from "../components/Seo";
 import { log } from "../utils/logger";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "ShowDetail" | "EpisodeDetail">;
@@ -420,6 +421,7 @@ export function SeriesScreen() {
 
   return (
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]}>
+      <Seo title={t("seo.series")} />
       <MainHeader
         rightElement={
           <>

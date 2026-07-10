@@ -74,6 +74,8 @@ const pt = {
     invalidCredentials: "Email ou senha inválidos.",
     emailAlreadyUsed: "Este email já está em uso.",
     networkError: "Verifique sua internet.",
+    accountBanned: "Esta conta foi banida.",
+    accountSuspended: "Esta conta está suspensa.",
     genericError: "Algo deu errado. Tente novamente.",
     forgotPassword: "Esqueceu a senha?",
     forgotPasswordTitle: "Esqueceu a senha",
@@ -306,6 +308,21 @@ const pt = {
       loadMore: "Carregar mais",
       loadingMore: "Carregando…",
       tapToClose: "Toque para fechar",
+      report: {
+        title: "Denunciar comentário",
+        subtitle: "Por que você está denunciando este comentário?",
+        button: "Denunciar",
+        submit: "Enviar denúncia",
+        submitting: "Enviando…",
+        success: "Comentário denunciado. Obrigado!",
+        reasons: {
+          spam: "Spam ou conteúdo repetitivo",
+          unmarked_spoiler: "Spoiler não marcado",
+          harassment: "Assédio ou intimidação",
+          inappropriate: "Conteúdo inadequado",
+          off_topic: "Fora do assunto",
+        },
+      },
     },
     import: {
       title: "Importar dados",
@@ -490,6 +507,25 @@ const pt = {
       noEpisode: "Nenhum episódio",
       title: "A SEGUIR",
     },
+  },
+  trafficNotice: {
+    message: "Nossos serviços estão enfrentando lentidão. Estamos trabalhando para resolver o problema. Obrigado pela sua paciência.",
+  },
+  maintenance: {
+    title: "Watchr",
+    message: "O Watchr está em manutenção. Voltaremos em breve.",
+  },
+  authDisabled: {
+    message: "O login e o registro estão temporariamente desativados. Tente novamente mais tarde.",
+  },
+  seo: {
+    defaultTitle: "Watchr — Acompanhe suas séries e filmes",
+    defaultDescription: "Acompanhe seu status, avalie episódios, descubra novos conteúdos e importe seus dados do TV Time.",
+    library: "Minha biblioteca",
+    search: "Buscar",
+    series: "Minhas séries",
+    movies: "Meus filmes",
+    comments: "Comentários",
   },
 };
 

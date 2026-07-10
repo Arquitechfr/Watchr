@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
-import { AppState, AppStateStatus } from "react-native";
+import { AppState, AppStateStatus, Platform } from "react-native";
 import { DEFAULT_REMOTE_CONFIG, RemoteConfig } from "../config/defaults";
 
 const CACHE_KEY = "remote_config_cache";
@@ -18,6 +18,8 @@ class RemoteConfigService {
   private appStateSub: { remove: () => void } | null = null;
   private initialized = false;
 
+  private wsUnsubscribe: (() => void) | null = null;
+
   async init(): Promise<void> {
     if (this.initialized) return;
     this.initialized = true;
@@ -25,6 +27,7 @@ class RemoteConfigService {
     await this.loadFromCache();
     await this.refresh();
     this.startPolling();
+    this.initWebSocketListener();
   }
 
   getConfig(): RemoteConfig {
@@ -81,10 +84,31 @@ class RemoteConfigService {
   stopPolling(): void {
     if (this.intervalId) clearInterval(this.intervalId);
     this.appStateSub?.remove();
+    this.wsUnsubscribe?.();
+    this.wsUnsubscribe = null;
   }
 
   private notify(): void {
     this.listeners.forEach((l) => l(this.current));
+  }
+
+  private initWebSocketListener(): void {
+    const setupListener = async () => {
+      try {
+        const { websocketService } = await import("./websocket.service");
+        this.wsUnsubscribe = websocketService.on("remote_config_update", (data: unknown) => {
+          const payload = data as { key: string; value: unknown };
+          if (payload && typeof payload.key === "string" && "value" in payload) {
+            this.current = { ...this.current, [payload.key]: payload.value } as RemoteConfig;
+            this.notify();
+            this.saveToCache(this.current);
+          }
+        });
+      } catch (err) {
+        console.warn("[remoteConfig] WS listener init failed:", (err as Error).message);
+      }
+    };
+    setupListener();
   }
 }
 

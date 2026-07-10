@@ -169,9 +169,20 @@ export function AI() {
     }
   }
 
-  function openDetail(log: AiLogEntry) {
+  const [detailLoading, setDetailLoading] = useState(false);
+
+  async function openDetail(log: AiLogEntry) {
     setDetail(log);
     setDetailOpen(true);
+    setDetailLoading(true);
+    try {
+      const res = await api.get(`/admin/ai/logs/${log.id}`);
+      setDetail(res.data);
+    } catch (err) {
+      console.error("Failed to fetch log detail:", err);
+    } finally {
+      setDetailLoading(false);
+    }
   }
 
   function applyFilters() {
@@ -588,18 +599,28 @@ export function AI() {
               </div>
             </div>
 
-            {detail.prompt && (
-              <div>
-                <p className="text-text-muted mb-1 text-sm">Prompt sent to AI</p>
-                <pre className="text-xs bg-background rounded-md p-3 overflow-auto max-h-48 border border-border whitespace-pre-wrap">{detail.prompt}</pre>
+            {detailLoading ? (
+              <div className="space-y-2">
+                <Skeleton height={20} />
+                <Skeleton height={100} />
+                <Skeleton height={100} />
               </div>
-            )}
+            ) : (
+              <>
+                {detail.prompt && (
+                  <div>
+                    <p className="text-text-muted mb-1 text-sm">Prompt sent to AI</p>
+                    <pre className="text-xs bg-background rounded-md p-3 overflow-auto max-h-48 border border-border whitespace-pre-wrap">{detail.prompt}</pre>
+                  </div>
+                )}
 
-            {detail.response && (
-              <div>
-                <p className="text-text-muted mb-1 text-sm">AI Response</p>
-                <pre className="text-xs bg-background rounded-md p-3 overflow-auto max-h-48 border border-border whitespace-pre-wrap">{detail.response}</pre>
-              </div>
+                {detail.response && (
+                  <div>
+                    <p className="text-text-muted mb-1 text-sm">AI Response</p>
+                    <pre className="text-xs bg-background rounded-md p-3 overflow-auto max-h-48 border border-border whitespace-pre-wrap">{detail.response}</pre>
+                  </div>
+                )}
+              </>
             )}
 
             {detail.errorMessage && (

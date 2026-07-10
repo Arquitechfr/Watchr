@@ -56,3 +56,4 @@ apps/backend/test-sentry.ts
 AUDIT_CHANGES.md
 apps/backend/src/scripts/promote-admin.ts
 apps/admin/.env.production
+AI-USE-CASES.md

@@ -221,7 +221,7 @@ export async function createComment(userId: string, input: CreateCommentInput) {
     throw new ApiError(422, "COMMENT_REJECTED_TOXIC", "Your comment was flagged as inappropriate by our automated moderation system");
   }
 
-  const isSpoiler = input.isSpoiler ?? moderation.isSpoiler;
+  const isSpoiler = input.isSpoiler || moderation.isSpoiler;
 
   const comment = await Comment.create({
     userId: new Types.ObjectId(userId),

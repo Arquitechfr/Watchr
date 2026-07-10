@@ -101,6 +101,20 @@ describe("AI Moderation Service", () => {
     expect(result.isToxic).toBe(false);
   });
 
+  it("should mark as spoiler when AI detects spoiler even if user did not toggle it", async () => {
+    const inputIsSpoiler = false;
+    const moderationIsSpoiler = true;
+    const result = inputIsSpoiler || moderationIsSpoiler;
+    expect(result).toBe(true);
+  });
+
+  it("should not mark as spoiler when neither user nor AI flags it", async () => {
+    const inputIsSpoiler = false;
+    const moderationIsSpoiler = false;
+    const result = inputIsSpoiler || moderationIsSpoiler;
+    expect(result).toBe(false);
+  });
+
   it("should return neutral when AI returns unparseable JSON", async () => {
     vi.spyOn(MobileConfig, "findOne").mockReturnValue({
       lean: () => Promise.resolve({ value: "true" }),

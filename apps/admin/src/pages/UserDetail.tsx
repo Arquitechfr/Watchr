@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, MessageSquare, Tv, Heart, Star, Download } from "lucide-react";
+import { ArrowLeft, MessageSquare, Tv, Heart, Star, Download, Trash2, MessageCircleX } from "lucide-react";
 import api from "../lib/api";
 import { Card, CardHeader, CardTitle, CardContent } from "../components/ui/Card";
 import { Badge } from "../components/ui/Badge";
 import { Button } from "../components/ui/Button";
 import { Skeleton } from "../components/ui/Skeleton";
 import { EmptyState } from "../components/ui/EmptyState";
+import { Dialog } from "../components/ui/Dialog";
 import { formatDate } from "../lib/utils";
 
 interface UserDetail {
@@ -47,6 +48,11 @@ export function UserDetail() {
   const [user, setUser] = useState<UserDetail | null>(null);
   const [banHistory, setBanHistory] = useState<BanHistoryEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deleteDialog, setDeleteDialog] = useState(false);
+  const [deleteSubmitting, setDeleteSubmitting] = useState(false);
+  const [commentsDialog, setCommentsDialog] = useState(false);
+  const [commentsConfirmStep, setCommentsConfirmStep] = useState<1 | 2>(1);
+  const [commentsSubmitting, setCommentsSubmitting] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -80,6 +86,41 @@ export function UserDetail() {
   }
 
   if (!user) return <p>User not found</p>;
+
+  async function handleDeleteUser() {
+    setDeleteSubmitting(true);
+    try {
+      await api.delete(`/admin/users/${id}`);
+      navigate("/users");
+    } catch (err) {
+      console.error("Failed to delete user:", err);
+      setDeleteSubmitting(false);
+    }
+  }
+
+  async function handleDeleteAllComments() {
+    setCommentsSubmitting(true);
+    try {
+      await api.delete(`/admin/users/${id}/comments`);
+      setCommentsDialog(false);
+      setCommentsConfirmStep(1);
+      setUser((prev) => prev ? { ...prev, recentComments: [] } : prev);
+    } catch (err) {
+      console.error("Failed to delete user comments:", err);
+    } finally {
+      setCommentsSubmitting(false);
+    }
+  }
+
+  function openCommentsDialog() {
+    setCommentsConfirmStep(1);
+    setCommentsDialog(true);
+  }
+
+  function closeCommentsDialog() {
+    setCommentsDialog(false);
+    setCommentsConfirmStep(1);
+  }
 
   const statCards = [
     { label: "Tracking", value: user.trackingCount, icon: Tv },
@@ -118,6 +159,26 @@ export function UserDetail() {
           </div>
         </div>
       </div>
+
+      {user.role !== "admin" && (
+        <div className="flex flex-col sm:flex-row justify-end gap-3 mb-6">
+          <Button
+            onClick={openCommentsDialog}
+            variant="outline"
+            className="border-red-500/50 text-red-400 hover:bg-red-500/10"
+          >
+            <MessageCircleX size={16} className="mr-2" />
+            Delete all comments
+          </Button>
+          <Button
+            onClick={() => setDeleteDialog(true)}
+            className="bg-red-600 hover:bg-red-700 text-white"
+          >
+            <Trash2 size={16} className="mr-2" />
+            Delete account
+          </Button>
+        </div>
+      )}
 
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
         {statCards.map((stat) => (
@@ -245,6 +306,95 @@ export function UserDetail() {
           </CardContent>
         </Card>
       </div>
+
+      <Dialog
+        open={deleteDialog}
+        onClose={() => setDeleteDialog(false)}
+        title={`Delete ${user.username}`}
+      >
+        <div className="space-y-4">
+          <div className="rounded-md bg-red-500/10 border border-red-500/30 px-4 py-3">
+            <p className="text-sm text-red-400 font-medium">This action is irreversible.</p>
+            <p className="text-sm text-text-muted mt-1">
+              The user account and all associated data will be permanently deleted, including:
+            </p>
+            <ul className="text-sm text-text-muted mt-2 space-y-1 pl-4 list-disc">
+              <li>Comments, likes and reactions</li>
+              <li>Watch history and favorites</li>
+              <li>Ratings and reviews</li>
+              <li>Import jobs and pending reviews</li>
+              <li>Trakt link and ban history</li>
+              <li>Reports submitted by this user</li>
+            </ul>
+          </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="outline" onClick={() => setDeleteDialog(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleDeleteUser}
+              disabled={deleteSubmitting}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {deleteSubmitting ? "Deleting..." : "Delete permanently"}
+            </Button>
+          </div>
+        </div>
+      </Dialog>
+
+      <Dialog
+        open={commentsDialog}
+        onClose={closeCommentsDialog}
+        title={`Delete all comments from ${user.username}`}
+      >
+        <div className="space-y-4">
+          {commentsConfirmStep === 1 ? (
+            <>
+              <div className="rounded-md bg-red-500/10 border border-red-500/30 px-4 py-3">
+                <p className="text-sm text-red-400 font-medium">Warning</p>
+                <p className="text-sm text-text-muted mt-1">
+                  This will permanently delete <span className="font-bold text-text">all comments</span> posted by {user.username}, along with their likes, reactions, and associated reports.
+                </p>
+                <p className="text-sm text-text-muted mt-2">
+                  The user account itself will not be deleted.
+                </p>
+              </div>
+              <div className="flex justify-end gap-2 pt-2">
+                <Button variant="outline" onClick={closeCommentsDialog}>
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => setCommentsConfirmStep(2)}
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                >
+                  Continue
+                </Button>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="rounded-md bg-red-500/10 border border-red-500/30 px-4 py-3">
+                <p className="text-sm text-red-400 font-bold">Final confirmation</p>
+                <p className="text-sm text-text-muted mt-1">
+                  Are you absolutely sure? This action cannot be undone. All comments will be permanently removed.
+                </p>
+              </div>
+              <div className="flex justify-end gap-2 pt-2">
+                <Button variant="outline" onClick={() => setCommentsConfirmStep(1)}>
+                  Back
+                </Button>
+                <Button
+                  onClick={handleDeleteAllComments}
+                  disabled={commentsSubmitting}
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                >
+                  {commentsSubmitting ? "Deleting comments..." : "Yes, delete all comments"}
+                </Button>
+              </div>
+            </>
+          )}
+        </div>
+      </Dialog>
     </div>
   );
 }

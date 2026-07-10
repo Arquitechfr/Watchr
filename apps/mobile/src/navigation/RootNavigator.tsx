@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { Linking, Platform } from "react-native";
 import { NavigationContainer, LinkingOptions } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { NetworkError } from "../components/NetworkError";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { useAuthStore } from "../store/authStore";
@@ -62,6 +62,7 @@ export function RootNavigator() {
   const { isAuthenticated } = useAuthStore();
   const config = useRemoteConfig();
   const navigationRef = useRef<any>(null);
+  const queryClient = useQueryClient();
 
   const meQuery = useQuery<Me>({
     queryKey: ["me"],
@@ -69,6 +70,12 @@ export function RootNavigator() {
     enabled: isAuthenticated,
     staleTime: Infinity,
   });
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      queryClient.removeQueries({ queryKey: ["me"] });
+    }
+  }, [isAuthenticated, queryClient]);
 
   const me = meQuery.data;
   const isMeError = meQuery.isError;
@@ -122,6 +129,7 @@ export function RootNavigator() {
         ResetPassword: "reset-password",
         ShowDetail: "show",
         ShowComments: "comments",
+        EpisodeDetail: "episode",
         Main: {
           path: "main",
           screens: {

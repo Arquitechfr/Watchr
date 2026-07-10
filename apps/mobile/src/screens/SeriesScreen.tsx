@@ -19,6 +19,7 @@ import { useUnwatchedShows } from "../hooks/useUnwatched";
 import { useUpcomingEpisodes } from "../hooks/useUpcomingEpisodes";
 import { useQuickMarkWatched } from "../hooks/useTracking";
 import { useRefreshRateLimit } from "../hooks/useRefreshRateLimit";
+import { useWidgetSync } from "../hooks/useWidgetSync";
 import { useUIStore } from "../store/uiStore";
 import { RootStackParamList } from "../navigation/RootNavigator";
 import { UnwatchedShow, UnwatchedEpisode } from "../services/unwatched.service";
@@ -358,6 +359,7 @@ export function SeriesScreen() {
   const quickMarkWatched = useQuickMarkWatched();
   const throttledRefreshUnwatched = useRefreshRateLimit();
   const throttledRefreshUpcoming = useRefreshRateLimit();
+  useWidgetSync();
 
   const markingEpisodeKey = quickMarkWatched.isPending && quickMarkWatched.variables
     ? `${quickMarkWatched.variables.showId}-${quickMarkWatched.variables.season}-${quickMarkWatched.variables.episode}`

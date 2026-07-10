@@ -506,6 +506,11 @@ const ar = {
     upNext: {
       noEpisode: "لا توجد حلقة",
       title: "التالي",
+      tabUnwatched: "غير مشاهَد",
+      tabUpcoming: "قريباً",
+      emptyUnwatched: "تمت مشاهدة كل شيء!",
+      emptyUpcoming: "لا توجد حلقات قادمة",
+      markWatched: "تمت المشاهدة",
     },
   },
   trafficNotice: {

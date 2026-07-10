@@ -510,6 +510,11 @@ const fr = {
     upNext: {
       noEpisode: "Aucun épisode",
       title: "À SUIVRE",
+      tabUnwatched: "À voir",
+      tabUpcoming: "À venir",
+      emptyUnwatched: "Tout est à jour !",
+      emptyUpcoming: "Aucun épisode à venir",
+      markWatched: "Vu",
     },
   },
   trafficNotice: {

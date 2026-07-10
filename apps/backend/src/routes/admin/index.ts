@@ -14,7 +14,7 @@ import { listImportsQuerySchema } from "../../validators/admin/adminImport.valid
 import { listReportsQuerySchema, reportIdParamSchema } from "../../validators/report.validator.js";
 import { getAdminStats, getUserGrowth, getCommentActivity, getShowTypeBreakdown } from "../../services/admin/adminStats.service.js";
 import { listUsers, getUserDetail, scheduleUserStatusAction, cancelBanAction, getBanHistory, updateUserRole, deleteUser } from "../../services/admin/adminUser.service.js";
-import { listAllComments, adminDeleteComment, adminBulkDeleteComments, adminMarkSpoiler } from "../../services/admin/adminComment.service.js";
+import { listAllComments, adminDeleteComment, adminBulkDeleteComments, adminMarkSpoiler, deleteAllUserComments, deleteAllComments } from "../../services/admin/adminComment.service.js";
 import { listAllNewsSources, createNewsSource, updateNewsSource, deleteNewsSource, toggleNewsSource } from "../../services/admin/adminNews.service.js";
 import { sendBroadcast, sendTargeted, getNotificationHistory, getNotificationDetail, getNotificationStats } from "../../services/admin/adminNotification.service.js";
 import { listShows, forceSyncShow, deleteShow } from "../../services/admin/adminShow.service.js";
@@ -134,6 +134,15 @@ router.delete(
   }),
 );
 
+router.delete(
+  "/users/:id/comments",
+  validateRequest(undefined, undefined, userIdParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const result = await deleteAllUserComments(req.params.id);
+    res.json(result);
+  }),
+);
+
 // Comments
 router.get(
   "/comments",
@@ -170,6 +179,14 @@ router.delete(
   validateRequest(bulkDeleteSchema),
   asyncHandler(async (req: Request, res: Response) => {
     const result = await adminBulkDeleteComments(req.body.commentIds);
+    res.json(result);
+  }),
+);
+
+router.delete(
+  "/comments/all",
+  asyncHandler(async (_req: Request, res: Response) => {
+    const result = await deleteAllComments();
     res.json(result);
   }),
 );

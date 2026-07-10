@@ -510,6 +510,11 @@ const en = {
     upNext: {
       noEpisode: "No episode",
       title: "UP NEXT",
+      tabUnwatched: "Unwatched",
+      tabUpcoming: "Upcoming",
+      emptyUnwatched: "All caught up!",
+      emptyUpcoming: "No upcoming episodes",
+      markWatched: "Watched",
     },
   },
   trafficNotice: {

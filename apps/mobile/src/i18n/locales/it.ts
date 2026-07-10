@@ -506,6 +506,11 @@ const it = {
     upNext: {
       noEpisode: "Nessun episodio",
       title: "IN SEGUITO",
+      tabUnwatched: "Non visti",
+      tabUpcoming: "In arrivo",
+      emptyUnwatched: "Tutto aggiornato!",
+      emptyUpcoming: "Nessun episodio in arrivo",
+      markWatched: "Visto",
     },
   },
   trafficNotice: {

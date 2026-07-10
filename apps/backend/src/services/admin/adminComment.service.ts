@@ -1,5 +1,8 @@
 import { FilterQuery, Types } from "mongoose";
 import { Comment } from "../../models/comment.model.js";
+import { CommentLike } from "../../models/commentLike.model.js";
+import { CommentReaction } from "../../models/commentReaction.model.js";
+import { Report } from "../../models/report.model.js";
 import { Show } from "../../models/show.model.js";
 import { User } from "../../models/user.model.js";
 import { ApiError } from "../../middleware/error.middleware.js";
@@ -169,6 +172,40 @@ export async function adminBulkDeleteComments(commentIds: string[]): Promise<{ d
   for (const comment of comments) {
     notifyAuthorDeleted(comment);
   }
+  return { deleted: result.deletedCount };
+}
+
+export async function deleteAllUserComments(userId: string): Promise<{ deleted: number }> {
+  const comments = await Comment.find({ userId }).select("_id userId showId").lean();
+  if (comments.length === 0) {
+    return { deleted: 0 };
+  }
+
+  const commentIds = comments.map((c) => c._id);
+
+  await Promise.all([
+    Comment.deleteMany({ _id: { $in: commentIds } }),
+    CommentLike.deleteMany({ commentId: { $in: commentIds } }),
+    CommentReaction.deleteMany({ commentId: { $in: commentIds } }),
+    Report.deleteMany({ commentId: { $in: commentIds } }),
+    CommentLike.deleteMany({ userId }),
+    CommentReaction.deleteMany({ userId }),
+  ]);
+
+  for (const comment of comments) {
+    notifyAuthorDeleted(comment);
+  }
+
+  return { deleted: comments.length };
+}
+
+export async function deleteAllComments(): Promise<{ deleted: number }> {
+  const result = await Comment.deleteMany({});
+  await Promise.all([
+    CommentLike.deleteMany({}),
+    CommentReaction.deleteMany({}),
+    Report.deleteMany({}),
+  ]);
   return { deleted: result.deletedCount };
 }
 

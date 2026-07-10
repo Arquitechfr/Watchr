@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, ChevronLeft, ChevronRight, Shield, ShieldOff, Ban, Users as UsersIcon } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, Shield, ShieldOff, Ban, Trash2, Users as UsersIcon } from "lucide-react";
 import api from "../lib/api";
 import { Card, CardContent } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
@@ -92,6 +92,9 @@ export function Users() {
   const [dialogDuration, setDialogDuration] = useState(7);
   const [dialogSubmitting, setDialogSubmitting] = useState(false);
 
+  const [deleteDialog, setDeleteDialog] = useState<{ userId: string; username: string } | null>(null);
+  const [deleteSubmitting, setDeleteSubmitting] = useState(false);
+
   async function load() {
     setLoading(true);
     try {
@@ -111,6 +114,20 @@ export function Users() {
     const timeout = setTimeout(load, 300);
     return () => clearTimeout(timeout);
   }, [search, roleFilter, page]);
+
+  async function handleDeleteUser() {
+    if (!deleteDialog) return;
+    setDeleteSubmitting(true);
+    try {
+      await api.delete(`/admin/users/${deleteDialog.userId}`);
+      setDeleteDialog(null);
+      load();
+    } catch (err) {
+      console.error("Failed to delete user:", err);
+    } finally {
+      setDeleteSubmitting(false);
+    }
+  }
 
   async function handleRoleChange(userId: string, role: "user" | "admin") {
     try {
@@ -293,6 +310,17 @@ export function Users() {
                           >
                             <Ban size={16} />
                           </Button>
+                          {user.role !== "admin" && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => setDeleteDialog({ userId: user.id, username: user.username })}
+                              title="Delete account"
+                              className="text-red-400 hover:text-red-300"
+                            >
+                              <Trash2 size={16} />
+                            </Button>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>
@@ -416,6 +444,41 @@ export function Users() {
               }
             >
               {dialogDelay > 0 ? "Schedule" : "Execute now"}
+            </Button>
+          </div>
+        </div>
+      </Dialog>
+
+      <Dialog
+        open={!!deleteDialog}
+        onClose={() => setDeleteDialog(null)}
+        title={`Delete ${deleteDialog?.username ?? ""}`}
+      >
+        <div className="space-y-4">
+          <div className="rounded-md bg-red-500/10 border border-red-500/30 px-4 py-3">
+            <p className="text-sm text-red-400 font-medium">This action is irreversible.</p>
+            <p className="text-sm text-text-muted mt-1">
+              The user account and all associated data will be permanently deleted, including:
+            </p>
+            <ul className="text-sm text-text-muted mt-2 space-y-1 pl-4 list-disc">
+              <li>Comments, likes and reactions</li>
+              <li>Watch history and favorites</li>
+              <li>Ratings and reviews</li>
+              <li>Import jobs and pending reviews</li>
+              <li>Trakt link and ban history</li>
+              <li>Reports submitted by this user</li>
+            </ul>
+          </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="outline" onClick={() => setDeleteDialog(null)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleDeleteUser}
+              disabled={deleteSubmitting}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {deleteSubmitting ? "Deleting..." : "Delete permanently"}
             </Button>
           </div>
         </div>

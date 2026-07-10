@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Trash2, AlertTriangle, ChevronLeft, ChevronRight, MessageSquare } from "lucide-react";
+import { Trash2, AlertTriangle, ChevronLeft, ChevronRight, MessageSquare, MessageCircleX } from "lucide-react";
 import api from "../lib/api";
 import { Card, CardContent } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
@@ -7,6 +7,7 @@ import { Badge } from "../components/ui/Badge";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "../components/ui/Table";
 import { Skeleton } from "../components/ui/Skeleton";
 import { EmptyState } from "../components/ui/EmptyState";
+import { Dialog } from "../components/ui/Dialog";
 import { formatDate } from "../lib/utils";
 
 interface CommentRow {
@@ -38,6 +39,9 @@ export function Comments() {
   const [hiddenFilter, setHiddenFilter] = useState("");
   const [page, setPage] = useState(1);
   const limit = 20;
+  const [allCommentsDialog, setAllCommentsDialog] = useState(false);
+  const [allCommentsConfirmStep, setAllCommentsConfirmStep] = useState<1 | 2>(1);
+  const [allCommentsSubmitting, setAllCommentsSubmitting] = useState(false);
 
   async function load() {
     setLoading(true);
@@ -77,11 +81,47 @@ export function Comments() {
     }
   }
 
+  async function handleDeleteAllComments() {
+    setAllCommentsSubmitting(true);
+    try {
+      await api.delete("/admin/comments/all");
+      setAllCommentsDialog(false);
+      setAllCommentsConfirmStep(1);
+      load();
+    } catch (err) {
+      console.error("Failed to delete all comments:", err);
+    } finally {
+      setAllCommentsSubmitting(false);
+    }
+  }
+
+  function openAllCommentsDialog() {
+    setAllCommentsConfirmStep(1);
+    setAllCommentsDialog(true);
+  }
+
+  function closeAllCommentsDialog() {
+    setAllCommentsDialog(false);
+    setAllCommentsConfirmStep(1);
+  }
+
   const totalPages = data ? Math.ceil(data.total / limit) : 1;
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Comments Moderation</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold">Comments Moderation</h1>
+        {data && data.total > 0 && (
+          <Button
+            onClick={openAllCommentsDialog}
+            variant="outline"
+            className="border-red-500/50 text-red-400 hover:bg-red-500/10"
+          >
+            <MessageCircleX size={16} className="mr-2" />
+            Delete all comments
+          </Button>
+        )}
+      </div>
 
       <div className="flex flex-col sm:flex-row gap-4 mb-4">
         <select
@@ -213,6 +253,60 @@ export function Comments() {
           </div>
         </div>
       )}
+
+      <Dialog
+        open={allCommentsDialog}
+        onClose={closeAllCommentsDialog}
+        title="Delete ALL comments"
+      >
+        <div className="space-y-4">
+          {allCommentsConfirmStep === 1 ? (
+            <>
+              <div className="rounded-md bg-red-500/10 border border-red-500/30 px-4 py-3">
+                <p className="text-sm text-red-400 font-medium">Warning</p>
+                <p className="text-sm text-text-muted mt-1">
+                  This will permanently delete <span className="font-bold text-text">every comment</span> on the platform — {data?.total ?? 0} comments in total — along with all likes, reactions, and reports.
+                </p>
+                <p className="text-sm text-text-muted mt-2">
+                  This affects all users and all shows. User accounts will not be deleted.
+                </p>
+              </div>
+              <div className="flex justify-end gap-2 pt-2">
+                <Button variant="outline" onClick={closeAllCommentsDialog}>
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => setAllCommentsConfirmStep(2)}
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                >
+                  Continue
+                </Button>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="rounded-md bg-red-500/10 border border-red-500/30 px-4 py-3">
+                <p className="text-sm text-red-400 font-bold">Final confirmation</p>
+                <p className="text-sm text-text-muted mt-1">
+                  Are you absolutely sure? This action cannot be undone. All {data?.total ?? 0} comments will be permanently removed from the platform.
+                </p>
+              </div>
+              <div className="flex justify-end gap-2 pt-2">
+                <Button variant="outline" onClick={() => setAllCommentsConfirmStep(1)}>
+                  Back
+                </Button>
+                <Button
+                  onClick={handleDeleteAllComments}
+                  disabled={allCommentsSubmitting}
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                >
+                  {allCommentsSubmitting ? "Deleting all comments..." : "Yes, delete everything"}
+                </Button>
+              </div>
+            </>
+          )}
+        </div>
+      </Dialog>
     </div>
   );
 }

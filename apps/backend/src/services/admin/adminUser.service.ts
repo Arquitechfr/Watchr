@@ -6,6 +6,11 @@ import { WatchEntry } from "../../models/watchEntry.model.js";
 import { Rating } from "../../models/rating.model.js";
 import { ImportJob } from "../../models/importJob.model.js";
 import { Favorite } from "../../models/favorite.model.js";
+import { CommentLike } from "../../models/commentLike.model.js";
+import { CommentReaction } from "../../models/commentReaction.model.js";
+import { PendingImportReview } from "../../models/pendingImportReview.model.js";
+import { TraktLink } from "../../models/traktLink.model.js";
+import { Report } from "../../models/report.model.js";
 import { ApiError } from "../../middleware/error.middleware.js";
 import { invalidateUserBanCache } from "../../middleware/requireAuth.middleware.js";
 import { getUserStats } from "../stats.service.js";
@@ -393,10 +398,16 @@ export async function deleteUser(userId: string): Promise<void> {
 
   await Promise.all([
     Comment.deleteMany({ userId }),
+    CommentLike.deleteMany({ userId }),
+    CommentReaction.deleteMany({ userId }),
     WatchEntry.deleteMany({ userId }),
     Favorite.deleteMany({ userId }),
     Rating.deleteMany({ userId }),
     ImportJob.deleteMany({ userId }),
+    PendingImportReview.deleteMany({ userId }),
+    TraktLink.deleteMany({ userId }),
+    BanAction.deleteMany({ userId }),
+    Report.deleteMany({ reporterId: userId }),
     User.deleteOne({ _id: userId }),
   ]);
 }

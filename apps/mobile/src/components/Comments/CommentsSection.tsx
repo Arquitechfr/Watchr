@@ -16,6 +16,7 @@ import { log } from "../../utils/logger";
 import { CommentsList } from "./CommentsList";
 import { CommentInput } from "./CommentInput";
 import { useI18n } from "../../i18n/useI18n";
+import { useErrorMessage } from "../../services/api";
 
 interface CommentsSectionProps {
   showId: string;
@@ -26,6 +27,7 @@ export function CommentsSection({ showId, query }: CommentsSectionProps) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const { showSnackbar } = useUIStore();
   const { t } = useI18n();
+  const getErrorMessage = useErrorMessage();
   const { data, isLoading } = useCommentsForShow(showId, query);
   const createComment = useCreateComment(showId, query);
   const updateComment = useUpdateComment(showId, query);
@@ -53,7 +55,12 @@ export function CommentsSection({ showId, query }: CommentsSectionProps) {
         ...(query?.season !== undefined && query?.episode !== undefined ? { episodeRef: { season: query.season, episode: query.episode } } : {})
       },
       {
-        onError: () => showSnackbar(t("screens.comments.addError"), "error"),
+        onError: (err) => showSnackbar(getErrorMessage(err), "error"),
+        onSuccess: (data) => {
+          if (data.aiSpoilerDetected) {
+            showSnackbar(t("screens.comments.spoilerAutoDetected"), "info");
+          }
+        },
       },
     );
   };
@@ -66,7 +73,12 @@ export function CommentsSection({ showId, query }: CommentsSectionProps) {
         ...(query?.season !== undefined && query?.episode !== undefined ? { episodeRef: { season: query.season, episode: query.episode } } : {})
       },
       {
-        onError: () => showSnackbar(t("screens.comments.replyError"), "error"),
+        onError: (err) => showSnackbar(getErrorMessage(err), "error"),
+        onSuccess: (data) => {
+          if (data.aiSpoilerDetected) {
+            showSnackbar(t("screens.comments.spoilerAutoDetected"), "info");
+          }
+        },
       },
     );
   };

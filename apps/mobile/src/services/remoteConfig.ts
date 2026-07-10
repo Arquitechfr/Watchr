@@ -82,7 +82,7 @@ class RemoteConfigService {
       }
       const rawDesc = await AsyncStorage.getItem(CACHE_DESCRIPTIONS_KEY);
       if (rawDesc) {
-        const parsedDesc = JSON.parse(rawDesc) as Partial<RemoteConfigDescriptions>;
+        const parsedDesc = JSON.parse(rawDesc) as Record<string, string>;
         this.currentDescriptions = { ...DEFAULT_REMOTE_CONFIG_DESCRIPTIONS, ...parsedDesc };
         this.notifyDescriptions();
       }

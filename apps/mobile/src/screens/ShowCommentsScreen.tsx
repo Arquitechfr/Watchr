@@ -26,6 +26,7 @@ import { useCommentsRealtime } from "../hooks/useCommentsRealtime";
 import { RootStackParamList } from "../navigation/RootNavigator";
 import { log } from "../utils/logger";
 import { useI18n } from "../i18n/useI18n";
+import { useErrorMessage } from "../services/api";
 import { Seo } from "../components/Seo";
 import type { CommentSort } from "../services/comments.service";
 
@@ -39,6 +40,7 @@ export function ShowCommentsScreen() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const { showSnackbar } = useUIStore();
   const { t } = useI18n();
+  const getErrorMessage = useErrorMessage();
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
 
@@ -80,7 +82,14 @@ export function ShowCommentsScreen() {
         isSpoiler,
         ...(season !== undefined && episode !== undefined ? { episodeRef: { season, episode } } : {})
       },
-      { onError: () => showSnackbar(t("screens.comments.addError"), "error") },
+      {
+        onError: (err) => showSnackbar(getErrorMessage(err), "error"),
+        onSuccess: (data) => {
+          if (data.aiSpoilerDetected) {
+            showSnackbar(t("screens.comments.spoilerAutoDetected"), "info");
+          }
+        },
+      },
     );
   };
 
@@ -93,7 +102,14 @@ export function ShowCommentsScreen() {
         isSpoiler,
         ...(season !== undefined && episode !== undefined ? { episodeRef: { season, episode } } : {})
       },
-      { onError: () => showSnackbar(t("screens.comments.replyError"), "error") },
+      {
+        onError: (err) => showSnackbar(getErrorMessage(err), "error"),
+        onSuccess: (data) => {
+          if (data.aiSpoilerDetected) {
+            showSnackbar(t("screens.comments.spoilerAutoDetected"), "info");
+          }
+        },
+      },
     );
   };
 

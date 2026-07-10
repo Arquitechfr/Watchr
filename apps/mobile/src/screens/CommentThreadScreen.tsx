@@ -32,6 +32,7 @@ import {
 } from "../hooks/useComments";
 import { RootStackParamList } from "../navigation/RootNavigator";
 import { useI18n } from "../i18n/useI18n";
+import { useErrorMessage } from "../services/api";
 import { useCommentsRealtime } from "../hooks/useCommentsRealtime";
 
 type CommentThreadRouteProp = RouteProp<RootStackParamList, "CommentThread">;
@@ -44,6 +45,7 @@ export function CommentThreadScreen() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const { showSnackbar } = useUIStore();
   const { t } = useI18n();
+  const getErrorMessage = useErrorMessage();
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
 
@@ -87,10 +89,13 @@ export function CommentThreadScreen() {
         ...(season !== undefined && episode !== undefined ? { episodeRef: { season, episode } } : {})
       },
       {
-        onSuccess: () => {
+        onSuccess: (data) => {
           refetch();
+          if (data.aiSpoilerDetected) {
+            showSnackbar(t("screens.comments.spoilerAutoDetected"), "info");
+          }
         },
-        onError: () => showSnackbar(t("screens.comments.replyError"), "error"),
+        onError: (err) => showSnackbar(getErrorMessage(err), "error"),
       },
     );
   };

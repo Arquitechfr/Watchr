@@ -133,6 +133,48 @@ describe("AI Moderation Service", () => {
   });
 });
 
+describe("Toxic Error Code Mapping", () => {
+  function getCategoryErrorCode(category?: string): string {
+    switch (category) {
+      case "hate":
+        return "COMMENT_REJECTED_HATE";
+      case "harassment":
+        return "COMMENT_REJECTED_HARASSMENT";
+      case "spam":
+        return "COMMENT_REJECTED_SPAM";
+      case "self_harm":
+        return "COMMENT_REJECTED_SELF_HARM";
+      case "violence":
+        return "COMMENT_REJECTED_VIOLENCE";
+      default:
+        return "COMMENT_REJECTED_OTHER";
+    }
+  }
+
+  const categoryToCode: Record<string, string> = {
+    hate: "COMMENT_REJECTED_HATE",
+    harassment: "COMMENT_REJECTED_HARASSMENT",
+    spam: "COMMENT_REJECTED_SPAM",
+    self_harm: "COMMENT_REJECTED_SELF_HARM",
+    violence: "COMMENT_REJECTED_VIOLENCE",
+  };
+
+  it("should map each toxic category to the correct error code", () => {
+    for (const [category, expectedCode] of Object.entries(categoryToCode)) {
+      const moderation = { isToxic: true, toxicCategory: category, confidence: 0.9, isSpoiler: false };
+      expect(moderation.toxicCategory).toBe(category);
+
+      const code = getCategoryErrorCode(moderation.toxicCategory);
+      expect(code).toBe(expectedCode);
+    }
+  });
+
+  it("should map unknown/undefined category to COMMENT_REJECTED_OTHER", () => {
+    expect(getCategoryErrorCode(undefined)).toBe("COMMENT_REJECTED_OTHER");
+    expect(getCategoryErrorCode("unknown_category")).toBe("COMMENT_REJECTED_OTHER");
+  });
+});
+
 describe("AI Import Fuzzy Match", () => {
   beforeEach(() => {
     vi.restoreAllMocks();

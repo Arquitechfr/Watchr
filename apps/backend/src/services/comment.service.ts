@@ -54,6 +54,7 @@ export interface CommentItem {
   reactions: ReactionItem[];
   createdAt: string;
   updatedAt: string;
+  aiSpoilerDetected?: boolean;
 }
 
 export interface ListCommentsResult {
@@ -218,9 +219,11 @@ export async function createComment(userId: string, input: CreateCommentInput) {
   const moderation = await moderateComment(input.content, showTitle);
 
   if (moderation.isToxic && moderation.confidence >= 0.8) {
-    throw new ApiError(422, "COMMENT_REJECTED_TOXIC", "Your comment was flagged as inappropriate by our automated moderation system");
+    const errorCode = getToxicErrorCode(moderation.toxicCategory);
+    throw new ApiError(422, errorCode, "Your comment was flagged by our automated moderation system");
   }
 
+  const aiSpoilerDetected = !input.isSpoiler && moderation.isSpoiler;
   const isSpoiler = input.isSpoiler || moderation.isSpoiler;
 
   const comment = await Comment.create({
@@ -283,7 +286,28 @@ export async function createComment(userId: string, input: CreateCommentInput) {
     getUserInfoMap([comment.userId.toString()]),
   ]);
 
-  return buildCommentItem(comment, likedIds, reactionMap, userMap);
+  const commentItem = buildCommentItem(comment, likedIds, reactionMap, userMap);
+  if (aiSpoilerDetected) {
+    commentItem.aiSpoilerDetected = true;
+  }
+  return commentItem;
+}
+
+function getToxicErrorCode(category?: string): string {
+  switch (category) {
+    case "hate":
+      return "COMMENT_REJECTED_HATE";
+    case "harassment":
+      return "COMMENT_REJECTED_HARASSMENT";
+    case "spam":
+      return "COMMENT_REJECTED_SPAM";
+    case "self_harm":
+      return "COMMENT_REJECTED_SELF_HARM";
+    case "violence":
+      return "COMMENT_REJECTED_VIOLENCE";
+    default:
+      return "COMMENT_REJECTED_OTHER";
+  }
 }
 
 export async function updateComment(userId: string, commentId: string, input: UpdateCommentInput) {

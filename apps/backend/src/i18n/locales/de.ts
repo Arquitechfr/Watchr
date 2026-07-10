@@ -46,7 +46,12 @@ const de = {
     CANNOT_REPORT_OWN: "Du kannst deinen eigenen Kommentar nicht melden.",
     AUTH_DISABLED: "Die Authentifizierung ist vorübergehend deaktiviert.",
     MAINTENANCE_MODE: "Watchr befindet sich in Wartung. Bitte versuchen Sie es später erneut.",
-    COMMENT_REJECTED_TOXIC: "Dein Kommentar wurde von unserem automatischen Moderationssystem als unangemessen markiert.",
+    COMMENT_REJECTED_HATE: "Dein Kommentar enthält hasserfüllte Inhalte. Sei respektvoll.",
+    COMMENT_REJECTED_HARASSMENT: "Dein Kommentar enthält Belästigung. Sei respektvoll.",
+    COMMENT_REJECTED_SPAM: "Dein Kommentar sieht wie Spam aus. Schreibe sinnvolle Inhalte.",
+    COMMENT_REJECTED_SELF_HARM: "Wenn du Schwierigkeiten hast, bitte um Hilfe. Dieser Inhalt ist nicht erlaubt.",
+    COMMENT_REJECTED_VIOLENCE: "Dein Kommentar enthält gewalttätige Inhalte. Sei respektvoll.",
+    COMMENT_REJECTED_OTHER: "Dein Kommentar wurde als unangemessen markiert. Überprüfe unsere Community-Richtlinien.",
   },
   notifications: {
     commentReplyTitle: "Neue Antwort auf deinen Kommentar",

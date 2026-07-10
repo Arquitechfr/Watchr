@@ -46,7 +46,12 @@ const ar = {
     CANNOT_REPORT_OWN: "لا يمكنك الإبلاغ عن تعليقك الخاص.",
     AUTH_DISABLED: "المصادقة معطلة مؤقتاً.",
     MAINTENANCE_MODE: "واتشر تحت الصيانة. يرجى المحاولة مرة أخرى لاحقاً.",
-    COMMENT_REJECTED_TOXIC: "تم وضع علامة على تعليقك كغير لائق من قبل نظام الإشراف التلقائي لدينا.",
+    COMMENT_REJECTED_HATE: "تعليقك يحتوي على محتوى كراهية. كن محترماً.",
+    COMMENT_REJECTED_HARASSMENT: "تعليقك يحتوي على مضايقات. كن محترماً.",
+    COMMENT_REJECTED_SPAM: "تعليقك يبدو كرسائل مزعجة. اكتب محتوى ذا معنى.",
+    COMMENT_REJECTED_SELF_HARM: "إذا كنت تواجه صعوبات، اطلب المساعدة. هذا المحتوى غير مسموح.",
+    COMMENT_REJECTED_VIOLENCE: "تعليقك يحتوي على محتوى عنيف. كن محترماً.",
+    COMMENT_REJECTED_OTHER: "تم وضع علامة على تعليقك كغير لائق. راجع إرشادات مجتمعنا.",
   },
   notifications: {
     commentReplyTitle: "رد جديد على تعليقك",

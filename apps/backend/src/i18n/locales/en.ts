@@ -46,7 +46,12 @@ const en = {
     CANNOT_REPORT_OWN: "You cannot report your own comment.",
     AUTH_DISABLED: "Authentication is temporarily disabled.",
     MAINTENANCE_MODE: "Watchr is under maintenance. Please try again later.",
-    COMMENT_REJECTED_TOXIC: "Your comment was flagged as inappropriate by our automated moderation system.",
+    COMMENT_REJECTED_HATE: "Your comment contains hateful content. Please be respectful.",
+    COMMENT_REJECTED_HARASSMENT: "Your comment contains harassment. Please be respectful.",
+    COMMENT_REJECTED_SPAM: "Your comment looks like spam. Please write meaningful content.",
+    COMMENT_REJECTED_SELF_HARM: "If you're struggling, please reach out for help. This content is not allowed.",
+    COMMENT_REJECTED_VIOLENCE: "Your comment contains violent content. Please be respectful.",
+    COMMENT_REJECTED_OTHER: "Your comment was flagged as inappropriate. Please review our community guidelines.",
   },
   notifications: {
     commentReplyTitle: "New reply to your comment",

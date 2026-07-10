@@ -27,6 +27,7 @@ export interface Comment {
   reactions: Reaction[];
   createdAt: string;
   updatedAt: string;
+  aiSpoilerDetected?: boolean;
 }
 
 export interface CreateCommentInput {

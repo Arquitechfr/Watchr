@@ -3,7 +3,7 @@
   "compilerOptions": {
     "strict": true,
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "jsx": "react-jsx",
     "jsxImportSource": "nativewind",
     "ignoreDeprecations": "5.0",

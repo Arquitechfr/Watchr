@@ -9,6 +9,7 @@ import { translateNotification } from "../i18n/index.js";
 import { SupportedLocale, DEFAULT_LOCALE, normalizeLocale } from "../i18n/translations.js";
 import { wsEvents } from "../lib/wsEvents.js";
 import { logError } from "../lib/logger.js";
+import { personalizePushContent } from "./aiPushPersonalization.service.js";
 
 const EXPO_PUSH_URL = "https://exp.host/--/api/v2/push/send";
 
@@ -253,14 +254,22 @@ export const PushNotificationService = {
       episode,
     });
 
+    const personalized = await personalizePushContent(
+      userId,
+      title,
+      body,
+      { type: "new_episode", showTitle, season, episode },
+      resolvedLocale,
+    );
+
     const data = { screen: "show", tmdbId, showId, season, episode };
 
     wsEvents.emit("notification:new", {
       userId,
-      notification: { type: "newEpisode", title, body, data, createdAt: new Date().toISOString() },
+      notification: { type: "newEpisode", title: personalized.title, body: personalized.body, data, createdAt: new Date().toISOString() },
     });
 
-    await logAutomatedNotification(userId, pushToken, title, body, data, "new_episode", resolvedLocale);
+    await logAutomatedNotification(userId, pushToken, personalized.title, personalized.body, data, "new_episode", resolvedLocale);
   },
 
   async notifyNewRelease(
@@ -277,14 +286,22 @@ export const PushNotificationService = {
     const title = translateNotification("newReleaseTitle", resolvedLocale);
     const body = translateNotification("newReleaseBody", resolvedLocale, { show: showTitle });
 
+    const personalized = await personalizePushContent(
+      userId,
+      title,
+      body,
+      { type: "new_release", showTitle },
+      resolvedLocale,
+    );
+
     const data = { screen: "show", tmdbId, showId };
 
     wsEvents.emit("notification:new", {
       userId,
-      notification: { type: "newRelease", title, body, data, createdAt: new Date().toISOString() },
+      notification: { type: "newRelease", title: personalized.title, body: personalized.body, data, createdAt: new Date().toISOString() },
     });
 
-    await logAutomatedNotification(userId, pushToken, title, body, data, "new_release", resolvedLocale);
+    await logAutomatedNotification(userId, pushToken, personalized.title, personalized.body, data, "new_release", resolvedLocale);
   },
 
   async notifyCommentDeleted(

@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo } from "react";
-import { View, Text, TextInput, FlatList, ActivityIndicator, TouchableOpacity } from "react-native";
+import { View, Text, TextInput, FlatList, ActivityIndicator, TouchableOpacity, ScrollView, Image } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ScreenContainer } from "../../components/ScreenContainer";
 import { NetworkError } from "../../components/NetworkError";
@@ -11,7 +11,8 @@ import { useThemeColors } from "../../theme/useThemeColors";
 import { useDiscoverSections } from "../../hooks/useDiscover";
 import { useShowSearch } from "../../hooks/useShowSearch";
 import { useOnboardingStore } from "../../store/onboardingStore";
-import { SearchResultItem } from "../../services/shows.service";
+import { useOnboardingSuggestions } from "../../hooks/useOnboardingSuggestions";
+import { SearchResultItem, OnboardingSuggestion } from "../../services/shows.service";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 type OnboardingStackParamList = {
@@ -35,6 +36,7 @@ export function OnboardingSelectionScreen({ navigation, onSkip }: OnboardingSele
   const searchResult = useShowSearch(searchQuery);
 
   const { selectedItems, toggleItem, isSelected } = useOnboardingStore();
+  const { data: aiSuggestionsData, isLoading: aiSuggestionsLoading } = useOnboardingSuggestions({ type: "both" });
 
   const isSearching = searchQuery.trim().length > 0;
 
@@ -134,6 +136,62 @@ export function OnboardingSelectionScreen({ navigation, onSkip }: OnboardingSele
           columnWrapperStyle={{ justifyContent: "flex-start", gap: 8, paddingHorizontal: 16 }}
           contentContainerStyle={{ paddingBottom: 80 }}
           showsVerticalScrollIndicator={false}
+          ListHeaderComponent={
+            !isSearching && aiSuggestionsData && aiSuggestionsData.suggestions.length > 0 ? (
+              <View className="px-4 mb-4">
+                <View className="flex-row items-center mb-3">
+                  <Text className="text-text font-semibold text-base">{t("screens.onboarding.aiPicksTitle")}</Text>
+                  {aiSuggestionsData.source === "ai" && (
+                    <View className="bg-primary/20 rounded px-1.5 py-0.5 ml-2">
+                      <Text className="text-primary text-[10px] font-bold">AI</Text>
+                    </View>
+                  )}
+                </View>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerClassName="gap-2">
+                  {aiSuggestionsData.suggestions.map((item: OnboardingSuggestion) => {
+                    const isAiSelected = isSelected(item.tmdbId);
+                    return (
+                      <TouchableOpacity
+                        key={`ai-${item.tmdbId}-${item.type}`}
+                        onPress={() => toggleItem({ tmdbId: item.tmdbId, type: item.type, title: item.title, posterPath: item.posterPath })}
+                        activeOpacity={0.7}
+                        style={{ width: 120 }}
+                      >
+                        {item.posterPath ? (
+                          <Image
+                            source={{ uri: `https://image.tmdb.org/t/p/w200${item.posterPath}` }}
+                            className="w-full h-[180px] rounded-lg mb-1"
+                            resizeMode="cover"
+                          />
+                        ) : (
+                          <View className="w-full h-[180px] rounded-lg bg-surface-light items-center justify-center mb-1">
+                            <Text className="text-text-muted text-xs">{t("common.noImage")}</Text>
+                          </View>
+                        )}
+                        <Text className="text-text text-xs font-medium" numberOfLines={2}>{item.title}</Text>
+                        {isAiSelected && (
+                          <View className="absolute top-1 right-1 w-5 h-5 rounded-full bg-primary items-center justify-center">
+                            <Text className="text-background text-xs font-bold">✓</Text>
+                          </View>
+                        )}
+                      </TouchableOpacity>
+                    );
+                  })}
+                </ScrollView>
+                <Text className="text-text-muted text-xs mt-2 mb-3">{t("screens.onboarding.aiPicksSubtitle")}</Text>
+                <Text className="text-text font-semibold text-base mb-2">{t("screens.onboarding.browseAll")}</Text>
+              </View>
+            ) : !isSearching && aiSuggestionsLoading ? (
+              <View className="px-4 mb-4">
+                <Text className="text-text font-semibold text-base mb-3">{t("screens.onboarding.aiPicksTitle")}</Text>
+                <View className="flex-row">
+                  {[...Array(3)].map((_, i) => (
+                    <View key={i} className="w-[120px] h-[180px] rounded-lg bg-surface-light mr-2" />
+                  ))}
+                </View>
+              </View>
+            ) : null
+          }
         />
       )}
 

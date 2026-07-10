@@ -14,7 +14,7 @@ interface NewsCardProps {
 }
 
 export function NewsCard({ article, compact = false }: NewsCardProps) {
-  const { dateFnsLocale } = useI18n();
+  const { t, dateFnsLocale } = useI18n();
   const navigation = useNavigation<NewsCardNavigationProp>();
 
   function handlePress() {
@@ -41,7 +41,16 @@ export function NewsCard({ article, compact = false }: NewsCardProps) {
         <Text className="text-text font-semibold text-base mb-2" numberOfLines={2}>
           {article.title}
         </Text>
-        {article.description ? (
+        {article.aiSummary ? (
+          <View className="flex-row items-start mb-2">
+            <View className="bg-primary/20 rounded px-1.5 py-0.5 mr-2 mt-0.5">
+              <Text className="text-primary text-[10px] font-bold">AI</Text>
+            </View>
+            <Text className="text-text-muted text-sm flex-1" numberOfLines={compact ? 2 : 3}>
+              {article.aiSummary}
+            </Text>
+          </View>
+        ) : article.description ? (
           <Text className="text-text-muted text-sm mb-3" numberOfLines={compact ? 2 : 3}>
             {article.description.replace(/<[^>]+>/g, "")}
           </Text>

@@ -1,5 +1,5 @@
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import { getNews, getNewsSources } from "../services/news.service";
+import { getNews, getNewsSources, getFilteredNews } from "../services/news.service";
 import { useAuthStore } from "../store/authStore";
 import { useLocaleStore } from "../store/localeStore";
 
@@ -25,6 +25,18 @@ export function useNews(sourceId: string | null) {
     queryFn: () => getNews(sourceId ?? undefined, locale),
     staleTime: 15 * 60 * 1000,
     enabled: isHydrated,
+    placeholderData: keepPreviousData,
+  });
+}
+
+export function useFilteredNews(enabled: boolean) {
+  const isHydrated = useAuthStore((state) => state.isHydrated);
+  const locale = useLocaleStore((state) => state.locale);
+  return useQuery({
+    queryKey: [NEWS_QUERY_KEY, "filtered", locale],
+    queryFn: () => getFilteredNews(locale),
+    staleTime: 15 * 60 * 1000,
+    enabled: isHydrated && enabled,
     placeholderData: keepPreviousData,
   });
 }

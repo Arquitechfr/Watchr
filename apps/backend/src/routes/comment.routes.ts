@@ -26,6 +26,7 @@ import {
   removeReaction,
 } from "../services/comment.service.js";
 import { createReport } from "../services/report.service.js";
+import { summarizeThread } from "../services/aiCommentSummary.service.js";
 
 const router: Router = Router();
 
@@ -98,6 +99,24 @@ router.get(
       sort: (query.sort as "relevant" | "liked" | "replied" | "recent") || "recent",
     });
     res.json(result);
+  }),
+);
+
+router.get(
+  "/show/:showId/summary",
+  validateRequest(undefined, listCommentsQuerySchema, showCommentsParamsSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { showId } = req.params;
+    const query = req.query as {
+      season?: string;
+      episode?: string;
+    };
+    const episodeRef =
+      query.season !== undefined && query.episode !== undefined
+        ? { season: Number(query.season), episode: Number(query.episode) }
+        : undefined;
+    const result = await summarizeThread(showId, req.language, episodeRef);
+    res.json(result ?? { summary: null, commentCount: 0, source: "fallback" });
   }),
 );
 

@@ -102,6 +102,22 @@ const FLAG_LABELS: Record<string, { label: string; description: string }> = {
   ai_spoiler_detection_enabled: { label: "Spoiler Detection", description: "AI-powered spoiler detection on comments" },
   ai_toxic_detection_enabled: { label: "Toxic Detection", description: "AI-powered toxic content detection on comments" },
   ai_import_matching_enabled: { label: "Import Matching", description: "AI fuzzy matching for TV Time import titles" },
+  ai_news_summary_enabled: { label: "News Summary", description: "AI-generated summaries for RSS news articles" },
+  ai_thread_summary_enabled: { label: "Thread Summary", description: "AI summary of long comment threads" },
+  ai_push_personalization_enabled: { label: "Push Personalization", description: "AI-personalized push notification text" },
+  ai_insights_enabled: { label: "Watch Insights", description: "AI-generated narrative insights from user stats" },
+  ai_mood_recommendations_enabled: { label: "Mood Recommendations", description: "Recommendations based on user mood input" },
+  ai_similar_shows_enabled: { label: "Similar Shows", description: "AI-suggested similar shows on detail page" },
+  ai_email_digest_enabled: { label: "Email Digest", description: "AI-generated weekly email digest" },
+  ai_semantic_search_enabled: { label: "Semantic Search", description: "Embeddings-based semantic search for shows" },
+  ai_onboarding_suggestions_enabled: { label: "Onboarding Suggestions", description: "AI suggestions during onboarding flow" },
+  ai_admin_assistant_enabled: { label: "Admin Assistant", description: "Extended admin AI tools (announcements, report replies, trends)" },
+  ai_news_filtering_enabled: { label: "News Filtering", description: "Filter news based on tracked shows" },
+  ai_reengagement_enabled: { label: "Re-engagement", description: "AI-personalized re-engagement messages for inactive users" },
+  ai_year_in_review_enabled: { label: "Year in Review", description: "AI-generated yearly recap (Spotify Wrapped style)" },
+  ai_anomaly_detection_enabled: { label: "Anomaly Detection", description: "AI detection of suspicious user behavior patterns" },
+  ai_episode_summary_enabled: { label: "Episode Summary", description: "AI-generated summaries for episodes without descriptions" },
+  ai_tags_enrichment_enabled: { label: "Tags Enrichment", description: "AI-generated thematic tags for shows beyond TMDB genres" },
 };
 
 const SERVICE_COLORS: string[] = [

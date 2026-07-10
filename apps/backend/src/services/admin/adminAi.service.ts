@@ -10,6 +10,22 @@ const AI_FLAGS = [
   "ai_recommendations_enabled",
   "ai_search_enabled",
   "ai_import_matching_enabled",
+  "ai_news_summary_enabled",
+  "ai_thread_summary_enabled",
+  "ai_push_personalization_enabled",
+  "ai_insights_enabled",
+  "ai_mood_recommendations_enabled",
+  "ai_similar_shows_enabled",
+  "ai_email_digest_enabled",
+  "ai_semantic_search_enabled",
+  "ai_onboarding_suggestions_enabled",
+  "ai_admin_assistant_enabled",
+  "ai_news_filtering_enabled",
+  "ai_reengagement_enabled",
+  "ai_year_in_review_enabled",
+  "ai_anomaly_detection_enabled",
+  "ai_episode_summary_enabled",
+  "ai_tags_enrichment_enabled",
 ];
 
 export async function getAiStats(days = 30) {

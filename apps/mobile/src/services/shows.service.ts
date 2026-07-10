@@ -205,3 +205,113 @@ export async function aiSearchShows(query: string): Promise<AISearchResult> {
   log("ShowsService", "ai-search response", { count: response.data.results.length, source: response.data.source });
   return response.data;
 }
+
+export interface MoodRecommendation {
+  tmdbId: number;
+  type: "tv" | "movie";
+  title: string;
+  posterPath?: string;
+  overview?: string;
+  reason: string;
+}
+
+export interface MoodRecommendationResult {
+  recommendations: MoodRecommendation[];
+  source: "ai" | "fallback";
+}
+
+export async function getMoodRecommendations(mood: string): Promise<MoodRecommendationResult> {
+  log("ShowsService", "mood-recommendations", { mood });
+  const response = await api.get<MoodRecommendationResult>("/shows/mood-recommendations", { params: { mood } });
+  log("ShowsService", "mood-recommendations response", { count: response.data.recommendations.length, source: response.data.source });
+  return response.data;
+}
+
+export interface SimilarShow {
+  tmdbId: number;
+  type: "tv" | "movie";
+  title: string;
+  posterPath?: string;
+  overview?: string;
+  reason: string;
+}
+
+export interface SimilarShowsResult {
+  shows: SimilarShow[];
+  source: "ai" | "fallback";
+}
+
+export async function getSimilarShows(tmdbId: number): Promise<SimilarShowsResult> {
+  log("ShowsService", "similar-shows", { tmdbId });
+  const response = await api.get<SimilarShowsResult>(`/shows/${tmdbId}/similar`);
+  log("ShowsService", "similar-shows response", { count: response.data.shows.length, source: response.data.source });
+  return response.data;
+}
+
+export interface OnboardingSuggestion {
+  tmdbId: number;
+  type: "tv" | "movie";
+  title: string;
+  posterPath?: string;
+  overview?: string;
+  reason: string;
+}
+
+export interface OnboardingSuggestionResult {
+  suggestions: OnboardingSuggestion[];
+  source: "ai" | "fallback";
+}
+
+export async function getOnboardingSuggestions(preferences: {
+  genres?: string[];
+  mood?: string;
+  type?: "tv" | "movie" | "both";
+}): Promise<OnboardingSuggestionResult> {
+  log("ShowsService", "onboarding-suggestions", preferences);
+  const response = await api.post<OnboardingSuggestionResult>("/shows/onboarding-suggestions", preferences);
+  log("ShowsService", "onboarding-suggestions response", { count: response.data.suggestions.length, source: response.data.source });
+  return response.data;
+}
+
+export interface SemanticSearchResult {
+  results: SearchResultItem[];
+  source: "ai" | "fallback";
+  similarities?: number[];
+}
+
+export async function semanticSearchShows(query: string): Promise<SemanticSearchResult> {
+  log("ShowsService", "semantic-search", { query });
+  const response = await api.get<SemanticSearchResult>("/shows/semantic-search", { params: { q: query } });
+  log("ShowsService", "semantic-search response", { count: response.data.results.length, source: response.data.source });
+  return response.data;
+}
+
+export interface EpisodeSummaryResult {
+  summary: string;
+  source: "ai" | "tmdb";
+}
+
+export async function getEpisodeSummary(
+  tmdbId: number,
+  seasonNumber: number,
+  episodeNumber: number,
+): Promise<EpisodeSummaryResult> {
+  log("ShowsService", "episode-summary", { tmdbId, seasonNumber, episodeNumber });
+  const response = await api.get<EpisodeSummaryResult>(
+    `/shows/${tmdbId}/seasons/${seasonNumber}/episodes/${episodeNumber}/summary`,
+  );
+  return response.data;
+}
+
+export interface EnrichedTagsResult {
+  tags: string[];
+  source: "ai" | "tmdb";
+}
+
+export async function getEnrichedTags(tmdbId: number, type?: "tv" | "movie"): Promise<EnrichedTagsResult> {
+  log("ShowsService", "enriched-tags", { tmdbId, type });
+  const response = await api.get<EnrichedTagsResult>(`/shows/${tmdbId}/tags`, {
+    params: type ? { type } : undefined,
+  });
+  return response.data;
+}

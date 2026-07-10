@@ -8,6 +8,7 @@ import { getRedisValue, setRedisValue } from "../lib/redis.js";
 import { log, logError } from "../lib/logger.js";
 import { MobileConfig } from "../models/MobileConfig.js";
 import { getTranslationValue } from "../models/show.model.js";
+import { languageNameForLocale } from "./aiLanguageMap.js";
 
 export interface RecommendationItem {
   tmdbId: number;
@@ -115,14 +116,16 @@ export async function getRecommendations(userId: string, language = "en"): Promi
     .map((s) => `- ${s.title} (${s.type})${s.genres.length ? ` [genres: ${s.genres.join(", ")}]` : ""}${s.rating ? ` [rating: ${s.rating}/5]` : ""}${s.status ? ` [status: ${s.status}]` : ""}`)
     .join("\n");
 
+  const languageName = languageNameForLocale(language);
+
   const systemPrompt = `You are a TV show and movie recommendation engine for "Watchr", a tracking app. Based on the user's watch history, ratings, and favorites, suggest 10 shows/movies they would enjoy but haven't seen yet.
 
 Rules:
-- Return ONLY a JSON array of objects with: tmdb_title (string), type ("tv" or "movie"), reason (short personalized explanation in ${language === "fr" ? "French" : "English"})
+- Return ONLY a JSON array of objects with: tmdb_title (string), type ("tv" or "movie"), reason (short personalized explanation in ${languageName})
 - Do NOT recommend shows the user has already watched
 - Mix popular and lesser-known recommendations
 - Keep reasons under 100 characters
-- Respond in ${language === "fr" ? "French" : "English"}`;
+- Respond in ${languageName}`;
 
   const result = await mistralService.safeChat({
     messages: [
@@ -183,7 +186,8 @@ Rules:
 
 async function getFallbackRecommendations(language = "en"): Promise<RecommendationResult> {
   try {
-    const tmdbLanguage = language === "fr" ? "fr-FR" : "en-US";
+    const tmdbLanguageMap: Record<string, string> = { en: "en-US", fr: "fr-FR", es: "es-ES", pt: "pt-BR", de: "de-DE", it: "it-IT", ar: "ar-SA" };
+    const tmdbLanguage = tmdbLanguageMap[language] ?? "en-US";
     const [trendingTv, trendingMovies] = await Promise.all([
       tmdbService.getTrendingTv(10, tmdbLanguage).catch(() => ({ results: [] as any[] })),
       tmdbService.getTrendingMovies(10, tmdbLanguage).catch(() => ({ results: [] as any[] })),
@@ -196,7 +200,7 @@ async function getFallbackRecommendations(language = "en"): Promise<Recommendati
       title: item.name ?? item.title ?? "Unknown",
       posterPath: item.poster_path ?? undefined,
       overview: item.overview,
-      reason: language === "fr" ? "Tendance actuellement" : "Currently trending",
+      reason: language === "fr" ? "Tendance actuellement" : language === "es" ? "Tendencia actual" : language === "pt" ? "Em alta agora" : language === "de" ? "Aktuell im Trend" : language === "it" ? "Di tendenza ora" : language === "ar" ? "رائج حالياً" : "Currently trending",
     }));
 
     return { recommendations, source: "fallback" };

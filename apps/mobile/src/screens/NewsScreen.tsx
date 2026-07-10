@@ -7,7 +7,7 @@ import { NewsCard } from "../components/NewsCard";
 import { EmptyState } from "../components/EmptyState";
 import { NetworkError } from "../components/NetworkError";
 import { Skeleton } from "../components/Skeleton";
-import { useNews, useNewsSources } from "../hooks/useNews";
+import { useNews, useNewsSources, useFilteredNews } from "../hooks/useNews";
 import { useNewsRealtime } from "../hooks/useNewsRealtime";
 import { useRefreshRateLimit } from "../hooks/useRefreshRateLimit";
 import { NewsSource } from "../services/news.service";
@@ -22,6 +22,7 @@ export function NewsScreen() {
   const locale = useLocaleStore((state) => state.locale);
   const { data: sources } = useNewsSources();
   const [manualSource, setManualSource] = useState<string | null>(null);
+  const [showFiltered, setShowFiltered] = useState(false);
   const { width } = useWindowDimensions();
   const isWeb = Platform.OS === "web";
   const isDesktopWeb = isWeb && width >= 768;
@@ -38,9 +39,15 @@ export function NewsScreen() {
   }, [locale]);
 
   const { data, isLoading, isError, error, refetch, isFetching } = useNews(selectedSource);
+  const { data: filteredData, isLoading: filteredLoading, isError: filteredError, refetch: refetchFiltered } = useFilteredNews(showFiltered);
   const throttledRefresh = useRefreshRateLimit();
 
   useNewsRealtime();
+
+  const displayData = showFiltered ? filteredData : data;
+  const displayLoading = showFiltered ? filteredLoading : isLoading;
+  const displayError = showFiltered ? filteredError : isError;
+  const displayRefetch = showFiltered ? refetchFiltered : refetch;
 
   function renderSourceChip(source: NewsSource) {
     const isActive = manualSource === null ? source.id === defaultSourceId : manualSource === source.id;
@@ -95,7 +102,27 @@ export function NewsScreen() {
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]}>
       <MainHeader />
 
-      {sources && sources.length > 0 && Platform.OS !== "web" && (
+      <TouchableOpacity
+        onPress={() => setShowFiltered((prev) => !prev)}
+        activeOpacity={0.7}
+        className="flex-row items-center justify-between mb-4 rounded-lg p-3"
+        style={{ backgroundColor: colors.surface }}
+      >
+        <View className="flex-row items-center">
+          <Ionicons name={showFiltered ? "filter-circle" : "filter-outline"} size={20} color={colors.primary} />
+          <Text className="text-text font-medium ml-2">{t("screens.news.filteredToggle")}</Text>
+        </View>
+        <View className="flex-row items-center">
+          {showFiltered && (
+            <View className="bg-primary/20 rounded-full px-2 py-0.5 mr-2">
+              <Text className="text-primary text-xs font-semibold">{t("screens.news.filteredActive")}</Text>
+            </View>
+          )}
+          <Ionicons name={showFiltered ? "toggle" : "toggle-outline"} size={24} color={showFiltered ? colors.primary : colors.textMuted} />
+        </View>
+      </TouchableOpacity>
+
+      {!showFiltered && sources && sources.length > 0 && Platform.OS !== "web" && (
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -106,7 +133,7 @@ export function NewsScreen() {
         </ScrollView>
       )}
 
-      {isLoading && (
+      {displayLoading && (
         <View style={isDesktopWeb ? { flexDirection: "row", flexWrap: "wrap", gap: 16 } : undefined}>
           {[...Array(4)].map((_, index) => (
             <Skeleton
@@ -120,19 +147,19 @@ export function NewsScreen() {
         </View>
       )}
 
-      {isError && (
-        <NetworkError isOffline={!error || !("response" in error)} onRetry={() => refetch()} />
+      {displayError && (
+        <NetworkError isOffline={!error || !("response" in error)} onRetry={() => displayRefetch()} />
       )}
 
-      {!isLoading && !isError && (
+      {!displayLoading && !displayError && (
         <FlatList
           key={isDesktopWeb ? "grid" : "list"}
-          data={data ?? []}
+          data={displayData ?? []}
           keyExtractor={(item, index) => `${item.title}-${index}`}
           numColumns={isDesktopWeb ? 2 : 1}
           columnWrapperStyle={isDesktopWeb ? { gap: 16 } : undefined}
           renderItem={({ item }) => <NewsCard article={item} compact={isDesktopWeb} />}
-          refreshControl={<RefreshControl refreshing={isLoading} onRefresh={() => throttledRefresh(refetch)} tintColor={colors.primary} />}
+          refreshControl={<RefreshControl refreshing={displayLoading} onRefresh={() => throttledRefresh(displayRefetch)} tintColor={colors.primary} />}
           contentContainerStyle={{ paddingBottom: 24, gap: isDesktopWeb ? 16 : 0 }}
           ListEmptyComponent={
             <EmptyState

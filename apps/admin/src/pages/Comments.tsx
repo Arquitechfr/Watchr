@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Trash2, AlertTriangle, ChevronLeft, ChevronRight, MessageSquare, MessageCircleX } from "lucide-react";
+import { Trash2, AlertTriangle, ChevronLeft, ChevronRight, MessageSquare, MessageCircleX, Sparkles } from "lucide-react";
 import api from "../lib/api";
 import { Card, CardContent } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
@@ -43,6 +43,9 @@ export function Comments() {
   const [allCommentsConfirmStep, setAllCommentsConfirmStep] = useState<1 | 2>(1);
   const [allCommentsSubmitting, setAllCommentsSubmitting] = useState(false);
 
+  const [aiAnalysis, setAiAnalysis] = useState<{ commentId: string; sentiment: string; confidence: number; suggestedAction: string; reason: string } | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+
   async function load() {
     setLoading(true);
     try {
@@ -78,6 +81,19 @@ export function Comments() {
       load();
     } catch (err) {
       console.error("Failed to toggle spoiler:", err);
+    }
+  }
+
+  async function handleAiAnalyze(commentId: string) {
+    setAiLoading(true);
+    setAiAnalysis(null);
+    try {
+      const res = await api.post(`/admin/ai/analyze-comment/${commentId}`);
+      setAiAnalysis({ commentId, ...res.data });
+    } catch (err) {
+      console.error("Failed to analyze comment:", err);
+    } finally {
+      setAiLoading(false);
     }
   }
 
@@ -215,6 +231,15 @@ export function Comments() {
                           <Button
                             variant="ghost"
                             size="icon"
+                            onClick={() => handleAiAnalyze(comment.id)}
+                            title="AI analyze"
+                            disabled={aiLoading}
+                          >
+                            <Sparkles size={16} className="text-primary" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
                             onClick={() => handleToggleSpoiler(comment)}
                             title="Toggle spoiler"
                           >
@@ -236,6 +261,30 @@ export function Comments() {
           </Table>
         </CardContent>
       </Card>
+
+      {aiAnalysis && (
+        <Card className="mt-4 border-primary/30">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Sparkles size={18} className="text-primary" />
+              <h3 className="font-semibold text-text">AI Comment Analysis</h3>
+              <Badge className="bg-primary/20 text-primary capitalize">{aiAnalysis.sentiment}</Badge>
+              <Badge className="bg-surface-light text-text-muted capitalize">{aiAnalysis.suggestedAction}</Badge>
+            </div>
+            <p className="text-sm text-text-muted">{aiAnalysis.reason}</p>
+            <p className="text-xs text-text-muted mt-2">Confidence: {(aiAnalysis.confidence * 100).toFixed(0)}%</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {aiLoading && (
+        <Card className="mt-4 border-primary/30">
+          <CardContent className="p-4 flex items-center gap-2">
+            <Sparkles size={18} className="text-primary animate-pulse" />
+            <p className="text-sm text-text-muted">Analyzing comment with AI…</p>
+          </CardContent>
+        </Card>
+      )}
 
       {data && (
         <div className="flex items-center justify-between mt-4">

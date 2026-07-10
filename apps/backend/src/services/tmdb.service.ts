@@ -9,10 +9,12 @@ export interface TmdbSearchResult {
   title?: string;
   name?: string;
   poster_path?: string | null;
+  backdrop_path?: string | null;
   overview?: string;
   first_air_date?: string;
   release_date?: string;
   media_type?: string;
+  vote_average?: number;
 }
 
 export interface TmdbPaginatedResult {
@@ -138,6 +140,18 @@ class TmdbService {
     );
   }
 
+  async searchMulti(query: string, language = "en-US"): Promise<{ results: TmdbSearchResult[] }> {
+    await tmdbRateLimiter.consume();
+    try {
+      const response = await this.client.get<{ results: TmdbSearchResult[] }>("/search/multi", {
+        params: { query, include_adult: false, language },
+      });
+      return { results: response.data.results || [] };
+    } catch (err) {
+      throw this.handleError(err);
+    }
+  }
+
   async searchShows(query: string, language = "en-US"): Promise<TmdbSearchResult[]> {
     await tmdbRateLimiter.consume();
     try {
@@ -218,6 +232,19 @@ class TmdbService {
         params: { language },
       });
       return response.data;
+    } catch (err) {
+      throw this.handleError(err);
+    }
+  }
+
+  async getSimilar(tmdbId: number, type: "tv" | "movie", language = "en-US"): Promise<TmdbSearchResult[]> {
+    await tmdbRateLimiter.consume();
+    try {
+      const endpoint = type === "tv" ? `/tv/${tmdbId}/similar` : `/movie/${tmdbId}/similar`;
+      const response = await this.client.get<{ results: TmdbSearchResult[] }>(endpoint, {
+        params: { language, page: 1 },
+      });
+      return response.data.results || [];
     } catch (err) {
       throw this.handleError(err);
     }

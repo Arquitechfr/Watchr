@@ -3,10 +3,17 @@ import { requireAuth } from "../middleware/requireAuth.middleware.js";
 import { getShowDetails, getSeasonDetails, searchShows, getDiscoverSections, getDiscoverSectionItems } from "../services/show.service.js";
 import { aiSearchShows } from "../services/aiSearch.service.js";
 import { getRecommendations } from "../services/recommendation.service.js";
+import { getMoodRecommendations } from "../services/aiMood.service.js";
+import { getSimilarShows } from "../services/aiSimilarShows.service.js";
+import { getOnboardingSuggestions } from "../services/aiOnboarding.service.js";
+import { semanticSearchShows } from "../services/aiSemanticSearch.service.js";
+import { getEpisodeSummary } from "../services/aiEpisodeSummary.service.js";
+import { getEnrichedTags } from "../services/aiEnrichedTags.service.js";
 import { searchSchema, tmdbIdParamSchema, seasonParamSchema, discoverSectionParamSchema, discoverSectionQuerySchema } from "../validators/show.validator.js";
 import { validateRequest } from "../validators/validateRequest.js";
 import { asyncHandler } from "../lib/asyncHandler.js";
 import { cacheResponse } from "../middleware/cache.middleware.js";
+import { Show } from "../models/show.model.js";
 
 const router: Router = Router();
 
@@ -34,9 +41,41 @@ router.get(
 );
 
 router.get(
+  "/semantic-search",
+  validateRequest(undefined, searchSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { q } = req.query as { q: string };
+    const results = await semanticSearchShows(q, req.language);
+    res.json(results);
+  }),
+);
+
+router.get(
   "/recommendations",
   asyncHandler(async (req: Request, res: Response) => {
     const results = await getRecommendations(req.userId!, req.language);
+    res.json(results);
+  }),
+);
+
+router.get(
+  "/mood-recommendations",
+  asyncHandler(async (req: Request, res: Response) => {
+    const mood = typeof req.query.mood === "string" ? req.query.mood : "happy";
+    const results = await getMoodRecommendations(mood, req.language);
+    res.json(results);
+  }),
+);
+
+router.post(
+  "/onboarding-suggestions",
+  asyncHandler(async (req: Request, res: Response) => {
+    const { genres, mood, type } = req.body as {
+      genres?: string[];
+      mood?: string;
+      type?: "tv" | "movie" | "both";
+    };
+    const results = await getOnboardingSuggestions({ genres, mood, type }, req.language);
     res.json(results);
   }),
 );
@@ -81,6 +120,47 @@ router.get(
     const { tmdbId, seasonNumber } = req.params;
     const season = await getSeasonDetails(Number(tmdbId), Number(seasonNumber), req.language);
     res.json(season);
+  }),
+);
+
+router.get(
+  "/:tmdbId/seasons/:seasonNumber/episodes/:episodeNumber/summary",
+  validateRequest(undefined, undefined, seasonParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { tmdbId, seasonNumber, episodeNumber } = req.params;
+    const summary = await getEpisodeSummary(
+      Number(tmdbId),
+      Number(seasonNumber),
+      Number(episodeNumber),
+      req.language,
+    );
+    res.json(summary);
+  }),
+);
+
+router.get(
+  "/:tmdbId/tags",
+  validateRequest(undefined, undefined, tmdbIdParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { tmdbId } = req.params;
+    const type = typeof req.query.type === "string" ? (req.query.type as "tv" | "movie") : "tv";
+    const result = await getEnrichedTags(Number(tmdbId), type, req.language);
+    res.json(result);
+  }),
+);
+
+router.get(
+  "/:tmdbId/similar",
+  validateRequest(undefined, undefined, tmdbIdParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { tmdbId } = req.params;
+    const show = await Show.findOne({ tmdbId: Number(tmdbId) }).select("_id").lean();
+    if (!show) {
+      res.json({ shows: [], source: "fallback" });
+      return;
+    }
+    const results = await getSimilarShows(show._id.toString(), req.language);
+    res.json(results);
   }),
 );
 

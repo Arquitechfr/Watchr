@@ -5,6 +5,7 @@ import { log, logError } from "../lib/logger.js";
 import { NewsSource } from "../models/newsSource.model.js";
 import type { SupportedLocale } from "../i18n/translations.js";
 import { getRedisValue, setRedisValue } from "../lib/redis.js";
+import { enrichNewsWithSummaries } from "./aiNews.service.js";
 
 export interface NewsArticle {
   title: string;
@@ -12,6 +13,7 @@ export interface NewsArticle {
   pubDate?: string;
   description?: string;
   image?: string;
+  aiSummary?: string;
 }
 
 export interface NewsSourceDTO {
@@ -36,7 +38,7 @@ export async function getDefaultSourceId(locale: SupportedLocale): Promise<strin
   return source?.id ?? null;
 }
 
-export async function getNews(sourceId?: string, limit: number = 30): Promise<NewsArticle[]> {
+export async function getNews(sourceId?: string, limit: number = 30, locale: string = "en"): Promise<NewsArticle[]> {
   const cacheKey = `news:${sourceId ?? "default"}:${limit}`;
   const cached = await getRedisValue(cacheKey);
   if (cached) {
@@ -95,8 +97,9 @@ export async function getNews(sourceId?: string, limit: number = 30): Promise<Ne
       });
 
     log("NewsService", "articles", { count: articles.length });
-    await setRedisValue(cacheKey, JSON.stringify(articles), 120);
-    return articles;
+    const enriched = await enrichNewsWithSummaries(articles, locale);
+    await setRedisValue(cacheKey, JSON.stringify(enriched), 120);
+    return enriched;
   } catch (err) {
     logError("NewsService", "fetch failed", err, { sourceId: source.id });
     if (cached) {

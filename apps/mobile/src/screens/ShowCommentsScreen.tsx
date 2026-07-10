@@ -11,6 +11,7 @@ import { ScreenContainer } from "../components/ScreenContainer";
 import { CommentsList } from "../components/Comments/CommentsList";
 import { CommentsSortBar } from "../components/Comments/CommentsSortBar";
 import { CommentInput } from "../components/Comments/CommentInput";
+import { ThreadSummaryCard } from "../components/Comments/ThreadSummaryCard";
 import { useThemeColors } from "../theme/useThemeColors";
 import {
   useCommentsForShow,
@@ -21,6 +22,7 @@ import {
   useUnlikeComment,
   useAddReaction,
   useRemoveReaction,
+  useThreadSummary,
 } from "../hooks/useComments";
 import { useCommentsRealtime } from "../hooks/useCommentsRealtime";
 import { RootStackParamList } from "../navigation/RootNavigator";
@@ -57,6 +59,13 @@ export function ShowCommentsScreen() {
   const unlikeComment = useUnlikeComment(showId, query);
   const addReaction = useAddReaction(showId, query);
   const removeReaction = useRemoveReaction(showId, query);
+
+  const episodeRefForSummary = season !== undefined && episode !== undefined ? { season, episode } : undefined;
+  const { data: threadSummary, isLoading: summaryLoading } = useThreadSummary(
+    showId,
+    data?.total ?? 0,
+    episodeRefForSummary,
+  );
 
   const isPending =
     createComment.isPending ||
@@ -171,6 +180,7 @@ export function ShowCommentsScreen() {
           <View className="px-4 pt-3 pb-2">
             <CommentsSortBar sort={sort} onSortChange={setSort} />
           </View>
+          <ThreadSummaryCard data={threadSummary} isLoading={summaryLoading} />
           <View className="flex-1 px-4">
             <CommentsList
               comments={data?.comments ?? []}

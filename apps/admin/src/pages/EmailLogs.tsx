@@ -430,6 +430,38 @@ export function EmailLogs() {
         </Card>
       </div>
 
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle>Weekly Digest</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-text-muted">Send a personalized AI-generated weekly digest email to all users with a summary of their watching activity.</p>
+            <Button
+              onClick={async () => {
+                setSending(true);
+                try {
+                  await api.post("/admin/digest/weekly");
+                  setResult("Weekly digest batch started");
+                } catch (err) {
+                  setResult("Failed to start weekly digest");
+                  console.error("Weekly digest failed:", err);
+                } finally {
+                  setSending(false);
+                }
+              }}
+              disabled={sending}
+            >
+              {sending ? <Loader2 size={16} className="mr-2 animate-spin" /> : <Send size={16} className="mr-2" />}
+              Send Weekly Digest
+            </Button>
+          </div>
+          {result && (
+            <p className="mt-3 text-sm text-primary">{result}</p>
+          )}
+        </CardContent>
+      </Card>
+
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
         {kpiCards.map((kpi) => (
           <Card key={kpi.label}>

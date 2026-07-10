@@ -5,6 +5,7 @@ import { CommentReaction } from "../models/commentReaction.model.js";
 import { WatchEntry } from "../models/watchEntry.model.js";
 import { User } from "../models/user.model.js";
 import { getShowTitle } from "../models/show.model.js";
+import { generateInsights, type AiInsight } from "./aiInsights.service.js";
 
 export interface GenreStat {
   id: number;
@@ -33,6 +34,7 @@ export interface UserStats {
   memberSince: string;
   genreBreakdown: GenreStat[];
   recentActivity: RecentActivityItem[];
+  aiInsights?: AiInsight[];
 }
 
 const DEFAULT_EPISODE_RUNTIME = 45;
@@ -136,7 +138,7 @@ export async function getUserStats(userId: string, language = "en"): Promise<Use
       };
     });
 
-  return {
+  const baseStats: UserStats = {
     commentsCount,
     reactionsCount,
     likesCount,
@@ -149,6 +151,13 @@ export async function getUserStats(userId: string, language = "en"): Promise<Use
     genreBreakdown,
     recentActivity,
   };
+
+  const aiInsights = await generateInsights(userId, baseStats, language);
+  if (aiInsights) {
+    baseStats.aiInsights = aiInsights;
+  }
+
+  return baseStats;
 }
 
 function computeStreak(watchedDates: Set<string>): number {

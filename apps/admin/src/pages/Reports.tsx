@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Flag, CheckCircle, XCircle, ChevronLeft, ChevronRight } from "lucide-react";
+import { Flag, CheckCircle, XCircle, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 import api from "../lib/api";
 import { Card, CardContent } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
@@ -55,6 +55,9 @@ export function Reports() {
   const [page, setPage] = useState(1);
   const limit = 20;
 
+  const [aiSuggestion, setAiSuggestion] = useState<{ reportId: string; recommendedAction: string; reason: string; draftResponse: string } | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+
   async function load() {
     setLoading(true);
     try {
@@ -94,6 +97,19 @@ export function Reports() {
       load();
     } catch (err) {
       console.error("Failed to dismiss report:", err);
+    }
+  }
+
+  async function handleAiSuggestion(reportId: string) {
+    setAiLoading(true);
+    setAiSuggestion(null);
+    try {
+      const res = await api.post(`/admin/ai/report-suggestion/${reportId}`);
+      setAiSuggestion({ reportId, ...res.data });
+    } catch (err) {
+      console.error("Failed to get AI suggestion:", err);
+    } finally {
+      setAiLoading(false);
     }
   }
 
@@ -227,6 +243,15 @@ export function Reports() {
                             <Button
                               variant="ghost"
                               size="icon"
+                              onClick={() => handleAiSuggestion(report.id)}
+                              title="AI suggestion"
+                              disabled={aiLoading}
+                            >
+                              <Sparkles size={16} className="text-primary" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
                               onClick={() => handleResolve(report.id)}
                               title="Resolve"
                             >
@@ -249,6 +274,34 @@ export function Reports() {
           </Table>
         </CardContent>
       </Card>
+
+      {aiSuggestion && (
+        <Card className="mt-4 border-primary/30">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Sparkles size={18} className="text-primary" />
+              <h3 className="font-semibold text-text">AI Suggestion</h3>
+              <Badge className="bg-primary/20 text-primary capitalize">{aiSuggestion.recommendedAction}</Badge>
+            </div>
+            <p className="text-sm text-text-muted mb-2">{aiSuggestion.reason}</p>
+            {aiSuggestion.draftResponse && (
+              <div className="bg-surface-light rounded-md p-3 mt-2">
+                <p className="text-xs text-text-muted mb-1">Draft response to reporter:</p>
+                <p className="text-sm text-text">{aiSuggestion.draftResponse}</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {aiLoading && (
+        <Card className="mt-4 border-primary/30">
+          <CardContent className="p-4 flex items-center gap-2">
+            <Sparkles size={18} className="text-primary animate-pulse" />
+            <p className="text-sm text-text-muted">Analyzing report with AI…</p>
+          </CardContent>
+        </Card>
+      )}
 
       {data && (
         <div className="flex items-center justify-between mt-4">

@@ -8,6 +8,7 @@ import {
   TouchableWithoutFeedback,
   RefreshControl,
   ScrollView,
+  TouchableOpacity,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -17,6 +18,7 @@ import { useQuickAddToWatchlist, useTrackedTmdbIds } from "../hooks/useTracking"
 import { useRefreshRateLimit } from "../hooks/useRefreshRateLimit";
 import { ShowCard } from "../components/ShowCard";
 import { DiscoverSectionRow } from "../components/DiscoverSectionRow";
+import { MoodPicker } from "../components/MoodPicker";
 import { EmptyState } from "../components/EmptyState";
 import { NetworkError } from "../components/NetworkError";
 import { ShowCardSkeleton, Skeleton } from "../components/Skeleton";
@@ -24,11 +26,14 @@ import { ScreenContainer } from "../components/ScreenContainer";
 import { MainHeader } from "../components/MainHeader";
 import { useThemeColors } from "../theme/useThemeColors";
 import { RootStackParamList } from "../navigation/RootNavigator";
-import { SearchResultItem, DiscoverSection } from "../services/shows.service";
+import { SearchResultItem, DiscoverSection, MoodRecommendation } from "../services/shows.service";
 import { useUIStore } from "../store/uiStore";
 import { log } from "../utils/logger";
 import { useI18n } from "../i18n/useI18n";
+import { useMoodRecommendations } from "../hooks/useMoodRecommendations";
+import { useSemanticSearch } from "../hooks/useSemanticSearch";
 import { Seo } from "../components/Seo";
+import { Ionicons } from "@expo/vector-icons";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "ShowDetail">;
 
@@ -39,6 +44,7 @@ export function SearchScreen() {
   const colors = useThemeColors();
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const { data, isLoading, isError, error, refetch } = useShowSearch(debouncedQuery);
   const {
     data: discoverData,
@@ -52,6 +58,9 @@ export function SearchScreen() {
   const trackedTmdbIds = new Set(trackedTmdbIdsData ?? []);
   const throttledRefresh = useRefreshRateLimit();
   const throttledRefreshDiscover = useRefreshRateLimit();
+  const { data: moodData, isLoading: moodLoading } = useMoodRecommendations(selectedMood);
+  const [useSemantic, setUseSemantic] = useState(false);
+  const semanticSearch = useSemanticSearch(useSemantic ? debouncedQuery : "");
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -138,6 +147,52 @@ export function SearchScreen() {
               />
             }
           >
+            <View className="mb-4">
+              <MoodPicker selectedMood={selectedMood} onSelectMood={setSelectedMood} />
+            </View>
+
+            {selectedMood && moodData && moodData.recommendations.length > 0 && (
+              <View className="mb-6">
+                <Text className="text-text font-semibold text-base mb-3">
+                  {t("screens.discover.moodResults")}
+                </Text>
+                <View className="flex-row flex-wrap gap-3">
+                  {moodData.recommendations.map((item: MoodRecommendation) => (
+                    <View key={`${item.tmdbId}-${item.type}`} className="w-[48%] md:w-[31%]">
+                      <ShowCard
+                        show={{
+                          tmdbId: item.tmdbId,
+                          type: item.type,
+                          title: item.title,
+                          posterPath: item.posterPath,
+                          overview: item.overview,
+                          source: "tmdb",
+                        }}
+                        onPress={() => handleShowPress({
+                          tmdbId: item.tmdbId,
+                          type: item.type,
+                          title: item.title,
+                          posterPath: item.posterPath,
+                          overview: item.overview,
+                          source: "tmdb",
+                        })}
+                      />
+                    </View>
+                  ))}
+                </View>
+              </View>
+            )}
+
+            {selectedMood && moodLoading && (
+              <View className="mb-6">
+                <Skeleton width="40%" height={20} className="mb-3" />
+                <View className="flex-row">
+                  {[...Array(3)].map((_, i) => (
+                    <Skeleton key={i} width={128} height={192} borderRadius={8} className="mr-3" />
+                  ))}
+                </View>
+              </View>
+            )}
             {discoverData.sections.map((section: DiscoverSection) => (
               <DiscoverSectionRow
                 key={section.id}
@@ -176,13 +231,31 @@ export function SearchScreen() {
 
         {isSearching && !isLoading && !isError && (
           <FlatList
-            data={allResults}
+            data={useSemantic && semanticSearch.data ? semanticSearch.data.results : allResults}
             keyExtractor={(item, index) => `${item.title}-${index}`}
             renderItem={({ item }) => (
               <ShowCard show={item} onPress={() => handleShowPress(item)} />
             )}
             refreshControl={<RefreshControl refreshing={isLoading} onRefresh={() => throttledRefresh(refetch)} tintColor={colors.primary} />}
             contentContainerStyle={{ paddingBottom: 24 }}
+            ListHeaderComponent={
+              debouncedQuery.length > 10 ? (
+                <TouchableOpacity
+                  onPress={() => setUseSemantic(!useSemantic)}
+                  className={`flex-row items-center px-3 py-2 rounded-lg mb-3 ${useSemantic ? "bg-primary/20" : "bg-surface"}`}
+                >
+                  <Ionicons name="sparkles" size={16} color={useSemantic ? colors.primary : colors.textMuted} />
+                  <Text className={`ml-2 text-sm ${useSemantic ? "text-primary" : "text-text-muted"}`}>
+                    {t("screens.search.semanticSearch")}
+                  </Text>
+                  {useSemantic && semanticSearch.data?.source === "ai" && (
+                    <View className="bg-primary/20 rounded px-1.5 py-0.5 ml-2">
+                      <Text className="text-primary text-[10px] font-bold">AI</Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
+              ) : null
+            }
           />
         )}
       </ScreenContainer>

@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import { requireAdmin } from "../../middleware/requireAdmin.middleware.js";
 import { asyncHandler } from "../../lib/asyncHandler.js";
+import { logError } from "../../lib/logger.js";
 import { validateRequest } from "../../validators/validateRequest.js";
 import { listUsersQuerySchema, userIdParamSchema, updateUserStatusSchema, updateUserRoleSchema, cancelBanSchema } from "../../validators/admin/adminUser.validator.js";
 import { listCommentsQuerySchema, commentIdParamSchema, markSpoilerSchema, bulkDeleteSchema } from "../../validators/admin/adminComment.validator.js";
@@ -27,6 +28,10 @@ import { getEmailHistory, getEmailStats, getEmailDetail, sendBroadcastEmail, sen
 import { getJobStatus } from "../../services/admin/jobQueue.service.js";
 import { listReports, resolveReport, dismissReport, getReportStats } from "../../services/report.service.js";
 import { getAiStats, getAiLogs, getAiLogDetail, getAiStatus, getAiFlags, setAiFlag } from "../../services/admin/adminAi.service.js";
+import { sendWeeklyDigestBatch, sendWeeklyDigestToUser } from "../../services/aiWeeklyDigest.service.js";
+import { analyzeComment, suggestReportAction, suggestShowDescription } from "../../services/admin/adminAiAssistant.service.js";
+import { sendReengagementBatch } from "../../services/aiReengagement.service.js";
+import { detectAnomalies } from "../../services/aiAnomalyDetection.service.js";
 
 const router: Router = Router();
 
@@ -648,6 +653,68 @@ router.post(
     }
 
     res.json({ improvedText: result.content });
+  }),
+);
+
+// Weekly Digest
+router.post(
+  "/digest/weekly",
+  asyncHandler(async (req: Request, res: Response) => {
+    const { userId } = req.body as { userId?: string };
+    if (userId) {
+      const success = await sendWeeklyDigestToUser(userId);
+      res.json({ success });
+    } else {
+      sendWeeklyDigestBatch().catch((err) => logError("AdminDigest", "batch failed", err));
+      res.json({ message: "Weekly digest batch started" });
+    }
+  }),
+);
+
+// AI Assistant — extended
+router.post(
+  "/ai/reengagement",
+  asyncHandler(async (_req: Request, res: Response) => {
+    sendReengagementBatch().catch((err) => logError("AdminReengagement", "batch failed", err));
+    res.json({ message: "Re-engagement batch started" });
+  }),
+);
+
+router.get(
+  "/ai/anomalies",
+  asyncHandler(async (_req: Request, res: Response) => {
+    const alerts = await detectAnomalies();
+    res.json({ alerts });
+  }),
+);
+
+router.post(
+  "/ai/analyze-comment/:commentId",
+  validateRequest(undefined, undefined, commentIdParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { commentId } = req.params;
+    const analysis = await analyzeComment(commentId);
+    res.json(analysis);
+  }),
+);
+
+router.post(
+  "/ai/report-suggestion/:reportId",
+  validateRequest(undefined, undefined, reportIdParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { reportId } = req.params;
+    const suggestion = await suggestReportAction(reportId);
+    res.json(suggestion);
+  }),
+);
+
+router.post(
+  "/ai/show-description/:showId",
+  validateRequest(undefined, undefined, showIdParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { showId } = req.params;
+    const suggestion = await suggestShowDescription(showId, req.language);
+    res.json(suggestion);
   }),
 );
 

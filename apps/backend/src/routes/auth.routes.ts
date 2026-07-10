@@ -47,6 +47,7 @@ import { requireAuth } from "../middleware/requireAuth.middleware.js";
 import { checkAuthEnabled } from "../middleware/authFlag.middleware.js";
 import { translate } from "../i18n/index.js";
 import { getUserStats } from "../services/stats.service.js";
+import { getYearInReview } from "../services/aiYearInReview.service.js";
 
 const updateLanguageSchema = z.object({
   language: z.string().min(2).max(5),
@@ -223,6 +224,15 @@ router.get(
   asyncHandler(async (req: Request, res: Response) => {
     const stats = await getUserStats(req.userId!, req.language);
     res.json(stats);
+  }),
+);
+
+router.get(
+  "/me/year-in-review",
+  asyncHandler(async (req: Request, res: Response) => {
+    const year = typeof req.query.year === "string" ? parseInt(req.query.year, 10) : undefined;
+    const result = await getYearInReview(req.userId!, year);
+    res.json(result);
   }),
 );
 

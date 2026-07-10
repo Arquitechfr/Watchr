@@ -18,13 +18,15 @@ import { DetailHeader } from "../components/DetailHeader";
 import { FixedTrackingButton } from "../components/FixedTrackingButton";
 import { TrackingActionModal } from "../components/TrackingActionModal";
 import { RootStackParamList } from "../navigation/RootNavigator";
-import { getPosterUrl, getProfileUrl, Episode, CastMember, CrewMember, Genre, Network } from "../services/shows.service";
+import { getPosterUrl, getProfileUrl, Episode, CastMember, CrewMember, Genre, Network, SimilarShow } from "../services/shows.service";
 import { Ionicons } from "@expo/vector-icons";
 import { useThemeColors } from "../theme/useThemeColors";
 import { WatchStatus } from "../services/tracking.service";
 import { useUIStore } from "../store/uiStore";
 import { log } from "../utils/logger";
 import { useI18n } from "../i18n/useI18n";
+import { useSimilarShows } from "../hooks/useSimilarShows";
+import { useEnrichedTags } from "../hooks/useEnrichedTags";
 import { Seo } from "../components/Seo";
 
 type ShowDetailRouteProp = RouteProp<RootStackParamList, "ShowDetail">;
@@ -57,9 +59,11 @@ export function ShowDetailScreen() {
   const { showSnackbar, showAlert } = useUIStore();
   const { t } = useI18n();
   const colors = useThemeColors();
+  const isValidTmdbId = Number.isFinite(tmdbId) && tmdbId > 0;
+  const { data: similarData, isLoading: similarLoading } = useSimilarShows(isValidTmdbId ? tmdbId : undefined);
+  const { data: enrichedTagsData } = useEnrichedTags(isValidTmdbId ? tmdbId : 0, show?.type);
   const { width } = useWindowDimensions();
   const isDesktopWeb = Platform.OS === "web" && width >= 768;
-  const isValidTmdbId = Number.isFinite(tmdbId) && tmdbId > 0;
 
   const { data: show, isLoading, isRefetching, isError, refetch } = useShowDetails(tmdbId);
   const { data: trackingEntry, refetch: refetchTrackingEntry } = useTrackingEntry(show?.id ?? "");
@@ -478,6 +482,21 @@ export function ShowDetailScreen() {
             </View>
           )}
 
+          {enrichedTagsData && enrichedTagsData.source === "ai" && enrichedTagsData.tags.length > (show.genres?.length ?? 0) && (
+            <View className="flex-row flex-wrap mb-4">
+              {enrichedTagsData.tags
+                .filter((tag) => !(show.genres ?? []).some((g: Genre) => g.name === tag))
+                .map((tag) => (
+                  <View key={`ai-tag-${tag}`} className="bg-primary/15 rounded-full px-3 py-1 mr-2 mb-2" style={{ flexDirection: "row", alignItems: "center" }}>
+                    <View className="bg-primary/20 rounded px-1 py-0 mr-1">
+                      <Text className="text-primary text-[9px] font-bold">AI</Text>
+                    </View>
+                    <Text className="text-text text-xs">{tag}</Text>
+                  </View>
+                ))}
+            </View>
+          )}
+
           <View className="bg-surface rounded-lg p-4 mb-6">
             <View className="flex-row flex-wrap justify-between">
               {trackingEntry && (
@@ -590,6 +609,56 @@ export function ShowDetailScreen() {
                 onMarkSeasonAired={handleMarkSeasonAired}
                 isPending={toggleEpisode.isPending || markAllAired.isPending}
               />
+            </View>
+          )}
+
+          {similarData && similarData.shows.length > 0 && (
+            <View className="mb-6">
+              <View className="flex-row items-center mb-3">
+                <Text className="text-lg font-semibold text-text">{t("screens.showDetail.similarShows")}</Text>
+                {similarData.source === "ai" && (
+                  <View className="bg-primary/20 rounded px-1.5 py-0.5 ml-2">
+                    <Text className="text-primary text-[10px] font-bold">AI</Text>
+                  </View>
+                )}
+              </View>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerClassName="gap-3">
+                {similarData.shows.map((item: SimilarShow) => (
+                  <TouchableOpacity
+                    key={`${item.tmdbId}-${item.type}`}
+                    onPress={() => navigation.navigate("ShowDetail", { tmdbId: item.tmdbId, title: item.title })}
+                    activeOpacity={0.7}
+                    style={{ width: 140 }}
+                  >
+                    {item.posterPath ? (
+                      <Image
+                        source={{ uri: getPosterUrl(item.posterPath, 200) }}
+                        className="w-full h-[210px] rounded-lg mb-2"
+                        resizeMode="cover"
+                      />
+                    ) : (
+                      <View className="w-full h-[210px] rounded-lg bg-surface-light items-center justify-center mb-2">
+                        <Ionicons name="film-outline" size={28} color={colors.textMuted} />
+                      </View>
+                    )}
+                    <Text className="text-text text-sm font-medium" numberOfLines={2}>{item.title}</Text>
+                    {similarData.source === "ai" && item.reason && (
+                      <Text className="text-text-muted text-xs mt-0.5" numberOfLines={2}>{item.reason}</Text>
+                    )}
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+          )}
+
+          {similarLoading && (
+            <View className="mb-6">
+              <Skeleton width="40%" height={24} className="mb-3" />
+              <View className="flex-row">
+                {[...Array(3)].map((_, i) => (
+                  <Skeleton key={i} width={140} height={210} borderRadius={8} className="mr-3" />
+                ))}
+              </View>
             </View>
           )}
         </View>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Search, RefreshCw, Trash2, ChevronLeft, ChevronRight, Tv } from "lucide-react";
+import { Search, RefreshCw, Trash2, ChevronLeft, ChevronRight, Tv, Sparkles, X } from "lucide-react";
 import api from "../lib/api";
 import { Card, CardContent } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
@@ -8,6 +8,7 @@ import { Badge } from "../components/ui/Badge";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "../components/ui/Table";
 import { Skeleton } from "../components/ui/Skeleton";
 import { EmptyState } from "../components/ui/EmptyState";
+import { Dialog } from "../components/ui/Dialog";
 import { formatDate } from "../lib/utils";
 
 interface ShowRow {
@@ -34,6 +35,19 @@ export function Shows() {
   const [typeFilter, setTypeFilter] = useState("");
   const [page, setPage] = useState(1);
   const limit = 20;
+
+  const [descSuggestion, setDescSuggestion] = useState<{ showId: string; title: string; description: string; loading: boolean } | null>(null);
+
+  async function handleSuggestDescription(showId: string, title: string) {
+    setDescSuggestion({ showId, title, description: "", loading: true });
+    try {
+      const { data } = await api.post(`/admin/ai/show-description/${showId}`);
+      setDescSuggestion({ showId, title, description: data.description || data.suggestion || "No suggestion available.", loading: false });
+    } catch (err) {
+      console.error("Failed to get AI description:", err);
+      setDescSuggestion({ showId, title, description: "Failed to generate suggestion.", loading: false });
+    }
+  }
 
   async function load() {
     setLoading(true);
@@ -143,6 +157,9 @@ export function Shows() {
                       <TableCell className="text-text-muted text-xs hidden lg:table-cell">{formatDate(show.updatedAt)}</TableCell>
                       <TableCell>
                         <div className="flex gap-1">
+                          <Button variant="ghost" size="icon" onClick={() => handleSuggestDescription(show.id, show.title)} title="AI description suggestion">
+                            <Sparkles size={16} className="text-primary" />
+                          </Button>
                           <Button variant="ghost" size="icon" onClick={() => handleSync(show.tmdbId)} title="Force sync">
                             <RefreshCw size={16} />
                           </Button>
@@ -171,6 +188,33 @@ export function Shows() {
             </Button>
           </div>
         </div>
+      )}
+
+      {descSuggestion && (
+        <Dialog open onClose={() => setDescSuggestion(null)}>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Sparkles className="text-primary" size={20} />
+              <h2 className="text-lg font-bold">AI Description — {descSuggestion.title}</h2>
+            </div>
+            <Button variant="ghost" size="icon" onClick={() => setDescSuggestion(null)}>
+              <X size={18} />
+            </Button>
+          </div>
+          {descSuggestion.loading ? (
+            <div className="flex items-center gap-2 py-8">
+              <RefreshCw className="animate-spin text-primary" size={18} />
+              <p className="text-text-muted">Generating AI description…</p>
+            </div>
+          ) : (
+            <div>
+              <p className="text-text leading-relaxed mb-4">{descSuggestion.description}</p>
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setDescSuggestion(null)}>Close</Button>
+              </div>
+            </div>
+          )}
+        </Dialog>
       )}
     </div>
   );

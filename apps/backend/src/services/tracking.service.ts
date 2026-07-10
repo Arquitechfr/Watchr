@@ -390,6 +390,26 @@ export async function getTrackedTmdbIds(userId: string): Promise<number[]> {
   return tmdbIds;
 }
 
+export async function getTrackedShowTitles(userId: string): Promise<string[]> {
+  log("TrackingService", "getTrackedShowTitles start", { userId });
+
+  const entries = await WatchEntry.find({
+    userId: new Types.ObjectId(userId),
+  })
+    .populate("showId", "title translations")
+    .lean();
+
+  const titles = entries
+    .map((entry) => {
+      const show = entry.showId as unknown as { title?: string; translations?: Record<string, { title?: string }> };
+      return show?.title ?? "";
+    })
+    .filter((title) => title.length > 0);
+
+  log("TrackingService", "getTrackedShowTitles result", { count: titles.length });
+  return titles;
+}
+
 export async function upsertTracking(
   userId: string,
   showId: string,

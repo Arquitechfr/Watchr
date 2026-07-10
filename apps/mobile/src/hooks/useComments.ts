@@ -11,6 +11,7 @@ import {
   removeReaction,
   getCommentById,
   listRepliesForComment,
+  getThreadSummary,
   CreateCommentInput,
   UpdateCommentInput,
   ListCommentsQuery,
@@ -381,5 +382,19 @@ export function useReplies(commentId: string, page: number = 1, limit: number = 
     queryKey: [COMMENTS_QUERY_KEY, "replies", commentId, page, limit],
     queryFn: () => listRepliesForComment(commentId, page, limit),
     enabled: isHydrated && Boolean(commentId),
+  });
+}
+
+export function useThreadSummary(
+  showId: string,
+  commentCount: number,
+  episodeRef?: { season: number; episode: number },
+) {
+  const isHydrated = useAuthStore((state) => state.isHydrated);
+  return useQuery({
+    queryKey: [COMMENTS_QUERY_KEY, "summary", showId, episodeRef?.season, episodeRef?.episode],
+    queryFn: () => getThreadSummary(showId, episodeRef),
+    enabled: isHydrated && Boolean(showId) && commentCount >= 20,
+    staleTime: 60 * 60 * 1000,
   });
 }

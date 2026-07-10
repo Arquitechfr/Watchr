@@ -7,6 +7,7 @@ export interface NewsArticle {
   pubDate?: string;
   description?: string;
   image?: string;
+  aiSummary?: string;
 }
 
 export interface NewsSource {
@@ -24,5 +25,12 @@ export async function getNews(sourceId: string | undefined, locale: string, limi
   log("NewsService", "fetch", { sourceId, locale, limit });
   const response = await api.get<NewsArticle[]>("/news", { params: { source: sourceId, locale, limit } });
   log("NewsService", "articles", { count: response.data.length });
+  return response.data;
+}
+
+export async function getFilteredNews(locale: string, limit: number = 50): Promise<NewsArticle[]> {
+  log("NewsService", "fetch filtered", { locale, limit });
+  const response = await api.get<NewsArticle[]>("/news/filtered", { params: { locale, limit } });
+  log("NewsService", "filtered articles", { count: response.data.length });
   return response.data;
 }

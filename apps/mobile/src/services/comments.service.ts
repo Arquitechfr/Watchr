@@ -169,3 +169,20 @@ export async function reportComment(commentId: string, reason: ReportReason): Pr
   await api.post(`/comments/${commentId}/report`, { reason });
   log("CommentsService", "report success");
 }
+
+export interface ThreadSummary {
+  summary: string | null;
+  commentCount: number;
+  source: "ai" | "fallback";
+}
+
+export async function getThreadSummary(
+  showId: string,
+  episodeRef?: { season: number; episode: number },
+): Promise<ThreadSummary> {
+  log("CommentsService", "threadSummary", { showId, episodeRef });
+  const response = await api.get<ThreadSummary>(`/comments/show/${showId}/summary`, {
+    params: episodeRef ? { season: episodeRef.season, episode: episodeRef.episode } : undefined,
+  });
+  return response.data;
+}

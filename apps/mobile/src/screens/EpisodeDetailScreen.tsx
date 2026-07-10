@@ -9,6 +9,7 @@ import {
   RefreshControl,
   Platform,
   useWindowDimensions,
+  ActivityIndicator,
 } from "react-native";
 import { useRoute, useNavigation, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -17,6 +18,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { format } from "date-fns";
 import { useShowDetails } from "../hooks/useShowDetails";
 import { useSeasonDetails } from "../hooks/useSeasonDetails";
+import { useEpisodeSummary } from "../hooks/useEpisodeSummary";
 import { useTrackingEntry } from "../hooks/useTrackingEntry";
 import { useToggleEpisode, useMarkUpTo } from "../hooks/useTracking";
 import { WatchedEpisode } from "../services/tracking.service";
@@ -68,6 +70,7 @@ export function EpisodeDetailScreen() {
   const { data: trackingEntry, refetch: refetchTrackingEntry } = useTrackingEntry(showId);
   const { data: ratings, refetch: refetchRatings } = useRatingsForShow(showId);
   const { data: commentsData, refetch: refetchComments } = useCommentsForShow(showId, { season, episode: episodeNumber });
+  const { data: episodeSummary, isLoading: summaryLoading } = useEpisodeSummary(tmdbId, season, episodeNumber);
   const throttledRefresh = useRefreshRateLimit();
   const toggleEpisode = useToggleEpisode(showId, tmdbId);
   const markUpTo = useMarkUpTo(showId, tmdbId);
@@ -352,6 +355,25 @@ export function EpisodeDetailScreen() {
             </View>
           ) : (
             <Text className="text-text-muted italic mb-6">{t("screens.episode.noOverview")}</Text>
+          )}
+
+          {summaryLoading && (
+            <View className="flex-row items-center mb-6 bg-surface rounded-lg p-3">
+              <ActivityIndicator size="small" color={colors.primary} />
+              <Text className="text-text-muted text-sm ml-3">{t("screens.episode.aiSummaryLoading")}</Text>
+            </View>
+          )}
+
+          {episodeSummary && episodeSummary.source === "ai" && !summaryLoading && (
+            <View className="mb-6 bg-surface rounded-lg p-4" style={{ borderLeftWidth: 3, borderLeftColor: colors.primary }}>
+              <View className="flex-row items-center mb-2">
+                <View className="bg-primary/20 rounded px-1.5 py-0.5 mr-2">
+                  <Text className="text-primary text-[10px] font-bold">AI</Text>
+                </View>
+                <Text className="text-text font-semibold text-sm">{t("screens.episode.aiSummaryTitle")}</Text>
+              </View>
+              <Text className="text-text-muted text-sm leading-relaxed">{episodeSummary.summary}</Text>
+            </View>
           )}
 
           <View className="flex-row flex-wrap mb-6">

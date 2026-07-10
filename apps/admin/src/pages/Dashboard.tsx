@@ -11,10 +11,13 @@ import {
   Pie,
   Cell,
 } from "recharts";
-import { Users, MessageSquare, Tv, Download, Bell, Shield } from "lucide-react";
+import { Users, MessageSquare, Tv, Download, Bell, Shield, Sparkles, AlertTriangle, Send, Loader2, X } from "lucide-react";
 import api from "../lib/api";
 import { Card, CardHeader, CardTitle, CardContent } from "../components/ui/Card";
+import { Button } from "../components/ui/Button";
+import { Badge } from "../components/ui/Badge";
 import { Skeleton } from "../components/ui/Skeleton";
+import { Dialog } from "../components/ui/Dialog";
 
 interface Stats {
   totalUsers: number;
@@ -39,6 +42,12 @@ export function Dashboard() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [growth, setGrowth] = useState<GrowthData | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const [reengagementSending, setReengagementSending] = useState(false);
+  const [reengagementResult, setReengagementResult] = useState("");
+  const [anomaliesLoading, setAnomaliesLoading] = useState(false);
+  const [anomalies, setAnomalies] = useState<Array<{ userId: string; username: string; type: string; severity: string; description: string }>>([]);
+  const [anomaliesOpen, setAnomaliesOpen] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -181,6 +190,113 @@ export function Dashboard() {
           </CardContent>
         </Card>
       </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Sparkles className="text-primary" size={20} />
+              <CardTitle>AI Re-engagement</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-text-muted mb-4">
+              Send personalized AI-generated push notifications to inactive users to bring them back to the app.
+            </p>
+            <Button
+              onClick={async () => {
+                setReengagementSending(true);
+                setReengagementResult("");
+                try {
+                  await api.post("/admin/ai/reengagement");
+                  setReengagementResult("Re-engagement batch started successfully");
+                } catch (err) {
+                  setReengagementResult("Failed to start re-engagement batch");
+                  console.error("Re-engagement failed:", err);
+                } finally {
+                  setReengagementSending(false);
+                }
+              }}
+              disabled={reengagementSending}
+            >
+              {reengagementSending ? <Loader2 size={16} className="mr-2 animate-spin" /> : <Send size={16} className="mr-2" />}
+              Trigger Re-engagement Batch
+            </Button>
+            {reengagementResult && (
+              <p className="mt-3 text-sm text-primary">{reengagementResult}</p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="text-primary" size={20} />
+              <CardTitle>Anomaly Detection</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-text-muted mb-4">
+              Detect suspicious user behavior: comment spam, rating bombing, mass tracking, and other anomalies.
+            </p>
+            <Button
+              onClick={async () => {
+                setAnomaliesLoading(true);
+                try {
+                  const { data } = await api.get("/admin/ai/anomalies");
+                  setAnomalies(data.alerts || []);
+                  setAnomaliesOpen(true);
+                } catch (err) {
+                  console.error("Anomaly detection failed:", err);
+                } finally {
+                  setAnomaliesLoading(false);
+                }
+              }}
+              disabled={anomaliesLoading}
+            >
+              {anomaliesLoading ? <Loader2 size={16} className="mr-2 animate-spin" /> : <AlertTriangle size={16} className="mr-2" />}
+              Detect Anomalies
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+
+      {anomaliesOpen && (
+        <Dialog open onClose={() => setAnomaliesOpen(false)}>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="text-primary" size={20} />
+              <h2 className="text-lg font-bold">Detected Anomalies ({anomalies.length})</h2>
+            </div>
+            <Button variant="ghost" size="icon" onClick={() => setAnomaliesOpen(false)}>
+              <X size={18} />
+            </Button>
+          </div>
+          {anomalies.length === 0 ? (
+            <p className="text-text-muted py-4">No anomalies detected. All clear!</p>
+          ) : (
+            <div className="space-y-3 max-h-[60vh] overflow-auto">
+              {anomalies.map((alert, index) => (
+                <div key={index} className="rounded-lg border border-border p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-medium text-text">{alert.username || alert.userId}</span>
+                    <Badge className={
+                      alert.severity === "high" ? "bg-red-500/20 text-red-400" :
+                      alert.severity === "medium" ? "bg-yellow-500/20 text-yellow-400" :
+                      "bg-blue-500/20 text-blue-400"
+                    }>
+                      {alert.severity}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-text-muted">
+                    <span className="font-medium text-text">{alert.type}</span> — {alert.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </Dialog>
+      )}
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { View, Text, FlatList, RefreshControl, ScrollView, TouchableOpacity, Platform } from "react-native";
+import { useWindowDimensions } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { MainHeader } from "../components/MainHeader";
@@ -21,6 +22,9 @@ export function NewsScreen() {
   const locale = useLocaleStore((state) => state.locale);
   const { data: sources } = useNewsSources();
   const [manualSource, setManualSource] = useState<string | null>(null);
+  const { width } = useWindowDimensions();
+  const isWeb = Platform.OS === "web";
+  const isDesktopWeb = isWeb && width >= 768;
 
   const defaultSourceId = useMemo(() => {
     if (!sources || sources.length === 0) return null;
@@ -91,7 +95,7 @@ export function NewsScreen() {
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]}>
       <MainHeader />
 
-      {sources && sources.length > 0 && (
+      {sources && sources.length > 0 && Platform.OS !== "web" && (
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -103,9 +107,15 @@ export function NewsScreen() {
       )}
 
       {isLoading && (
-        <View>
+        <View style={isDesktopWeb ? { flexDirection: "row", flexWrap: "wrap", gap: 16 } : undefined}>
           {[...Array(4)].map((_, index) => (
-            <Skeleton key={index} width="100%" height={200} className="mb-4" borderRadius={8} />
+            <Skeleton
+              key={index}
+              width={isDesktopWeb ? "48%" : "100%"}
+              height={200}
+              className="mb-4"
+              borderRadius={8}
+            />
           ))}
         </View>
       )}
@@ -116,11 +126,14 @@ export function NewsScreen() {
 
       {!isLoading && !isError && (
         <FlatList
+          key={isDesktopWeb ? "grid" : "list"}
           data={data ?? []}
           keyExtractor={(item, index) => `${item.title}-${index}`}
-          renderItem={({ item }) => <NewsCard article={item} />}
+          numColumns={isDesktopWeb ? 2 : 1}
+          columnWrapperStyle={isDesktopWeb ? { gap: 16 } : undefined}
+          renderItem={({ item }) => <NewsCard article={item} compact={isDesktopWeb} />}
           refreshControl={<RefreshControl refreshing={isLoading} onRefresh={() => throttledRefresh(refetch)} tintColor={colors.primary} />}
-          contentContainerStyle={{ paddingBottom: 24 }}
+          contentContainerStyle={{ paddingBottom: 24, gap: isDesktopWeb ? 16 : 0 }}
           ListEmptyComponent={
             <EmptyState
               icon="newspaper-outline"

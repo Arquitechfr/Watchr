@@ -1,4 +1,4 @@
-import { View, Text, Switch, ActivityIndicator, Pressable, Platform } from "react-native";
+import { View, Text, Switch, ActivityIndicator, Pressable } from "react-native";
 import { ScreenContainer } from "../../components/ScreenContainer";
 import { useI18n } from "../../i18n/useI18n";
 import { useThemeColors } from "../../theme/useThemeColors";
@@ -72,7 +72,6 @@ export function ProfileNotificationsScreen() {
 
   return (
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]}>
-      <View style={Platform.OS === "web" ? { maxWidth: 600, alignSelf: "center", width: "100%" } : undefined}>
       <Text className="text-text-muted text-center mb-6">{t("screens.profile.notifications")}</Text>
       <View className="gap-3">
         <View
@@ -120,7 +119,6 @@ export function ProfileNotificationsScreen() {
             />
           </View>
         ))}
-      </View>
       </View>
     </ScreenContainer>
   );

@@ -10,9 +10,10 @@ type NewsCardNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 interface NewsCardProps {
   article: NewsArticle;
+  compact?: boolean;
 }
 
-export function NewsCard({ article }: NewsCardProps) {
+export function NewsCard({ article, compact = false }: NewsCardProps) {
   const { dateFnsLocale } = useI18n();
   const navigation = useNavigation<NewsCardNavigationProp>();
 
@@ -26,21 +27,22 @@ export function NewsCard({ article }: NewsCardProps) {
   return (
     <TouchableOpacity
       className="bg-surface rounded-lg overflow-hidden mb-4 active:opacity-70"
+      style={compact ? { flex: 1 } : undefined}
       onPress={handlePress}
     >
       {article.image ? (
         <Image
           source={{ uri: article.image }}
-          className="w-full h-40 bg-surface-light"
+          className={compact ? "w-full h-32 bg-surface-light" : "w-full h-40 bg-surface-light"}
           resizeMode="cover"
         />
       ) : null}
-      <View className="p-4">
+      <View className={compact ? "p-3" : "p-4"}>
         <Text className="text-text font-semibold text-base mb-2" numberOfLines={2}>
           {article.title}
         </Text>
         {article.description ? (
-          <Text className="text-text-muted text-sm mb-3" numberOfLines={3}>
+          <Text className="text-text-muted text-sm mb-3" numberOfLines={compact ? 2 : 3}>
             {article.description.replace(/<[^>]+>/g, "")}
           </Text>
         ) : null}

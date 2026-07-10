@@ -1,5 +1,5 @@
-import { createContext, useContext, useMemo, type ReactNode } from "react";
-import { useColorScheme } from "react-native";
+import { createContext, useContext, useMemo, useEffect, type ReactNode } from "react";
+import { useColorScheme, Platform } from "react-native";
 import { View } from "react-native";
 import { useThemeStore, type ThemePreference } from "../store/themeStore";
 import { getColors, type ColorPalette, type ThemeMode } from "./colors";
@@ -26,6 +26,13 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, [preference, systemScheme]);
 
   const colors = useMemo(() => getColors(mode), [mode]);
+
+  useEffect(() => {
+    if (Platform.OS !== "web") return;
+    const root = document.documentElement;
+    root.classList.remove("light", "dark");
+    root.classList.add(mode);
+  }, [mode]);
 
   const value = useMemo<ThemeContextValue>(
     () => ({ mode, preference, colors, setPreference }),

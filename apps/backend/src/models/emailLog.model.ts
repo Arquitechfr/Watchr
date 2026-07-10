@@ -2,6 +2,7 @@ import { Schema, model, Document } from "mongoose";
 
 export type EmailTemplate = "welcome" | "reset_password" | "ban_notification" | "comment_deleted" | "comment_hidden" | "comment_spoiler" | "custom";
 export type EmailStatus = "sent" | "failed" | "skipped";
+export type EmailErrorType = "brevo_api_error" | "connection_timeout" | "auth_failed" | "smtp_error" | "unknown";
 
 export interface IEmailLog extends Document {
   to: string;
@@ -9,6 +10,7 @@ export interface IEmailLog extends Document {
   template: EmailTemplate;
   status: EmailStatus;
   errorMessage?: string;
+  errorType?: EmailErrorType;
   htmlContent: string;
   locale?: string;
   triggeredBy?: string;
@@ -32,6 +34,11 @@ const emailLogSchema = new Schema<IEmailLog>(
       index: true,
     },
     errorMessage: { type: String, required: false },
+    errorType: {
+      type: String,
+      enum: ["brevo_api_error", "connection_timeout", "auth_failed", "smtp_error", "unknown"],
+      required: false,
+    },
     htmlContent: { type: String, required: true },
     locale: { type: String, required: false },
     triggeredBy: { type: String, required: false },

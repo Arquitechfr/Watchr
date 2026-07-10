@@ -85,7 +85,7 @@ export function ProfileScreen() {
 
   return (
     <ScreenContainer className="px-4 pt-6" edges={["top", "left", "right"]}>
-      <View style={Platform.OS === "web" ? { maxWidth: 800, alignSelf: "center", width: "100%" } : undefined}>
+      <View style={Platform.OS === "web" ? { maxWidth: 800, alignSelf: "center", width: "100%", flex: 1 } : undefined}>
       <MainHeader rightElement={<ProfileMenuButton />} />
       <ScrollView showsVerticalScrollIndicator={false} contentContainerClassName="pb-24">
         <View className="items-center mb-6">

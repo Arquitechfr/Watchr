@@ -35,6 +35,7 @@ const envSchema = z.object({
   SMTP_PASS: z.string().optional(),
   SMTP_SENDER_EMAIL: z.string().optional(),
   SMTP_SENDER_NAME: z.string().default("Watchr"),
+  BREVO_API_KEY: z.string().optional(),
   EXPO_ACCESS_TOKEN: z.string().optional(),
   TRAKT_CLIENT_ID: z.string().optional(),
   TRAKT_CLIENT_SECRET: z.string().optional(),

@@ -20,6 +20,7 @@ interface EmailLogEntry {
   template: string;
   status: "sent" | "failed" | "skipped";
   errorMessage: string | null;
+  errorType: string | null;
   htmlContent: string;
   locale: string | null;
   triggeredBy: string | null;
@@ -48,6 +49,14 @@ const STATUS_COLORS: Record<string, string> = {
   skipped: "bg-yellow-500/20 text-yellow-400",
 };
 
+const ERROR_TYPE_COLORS: Record<string, string> = {
+  brevo_api_error: "bg-orange-500/20 text-orange-400",
+  connection_timeout: "bg-red-500/20 text-red-400",
+  auth_failed: "bg-purple-500/20 text-purple-400",
+  smtp_error: "bg-blue-500/20 text-blue-400",
+  unknown: "bg-gray-500/20 text-gray-400",
+};
+
 const TEMPLATE_LABELS: Record<string, string> = {
   welcome: "Welcome",
   reset_password: "Reset Password",
@@ -66,6 +75,7 @@ export function EmailLogs() {
   const [filters, setFilters] = useState({
     status: "" as string,
     template: "" as string,
+    errorType: "" as string,
     search: "" as string,
   });
   const [detail, setDetail] = useState<EmailLogEntry | null>(null);
@@ -129,6 +139,7 @@ export function EmailLogs() {
       const params: Record<string, unknown> = { page, limit: 20 };
       if (filters.status) params.status = filters.status;
       if (filters.template) params.template = filters.template;
+      if (filters.errorType) params.errorType = filters.errorType;
       if (filters.search) params.search = filters.search;
 
       const [historyRes, statsRes] = await Promise.all([
@@ -211,7 +222,7 @@ export function EmailLogs() {
   }
 
   function resetFilters() {
-    setFilters({ status: "", template: "", search: "" });
+    setFilters({ status: "", template: "", errorType: "", search: "" });
     setPage(1);
   }
 
@@ -453,6 +464,21 @@ export function EmailLogs() {
                 <option value="custom">Custom</option>
               </select>
             </div>
+            <div>
+              <label className="mb-1.5 block text-sm text-text-muted">Error Type</label>
+              <select
+                value={filters.errorType}
+                onChange={(e) => setFilters({ ...filters, errorType: e.target.value })}
+                className="rounded-md border border-border bg-background px-3 py-2 text-sm text-text"
+              >
+                <option value="">All</option>
+                <option value="brevo_api_error">Brevo API Error</option>
+                <option value="connection_timeout">Connection Timeout</option>
+                <option value="auth_failed">Auth Failed</option>
+                <option value="smtp_error">SMTP Error</option>
+                <option value="unknown">Unknown</option>
+              </select>
+            </div>
             <Button onClick={applyFilters} size="sm">Apply</Button>
             <Button onClick={resetFilters} variant="ghost" size="sm">Reset</Button>
           </div>
@@ -505,9 +531,16 @@ export function EmailLogs() {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge className={STATUS_COLORS[log.status] ?? "bg-gray-500/20 text-gray-400"}>
-                          {log.status}
-                        </Badge>
+                        <div className="flex flex-col gap-1">
+                          <Badge className={STATUS_COLORS[log.status] ?? "bg-gray-500/20 text-gray-400"}>
+                            {log.status}
+                          </Badge>
+                          {log.status === "failed" && log.errorType && (
+                            <Badge className={ERROR_TYPE_COLORS[log.errorType] ?? "bg-gray-500/20 text-gray-400"}>
+                              {log.errorType}
+                            </Badge>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell className="text-text-muted text-xs hidden md:table-cell">{formatDate(log.createdAt)}</TableCell>
                       <TableCell>
@@ -556,9 +589,16 @@ export function EmailLogs() {
               </div>
               <div>
                 <p className="text-text-muted mb-1">Status</p>
-                <Badge className={STATUS_COLORS[detail.status] ?? "bg-gray-500/20 text-gray-400"}>
-                  {detail.status}
-                </Badge>
+                <div className="flex flex-col gap-1">
+                  <Badge className={STATUS_COLORS[detail.status] ?? "bg-gray-500/20 text-gray-400"}>
+                    {detail.status}
+                  </Badge>
+                  {detail.status === "failed" && detail.errorType && (
+                    <Badge className={ERROR_TYPE_COLORS[detail.errorType] ?? "bg-gray-500/20 text-gray-400"}>
+                      {detail.errorType}
+                    </Badge>
+                  )}
+                </div>
               </div>
               <div>
                 <p className="text-text-muted mb-1">Subject</p>

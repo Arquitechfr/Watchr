@@ -19,9 +19,6 @@ package-lock.json
 yarn.lock
 
 # --- Environment & secrets ---
-.env
-.env.local
-.env.*.local
 *.pem
 *.keystore
 *.jks

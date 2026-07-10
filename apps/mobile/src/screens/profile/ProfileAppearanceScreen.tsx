@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, ActivityIndicator, Platform } from "react-native";
+import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
 import { useQueryClient } from "@tanstack/react-query";
 import { ScreenContainer } from "../../components/ScreenContainer";
 import { useI18n } from "../../i18n/useI18n";
@@ -41,7 +41,6 @@ export function ProfileAppearanceScreen() {
 
   return (
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]}>
-      <View style={Platform.OS === "web" ? { maxWidth: 600, alignSelf: "center", width: "100%" } : undefined}>
       <Text className="text-text-muted text-center mb-6">{t("screens.profile.appearance")}</Text>
       <View className="gap-3">
         {OPTIONS.map((opt) => (
@@ -65,7 +64,6 @@ export function ProfileAppearanceScreen() {
             ) : null}
           </TouchableOpacity>
         ))}
-      </View>
       </View>
     </ScreenContainer>
   );

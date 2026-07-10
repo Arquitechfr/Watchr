@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, Platform } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -38,7 +38,6 @@ export function ProfileDataScreen() {
 
   return (
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]}>
-      <View style={Platform.OS === "web" ? { maxWidth: 600, alignSelf: "center", width: "100%" } : undefined}>
       <View className="flex-row items-center mb-6">
         <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.7} className="p-1 mr-3">
           <Ionicons name="arrow-back" size={24} color={colors.text} />
@@ -56,7 +55,6 @@ export function ProfileDataScreen() {
         label={t("screens.profile.exportData")}
         onPress={() => navigation.navigate("Export")}
       />
-      </View>
     </ScreenContainer>
   );
 }

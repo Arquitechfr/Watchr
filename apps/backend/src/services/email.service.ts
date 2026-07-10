@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import axios from "axios";
 import { env } from "../config/env.js";
 import { SupportedLocale } from "../i18n/translations.js";
 import { welcomeTemplate, resetPasswordTemplate, banNotificationTemplate, commentDeletedTemplate, commentHiddenTemplate, commentSpoilerTemplate, baseHtml } from "./emailTemplates.js";
@@ -14,6 +15,12 @@ interface SendEmailParams {
   triggeredBy?: string;
 }
 
+type EmailErrorType = "brevo_api_error" | "connection_timeout" | "auth_failed" | "smtp_error" | "unknown";
+
+const BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
+const MAX_RETRIES = 3;
+const RETRY_DELAYS_MS = [1_000, 2_000, 4_000];
+
 let transporter: nodemailer.Transporter | null = null;
 
 function getTransporter(): nodemailer.Transporter | null {
@@ -26,10 +33,13 @@ function getTransporter(): nodemailer.Transporter | null {
       host: env.SMTP_HOST,
       port: env.SMTP_PORT,
       secure: env.SMTP_PORT === 465,
+      requireTLS: env.SMTP_PORT === 587,
       pool: true,
-      connectionTimeout: 10_000,
-      greetingTimeout: 10_000,
-      socketTimeout: 15_000,
+      connectionTimeout: 15_000,
+      greetingTimeout: 15_000,
+      socketTimeout: 20_000,
+      maxConnections: 5,
+      maxMessages: 100,
       auth: {
         user: env.SMTP_USER,
         pass: env.SMTP_PASS,
@@ -38,6 +48,106 @@ function getTransporter(): nodemailer.Transporter | null {
   }
 
   return transporter;
+}
+
+function classifyError(err: unknown): EmailErrorType {
+  if (axios.isAxiosError(err)) {
+    if (err.code === "ECONNABORTED" || err.code === "ETIMEDOUT") return "connection_timeout";
+    if (err.response?.status === 401 || err.response?.status === 403) return "auth_failed";
+    if (err.code === "ECONNRESET" || err.code === "ECONNREFUSED" || err.code === "ENOTFOUND") return "connection_timeout";
+    return "brevo_api_error";
+  }
+  if (err instanceof Error) {
+    const code = (err as NodeJS.ErrnoException).code;
+    if (code === "ECONNABORTED" || code === "ETIMEDOUT" || code === "ECONNRESET" || code === "ECONNREFUSED" || code === "ENOTFOUND") return "connection_timeout";
+    if (err.message.includes("EAUTH") || err.message.includes("Invalid login")) return "auth_failed";
+    if (err.message.includes("timeout") || err.message.includes("Connection timeout")) return "connection_timeout";
+    return "smtp_error";
+  }
+  return "unknown";
+}
+
+function isRetryableError(err: unknown): boolean {
+  const type = classifyError(err);
+  if (type === "connection_timeout") return true;
+  if (type === "brevo_api_error" && axios.isAxiosError(err)) {
+    const status = err.response?.status;
+    return status !== undefined && status >= 500;
+  }
+  return false;
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function sendViaBrevoApi(params: SendEmailParams): Promise<void> {
+  const senderEmail = env.SMTP_SENDER_EMAIL ?? "noreply@watchr.app";
+  const response = await axios.post(
+    BREVO_API_URL,
+    {
+      sender: { name: env.SMTP_SENDER_NAME, email: senderEmail },
+      to: [{ email: params.to }],
+      subject: params.subject,
+      htmlContent: params.html,
+    },
+    {
+      headers: {
+        "api-key": env.BREVO_API_KEY!,
+        "content-type": "application/json",
+        accept: "application/json",
+      },
+      timeout: 15_000,
+    },
+  );
+  if (response.status < 200 || response.status >= 300) {
+    throw new Error(`Brevo API returned status ${response.status}: ${JSON.stringify(response.data)}`);
+  }
+}
+
+async function sendViaSmtp(params: SendEmailParams): Promise<void> {
+  const client = getTransporter();
+  if (!client) {
+    throw new Error("SMTP not configured");
+  }
+  await client.sendMail({
+    from: `${env.SMTP_SENDER_NAME} <${env.SMTP_SENDER_EMAIL ?? "noreply@watchr.app"}>`,
+    to: params.to,
+    subject: params.subject,
+    html: params.html,
+  });
+}
+
+async function sendWithRetry(params: SendEmailParams): Promise<void> {
+  const useBrevoApi = !!env.BREVO_API_KEY;
+  let lastError: unknown = null;
+
+  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+    try {
+      if (useBrevoApi) {
+        await sendViaBrevoApi(params);
+      } else {
+        await sendViaSmtp(params);
+      }
+      return;
+    } catch (err) {
+      lastError = err;
+      if (attempt < MAX_RETRIES - 1 && isRetryableError(err)) {
+        log("EmailService", "retrying send", {
+          to: params.to,
+          subject: params.subject,
+          attempt: attempt + 1,
+          errorType: classifyError(err),
+          nextDelayMs: RETRY_DELAYS_MS[attempt],
+        });
+        await sleep(RETRY_DELAYS_MS[attempt]);
+        continue;
+      }
+      break;
+    }
+  }
+
+  throw lastError;
 }
 
 const emailMetrics = {
@@ -50,18 +160,20 @@ export function getEmailMetrics() {
   return { ...emailMetrics };
 }
 
-async function sendEmail(params: SendEmailParams): Promise<boolean> {
-  const client = getTransporter();
+function isEmailConfigured(): boolean {
+  return !!env.BREVO_API_KEY || (!!env.SMTP_USER && !!env.SMTP_PASS);
+}
 
-  if (!client) {
+async function sendEmail(params: SendEmailParams): Promise<boolean> {
+  if (!isEmailConfigured()) {
     emailMetrics.skipped++;
-    log("EmailService", "SMTP not configured, skipping send", { to: params.to });
+    log("EmailService", "email not configured, skipping send", { to: params.to });
     await EmailLog.create({
       to: params.to,
       subject: params.subject,
       template: params.template,
       status: "skipped" as EmailStatus,
-      errorMessage: "SMTP not configured",
+      errorMessage: "Email not configured (no BREVO_API_KEY or SMTP credentials)",
       htmlContent: params.html,
       locale: params.locale,
       triggeredBy: params.triggeredBy,
@@ -70,14 +182,9 @@ async function sendEmail(params: SendEmailParams): Promise<boolean> {
   }
 
   try {
-    await client.sendMail({
-      from: `${env.SMTP_SENDER_NAME} <${env.SMTP_SENDER_EMAIL ?? "noreply@watchr.app"}>`,
-      to: params.to,
-      subject: params.subject,
-      html: params.html,
-    });
+    await sendWithRetry(params);
     emailMetrics.sent++;
-    log("EmailService", "email sent", { to: params.to, subject: params.subject });
+    log("EmailService", "email sent", { to: params.to, subject: params.subject, provider: env.BREVO_API_KEY ? "brevo_api" : "smtp" });
     await EmailLog.create({
       to: params.to,
       subject: params.subject,
@@ -89,14 +196,16 @@ async function sendEmail(params: SendEmailParams): Promise<boolean> {
     }).catch((err) => logError("EmailService", "failed to log email", err));
     return true;
   } catch (err) {
+    const errorType = classifyError(err);
     emailMetrics.failed++;
-    logError("EmailService", "failed to send email", err, { to: params.to, subject: params.subject });
+    logError("EmailService", "failed to send email", err, { to: params.to, subject: params.subject, errorType, provider: env.BREVO_API_KEY ? "brevo_api" : "smtp" });
     await EmailLog.create({
       to: params.to,
       subject: params.subject,
       template: params.template,
       status: "failed" as EmailStatus,
       errorMessage: err instanceof Error ? err.message : String(err),
+      errorType,
       htmlContent: params.html,
       locale: params.locale,
       triggeredBy: params.triggeredBy,

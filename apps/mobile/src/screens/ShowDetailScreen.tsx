@@ -61,11 +61,11 @@ export function ShowDetailScreen() {
   const colors = useThemeColors();
   const isValidTmdbId = Number.isFinite(tmdbId) && tmdbId > 0;
   const { data: similarData, isLoading: similarLoading } = useSimilarShows(isValidTmdbId ? tmdbId : undefined);
-  const { data: enrichedTagsData } = useEnrichedTags(isValidTmdbId ? tmdbId : 0, show?.type);
   const { width } = useWindowDimensions();
   const isDesktopWeb = Platform.OS === "web" && width >= 768;
 
   const { data: show, isLoading, isRefetching, isError, refetch } = useShowDetails(tmdbId);
+  const { data: enrichedTagsData } = useEnrichedTags(isValidTmdbId ? tmdbId : 0, show?.type);
   const { data: trackingEntry, refetch: refetchTrackingEntry } = useTrackingEntry(show?.id ?? "");
   const { data: ratings, refetch: refetchRatings } = useRatingsForShow(show?.id ?? "");
   const throttledRefresh = useRefreshRateLimit();
@@ -485,8 +485,8 @@ export function ShowDetailScreen() {
           {enrichedTagsData && enrichedTagsData.source === "ai" && enrichedTagsData.tags.length > (show.genres?.length ?? 0) && (
             <View className="flex-row flex-wrap mb-4">
               {enrichedTagsData.tags
-                .filter((tag) => !(show.genres ?? []).some((g: Genre) => g.name === tag))
-                .map((tag) => (
+                .filter((tag: string) => !(show.genres ?? []).some((g: Genre) => g.name === tag))
+                .map((tag: string) => (
                   <View key={`ai-tag-${tag}`} className="bg-primary/15 rounded-full px-3 py-1 mr-2 mb-2" style={{ flexDirection: "row", alignItems: "center" }}>
                     <View className="bg-primary/20 rounded px-1 py-0 mr-1">
                       <Text className="text-primary text-[9px] font-bold">AI</Text>

@@ -273,7 +273,7 @@ export function ProfileScreen() {
                   <View className="mb-6">
                     <Text className="text-text font-semibold text-base mb-3">{t("screens.profile.yearInReviewHighlights")}</Text>
                     <View className="gap-2">
-                      {yearInReview.highlights.map((highlight, index) => (
+                      {yearInReview.highlights.map((highlight: string, index: number) => (
                         <View key={`highlight-${index}`} className="flex-row items-start bg-surface rounded-lg p-3">
                           <Ionicons name="star" size={16} color={colors.primary} style={{ marginTop: 2, marginRight: 8 }} />
                           <Text className="text-text text-sm flex-1">{highlight}</Text>
@@ -302,7 +302,7 @@ export function ProfileScreen() {
                   <View className="mb-6">
                     <Text className="text-text font-semibold text-base mb-3">{t("screens.profile.yearInReviewTopShows")}</Text>
                     <View className="gap-2">
-                      {yearInReview.data.topShows.map((show, index) => (
+                      {yearInReview.data.topShows.map((show: { title: string; episodesWatched: number }, index: number) => (
                         <View key={`top-show-${index}`} className="flex-row items-center bg-surface rounded-lg p-3">
                           <View className="bg-primary/20 rounded-full w-8 h-8 items-center justify-center mr-3">
                             <Text className="text-primary font-bold text-sm">{index + 1}</Text>

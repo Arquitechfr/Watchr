@@ -1,7 +1,7 @@
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useI18n } from "../../i18n/useI18n";
-import { useThemeColors } from "../../theme/useThemeColors";
+import { useI18n } from "../i18n/useI18n";
+import { useThemeColors } from "../theme/useThemeColors";
 
 const MOODS = [
   { key: "happy", icon: "happy-outline" as const },

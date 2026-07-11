@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, ChevronLeft, ChevronRight, Shield, ShieldOff, Ban, Trash2, Users as UsersIcon } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, Shield, ShieldOff, Ban, Trash2, Users as UsersIcon, CheckCheck, Loader2 } from "lucide-react";
 import api from "../lib/api";
+import { useNewUsersStore } from "../store/newUsersStore";
 import { Card, CardContent } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
@@ -26,6 +27,7 @@ interface UserRow {
   suspendedUntil: string | null;
   banReason: string | null;
   preferredLanguage?: string;
+  isNew: boolean;
 }
 
 interface UsersResponse {
@@ -78,12 +80,15 @@ interface BanDialogState {
 
 export function Users() {
   const navigate = useNavigate();
+  const { markSeen } = useNewUsersStore();
   const [data, setData] = useState<UsersResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
   const [page, setPage] = useState(1);
   const limit = 20;
+  const [markingSeen, setMarkingSeen] = useState(false);
+  const [hasNewUsers, setHasNewUsers] = useState(false);
 
   const [banDialog, setBanDialog] = useState<BanDialogState | null>(null);
   const [dialogAction, setDialogAction] = useState<"ban" | "unban" | "suspend" | "unsuspend">("ban");
@@ -103,6 +108,7 @@ export function Users() {
       if (roleFilter) params.role = roleFilter;
       const { data } = await api.get("/admin/users", { params });
       setData(data);
+      setHasNewUsers(data.users.some((u: UserRow) => u.isNew));
     } catch (err) {
       console.error("Failed to load users:", err);
     } finally {
@@ -181,9 +187,36 @@ export function Users() {
     ? `${LANGUAGE_FLAGS[banDialog.preferredLanguage] ?? banDialog.preferredLanguage} — ${LANGUAGE_NAMES[banDialog.preferredLanguage] ?? banDialog.preferredLanguage}`
     : "Unknown";
 
+  async function handleMarkAllSeen() {
+    setMarkingSeen(true);
+    setHasNewUsers(false);
+    setData((prev) => prev ? { ...prev, users: prev.users.map((u) => ({ ...u, isNew: false })) } : prev);
+    try {
+      await markSeen();
+    } catch (err) {
+      console.error("Failed to mark users as seen:", err);
+      load();
+    } finally {
+      setMarkingSeen(false);
+    }
+  }
+
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Users</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold">Users</h1>
+        {hasNewUsers && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleMarkAllSeen}
+            disabled={markingSeen}
+          >
+            {markingSeen ? <Loader2 size={16} className="mr-2 animate-spin" /> : <CheckCheck size={16} className="mr-2" />}
+            Mark all as seen
+          </Button>
+        )}
+      </div>
 
       <div className="flex flex-col sm:flex-row gap-4 mb-4">
         <div className="relative flex-1">
@@ -255,12 +288,17 @@ export function Users() {
                       onClick={() => navigate(`/users/${user.id}`)}
                     >
                       <TableCell className="font-medium">
-                        {user.username}
-                        {user.preferredLanguage && (
-                          <span className="ml-2 text-xs text-text-muted">
-                            {LANGUAGE_FLAGS[user.preferredLanguage] ?? user.preferredLanguage}
-                          </span>
-                        )}
+                        <div className="flex items-center gap-2">
+                          {user.username}
+                          {user.isNew && (
+                            <Badge className="bg-primary/20 text-primary text-[10px] px-1.5 py-0.5">NEW</Badge>
+                          )}
+                          {user.preferredLanguage && (
+                            <span className="text-xs text-text-muted">
+                              {LANGUAGE_FLAGS[user.preferredLanguage] ?? user.preferredLanguage}
+                            </span>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell className="text-text-muted hidden md:table-cell">{user.email}</TableCell>
                       <TableCell className="hidden md:table-cell">

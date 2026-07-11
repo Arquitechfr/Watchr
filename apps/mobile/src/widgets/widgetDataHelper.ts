@@ -30,7 +30,7 @@ function getApiBaseUrl(): string {
 
 function getPosterUrl(path?: string): string | undefined {
   if (!path) return undefined;
-  return `${remoteConfigService.getConfig().backend_url}/images/poster/w200${path}`;
+  return `${getApiBaseUrl()}/images/poster/w200${path}`;
 }
 
 export async function getWidgetActiveTab(): Promise<WidgetTab> {

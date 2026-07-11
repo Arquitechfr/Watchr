@@ -125,7 +125,7 @@ api.interceptors.response.use(
         log("API", "refresh token failed", refreshError);
         onTokenRefreshFailed();
         await useAuthStore.getState().logout();
-        return Promise.reject(refreshError);
+        return Promise.reject(error);
       } finally {
         isRefreshing = false;
       }

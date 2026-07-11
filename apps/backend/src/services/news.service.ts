@@ -1,5 +1,6 @@
 import axios from "axios";
 import { XMLParser } from "fast-xml-parser";
+import { decode } from "html-entities";
 import { ApiError } from "../middleware/error.middleware.js";
 import { log, logError } from "../lib/logger.js";
 import { NewsSource } from "../models/newsSource.model.js";
@@ -196,7 +197,7 @@ async function fetchWithRetry(url: string, maxRetries = 2): Promise<{ data: stri
 
 function cleanText(value: unknown): string | undefined {
   if (typeof value !== "string") return undefined;
-  return value.trim() || undefined;
+  return decode(value).trim() || undefined;
 }
 
 function extractImageUrl(

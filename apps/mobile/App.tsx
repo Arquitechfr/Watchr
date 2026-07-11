@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { View, ActivityIndicator } from "react-native";
+import { View } from "react-native";
 import { RootNavigator } from "./src/navigation/RootNavigator";
 import { Snackbar } from "./src/components/Snackbar";
 import { CustomAlert } from "./src/components/CustomAlert";
@@ -47,17 +47,8 @@ const queryClient = new QueryClient({
 });
 
 function LocaleInvalidationGate({ children }: { children: ReactNode }) {
-  const { isRefetching } = useLocaleInvalidation();
-  return (
-    <>
-      {children}
-      {isRefetching && (
-        <View style={{ position: "absolute", top: 50, left: 0, right: 0, alignItems: "center", zIndex: 999 }}>
-          <ActivityIndicator size="small" />
-        </View>
-      )}
-    </>
-  );
+  useLocaleInvalidation();
+  return <>{children}</>;
 }
 
 const AppInner = () => {

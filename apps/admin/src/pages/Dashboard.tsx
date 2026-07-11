@@ -23,6 +23,7 @@ interface Stats {
   totalUsers: number;
   newUsers7d: number;
   newUsers30d: number;
+  newUsersSinceLastVisit: number;
   totalComments: number;
   totalShows: number;
   totalImports: number;
@@ -70,6 +71,7 @@ export function Dashboard() {
   const kpiCards = [
     { label: "Total Users", value: stats?.totalUsers, icon: Users },
     { label: "New Users (7d)", value: stats?.newUsers7d, icon: Users },
+    { label: "New since last visit", value: stats?.newUsersSinceLastVisit, icon: Sparkles },
     { label: "Total Comments", value: stats?.totalComments, icon: MessageSquare },
     { label: "Total Shows", value: stats?.totalShows, icon: Tv },
     { label: "Total Imports", value: stats?.totalImports, icon: Download },
@@ -81,7 +83,7 @@ export function Dashboard() {
     <div>
       <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 mb-8">
         {kpiCards.map((kpi) => (
           <Card key={kpi.label}>
             <div className="flex items-center gap-3">

@@ -4,11 +4,13 @@ import { Show } from "../../models/show.model.js";
 import { ImportJob } from "../../models/importJob.model.js";
 import { Favorite } from "../../models/favorite.model.js";
 import { Rating } from "../../models/rating.model.js";
+import { countNewUsersSinceLastVisit } from "./adminUser.service.js";
 
 export interface AdminStats {
   totalUsers: number;
   newUsers7d: number;
   newUsers30d: number;
+  newUsersSinceLastVisit: number;
   totalComments: number;
   totalShows: number;
   totalImports: number;
@@ -23,7 +25,7 @@ export interface GrowthDataPoint {
   count: number;
 }
 
-export async function getAdminStats(): Promise<AdminStats> {
+export async function getAdminStats(adminId?: string): Promise<AdminStats> {
   const now = new Date();
   const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
   const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
@@ -39,6 +41,7 @@ export async function getAdminStats(): Promise<AdminStats> {
     totalRatings,
     activePushTokens,
     totalAdmins,
+    newUsersSinceLastVisit,
   ] = await Promise.all([
     User.countDocuments(),
     User.countDocuments({ createdAt: { $gte: sevenDaysAgo } }),
@@ -50,12 +53,14 @@ export async function getAdminStats(): Promise<AdminStats> {
     Rating.countDocuments(),
     User.countDocuments({ expoPushToken: { $exists: true, $ne: null } }),
     User.countDocuments({ role: "admin" }),
+    adminId ? countNewUsersSinceLastVisit(adminId) : Promise.resolve(0),
   ]);
 
   return {
     totalUsers,
     newUsers7d,
     newUsers30d,
+    newUsersSinceLastVisit,
     totalComments,
     totalShows,
     totalImports,

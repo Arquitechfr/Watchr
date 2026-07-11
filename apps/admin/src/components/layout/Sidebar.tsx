@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -17,6 +18,7 @@ import {
   X,
 } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
+import { useNewUsersStore } from "../../store/newUsersStore";
 import { cn } from "../../lib/utils";
 import icon from "../../assets/icon.png";
 
@@ -42,6 +44,11 @@ interface SidebarProps {
 export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
+  const { count: newUsersCount, fetchCount: fetchNewUsersCount } = useNewUsersStore();
+
+  useEffect(() => {
+    fetchNewUsersCount();
+  }, [fetchNewUsersCount]);
 
   function handleLogout() {
     logout();
@@ -99,6 +106,11 @@ export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
             >
               <item.icon size={18} />
               {item.label}
+              {item.to === "/users" && newUsersCount > 0 && (
+                <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-background">
+                  {newUsersCount > 99 ? "99+" : newUsersCount}
+                </span>
+              )}
             </NavLink>
           ))}
         </nav>

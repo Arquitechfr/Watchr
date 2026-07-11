@@ -24,6 +24,7 @@ import { useUIStore } from "../store/uiStore";
 import { RootStackParamList } from "../navigation/RootNavigator";
 import { UnwatchedShow, UnwatchedEpisode } from "../services/unwatched.service";
 import { UpcomingEpisode } from "../services/upcoming.service";
+import { isNetworkError } from "../services/api";
 import { useThemeColors } from "../theme/useThemeColors";
 import { useI18n } from "../i18n/useI18n";
 import { Seo } from "../components/Seo";
@@ -228,7 +229,7 @@ function UpcomingList({
   }
 
   if (error) {
-    return <NetworkError isOffline={!("response" in error)} onRetry={() => refetch()} />;
+    return <NetworkError isOffline={isNetworkError(error)} onRetry={() => refetch()} />;
   }
 
   if (viewMode === "grid") {
@@ -492,7 +493,7 @@ export function SeriesScreen() {
               ))}
             </View>
           ) : isUnwatchedError ? (
-            <NetworkError isOffline={!unwatchedError || !("response" in unwatchedError)} onRetry={() => refetchUnwatched()} />
+            <NetworkError isOffline={isNetworkError(unwatchedError)} onRetry={() => refetchUnwatched()} />
           ) : (
             <UnwatchedList
               shows={unwatchedData?.shows ?? []}

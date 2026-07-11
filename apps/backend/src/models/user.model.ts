@@ -35,6 +35,7 @@ export interface IUser extends Document {
   bannedAt: Date | null;
   suspendedUntil: Date | null;
   banReason: string | null;
+  lastUsersVisitAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -160,6 +161,10 @@ const userSchema = new Schema<IUser>(
       type: String,
       default: null,
       maxlength: 500,
+    },
+    lastUsersVisitAt: {
+      type: Date,
+      default: null,
     },
   },
   { timestamps: true },

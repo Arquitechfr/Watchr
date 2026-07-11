@@ -17,7 +17,8 @@ import { listAiLogsQuerySchema, aiLogIdParamSchema, aiStatsQuerySchema, aiFlagPa
 import { listReportsQuerySchema, reportIdParamSchema, aiReportIdParamSchema } from "../../validators/report.validator.js";
 import { mistralService } from "../../services/mistral.service.js";
 import { getAdminStats, getUserGrowth, getCommentActivity, getShowTypeBreakdown } from "../../services/admin/adminStats.service.js";
-import { listUsers, getUserDetail, scheduleUserStatusAction, cancelBanAction, getBanHistory, updateUserRole, deleteUser } from "../../services/admin/adminUser.service.js";
+import { listUsers, getUserDetail, scheduleUserStatusAction, cancelBanAction, getBanHistory, updateUserRole, deleteUser, markUsersAsSeen, countNewUsersSinceLastVisit } from "../../services/admin/adminUser.service.js";
+import { User } from "../../models/user.model.js";
 import { listAllComments, adminDeleteComment, adminBulkDeleteComments, adminMarkSpoiler, deleteAllUserComments, deleteAllComments } from "../../services/admin/adminComment.service.js";
 import { listAllNewsSources, createNewsSource, updateNewsSource, deleteNewsSource, toggleNewsSource } from "../../services/admin/adminNews.service.js";
 import { sendBroadcast, sendTargeted, getNotificationHistory, getNotificationDetail, getNotificationStats } from "../../services/admin/adminNotification.service.js";
@@ -40,8 +41,8 @@ router.use(requireAdmin);
 // Stats
 router.get(
   "/stats",
-  asyncHandler(async (_req: Request, res: Response) => {
-    const stats = await getAdminStats();
+  asyncHandler(async (req: Request, res: Response) => {
+    const stats = await getAdminStats(req.userId);
     res.json(stats);
   }),
 );
@@ -72,6 +73,7 @@ router.get(
       page: number;
       limit: number;
     };
+    const admin = await User.findById(req.userId).select("lastUsersVisitAt").lean();
     const result = await listUsers({
       search: query.search,
       role: query.role,
@@ -79,6 +81,7 @@ router.get(
       sortOrder: query.sortOrder as "asc" | "desc" | undefined,
       page: query.page,
       limit: query.limit,
+      lastUsersVisitAt: admin?.lastUsersVisitAt ?? null,
     });
     res.json(result);
   }),
@@ -140,6 +143,23 @@ router.delete(
   asyncHandler(async (req: Request, res: Response) => {
     await deleteUser(req.params.id);
     res.status(204).send();
+  }),
+);
+
+router.post(
+  "/users/mark-seen",
+  asyncHandler(async (req: Request, res: Response) => {
+    await markUsersAsSeen(req.userId!);
+    const newCount = await countNewUsersSinceLastVisit(req.userId!);
+    res.json({ marked: true, newCount });
+  }),
+);
+
+router.get(
+  "/users/new-count",
+  asyncHandler(async (req: Request, res: Response) => {
+    const count = await countNewUsersSinceLastVisit(req.userId!);
+    res.json({ count });
   }),
 );
 

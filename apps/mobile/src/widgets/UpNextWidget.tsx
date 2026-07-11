@@ -1,6 +1,10 @@
 import React from 'react';
+import { format } from 'date-fns';
 import { FlexWidget, TextWidget, ListWidget, ImageWidget } from 'react-native-android-widget';
 import { WidgetTab, WidgetEpisode } from './widgetDataHelper';
+import { getDateFnsLocale } from '../i18n/useI18n';
+import { useLocaleStore } from '../store/localeStore';
+import { SupportedLocale } from '../i18n/translations';
 
 export interface UpNextWidgetProps {
   activeTab: WidgetTab;
@@ -44,6 +48,7 @@ function TabButton({
         backgroundColor: isActive ? COLORS.primary : 'transparent',
         alignItems: 'center',
         justifyContent: 'center',
+        marginHorizontal: 2,
       }}
     >
       <TextWidget
@@ -62,6 +67,17 @@ function EpisodeRow({ episode }: { episode: WidgetEpisode }) {
   const episodeLabel = `S${String(episode.season).padStart(2, '0')}E${String(episode.episode).padStart(2, '0')}`;
   const subtitle = episode.name ? `${episodeLabel} • ${episode.name}` : episodeLabel;
   const deepLink = `watchr://show/${episode.tmdbId}`;
+
+  let formattedDate: string | null = null;
+  if (episode.airDate) {
+    try {
+      const locale = useLocaleStore.getState().locale || 'en';
+      const dateFnsLocale = getDateFnsLocale(locale as SupportedLocale);
+      formattedDate = format(new Date(episode.airDate), 'd MMM yyyy', { locale: dateFnsLocale });
+    } catch {
+      formattedDate = episode.airDate;
+    }
+  }
 
   return (
     <FlexWidget
@@ -110,29 +126,6 @@ function EpisodeRow({ episode }: { episode: WidgetEpisode }) {
           </FlexWidget>
         )}
 
-        <FlexWidget
-          clickAction="MARK_WATCHED"
-          clickActionData={{
-            showId: episode.showId,
-            season: episode.season,
-            episode: episode.episode,
-          }}
-          style={{
-            width: 24,
-            height: 24,
-            borderRadius: 12,
-            backgroundColor: COLORS.surfaceLight,
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginRight: 8,
-          }}
-        >
-          <TextWidget
-            text="✓"
-            style={{ fontSize: 14, color: COLORS.primary, fontWeight: 'bold' }}
-          />
-        </FlexWidget>
-
         <FlexWidget style={{ flex: 1, flexDirection: 'column' }}>
           <TextWidget
             text={episode.title}
@@ -146,13 +139,36 @@ function EpisodeRow({ episode }: { episode: WidgetEpisode }) {
             maxLines={1}
             truncate="END"
           />
-          {episode.airDate ? (
+          {formattedDate ? (
             <TextWidget
-              text={episode.airDate}
+              text={formattedDate}
               style={{ fontSize: 10, color: COLORS.textMuted }}
             />
           ) : null}
         </FlexWidget>
+      </FlexWidget>
+
+      <FlexWidget
+        clickAction="MARK_WATCHED"
+        clickActionData={{
+          showId: episode.showId,
+          season: episode.season,
+          episode: episode.episode,
+        }}
+        style={{
+          width: 28,
+          height: 28,
+          borderRadius: 14,
+          backgroundColor: COLORS.surfaceLight,
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginLeft: 8,
+        }}
+      >
+        <TextWidget
+          text="✓"
+          style={{ fontSize: 14, color: COLORS.primary, fontWeight: 'bold' }}
+        />
       </FlexWidget>
     </FlexWidget>
   );
@@ -206,7 +222,7 @@ export function UpNextWidget({
           flexDirection: 'row',
           backgroundColor: COLORS.surface,
           borderRadius: 8,
-          padding: 2,
+          padding: 4,
           marginBottom: 8,
         }}
       >

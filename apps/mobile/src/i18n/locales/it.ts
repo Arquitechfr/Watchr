@@ -2,6 +2,7 @@ const it = {
   common: {
     appName: "Watchr",
     loading: "Caricamento…",
+    changingLanguage: "Cambio lingua…",
     retry: "Riprova",
     cancel: "Annulla",
     confirm: "Conferma",

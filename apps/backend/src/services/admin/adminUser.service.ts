@@ -38,6 +38,7 @@ export interface ListUsersQuery {
   sortOrder?: "asc" | "desc";
   page: number;
   limit: number;
+  lastUsersVisitAt?: Date | null;
 }
 
 export interface ListUsersResult {
@@ -50,6 +51,7 @@ export interface ListUsersResult {
     lastLoginAt: string | null;
     createdAt: string;
     hasCompletedOnboarding: boolean;
+    isNew: boolean;
   }>;
   total: number;
   page: number;
@@ -57,7 +59,7 @@ export interface ListUsersResult {
 }
 
 export async function listUsers(query: ListUsersQuery): Promise<ListUsersResult> {
-  const { search, role, sortBy = "createdAt", sortOrder = "desc", page, limit } = query;
+  const { search, role, sortBy = "createdAt", sortOrder = "desc", page, limit, lastUsersVisitAt } = query;
 
   const filter: FilterQuery<typeof User> = {};
   if (role) {
@@ -98,6 +100,7 @@ export async function listUsers(query: ListUsersQuery): Promise<ListUsersResult>
       suspendedUntil: u.suspendedUntil?.toISOString() ?? null,
       banReason: u.banReason,
       preferredLanguage: u.preferredLanguage,
+      isNew: lastUsersVisitAt ? u.createdAt > lastUsersVisitAt : false,
     })),
     total,
     page,
@@ -410,4 +413,17 @@ export async function deleteUser(userId: string): Promise<void> {
     Report.deleteMany({ reporterId: userId }),
     User.deleteOne({ _id: userId }),
   ]);
+}
+
+export async function markUsersAsSeen(adminId: string): Promise<void> {
+  await User.findByIdAndUpdate(adminId, { lastUsersVisitAt: new Date() });
+  log("AdminUserService", "marked users as seen", { adminId });
+}
+
+export async function countNewUsersSinceLastVisit(adminId: string): Promise<number> {
+  const admin = await User.findById(adminId).select("lastUsersVisitAt").lean();
+  if (!admin || !admin.lastUsersVisitAt) {
+    return User.countDocuments();
+  }
+  return User.countDocuments({ createdAt: { $gt: admin.lastUsersVisitAt } });
 }

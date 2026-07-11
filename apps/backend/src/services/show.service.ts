@@ -212,7 +212,7 @@ export async function getShowDetails(tmdbId: number, locale = "en"): Promise<Ret
       }
     } catch (primaryErr) {
       logError("ShowService", "details primary fetch failed", primaryErr, { tmdbId, tryTvFirst });
-      if (!show || (!tryTvFirst && knownType !== "tv")) {
+      if (!show || !tryTvFirst) {
         try {
           const fallbackTmdbDetails = tryTvFirst
             ? await tmdbService.getMovieDetails(tmdbId, tmdbLanguage)

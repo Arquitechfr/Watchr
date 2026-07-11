@@ -575,6 +575,10 @@ const en = {
   trafficNotice: {
     message: "Our services are experiencing slowdowns. We are working on resolving the issue. Thank you for your patience.",
   },
+  androidAppBanner: {
+    message: "Get Watchr on your Android device for the best experience.",
+    download: "Download",
+  },
   maintenance: {
     title: "Watchr",
     message: "Watchr is under maintenance. We'll be back soon.",

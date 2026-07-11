@@ -575,6 +575,10 @@ const de = {
   trafficNotice: {
     message: "Unsere Dienste erleben Verlangsamungen. Wir arbeiten an der Lösung des Problems. Vielen Dank für Ihre Geduld.",
   },
+  androidAppBanner: {
+    message: "Lade Watchr auf dein Android-Gerät herunter für das beste Erlebnis.",
+    download: "Herunterladen",
+  },
   maintenance: {
     title: "Watchr",
     message: "Watchr befindet sich in Wartung. Wir sind bald zurück.",

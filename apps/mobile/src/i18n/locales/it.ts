@@ -575,6 +575,10 @@ const it = {
   trafficNotice: {
     message: "I nostri servizi stanno subendo rallentamenti. Stiamo lavorando per risolvere il problema. Grazie per la vostra pazienza.",
   },
+  androidAppBanner: {
+    message: "Scarica Watchr sul tuo dispositivo Android per la migliore esperienza.",
+    download: "Scarica",
+  },
   maintenance: {
     title: "Watchr",
     message: "Watchr è in manutenzione. Torneremo presto.",

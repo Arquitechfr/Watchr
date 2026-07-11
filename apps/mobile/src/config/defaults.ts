@@ -26,7 +26,6 @@ export const DEFAULT_REMOTE_CONFIG = {
   ai_anomaly_detection_enabled: false,
   ai_episode_summary_enabled: false,
   ai_tags_enrichment_enabled: false,
-  android_app_banner_enabled: false,
 } as const;
 
 export type RemoteConfig = typeof DEFAULT_REMOTE_CONFIG;

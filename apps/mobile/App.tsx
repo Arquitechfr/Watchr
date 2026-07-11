@@ -10,7 +10,6 @@ import { Snackbar } from "./src/components/Snackbar";
 import { CustomAlert } from "./src/components/CustomAlert";
 import { SplashScreen } from "./src/components/SplashScreen";
 import { TrafficNoticeBanner } from "./src/components/TrafficNoticeBanner";
-import { AndroidAppBanner } from "./src/components/AndroidAppBanner";
 import { MaintenanceScreen } from "./src/screens/MaintenanceScreen";
 import { useAppBootstrap } from "./src/hooks/useAppBootstrap";
 import { useLocaleInvalidation } from "./src/hooks/useLocaleInvalidation";
@@ -94,7 +93,6 @@ const AppInner = () => {
             <View style={{ flex: 1, position: "relative" }}>
               {isReady && <RootNavigator />}
               {isReady && <TrafficNoticeBanner />}
-              {isReady && <AndroidAppBanner />}
               <Snackbar />
               <CustomAlert />
             </View>

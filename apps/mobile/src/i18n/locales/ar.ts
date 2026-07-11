@@ -575,10 +575,6 @@ const ar = {
   trafficNotice: {
     message: "خدماتنا تعاني من بطء. نحن نعمل على حل المشكلة. شكراً لصبركم.",
   },
-  androidAppBanner: {
-    message: "حمّل Watchr على جهاز Android الخاص بك للحصول على أفضل تجربة.",
-    download: "تحميل",
-  },
   maintenance: {
     title: "Watchr",
     message: "واتشر تحت الصيانة. سنعود قريباً.",

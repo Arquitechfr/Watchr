@@ -41,7 +41,6 @@ export async function setConfig(
     "traffic_notice_enabled",
     "auth_enabled",
     "maintenance_enabled",
-    "android_app_banner_enabled",
   ]);
   if (remoteConfigFlags.has(key)) {
     const parsedValue = type === "boolean" ? value === "true" : value;

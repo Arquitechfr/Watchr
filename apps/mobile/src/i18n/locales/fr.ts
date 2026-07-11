@@ -3,6 +3,7 @@ const fr = {
     appName: "Watchr",
     loading: "Chargement…",
     changingLanguage: "Changement de langue…",
+    changingLanguageHint: "Cela peut prendre quelques secondes.",
     retry: "Réessayer",
     cancel: "Annuler",
     confirm: "Confirmer",

@@ -1,10 +1,10 @@
-import { View, Text, Image, TouchableOpacity, ActivityIndicator } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { View, Text, Image, TouchableOpacity } from "react-native";
 import { formatDistanceToNow } from "date-fns";
 import { getPosterUrl } from "../services/shows.service";
 import { UnwatchedEpisode } from "../services/unwatched.service";
 import { useI18n } from "../i18n/useI18n";
 import { useThemeColors } from "../theme/useThemeColors";
+import { CelebrationCheckmark } from "./CelebrationCheckmark";
 
 interface UnwatchedEpisodeRowProps {
   showId: string;
@@ -100,20 +100,14 @@ export function UnwatchedEpisodeRow({
         ) : null}
       </View>
       {onMarkWatched && (
-        <TouchableOpacity
-          onPress={(e) => {
-            e.stopPropagation();
-            onMarkWatched();
-          }}
-          className="ml-2 p-1"
-          disabled={isMarking}
-        >
-          {isMarking ? (
-            <ActivityIndicator size="small" color={colors.primary} />
-          ) : (
-            <Ionicons name="checkmark-circle-outline" size={28} color={colors.primary} />
-          )}
-        </TouchableOpacity>
+        <CelebrationCheckmark
+          onPress={onMarkWatched}
+          isMarking={isMarking}
+          size={28}
+          color={colors.primary}
+          containerStyle={{ marginLeft: 8 }}
+          buttonStyle={{ padding: 4 }}
+        />
       )}
     </TouchableOpacity>
   );

@@ -1,5 +1,6 @@
 import { View, Text, Linking, TouchableOpacity } from "react-native";
 import { ScreenContainer } from "../../components/ScreenContainer";
+import { SubScreenHeader } from "../../components/SubScreenHeader";
 import { useI18n } from "../../i18n/useI18n";
 import { useThemeColors } from "../../theme/useThemeColors";
 import { Seo } from "../../components/Seo";
@@ -13,6 +14,7 @@ export function ProfileAboutScreen() {
   return (
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
       <Seo title={t("seo.profileAbout")} />
+      <SubScreenHeader title={t("screens.profile.about")} />
       <View className="items-center mb-8 mt-4">
         <Text className="text-3xl font-bold text-primary mb-2">Watchr</Text>
         <Text className="text-text-muted text-sm">

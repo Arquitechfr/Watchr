@@ -4,9 +4,10 @@ import { useThemeColors } from "../theme/useThemeColors";
 interface LoadingOverlayProps {
   visible: boolean;
   label: string;
+  subtitle?: string;
 }
 
-export function LoadingOverlay({ visible, label }: LoadingOverlayProps) {
+export function LoadingOverlay({ visible, label, subtitle }: LoadingOverlayProps) {
   const colors = useThemeColors();
 
   if (!visible) return null;
@@ -33,6 +34,9 @@ export function LoadingOverlay({ visible, label }: LoadingOverlayProps) {
         >
           <ActivityIndicator size="large" color={colors.primary} />
           <Text className="text-text text-sm">{label}</Text>
+          {subtitle && (
+            <Text className="text-text-muted text-xs text-center">{subtitle}</Text>
+          )}
         </View>
       </View>
     </Modal>

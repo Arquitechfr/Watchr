@@ -4,6 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, type ParamListBase } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { ScreenContainer } from "../../components/ScreenContainer";
+import { SubScreenHeader } from "../../components/SubScreenHeader";
 import { LoadingOverlay } from "../../components/LoadingOverlay";
 import { useI18n } from "../../i18n/useI18n";
 import { useChangeLocale } from "../../hooks/useChangeLocale";
@@ -29,6 +30,7 @@ export function ProfileLanguageScreen() {
   async function handleLanguageChange(lang: SupportedLocale) {
     if (lang === locale || isChanging) return;
     setIsChanging(true);
+    await new Promise((resolve) => setTimeout(resolve, 0));
     try {
       await changeLocale(lang);
     } finally {
@@ -39,7 +41,7 @@ export function ProfileLanguageScreen() {
   return (
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
       <Seo title={t("seo.profileLanguage")} />
-      <Text className="text-text-muted text-center mb-6">{t("screens.profile.language")}</Text>
+      <SubScreenHeader title={t("screens.profile.language")} />
       <View className="gap-3">
         {SUPPORTED_LOCALES.map((lang) => (
           <TouchableOpacity
@@ -60,7 +62,7 @@ export function ProfileLanguageScreen() {
           </TouchableOpacity>
         ))}
       </View>
-      <LoadingOverlay visible={isChanging} label={t("common.changingLanguage")} />
+      <LoadingOverlay visible={isChanging} label={t("common.changingLanguage")} subtitle={t("common.changingLanguageHint")} />
     </ScreenContainer>
   );
 }

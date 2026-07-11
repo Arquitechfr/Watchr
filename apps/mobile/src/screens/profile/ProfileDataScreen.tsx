@@ -3,6 +3,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { ScreenContainer } from "../../components/ScreenContainer";
+import { SubScreenHeader } from "../../components/SubScreenHeader";
 import { useI18n } from "../../i18n/useI18n";
 import { useThemeColors } from "../../theme/useThemeColors";
 import { RootStackParamList } from "../../navigation/RootNavigator";
@@ -40,12 +41,7 @@ export function ProfileDataScreen() {
   return (
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
       <Seo title={t("seo.profileData")} />
-      <View className="flex-row items-center mb-6">
-        <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.7} className="p-1 mr-3">
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
-        </TouchableOpacity>
-        <Text className="text-text text-xl font-bold">{t("screens.profile.myData")}</Text>
-      </View>
+      <SubScreenHeader title={t("screens.profile.myData")} />
 
       <MenuCard
         icon="download"

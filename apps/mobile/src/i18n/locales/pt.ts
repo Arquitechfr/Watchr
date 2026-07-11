@@ -3,6 +3,7 @@ const pt = {
     appName: "Watchr",
     loading: "Carregando…",
     changingLanguage: "Alterando idioma…",
+    changingLanguageHint: "Isso pode levar alguns segundos.",
     retry: "Tentar novamente",
     cancel: "Cancelar",
     confirm: "Confirmar",

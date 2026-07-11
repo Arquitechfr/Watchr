@@ -1,5 +1,6 @@
 import { View, Text, Switch, ActivityIndicator, Pressable } from "react-native";
 import { ScreenContainer } from "../../components/ScreenContainer";
+import { SubScreenHeader } from "../../components/SubScreenHeader";
 import { useI18n } from "../../i18n/useI18n";
 import { useThemeColors } from "../../theme/useThemeColors";
 import {
@@ -74,7 +75,7 @@ export function ProfileNotificationsScreen() {
   return (
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
       <Seo title={t("seo.profileNotifications")} />
-      <Text className="text-text-muted text-center mb-6">{t("screens.profile.notifications")}</Text>
+      <SubScreenHeader title={t("screens.profile.notifications")} />
       <View className="gap-3">
         <View
           className="rounded-lg p-4"

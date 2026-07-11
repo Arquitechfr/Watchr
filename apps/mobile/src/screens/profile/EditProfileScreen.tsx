@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, TextInput, ActivityIndicator, Alert } fro
 import { Ionicons } from "@expo/vector-icons";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ScreenContainer } from "../../components/ScreenContainer";
+import { SubScreenHeader } from "../../components/SubScreenHeader";
 import { Avatar } from "../../components/Avatar";
 import { getMe, updateUsername, unlinkGoogleAccount } from "../../services/auth.service";
 import { useGoogleLink } from "../../services/googleAuth.service";
@@ -94,6 +95,7 @@ export function EditProfileScreen() {
   return (
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
       <Seo title={t("seo.editProfile")} />
+      <SubScreenHeader title={t("screens.profile.editProfile")} />
       <View className="items-center mb-8">
         <TouchableOpacity onPress={pickAvatar} disabled={isAvatarUploading} activeOpacity={0.8}>
           <View className="relative">

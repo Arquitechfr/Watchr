@@ -1,6 +1,8 @@
 import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { useQueryClient } from "@tanstack/react-query";
 import { ScreenContainer } from "../../components/ScreenContainer";
+import { SubScreenHeader } from "../../components/SubScreenHeader";
 import { useI18n } from "../../i18n/useI18n";
 import { useThemeStore, type ThemePreference } from "../../store/themeStore";
 import { useUIStore } from "../../store/uiStore";
@@ -43,7 +45,7 @@ export function ProfileAppearanceScreen() {
   return (
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
       <Seo title={t("seo.profileAppearance")} />
-      <Text className="text-text-muted text-center mb-6">{t("screens.profile.appearance")}</Text>
+      <SubScreenHeader title={t("screens.profile.appearance")} />
       <View className="gap-3">
         {OPTIONS.map((opt) => (
           <TouchableOpacity
@@ -53,16 +55,12 @@ export function ProfileAppearanceScreen() {
             style={{ backgroundColor: colors.surface }}
             disabled={loading !== null}
           >
-            <Text className="text-text text-base">{t(opt.labelKey)}</Text>
+            <Ionicons name={opt.icon} size={20} color={colors.textMuted} />
+            <Text className="text-text text-base flex-1 ml-3">{t(opt.labelKey)}</Text>
             {loading === opt.value ? (
               <ActivityIndicator size="small" color={colors.primary} />
             ) : preference === opt.value ? (
-              <View
-                className="items-center justify-center rounded-full"
-                style={{ width: 24, height: 24, backgroundColor: colors.primary }}
-              >
-                <Text className="text-background font-bold text-xs">✓</Text>
-              </View>
+              <Ionicons name="checkmark-circle" size={24} color={colors.primary} />
             ) : null}
           </TouchableOpacity>
         ))}

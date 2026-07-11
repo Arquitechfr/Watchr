@@ -54,7 +54,9 @@ export async function getUpcomingEpisodes(userId: string, language = "en"): Prom
   const entries = await WatchEntry.find({
     userId: new Types.ObjectId(userId),
     status: { $in: ["watching", "plan_to_watch"] },
-  }).populate("showId", "tmdbId title type posterPath status seasons nextEpisodeToAir translations networks");
+  })
+    .populate("showId", "tmdbId title type posterPath status seasons nextEpisodeToAir translations networks")
+    .lean();
 
   const now = new Date();
   const weekStart = startOfWeek(now, { weekStartsOn: 1 });
@@ -63,55 +65,61 @@ export async function getUpcomingEpisodes(userId: string, language = "en"): Prom
   const allEpisodes: UpcomingEpisode[] = [];
 
   for (const entry of entries) {
-    const show = entry.showId as unknown as IShow;
+    const show = entry.showId as unknown as IShow | null;
+
     if (!show || !show.seasons) continue;
+    if (show.type !== "tv") continue;
 
     const title = getShowTitle(show, language);
     const translation = getTranslationValue(show.translations, language);
     const translationHasEpisodes = translation?.seasons?.some((s) => s.episodes && s.episodes.length > 0);
     const seasons = (translationHasEpisodes && translation?.seasons) ? translation.seasons : show.seasons;
     const network = translation?.networks?.[0]?.name ?? show.networks?.[0]?.name;
+    const showId = show._id?.toString() ?? entry.showId.toString();
+    const tmdbId = show.tmdbId ?? 0;
+    const posterPath = show.posterPath ?? undefined;
 
     const watchedKeys = new Set(
       entry.watchedEpisodes.map((ep) => `${ep.season}-${ep.episode}`),
     );
 
-    for (const season of seasons) {
+    const seasonsWithEpisodes = (seasons ?? []).filter(
+      (season) => season.episodes && season.episodes.length > 0,
+    );
+
+    for (const season of seasonsWithEpisodes) {
       const seasonEpisodeCount = season.episodes?.length ?? season.episodeCount ?? 0;
       for (const episode of season.episodes || []) {
         if (!episode.airDate || episode.airDate < now) continue;
         if (watchedKeys.has(`${season.seasonNumber}-${episode.episodeNumber}`)) continue;
 
         allEpisodes.push({
-          showId: show._id.toString(),
-          tmdbId: show.tmdbId,
+          showId,
+          tmdbId,
           title,
-          posterPath: show.posterPath,
+          posterPath,
           season: season.seasonNumber,
           episode: episode.episodeNumber,
           name: episode.name,
           airDate: episode.airDate.toISOString(),
           isSeriesPremiere: season.seasonNumber === 1 && episode.episodeNumber === 1,
           isSeasonPremiere: season.seasonNumber > 1 && episode.episodeNumber === 1,
-          // NOTE: isFinale depends on TMDB having listed all episodes for the season.
-          // If TMDB hasn't yet listed all episodes of an ongoing season, a mid-season
-          // episode may be temporarily mislabeled as finale. Not fixable without another data source.
           isFinale: seasonEpisodeCount > 0 && episode.episodeNumber === seasonEpisodeCount,
           network,
         });
       }
     }
 
-    if (show.nextEpisodeToAir && show.nextEpisodeToAir.airDate >= now) {
+    if (show.nextEpisodeToAir && show.nextEpisodeToAir.airDate && show.nextEpisodeToAir.airDate >= now) {
       const key = `${show.nextEpisodeToAir.season}-${show.nextEpisodeToAir.episode}`;
       if (!watchedKeys.has(key)) {
         const nextSeason = seasons.find((s) => s.seasonNumber === show.nextEpisodeToAir!.season);
         const nextSeasonEpisodeCount = nextSeason?.episodes?.length ?? nextSeason?.episodeCount ?? 0;
         allEpisodes.push({
-          showId: show._id.toString(),
-          tmdbId: show.tmdbId,
+          showId,
+          tmdbId,
           title,
-          posterPath: show.posterPath,
+          posterPath,
           season: show.nextEpisodeToAir.season,
           episode: show.nextEpisodeToAir.episode,
           airDate: show.nextEpisodeToAir.airDate.toISOString(),

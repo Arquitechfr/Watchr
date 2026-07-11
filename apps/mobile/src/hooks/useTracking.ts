@@ -467,12 +467,33 @@ export function useQuickMarkWatched() {
         return entry;
       });
 
-      return { previousEntry };
+      await queryClient.cancelQueries({ queryKey: ["unwatched"] });
+      const previousUnwatched = queryClient.getQueryData<{ shows: UnwatchedShow[] }>(["unwatched", "tv"]);
+      queryClient.setQueryData<{ shows: UnwatchedShow[] } | undefined>(["unwatched", "tv"], (old: { shows: UnwatchedShow[] } | undefined) => {
+        if (!old) return old;
+        const updatedShows = old.shows
+          .map((s) => {
+            if (s.showId !== showId) return s;
+            return {
+              ...s,
+              unwatchedEpisodes: s.unwatchedEpisodes.filter(
+                (ep) => !(ep.season === season && ep.episode === episode),
+              ),
+            };
+          })
+          .filter((s) => s.unwatchedEpisodes.length > 0);
+        return { ...old, shows: updatedShows };
+      });
+
+      return { previousEntry, previousUnwatched };
     },
     onError: (err, _vars, context) => {
       log("useTracking", "quickMarkWatched error", { err });
       if (context?.previousEntry !== undefined) {
         queryClient.setQueryData(["tracking", "entry", context.previousEntry?.showId ?? ""], context.previousEntry);
+      }
+      if (context?.previousUnwatched) {
+        queryClient.setQueryData(["unwatched", "tv"], context.previousUnwatched);
       }
     },
     onSuccess: () => {

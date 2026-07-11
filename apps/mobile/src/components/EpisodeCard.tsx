@@ -1,9 +1,9 @@
-import { View, Text, Image, TouchableOpacity, ActivityIndicator } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { View, Text, Image, TouchableOpacity } from "react-native";
 import { differenceInCalendarDays, format } from "date-fns";
 import { getPosterUrl } from "../services/shows.service";
 import { useThemeColors } from "../theme/useThemeColors";
 import { useI18n } from "../i18n/useI18n";
+import { CelebrationCheckmark } from "./CelebrationCheckmark";
 
 interface EpisodeCardProps {
   posterPath?: string;
@@ -89,11 +89,17 @@ export function EpisodeCard({
       </TouchableOpacity>
 
       {onMarkWatched && (
-        <TouchableOpacity
-          style={{
+        <CelebrationCheckmark
+          onPress={onMarkWatched}
+          isMarking={isMarking}
+          size={20}
+          color={colors.primary}
+          containerStyle={{
             position: "absolute",
             top: 8,
             right: 8,
+          }}
+          buttonStyle={{
             width: 32,
             height: 32,
             borderRadius: 16,
@@ -101,16 +107,7 @@ export function EpisodeCard({
             alignItems: "center",
             justifyContent: "center",
           }}
-          onPress={onMarkWatched}
-          disabled={isMarking}
-          activeOpacity={0.7}
-        >
-          {isMarking ? (
-            <ActivityIndicator size="small" color={colors.primary} />
-          ) : (
-            <Ionicons name="checkmark-circle-outline" size={20} color={colors.primary} />
-          )}
-        </TouchableOpacity>
+        />
       )}
 
       <View className="mt-2 px-1">

@@ -16,16 +16,15 @@ export function useChangeLocale() {
   return useCallback(
     async (lang: SupportedLocale) => {
       setLocale(lang);
-      if (!useAuthStore.getState().isAuthenticated) {
-        await queryClient.invalidateQueries();
-        return;
+      if (useAuthStore.getState().isAuthenticated) {
+        try {
+          await updateLanguage(lang);
+        } catch {
+          showSnackbar(t("screens.profile.languageSyncError"), "error");
+        }
       }
-      try {
-        await updateLanguage(lang);
-      } catch {
-        showSnackbar(t("screens.profile.languageSyncError"), "error");
-      }
-      await queryClient.invalidateQueries();
+      queryClient.invalidateQueries({ refetchType: "none" });
+      await queryClient.refetchQueries({ type: "all" });
     },
     [setLocale, queryClient, showSnackbar, t],
   );

@@ -3,6 +3,7 @@ const ar = {
     appName: "Watchr",
     loading: "جارٍ التحميل…",
     changingLanguage: "تغيير اللغة…",
+    changingLanguageHint: "قد يستغرق هذا بضع ثوانٍ.",
     retry: "إعادة",
     cancel: "إلغاء",
     confirm: "تأكيد",

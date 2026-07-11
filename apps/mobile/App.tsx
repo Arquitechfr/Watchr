@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { KeyboardProvider } from "react-native-keyboard-controller";
 import { View } from "react-native";
 import { RootNavigator } from "./src/navigation/RootNavigator";
 import { Snackbar } from "./src/components/Snackbar";
@@ -56,8 +57,10 @@ const AppInner = () => {
             <SafeAreaProvider>
               <ThemeProvider>
                 <StatusBarContent />
-                <MaintenanceScreen />
-                <SplashScreen visible={!isReady} />
+                <KeyboardProvider>
+                  <MaintenanceScreen />
+                  <SplashScreen visible={!isReady} />
+                </KeyboardProvider>
               </ThemeProvider>
             </SafeAreaProvider>
           </QueryClientProvider>
@@ -73,13 +76,15 @@ const AppInner = () => {
         <SafeAreaProvider>
           <ThemeProvider>
             <StatusBarContent />
-            <View style={{ flex: 1, position: "relative" }}>
-              {isReady && <RootNavigator />}
-              {isReady && <TrafficNoticeBanner />}
-              <Snackbar />
-              <CustomAlert />
-            </View>
-            <SplashScreen visible={!isReady} />
+            <KeyboardProvider>
+              <View style={{ flex: 1, position: "relative" }}>
+                {isReady && <RootNavigator />}
+                {isReady && <TrafficNoticeBanner />}
+                <Snackbar />
+                <CustomAlert />
+              </View>
+              <SplashScreen visible={!isReady} />
+            </KeyboardProvider>
           </ThemeProvider>
         </SafeAreaProvider>
       </QueryClientProvider>

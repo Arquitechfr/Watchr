@@ -4,7 +4,7 @@
 
 ## Contexte
 
-Watchr est un tracker de séries/films (successeur perso de TV Time, qui ferme le 15/07/2026).
+Watchr est un tracker de séries/films (successeur perso de TV Time, qui ferme ses portes).
 MVP scope : tracking watch-status + notes/ratings + commentaires publics sur shows/épisodes, import prioritaire des exports GDPR TV Time.
 
 Délai : livraison MVP avant le 15/07/2026.

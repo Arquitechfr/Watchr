@@ -6,7 +6,10 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
+  Platform,
 } from "react-native";
+import Animated, { useAnimatedStyle, useSharedValue } from "react-native-reanimated";
+import { useKeyboardHandler } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRoute, useNavigation, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -33,7 +36,6 @@ import { useI18n } from "../i18n/useI18n";
 import { useErrorMessage } from "../services/api";
 import { useCommentsRealtime } from "../hooks/useCommentsRealtime";
 import { Seo } from "../components/Seo";
-import { KeyboardAwareView } from "../components/KeyboardAwareView";
 
 type CommentThreadRouteProp = RouteProp<RootStackParamList, "CommentThread">;
 type CommentThreadNavigationProp = NativeStackNavigationProp<RootStackParamList, "CommentThread">;
@@ -48,6 +50,25 @@ export function CommentThreadScreen() {
   const getErrorMessage = useErrorMessage();
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
+  const keyboardHeight = useSharedValue(0);
+
+  useKeyboardHandler(
+    {
+      onMove: (event) => {
+        "worklet";
+        keyboardHeight.value = Math.max(event.height, 0);
+      },
+      onEnd: (event) => {
+        "worklet";
+        keyboardHeight.value = Math.max(event.height, 0);
+      },
+    },
+    [],
+  );
+
+  const spacerStyle = useAnimatedStyle(() => ({
+    height: keyboardHeight.value,
+  }));
 
   const [page, setPage] = useState(1);
   const limit = 20;
@@ -173,7 +194,7 @@ export function CommentThreadScreen() {
   };
 
   return (
-    <KeyboardAwareView className="flex-1 bg-background">
+    <View className="flex-1 bg-background">
       <ScreenContainer edges={["top", "left", "right"]} fullWidth>
         <Seo title={headerTitle} />
         <View className="px-4 py-3 border-b border-border flex-row items-center">
@@ -235,20 +256,21 @@ export function CommentThreadScreen() {
             keyboardShouldPersistTaps="handled"
             keyboardDismissMode="interactive"
           />
-          {isAuthenticated && (
-            <View
-              className="py-3 border-t border-border"
-              style={{ paddingBottom: Math.max(insets.bottom, 12) }}
-            >
-              <CommentInput
-                placeholder={t("common.reply")}
-                onSubmit={handleReply}
-                isPending={isPending}
-              />
-            </View>
-          )}
         </View>
+        {isAuthenticated && (
+          <View
+            className="px-4 py-3 border-t border-border"
+            style={{ paddingBottom: Math.max(insets.bottom, 12) }}
+          >
+            <CommentInput
+              placeholder={t("common.reply")}
+              onSubmit={handleReply}
+              isPending={isPending}
+            />
+          </View>
+        )}
+        {Platform.OS !== "web" && <Animated.View style={spacerStyle} pointerEvents="none" />}
       </ScreenContainer>
-    </KeyboardAwareView>
+    </View>
   );
 }

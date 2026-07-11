@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { View, Text, TouchableOpacity, Image, Pressable } from "react-native";
+import { View, Text, TouchableOpacity, Image, Pressable, Platform } from "react-native";
+import Animated, { useAnimatedStyle, useSharedValue } from "react-native-reanimated";
+import { useKeyboardHandler } from "react-native-keyboard-controller";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -11,7 +13,6 @@ import { CommentInput } from "./CommentInput";
 import { CommentImageViewer } from "./CommentImageViewer";
 import { CommentActions } from "./CommentActions";
 import { ReportModal } from "./ReportModal";
-import { KeyboardAwareView } from "../KeyboardAwareView";
 import { useI18n } from "../../i18n/useI18n";
 import { formatDistanceToNow } from "date-fns";
 
@@ -64,6 +65,24 @@ export function CommentItem({
   const [reportVisible, setReportVisible] = useState(false);
   const isEdited = comment.updatedAt !== comment.createdAt;
 
+  const keyboardHeight = useSharedValue(0);
+  useKeyboardHandler(
+    {
+      onMove: (event) => {
+        "worklet";
+        keyboardHeight.value = Math.max(event.height, 0);
+      },
+      onEnd: (event) => {
+        "worklet";
+        keyboardHeight.value = Math.max(event.height, 0);
+      },
+    },
+    [],
+  );
+  const inlineSpacerStyle = useAnimatedStyle(() => ({
+    height: keyboardHeight.value,
+  }));
+
   const isParent = variant === "parent";
   const isReply = variant === "reply";
 
@@ -90,7 +109,7 @@ export function CommentItem({
   return (
     <View className={isReply ? "" : "mb-2.5"}>
       {isEditing ? (
-        <KeyboardAwareView>
+        <View>
           <CommentInput
             initialValue={comment.content}
             initialImages={comment.images}
@@ -100,7 +119,8 @@ export function CommentItem({
             isPending={isPending}
             submitLabel={t("common.edit")}
           />
-        </KeyboardAwareView>
+          {Platform.OS !== "web" && <Animated.View style={inlineSpacerStyle} pointerEvents="none" />}
+        </View>
       ) : (
         <View className={isParent ? "bg-primary/8 border border-primary/20 rounded-xl p-4" : "flex-row"}>
           {isParent && (
@@ -208,14 +228,15 @@ export function CommentItem({
       )}
 
       {isReplying && (
-        <KeyboardAwareView className="mt-2">
+        <View className="mt-2">
           <CommentInput
             placeholder={t("common.reply")}
             onSubmit={handleReply}
             onCancel={() => setIsReplying(false)}
             isPending={isPending}
           />
-        </KeyboardAwareView>
+          {Platform.OS !== "web" && <Animated.View style={inlineSpacerStyle} pointerEvents="none" />}
+        </View>
       )}
 
       <CommentImageViewer

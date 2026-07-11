@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, Platform } from "react-native";
+import Animated, { useAnimatedStyle, useSharedValue } from "react-native-reanimated";
+import { useKeyboardHandler } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRefreshRateLimit } from "../hooks/useRefreshRateLimit";
 import { useRoute, useNavigation, RouteProp } from "@react-navigation/native";
@@ -30,7 +32,6 @@ import { log } from "../utils/logger";
 import { useI18n } from "../i18n/useI18n";
 import { useErrorMessage } from "../services/api";
 import { Seo } from "../components/Seo";
-import { KeyboardAwareView } from "../components/KeyboardAwareView";
 import type { CommentSort } from "../services/comments.service";
 
 type ShowCommentsRouteProp = RouteProp<RootStackParamList, "ShowComments">;
@@ -46,6 +47,25 @@ export function ShowCommentsScreen() {
   const getErrorMessage = useErrorMessage();
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
+  const keyboardHeight = useSharedValue(0);
+
+  useKeyboardHandler(
+    {
+      onMove: (event) => {
+        "worklet";
+        keyboardHeight.value = Math.max(event.height, 0);
+      },
+      onEnd: (event) => {
+        "worklet";
+        keyboardHeight.value = Math.max(event.height, 0);
+      },
+    },
+    [],
+  );
+
+  const spacerStyle = useAnimatedStyle(() => ({
+    height: keyboardHeight.value,
+  }));
 
   useCommentsRealtime(showId);
 
@@ -161,7 +181,7 @@ export function ShowCommentsScreen() {
   };
 
   return (
-    <KeyboardAwareView className="flex-1 bg-background">
+    <View className="flex-1 bg-background">
       <Seo title={`${t("seo.comments")} — ${title}`} />
       <ScreenContainer edges={["top", "left", "right"]} fullWidth>
         <View className="px-4 py-3 border-b border-border flex-row items-center">
@@ -198,17 +218,18 @@ export function ShowCommentsScreen() {
               onRemoveReaction={handleRemoveReaction}
             />
           </View>
-          {isAuthenticated && (
-            <View className="px-4 py-2.5 border-t border-border" style={{ paddingBottom: Math.max(insets.bottom, 8) }}>
-              <CommentInput
-                placeholder={t("screens.comments.placeholder")}
-                onSubmit={handleCreate}
-                isPending={isPending}
-              />
-            </View>
-          )}
         </View>
+        {isAuthenticated && (
+          <View className="px-4 py-2.5 border-t border-border" style={{ paddingBottom: Math.max(insets.bottom, 8) }}>
+            <CommentInput
+              placeholder={t("screens.comments.placeholder")}
+              onSubmit={handleCreate}
+              isPending={isPending}
+            />
+          </View>
+        )}
+        {Platform.OS !== "web" && <Animated.View style={spacerStyle} pointerEvents="none" />}
       </ScreenContainer>
-    </KeyboardAwareView>
+    </View>
   );
 }

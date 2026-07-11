@@ -90,7 +90,7 @@ export function LoginScreen() {
 
       <View className="items-center mb-10">
         <Image
-          source={require("../../../assets/splash-icon.png")}
+          source={require("../../../assets/splash-icon.webp")}
           style={{ width: 80, height: 80 }}
           resizeMode="contain"
         />

@@ -29,7 +29,7 @@ export function MaintenanceScreen() {
         }
       >
         <Image
-          source={require("../../assets/splash-icon.png")}
+          source={require("../../assets/splash-icon.webp")}
           style={{ width: 80, height: 80 }}
           resizeMode="contain"
         />

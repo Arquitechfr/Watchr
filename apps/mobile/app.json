@@ -72,7 +72,18 @@
           ]
         }
       ],
-      "@sentry/react-native"
+      "@sentry/react-native",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "enableMinifyInReleaseBuilds": true,
+            "enableShrinkResourcesInReleaseBuilds": true,
+            "enableBundleCompression": true,
+            "extraProguardRules": "\n# Sentry\n-keep class io.sentry.** { *; }\n-dontwarn io.sentry.**\n\n# Firebase / Google Sign-In\n-keep class com.google.firebase.** { *; }\n-keep class com.google.android.gms.** { *; }\n-dontwarn com.google.firebase.**\n-dontwarn com.google.android.gms.**\n\n# react-native-android-widget\n-keep class com.reactnativeandroidwidget.** { *; }\n\n# Socket.io\n-keep class io.socket.** { *; }\n-dontwarn io.socket.**\n\n# React Native bridge & Hermes\n-keep class com.facebook.react.** { *; }\n-keep class com.facebook.hermes.** { *; }\n\n# Gson serialization\n-keepclassmembers,allowobfuscation class * {\n  @com.google.gson.annotations.SerializedName <fields>;\n}\n"
+          }
+        }
+      ]
     ],
     "owner": "arquitech"
   }

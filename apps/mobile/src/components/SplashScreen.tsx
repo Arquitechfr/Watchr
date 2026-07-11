@@ -11,13 +11,13 @@ import { useLocaleStore } from "../store/localeStore";
 import type { SupportedLocale } from "../i18n/translations";
 
 const SPLASH_IMAGES: Record<SupportedLocale, ImageSourcePropType> = {
-  en: require("../../assets/splash-background.png"),
-  fr: require("../../assets/splash-background-fr.png"),
-  es: require("../../assets/splash-background-es.png"),
-  pt: require("../../assets/splash-background-pt.png"),
-  de: require("../../assets/splash-background-de.png"),
-  it: require("../../assets/splash-background-it.png"),
-  ar: require("../../assets/splash-background-ar.png"),
+  en: require("../../assets/splash-background.webp"),
+  fr: require("../../assets/splash-background-fr.webp"),
+  es: require("../../assets/splash-background-es.webp"),
+  pt: require("../../assets/splash-background-pt.webp"),
+  de: require("../../assets/splash-background-de.webp"),
+  it: require("../../assets/splash-background-it.webp"),
+  ar: require("../../assets/splash-background-ar.webp"),
 };
 
 interface SplashScreenProps {

@@ -9,7 +9,7 @@ export function MainHeader({ rightElement }: MainHeaderProps) {
     <View className="flex-row items-center justify-between mb-4">
       <View className="flex-row items-center" style={{ gap: 4 }}>
         <Image
-          source={require("../../assets/splash-icon.png")}
+          source={require("../../assets/splash-icon.webp")}
           style={{ width: 40, height: 40 }}
           resizeMode="contain"
         />

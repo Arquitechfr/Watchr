@@ -6,8 +6,6 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
-  KeyboardAvoidingView,
-  Platform,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRoute, useNavigation, RouteProp } from "@react-navigation/native";
@@ -35,6 +33,7 @@ import { useI18n } from "../i18n/useI18n";
 import { useErrorMessage } from "../services/api";
 import { useCommentsRealtime } from "../hooks/useCommentsRealtime";
 import { Seo } from "../components/Seo";
+import { KeyboardAwareView } from "../components/KeyboardAwareView";
 
 type CommentThreadRouteProp = RouteProp<RootStackParamList, "CommentThread">;
 type CommentThreadNavigationProp = NativeStackNavigationProp<RootStackParamList, "CommentThread">;
@@ -174,11 +173,7 @@ export function CommentThreadScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
-      className="flex-1 bg-background"
-    >
+    <KeyboardAwareView className="flex-1 bg-background">
       <ScreenContainer edges={["top", "left", "right"]} fullWidth>
         <Seo title={headerTitle} />
         <View className="px-4 py-3 border-b border-border flex-row items-center">
@@ -254,6 +249,6 @@ export function CommentThreadScreen() {
           )}
         </View>
       </ScreenContainer>
-    </KeyboardAvoidingView>
+    </KeyboardAwareView>
   );
 }

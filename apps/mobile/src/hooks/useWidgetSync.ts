@@ -44,6 +44,7 @@ export function useWidgetSync() {
             renderWidget: () => React.createElement(UpNextWidget, {
               activeTab,
               episodes,
+              headerTitle: translate(locale, "widgets.upNext.title") || "UP NEXT",
               tabUnwatchedLabel: translate(locale, "widgets.upNext.tabUnwatched") || "Unwatched",
               tabUpcomingLabel: translate(locale, "widgets.upNext.tabUpcoming") || "Upcoming",
               emptyUnwatchedText: translate(locale, "widgets.upNext.emptyUnwatched") || "All caught up!",

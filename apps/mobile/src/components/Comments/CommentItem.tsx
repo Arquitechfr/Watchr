@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Text, TouchableOpacity, Image, Pressable, KeyboardAvoidingView, Platform } from "react-native";
+import { View, Text, TouchableOpacity, Image, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -11,6 +11,7 @@ import { CommentInput } from "./CommentInput";
 import { CommentImageViewer } from "./CommentImageViewer";
 import { CommentActions } from "./CommentActions";
 import { ReportModal } from "./ReportModal";
+import { KeyboardAwareView } from "../KeyboardAwareView";
 import { useI18n } from "../../i18n/useI18n";
 import { formatDistanceToNow } from "date-fns";
 
@@ -89,7 +90,7 @@ export function CommentItem({
   return (
     <View className={isReply ? "" : "mb-2.5"}>
       {isEditing ? (
-        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"}>
+        <KeyboardAwareView>
           <CommentInput
             initialValue={comment.content}
             initialImages={comment.images}
@@ -99,7 +100,7 @@ export function CommentItem({
             isPending={isPending}
             submitLabel={t("common.edit")}
           />
-        </KeyboardAvoidingView>
+        </KeyboardAwareView>
       ) : (
         <View className={isParent ? "bg-primary/8 border border-primary/20 rounded-xl p-4" : "flex-row"}>
           {isParent && (
@@ -207,14 +208,14 @@ export function CommentItem({
       )}
 
       {isReplying && (
-        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} className="mt-2">
+        <KeyboardAwareView className="mt-2">
           <CommentInput
             placeholder={t("common.reply")}
             onSubmit={handleReply}
             onCancel={() => setIsReplying(false)}
             isPending={isPending}
           />
-        </KeyboardAvoidingView>
+        </KeyboardAwareView>
       )}
 
       <CommentImageViewer

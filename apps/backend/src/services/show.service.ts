@@ -190,32 +190,47 @@ export async function getShowDetails(tmdbId: number, locale = "en"): Promise<Ret
 
   let metadataRefreshed = false;
   if (needsRefresh) {
+    const knownType = show?.type;
+    const tryTvFirst = knownType !== "movie";
     try {
-      const tmdbDetails = await tmdbService.getTvDetails(tmdbId, tmdbLanguage);
-      log("ShowService", "details tmdb credits", {
-        tmdbId,
-        castCount: tmdbDetails.credits?.cast?.length ?? 0,
-        crewCount: tmdbDetails.credits?.crew?.length ?? 0,
-        createdByCount: tmdbDetails.created_by?.length ?? 0,
-      });
-      show = await upsertShowFromTmdb("tv", tmdbDetails, normalizedLocale);
-      metadataRefreshed = true;
-      log("ShowService", "details upserted tv", { tmdbId, title: show.title, castCount: show.cast?.length, crewCount: show.crew?.length });
-    } catch (tvErr) {
-      logError("ShowService", "details tv fetch failed", tvErr, { tmdbId });
-      if (!show) {
+      if (tryTvFirst) {
+        const tmdbDetails = await tmdbService.getTvDetails(tmdbId, tmdbLanguage);
+        log("ShowService", "details tmdb credits", {
+          tmdbId,
+          castCount: tmdbDetails.credits?.cast?.length ?? 0,
+          crewCount: tmdbDetails.credits?.crew?.length ?? 0,
+          createdByCount: tmdbDetails.created_by?.length ?? 0,
+        });
+        show = await upsertShowFromTmdb("tv", tmdbDetails, normalizedLocale);
+        metadataRefreshed = true;
+        log("ShowService", "details upserted tv", { tmdbId, title: show.title, castCount: show.cast?.length, crewCount: show.crew?.length });
+      } else {
+        const movieDetails = await tmdbService.getMovieDetails(tmdbId, tmdbLanguage);
+        show = await upsertShowFromTmdb("movie", movieDetails, normalizedLocale);
+        metadataRefreshed = true;
+        log("ShowService", "details upserted movie", { tmdbId, title: show.title });
+      }
+    } catch (primaryErr) {
+      logError("ShowService", "details primary fetch failed", primaryErr, { tmdbId, tryTvFirst });
+      if (!show || (!tryTvFirst && knownType !== "tv")) {
         try {
-          const movieDetails = await tmdbService.getMovieDetails(tmdbId, tmdbLanguage);
-          show = await upsertShowFromTmdb("movie", movieDetails, normalizedLocale);
+          const fallbackTmdbDetails = tryTvFirst
+            ? await tmdbService.getMovieDetails(tmdbId, tmdbLanguage)
+            : await tmdbService.getTvDetails(tmdbId, tmdbLanguage);
+          show = tryTvFirst
+            ? await upsertShowFromTmdb("movie", fallbackTmdbDetails, normalizedLocale)
+            : await upsertShowFromTmdb("tv", fallbackTmdbDetails, normalizedLocale);
           metadataRefreshed = true;
-          log("ShowService", "details upserted movie", { tmdbId, title: show.title });
-        } catch (movieErr) {
-          logError("ShowService", "details movie fetch failed", movieErr, { tmdbId });
-          throw new ApiError(
-            502,
-            "EXTERNAL_SERVICES_DOWN",
-            "TMDB is unavailable and this show is not cached",
-          );
+          log("ShowService", "details upserted fallback", { tmdbId, title: show.title, type: show.type });
+        } catch (fallbackErr) {
+          logError("ShowService", "details fallback fetch failed", fallbackErr, { tmdbId });
+          if (!show) {
+            throw new ApiError(
+              502,
+              "EXTERNAL_SERVICES_DOWN",
+              "TMDB is unavailable and this show is not cached",
+            );
+          }
         }
       }
     }

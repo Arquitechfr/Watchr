@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { View, Text, KeyboardAvoidingView, Platform, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRefreshRateLimit } from "../hooks/useRefreshRateLimit";
 import { useRoute, useNavigation, RouteProp } from "@react-navigation/native";
@@ -30,6 +30,7 @@ import { log } from "../utils/logger";
 import { useI18n } from "../i18n/useI18n";
 import { useErrorMessage } from "../services/api";
 import { Seo } from "../components/Seo";
+import { KeyboardAwareView } from "../components/KeyboardAwareView";
 import type { CommentSort } from "../services/comments.service";
 
 type ShowCommentsRouteProp = RouteProp<RootStackParamList, "ShowComments">;
@@ -160,11 +161,7 @@ export function ShowCommentsScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
-      className="flex-1 bg-background"
-    >
+    <KeyboardAwareView className="flex-1 bg-background">
       <Seo title={`${t("seo.comments")} — ${title}`} />
       <ScreenContainer edges={["top", "left", "right"]} fullWidth>
         <View className="px-4 py-3 border-b border-border flex-row items-center">
@@ -212,6 +209,6 @@ export function ShowCommentsScreen() {
           )}
         </View>
       </ScreenContainer>
-    </KeyboardAvoidingView>
+    </KeyboardAwareView>
   );
 }

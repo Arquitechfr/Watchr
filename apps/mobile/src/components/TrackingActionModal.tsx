@@ -86,7 +86,7 @@ export function TrackingActionModal({
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <View className="flex-1 justify-end bg-black/70">
-        <View className="bg-background rounded-t-2xl max-h-[85%]">
+        <View className="bg-background rounded-t-2xl max-h-[85%] flex-1">
           <View className="flex-row items-center justify-between px-4 py-3 border-b border-border">
             <TouchableOpacity onPress={onClose} disabled={isPending}>
               <Text className="text-text-muted">{t("common.cancel")}</Text>
@@ -101,7 +101,7 @@ export function TrackingActionModal({
             </TouchableOpacity>
           </View>
 
-          <ScrollView className="p-4">
+          <ScrollView className="p-4 flex-1">
             {isTv && (
               <>
                 <Text className="text-lg font-semibold text-text mb-3">

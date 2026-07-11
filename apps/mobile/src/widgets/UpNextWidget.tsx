@@ -5,6 +5,7 @@ import { WidgetTab, WidgetEpisode } from './widgetDataHelper';
 export interface UpNextWidgetProps {
   activeTab: WidgetTab;
   episodes: WidgetEpisode[];
+  headerTitle: string;
   tabUnwatchedLabel: string;
   tabUpcomingLabel: string;
   emptyUnwatchedText: string;
@@ -15,6 +16,7 @@ export interface UpNextWidgetProps {
 const COLORS: Record<string, any> = {
   bg: '#1A1614',
   surface: '#252019',
+  surfaceLight: '#2D2620',
   primary: '#C65D3A',
   text: '#F5F0EB',
   textMuted: '#A89B91',
@@ -36,9 +38,9 @@ function TabButton({
       clickActionData={{ tab }}
       style={{
         flex: 1,
-        paddingVertical: 6,
-        paddingHorizontal: 8,
-        borderRadius: 6,
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        borderRadius: 8,
         backgroundColor: isActive ? COLORS.primary : 'transparent',
         alignItems: 'center',
         justifyContent: 'center',
@@ -47,7 +49,7 @@ function TabButton({
       <TextWidget
         text={label}
         style={{
-          fontSize: 12,
+          fontSize: 13,
           color: isActive ? COLORS.bg : COLORS.textMuted,
           fontWeight: 'bold',
         }}
@@ -56,7 +58,7 @@ function TabButton({
   );
 }
 
-function EpisodeRow({ episode, markWatchedLabel }: { episode: WidgetEpisode; markWatchedLabel: string }) {
+function EpisodeRow({ episode }: { episode: WidgetEpisode }) {
   const episodeLabel = `S${String(episode.season).padStart(2, '0')}E${String(episode.episode).padStart(2, '0')}`;
   const subtitle = episode.name ? `${episodeLabel} • ${episode.name}` : episodeLabel;
   const deepLink = `watchr://show/${episode.tmdbId}`;
@@ -67,8 +69,12 @@ function EpisodeRow({ episode, markWatchedLabel }: { episode: WidgetEpisode; mar
         width: 'match_parent',
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 6,
-        paddingHorizontal: 8,
+        backgroundColor: COLORS.surface,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: COLORS.border,
+        padding: 8,
+        marginBottom: 6,
       }}
     >
       <FlexWidget
@@ -83,26 +89,49 @@ function EpisodeRow({ episode, markWatchedLabel }: { episode: WidgetEpisode; mar
         {episode.posterUrl ? (
           <ImageWidget
             image={episode.posterUrl as `https://${string}`}
-            imageWidth={32}
-            imageHeight={48}
+            imageWidth={40}
+            imageHeight={60}
             style={{ borderRadius: 4, marginRight: 8 }}
             radius={4}
           />
         ) : (
           <FlexWidget
             style={{
-              width: 32,
-              height: 48,
-              backgroundColor: COLORS.surface,
+              width: 40,
+              height: 60,
+              backgroundColor: COLORS.surfaceLight,
               borderRadius: 4,
               marginRight: 8,
               alignItems: 'center',
               justifyContent: 'center',
             }}
           >
-            <TextWidget text="📺" style={{ fontSize: 16 }} />
+            <TextWidget text="📺" style={{ fontSize: 18 }} />
           </FlexWidget>
         )}
+
+        <FlexWidget
+          clickAction="MARK_WATCHED"
+          clickActionData={{
+            showId: episode.showId,
+            season: episode.season,
+            episode: episode.episode,
+          }}
+          style={{
+            width: 24,
+            height: 24,
+            borderRadius: 12,
+            backgroundColor: COLORS.surfaceLight,
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginRight: 8,
+          }}
+        >
+          <TextWidget
+            text="✓"
+            style={{ fontSize: 14, color: COLORS.primary, fontWeight: 'bold' }}
+          />
+        </FlexWidget>
 
         <FlexWidget style={{ flex: 1, flexDirection: 'column' }}>
           <TextWidget
@@ -125,29 +154,6 @@ function EpisodeRow({ episode, markWatchedLabel }: { episode: WidgetEpisode; mar
           ) : null}
         </FlexWidget>
       </FlexWidget>
-
-      <FlexWidget
-        clickAction="MARK_WATCHED"
-        clickActionData={{
-          showId: episode.showId,
-          season: episode.season,
-          episode: episode.episode,
-        }}
-        style={{
-          width: 28,
-          height: 28,
-          borderRadius: 14,
-          backgroundColor: COLORS.surface,
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginLeft: 4,
-        }}
-      >
-        <TextWidget
-          text="✓"
-          style={{ fontSize: 14, color: COLORS.primary, fontWeight: 'bold' }}
-        />
-      </FlexWidget>
     </FlexWidget>
   );
 }
@@ -155,6 +161,7 @@ function EpisodeRow({ episode, markWatchedLabel }: { episode: WidgetEpisode; mar
 export function UpNextWidget({
   activeTab,
   episodes,
+  headerTitle,
   tabUnwatchedLabel,
   tabUpcomingLabel,
   emptyUnwatchedText,
@@ -171,16 +178,36 @@ export function UpNextWidget({
         backgroundColor: COLORS.bg,
         flexDirection: 'column',
         borderRadius: 16,
-        padding: 8,
+        padding: 10,
       }}
     >
       <FlexWidget
         style={{
+          width: 'match_parent',
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: 8,
+        }}
+      >
+        <TextWidget
+          text={headerTitle}
+          style={{
+            fontSize: 15,
+            color: COLORS.text,
+            fontWeight: 'bold',
+          }}
+        />
+      </FlexWidget>
+
+      <FlexWidget
+        style={{
+          width: 'match_parent',
           flexDirection: 'row',
           backgroundColor: COLORS.surface,
           borderRadius: 8,
           padding: 2,
-          marginBottom: 6,
+          marginBottom: 8,
         }}
       >
         <TabButton
@@ -199,13 +226,18 @@ export function UpNextWidget({
         <FlexWidget
           style={{
             flex: 1,
+            width: 'match_parent',
             alignItems: 'center',
             justifyContent: 'center',
           }}
         >
           <TextWidget
+            text="📺"
+            style={{ fontSize: 32, color: COLORS.textMuted }}
+          />
+          <TextWidget
             text={emptyText}
-            style={{ fontSize: 14, color: COLORS.textMuted }}
+            style={{ fontSize: 13, color: COLORS.textMuted, marginTop: 8 }}
           />
         </FlexWidget>
       ) : (
@@ -216,7 +248,7 @@ export function UpNextWidget({
           }}
         >
           {episodes.map((ep, i) => (
-            <EpisodeRow key={`${ep.showId}-${ep.season}-${ep.episode}-${i}`} episode={ep} markWatchedLabel={markWatchedLabel} />
+            <EpisodeRow key={`${ep.showId}-${ep.season}-${ep.episode}-${i}`} episode={ep} />
           ))}
         </ListWidget>
       )}

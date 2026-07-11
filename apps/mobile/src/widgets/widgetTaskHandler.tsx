@@ -16,10 +16,11 @@ const nameToWidget: Record<string, React.FC<any>> = {
   UpNext: UpNextWidget,
 };
 
-function getI18nProps(): Pick<UpNextWidgetProps, 'tabUnwatchedLabel' | 'tabUpcomingLabel' | 'emptyUnwatchedText' | 'emptyUpcomingText' | 'markWatchedLabel'> {
+function getI18nProps(): Pick<UpNextWidgetProps, 'headerTitle' | 'tabUnwatchedLabel' | 'tabUpcomingLabel' | 'emptyUnwatchedText' | 'emptyUpcomingText' | 'markWatchedLabel'> {
   try {
     const locale = useLocaleStore.getState().locale || 'en';
     return {
+      headerTitle: translate(locale, 'widgets.upNext.title') || 'UP NEXT',
       tabUnwatchedLabel: translate(locale, 'widgets.upNext.tabUnwatched') || 'Unwatched',
       tabUpcomingLabel: translate(locale, 'widgets.upNext.tabUpcoming') || 'Upcoming',
       emptyUnwatchedText: translate(locale, 'widgets.upNext.emptyUnwatched') || 'All caught up!',
@@ -28,6 +29,7 @@ function getI18nProps(): Pick<UpNextWidgetProps, 'tabUnwatchedLabel' | 'tabUpcom
     };
   } catch {
     return {
+      headerTitle: 'UP NEXT',
       tabUnwatchedLabel: 'Unwatched',
       tabUpcomingLabel: 'Upcoming',
       emptyUnwatchedText: 'All caught up!',

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, type ParamListBase } from "@react-navigation/native";
@@ -6,9 +6,7 @@ import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { ScreenContainer } from "../../components/ScreenContainer";
 import { LoadingOverlay } from "../../components/LoadingOverlay";
 import { useI18n } from "../../i18n/useI18n";
-import { useLocaleStore } from "../../store/localeStore";
 import { useChangeLocale } from "../../hooks/useChangeLocale";
-import { useLocaleInvalidation } from "../../hooks/useLocaleInvalidation";
 import { useThemeColors } from "../../theme/useThemeColors";
 import { Seo } from "../../components/Seo";
 import { SUPPORTED_LOCALES, LANG_FLAGS, LANG_LABELS, type SupportedLocale } from "../../i18n/translations";
@@ -16,23 +14,26 @@ import { SUPPORTED_LOCALES, LANG_FLAGS, LANG_LABELS, type SupportedLocale } from
 export function ProfileLanguageScreen() {
   const { t, locale } = useI18n();
   const colors = useThemeColors();
-  const setLocale = useLocaleStore((state) => state.setLocale);
   const changeLocale = useChangeLocale();
-  const { isRefetching } = useLocaleInvalidation();
+  const [isChanging, setIsChanging] = useState(false);
   const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
 
   useEffect(() => {
-    if (!isRefetching) return;
+    if (!isChanging) return;
     const unsubscribe = navigation.addListener("beforeRemove", (e) => {
       e.preventDefault();
     });
     return unsubscribe;
-  }, [navigation, isRefetching]);
+  }, [navigation, isChanging]);
 
-  function handleLanguageChange(lang: SupportedLocale) {
-    if (lang === locale || isRefetching) return;
-    setLocale(lang);
-    changeLocale(lang);
+  async function handleLanguageChange(lang: SupportedLocale) {
+    if (lang === locale || isChanging) return;
+    setIsChanging(true);
+    try {
+      await changeLocale(lang);
+    } finally {
+      setIsChanging(false);
+    }
   }
 
   return (
@@ -47,7 +48,7 @@ export function ProfileLanguageScreen() {
             className="flex-row items-center rounded-xl p-4"
             style={{ backgroundColor: colors.surface }}
             activeOpacity={0.7}
-            disabled={isRefetching}
+            disabled={isChanging}
           >
             <Text className="text-3xl mr-4">{LANG_FLAGS[lang]}</Text>
             <Text className="text-text text-base flex-1">
@@ -59,7 +60,7 @@ export function ProfileLanguageScreen() {
           </TouchableOpacity>
         ))}
       </View>
-      <LoadingOverlay visible={isRefetching} label={t("common.changingLanguage")} />
+      <LoadingOverlay visible={isChanging} label={t("common.changingLanguage")} />
     </ScreenContainer>
   );
 }

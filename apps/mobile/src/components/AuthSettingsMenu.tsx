@@ -11,7 +11,6 @@ import { useThemeColors } from "../theme/useThemeColors";
 export function AuthSettingsMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const locale = useLocaleStore((s) => s.locale);
-  const setLocale = useLocaleStore((s) => s.setLocale);
   const changeLocale = useChangeLocale();
   const { preference, setPreference } = useTheme();
   const colors = useThemeColors();
@@ -52,7 +51,6 @@ export function AuthSettingsMenu() {
                       <TouchableOpacity
                         key={lang}
                         onPress={() => {
-                          setLocale(lang);
                           changeLocale(lang);
                           setIsOpen(false);
                         }}

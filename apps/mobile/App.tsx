@@ -12,9 +12,7 @@ import { SplashScreen } from "./src/components/SplashScreen";
 import { TrafficNoticeBanner } from "./src/components/TrafficNoticeBanner";
 import { MaintenanceScreen } from "./src/screens/MaintenanceScreen";
 import { useAppBootstrap } from "./src/hooks/useAppBootstrap";
-import { useLocaleInvalidation } from "./src/hooks/useLocaleInvalidation";
 import { useRemoteConfig } from "./src/hooks/useRemoteConfig";
-import { ReactNode } from "react";
 import { ThemeProvider } from "./src/theme/ThemeProvider";
 import { useTheme } from "./src/theme/useTheme";
 import { Platform } from 'react-native';
@@ -46,11 +44,6 @@ const queryClient = new QueryClient({
   },
 });
 
-function LocaleInvalidationGate({ children }: { children: ReactNode }) {
-  useLocaleInvalidation();
-  return <>{children}</>;
-}
-
 const AppInner = () => {
   const { isReady } = useAppBootstrap(queryClient);
   const config = useRemoteConfig();
@@ -77,7 +70,6 @@ const AppInner = () => {
     <HelmetProvider>
     <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryClientProvider client={queryClient}>
-        <LocaleInvalidationGate>
         <SafeAreaProvider>
           <ThemeProvider>
             <StatusBarContent />
@@ -90,7 +82,6 @@ const AppInner = () => {
             <SplashScreen visible={!isReady} />
           </ThemeProvider>
         </SafeAreaProvider>
-        </LocaleInvalidationGate>
       </QueryClientProvider>
     </GestureHandlerRootView>
     </HelmetProvider>

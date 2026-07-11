@@ -5,7 +5,6 @@ import { SUPPORTED_LOCALES } from "../i18n/translations";
 
 export function LanguageSwitcher() {
   const locale = useLocaleStore((s) => s.locale);
-  const setLocale = useLocaleStore((s) => s.setLocale);
   const changeLocale = useChangeLocale();
 
   return (
@@ -14,7 +13,6 @@ export function LanguageSwitcher() {
         <TouchableOpacity
           key={lang}
           onPress={() => {
-            setLocale(lang);
             changeLocale(lang);
           }}
           className={`px-3 py-1.5 rounded-md ${

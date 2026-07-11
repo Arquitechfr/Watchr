@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   View,
   TextInput,
@@ -10,7 +10,7 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useScrollToTop } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useShowSearch } from "../hooks/useShowSearch";
 import { useDiscoverSections } from "../hooks/useDiscover";
@@ -42,6 +42,8 @@ export function SearchScreen() {
   const { showSnackbar } = useUIStore();
   const { t } = useI18n();
   const colors = useThemeColors();
+  const scrollRef = useRef<ScrollView | FlatList>(null);
+  useScrollToTop(scrollRef as React.RefObject<ScrollView | FlatList | null>);
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
@@ -137,6 +139,7 @@ export function SearchScreen() {
 
         {!isSearching && !isDiscoverError && !isDiscoverLoading && discoverData && (
           <ScrollView
+            ref={scrollRef as React.RefObject<ScrollView>}
             className="flex-1 -mx-4 px-4"
             contentContainerStyle={{ paddingBottom: 24 }}
             refreshControl={
@@ -231,6 +234,7 @@ export function SearchScreen() {
 
         {isSearching && !isLoading && !isError && (
           <FlatList
+            ref={scrollRef as React.RefObject<FlatList>}
             data={useSemantic && semanticSearch.data ? semanticSearch.data.results : allResults}
             keyExtractor={(item, index) => `${item.title}-${index}`}
             renderItem={({ item }) => (

@@ -11,7 +11,7 @@ export function AdminLayout() {
     <div className="min-h-screen bg-background">
       <TopBar onMenuClick={() => setMobileOpen(true)} />
       <Sidebar mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
-      <main className="md:ml-60 min-h-screen pt-14 md:pt-0">
+      <main className="md:ml-60 min-h-screen pt-[calc(3.5rem+env(safe-area-inset-top))] md:pt-0">
         <div className="mx-auto max-w-[1400px] p-4 md:p-6">
           <Outlet />
         </div>

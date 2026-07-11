@@ -70,7 +70,7 @@ export function InstallPrompt() {
   if (!visible) return null;
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 md:left-64 md:right-4 z-30 animate-in slide-in-from-bottom-4 duration-300">
+    <div className="fixed bottom-4 left-4 right-4 md:left-64 md:right-4 z-30 animate-in slide-in-from-bottom-4 duration-300 pb-safe">
       <div className="flex items-center gap-3 rounded-lg border border-border bg-surface p-3 shadow-lg md:p-4">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
           <Download className="text-primary" size={20} />

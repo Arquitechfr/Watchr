@@ -1,6 +1,7 @@
 import { View, Text, FlatList, RefreshControl, TouchableOpacity, Platform } from "react-native";
 import { useWindowDimensions } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useScrollToTop } from "@react-navigation/native";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { MainHeader } from "../components/MainHeader";
 import { NewsCard } from "../components/NewsCard";
@@ -11,7 +12,7 @@ import { useNews, useFilteredNews } from "../hooks/useNews";
 import { useNewsRealtime } from "../hooks/useNewsRealtime";
 import { useRefreshRateLimit } from "../hooks/useRefreshRateLimit";
 import { useThemeColors } from "../theme/useThemeColors";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useI18n } from "../i18n/useI18n";
 import { Seo } from "../components/Seo";
 
@@ -19,6 +20,8 @@ export function NewsScreen() {
   const { t } = useI18n();
   const colors = useThemeColors();
   const [showFiltered, setShowFiltered] = useState(false);
+  const flatListRef = useRef<FlatList>(null);
+  useScrollToTop(flatListRef);
   const { width } = useWindowDimensions();
   const isWeb = Platform.OS === "web";
   const isDesktopWeb = isWeb && width >= 768;
@@ -80,6 +83,7 @@ export function NewsScreen() {
       {!displayLoading && !displayError && (
         <FlatList
           key={isDesktopWeb ? "grid" : "list"}
+          ref={flatListRef}
           data={displayData ?? []}
           keyExtractor={(item, index) => `${item.title}-${index}`}
           numColumns={isDesktopWeb ? 2 : 1}

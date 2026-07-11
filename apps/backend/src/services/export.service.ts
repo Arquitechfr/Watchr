@@ -5,7 +5,7 @@ import { ApiError } from "../middleware/error.middleware.js";
 
 export type ExportFormat = "csv" | "json" | "trakt" | "imdb" | "letterboxd";
 
-interface LeanShow {
+export interface LeanShow {
   _id: Types.ObjectId;
   tmdbId: number;
   type: "tv" | "movie";
@@ -16,7 +16,7 @@ interface LeanShow {
   crew?: Array<{ id: number; name?: string; job?: string }>;
 }
 
-interface LeanWatchEntry {
+export interface LeanWatchEntry {
   _id: Types.ObjectId;
   userId: Types.ObjectId;
   showId: LeanShow;
@@ -28,7 +28,7 @@ interface LeanWatchEntry {
   createdAt: Date;
 }
 
-interface LeanRating {
+export interface LeanRating {
   _id: Types.ObjectId;
   userId: Types.ObjectId;
   showId: Types.ObjectId;
@@ -37,7 +37,7 @@ interface LeanRating {
   updatedAt: Date;
 }
 
-interface ExportEntry {
+export interface ExportEntry {
   watchEntry: LeanWatchEntry;
   show: LeanShow;
   rating?: LeanRating;
@@ -56,7 +56,7 @@ function buildCsv(rows: Array<Record<string, string | number>>, columns: string[
   return [header, ...lines].join("\n");
 }
 
-async function gatherExportData(userId: string): Promise<ExportEntry[]> {
+export async function gatherExportData(userId: string): Promise<ExportEntry[]> {
   const watchEntries = await WatchEntry.find({ userId: new Types.ObjectId(userId) })
     .populate("showId")
     .lean() as unknown as LeanWatchEntry[];

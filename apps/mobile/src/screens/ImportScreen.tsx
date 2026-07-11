@@ -12,6 +12,8 @@ import {
   getTraktAuthUrl,
   getTraktStatus,
   syncTrakt,
+  syncToTrakt,
+  toggleTraktSyncDirection,
   unlinkTrakt,
   toggleTraktAutoSync,
   ImportSource,
@@ -77,9 +79,11 @@ export function ImportScreen() {
   const setActiveJobId = useImportStore((state) => state.setActiveJobId);
   const clearActiveJob = useImportStore((state) => state.clearActiveJob);
   const [showDisclaimer, setShowDisclaimer] = useState(false);
+  const [recentJobsCollapsed, setRecentJobsCollapsed] = useState(true);
   const [errors, setErrors] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [isSyncingTrakt, setIsSyncingTrakt] = useState(false);
+  const [isSyncingToTrakt, setIsSyncingToTrakt] = useState(false);
   const { data: job } = useImportPolling(activeJobId);
 
   const { data: importJobsData } = useQuery({
@@ -146,6 +150,30 @@ export function ImportScreen() {
     }
   }
 
+  async function handleTraktSyncTo() {
+    setIsSyncingToTrakt(true);
+    try {
+      const result = await syncToTrakt();
+      log("Import", "trakt sync to result", result);
+      showSnackbar(t("screens.import.syncToTraktSuccess", { added: result.added }), "success");
+      queryClient.invalidateQueries({ queryKey: ["trakt-status"] });
+    } catch (err) {
+      log("Import", "trakt sync to error", err);
+      showSnackbar(getErrorMessage(err), "error");
+    } finally {
+      setIsSyncingToTrakt(false);
+    }
+  }
+
+  async function handleToggleSyncDirection(enabled: boolean) {
+    try {
+      await toggleTraktSyncDirection(enabled ? "both" : "from");
+      queryClient.invalidateQueries({ queryKey: ["trakt-status"] });
+    } catch (err) {
+      showSnackbar(getErrorMessage(err), "error");
+    }
+  }
+
   async function handleTraktUnlink() {
     showAlert({
       title: t("screens.import.traktUnlinkTitle"),
@@ -196,6 +224,9 @@ export function ImportScreen() {
   const isTraktLinked = traktStatus?.linked === true;
   const recentJobs = (importJobsData?.jobs ?? []).filter((j: ImportJobSummary) => j.id !== activeJobId);
   const { dateFnsLocale } = useI18n();
+  const lastExportToTraktDate = traktStatus?.lastSyncToTraktAt
+    ? format(new Date(traktStatus.lastSyncToTraktAt), "PP", { locale: dateFnsLocale })
+    : null;
 
   return (
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
@@ -267,17 +298,49 @@ export function ImportScreen() {
               />
             </View>
 
-            <TouchableOpacity
-              className="bg-primary py-3 rounded-lg items-center"
-              onPress={handleTraktSync}
-              disabled={isSyncingTrakt}
-            >
-              {isSyncingTrakt ? (
-                <ActivityIndicator color={colors.background} />
-              ) : (
-                <Text className="text-background font-semibold">{t("screens.import.syncNow")}</Text>
-              )}
-            </TouchableOpacity>
+            {traktStatus?.autoSync && (
+              <View className="flex-row items-center justify-between mb-3">
+                <Text className="text-text">{t("screens.import.twoWaySync")}</Text>
+                <Switch
+                  value={traktStatus?.syncDirection === "both"}
+                  onValueChange={handleToggleSyncDirection}
+                  trackColor={{ false: colors.surfaceLight, true: colors.primary }}
+                />
+              </View>
+            )}
+
+            <View className="flex-row gap-2 mb-3">
+              <TouchableOpacity
+                className="flex-1 bg-primary py-3 rounded-lg items-center"
+                onPress={handleTraktSync}
+                disabled={isSyncingTrakt}
+              >
+                {isSyncingTrakt ? (
+                  <ActivityIndicator color={colors.background} />
+                ) : (
+                  <Text className="text-background font-semibold text-sm">{t("screens.import.syncNow")}</Text>
+                )}
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                className="flex-1 bg-surface-light py-3 rounded-lg items-center"
+                style={{ backgroundColor: colors.surfaceLight }}
+                onPress={handleTraktSyncTo}
+                disabled={isSyncingToTrakt}
+              >
+                {isSyncingToTrakt ? (
+                  <ActivityIndicator color={colors.primary} />
+                ) : (
+                  <Text className="text-primary font-semibold text-sm">{t("screens.import.syncToTrakt")}</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+
+            {lastExportToTraktDate && (
+              <Text className="text-text-muted text-sm">
+                {t("screens.import.lastExportToTrakt", { date: lastExportToTraktDate })}
+              </Text>
+            )}
           </View>
         )}
 
@@ -353,10 +416,26 @@ export function ImportScreen() {
 
         {recentJobs.length > 0 && (
           <View className="mb-4">
-            <Text className="text-text font-semibold text-lg mb-3">{t("screens.import.recentImports")}</Text>
-            {recentJobs.map((item: ImportJobSummary) => (
-              <ImportHistoryRow key={item.id} job={item} />
-            ))}
+            <TouchableOpacity
+              className="flex-row items-center mb-3"
+              onPress={() => setRecentJobsCollapsed((v) => !v)}
+              activeOpacity={0.7}
+            >
+              <Ionicons
+                name={recentJobsCollapsed ? "chevron-forward" : "chevron-down"}
+                size={20}
+                color={colors.text}
+                style={{ marginRight: 8 }}
+              />
+              <Text className="text-text font-semibold text-lg">{t("screens.import.recentImports")}</Text>
+            </TouchableOpacity>
+            {!recentJobsCollapsed && (
+              <>
+                {recentJobs.map((item: ImportJobSummary) => (
+                  <ImportHistoryRow key={item.id} job={item} />
+                ))}
+              </>
+            )}
           </View>
         )}
       </ScrollView>

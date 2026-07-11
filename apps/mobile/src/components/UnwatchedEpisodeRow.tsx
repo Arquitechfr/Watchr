@@ -14,6 +14,7 @@ interface UnwatchedEpisodeRowProps {
   episode: UnwatchedEpisode;
   isNew?: boolean;
   onPress: () => void;
+  onTitlePress?: () => void;
   onMarkWatched?: () => void;
   isMarking?: boolean;
 }
@@ -24,6 +25,7 @@ export function UnwatchedEpisodeRow({
   episode,
   isNew,
   onPress,
+  onTitlePress,
   onMarkWatched,
   isMarking,
 }: UnwatchedEpisodeRowProps) {
@@ -56,11 +58,26 @@ export function UnwatchedEpisodeRow({
         </View>
       )}
       <View className="flex-1 ml-3">
-        <View className="bg-surface-light rounded-full px-3 py-1 self-start mb-1.5">
-          <Text className="text-text text-xs font-medium" numberOfLines={1}>
-            {title}
-          </Text>
-        </View>
+        {onTitlePress ? (
+          <TouchableOpacity
+            onPress={(e) => {
+              e.stopPropagation();
+              onTitlePress();
+            }}
+            className="bg-surface-light rounded-full px-3 py-1 self-start mb-1.5"
+            activeOpacity={0.7}
+          >
+            <Text className="text-text text-xs font-medium" numberOfLines={1}>
+              {title}
+            </Text>
+          </TouchableOpacity>
+        ) : (
+          <View className="bg-surface-light rounded-full px-3 py-1 self-start mb-1.5">
+            <Text className="text-text text-xs font-medium" numberOfLines={1}>
+              {title}
+            </Text>
+          </View>
+        )}
         <Text className="text-text font-bold text-base mb-0.5">
           {seasonEpisodeLabel}
         </Text>

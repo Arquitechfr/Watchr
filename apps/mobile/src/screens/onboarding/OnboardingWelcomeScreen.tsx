@@ -8,8 +8,8 @@ import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 type OnboardingStackParamList = {
   OnboardingWelcome: undefined;
+  OnboardingImport: undefined;
   OnboardingSelection: undefined;
-  OnboardingConfirmation: undefined;
 };
 
 interface OnboardingWelcomeScreenProps {
@@ -33,7 +33,7 @@ export function OnboardingWelcomeScreen({ navigation, onSkip }: OnboardingWelcom
         </Text>
         <TouchableOpacity
           className="bg-primary px-8 py-4 rounded-lg w-full items-center"
-          onPress={() => navigation.navigate("OnboardingSelection")}
+          onPress={() => navigation.navigate("OnboardingImport")}
           activeOpacity={0.8}
         >
           <Text className="text-background font-semibold text-lg">

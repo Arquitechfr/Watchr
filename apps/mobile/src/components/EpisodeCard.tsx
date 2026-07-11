@@ -15,6 +15,7 @@ interface EpisodeCardProps {
   network?: string;
   airDate?: string;
   onPress: () => void;
+  onTitlePress?: () => void;
   onMarkWatched?: () => void;
   isMarking?: boolean;
   width?: number;
@@ -33,6 +34,7 @@ export function EpisodeCard({
   network,
   airDate,
   onPress,
+  onTitlePress,
   onMarkWatched,
   isMarking,
   width,
@@ -112,11 +114,26 @@ export function EpisodeCard({
       )}
 
       <View className="mt-2 px-1">
-        <View className="bg-surface-light rounded-full px-2 py-0.5 self-start mb-1">
-          <Text className="text-text text-xs font-medium" numberOfLines={1}>
-            {title}
-          </Text>
-        </View>
+        {onTitlePress ? (
+          <TouchableOpacity
+            onPress={(e) => {
+              e.stopPropagation();
+              onTitlePress();
+            }}
+            className="bg-surface-light rounded-full px-2 py-0.5 self-start mb-1"
+            activeOpacity={0.7}
+          >
+            <Text className="text-text text-xs font-medium" numberOfLines={1}>
+              {title}
+            </Text>
+          </TouchableOpacity>
+        ) : (
+          <View className="bg-surface-light rounded-full px-2 py-0.5 self-start mb-1">
+            <Text className="text-text text-xs font-medium" numberOfLines={1}>
+              {title}
+            </Text>
+          </View>
+        )}
         <Text className="text-text font-bold text-sm" numberOfLines={1}>
           {seasonEpisodeLabel}
         </Text>

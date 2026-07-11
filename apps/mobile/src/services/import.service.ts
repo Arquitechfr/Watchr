@@ -48,7 +48,9 @@ export interface TraktStatus {
   linked: boolean;
   traktUsername?: string;
   autoSync?: boolean;
+  syncDirection?: "from" | "both";
   lastSyncAt?: string;
+  lastSyncToTraktAt?: string;
 }
 
 export async function uploadImport(fileUri: string, source?: ImportSource): Promise<{ jobId: string; source: ImportSource }> {
@@ -108,6 +110,16 @@ export async function getTraktStatus(): Promise<TraktStatus> {
 
 export async function syncTrakt(): Promise<{ total: number; matched: number; failed: number }> {
   const response = await api.post<{ total: number; matched: number; failed: number }>("/trakt/sync");
+  return response.data;
+}
+
+export async function syncToTrakt(): Promise<{ added: number; deleted: number; notFound: number }> {
+  const response = await api.post<{ added: number; deleted: number; notFound: number }>("/trakt/sync-to-trakt");
+  return response.data;
+}
+
+export async function toggleTraktSyncDirection(direction: "from" | "both"): Promise<TraktStatus> {
+  const response = await api.put<TraktStatus>("/trakt/sync-direction", { direction });
   return response.data;
 }
 

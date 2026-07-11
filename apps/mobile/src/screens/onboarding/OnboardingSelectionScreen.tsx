@@ -12,21 +12,16 @@ import { useDiscoverSections } from "../../hooks/useDiscover";
 import { useShowSearch } from "../../hooks/useShowSearch";
 import { useOnboardingStore } from "../../store/onboardingStore";
 import { useOnboardingSuggestions } from "../../hooks/useOnboardingSuggestions";
+import { useAddToWatchlistBatch } from "../../hooks/useTracking";
+import { useCompleteOnboarding } from "../../hooks/useOnboarding";
 import { SearchResultItem, OnboardingSuggestion } from "../../services/shows.service";
-import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-
-type OnboardingStackParamList = {
-  OnboardingWelcome: undefined;
-  OnboardingSelection: undefined;
-  OnboardingConfirmation: undefined;
-};
 
 interface OnboardingSelectionScreenProps {
-  navigation: NativeStackNavigationProp<OnboardingStackParamList, "OnboardingSelection">;
+  onComplete: () => void;
   onSkip: () => void;
 }
 
-export function OnboardingSelectionScreen({ navigation, onSkip }: OnboardingSelectionScreenProps) {
+export function OnboardingSelectionScreen({ onComplete, onSkip }: OnboardingSelectionScreenProps) {
   const { t } = useI18n();
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
@@ -35,8 +30,48 @@ export function OnboardingSelectionScreen({ navigation, onSkip }: OnboardingSele
   const { data: discoverData, isLoading: discoverLoading, isError: discoverError, refetch: refetchDiscover } = useDiscoverSections();
   const searchResult = useShowSearch(searchQuery);
 
-  const { selectedItems, toggleItem, isSelected } = useOnboardingStore();
+  const { selectedItems, toggleItem, isSelected, reset } = useOnboardingStore();
   const { data: aiSuggestionsData, isLoading: aiSuggestionsLoading } = useOnboardingSuggestions({ type: "both" });
+  const batchMutation = useAddToWatchlistBatch();
+  const completeOnboardingMutation = useCompleteOnboarding();
+
+  const isFinishing = batchMutation.isPending || completeOnboardingMutation.isPending;
+  const hasFinishError = batchMutation.isError || completeOnboardingMutation.isError;
+
+  const handleFinish = useCallback(() => {
+    if (selectedItems.length === 0) {
+      completeOnboardingMutation.mutate(undefined, {
+        onSuccess: () => {
+          reset();
+          onComplete();
+        },
+        onError: () => {},
+      });
+      return;
+    }
+
+    batchMutation.mutate(
+      selectedItems.map((item) => ({ tmdbId: item.tmdbId, type: item.type })),
+      {
+        onSuccess: () => {
+          completeOnboardingMutation.mutate(undefined, {
+            onSuccess: () => {
+              reset();
+              onComplete();
+            },
+            onError: () => {},
+          });
+        },
+        onError: () => {},
+      },
+    );
+  }, [selectedItems, batchMutation, completeOnboardingMutation, reset, onComplete]);
+
+  const handleRetry = useCallback(() => {
+    batchMutation.reset();
+    completeOnboardingMutation.reset();
+    handleFinish();
+  }, [batchMutation, completeOnboardingMutation, handleFinish]);
 
   const isSearching = searchQuery.trim().length > 0;
 
@@ -81,6 +116,28 @@ export function OnboardingSelectionScreen({ navigation, onSkip }: OnboardingSele
     },
     [isSelected, handleToggle],
   );
+
+  if (hasFinishError) {
+    return (
+      <ScreenContainer>
+        <NetworkError
+          message={t("screens.onboarding.batchError")}
+          onRetry={handleRetry}
+        />
+      </ScreenContainer>
+    );
+  }
+
+  if (isFinishing) {
+    return (
+      <ScreenContainer>
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text className="text-text-muted mt-4">{t("common.loading")}</Text>
+        </View>
+      </ScreenContainer>
+    );
+  }
 
   if (isError) {
     return (
@@ -202,11 +259,11 @@ export function OnboardingSelectionScreen({ navigation, onSkip }: OnboardingSele
         <OnboardingSkipButton onPress={onSkip} />
         <TouchableOpacity
           className="bg-primary px-6 py-3 rounded-lg"
-          onPress={() => navigation.navigate("OnboardingConfirmation")}
+          onPress={handleFinish}
           activeOpacity={0.8}
         >
           <Text className="text-background font-semibold">
-            {t("screens.onboarding.selectionContinue")}
+            {t("screens.onboarding.confirmationFinish")}
           </Text>
         </TouchableOpacity>
       </View>

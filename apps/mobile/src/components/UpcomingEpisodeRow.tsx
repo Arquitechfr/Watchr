@@ -10,11 +10,12 @@ interface UpcomingEpisodeRowProps {
   episode: UpcomingEpisode;
   isNew?: boolean;
   onPress: () => void;
+  onTitlePress?: () => void;
   onMarkWatched?: () => void;
   isMarking?: boolean;
 }
 
-export function UpcomingEpisodeRow({ episode, isNew, onPress, onMarkWatched, isMarking }: UpcomingEpisodeRowProps) {
+export function UpcomingEpisodeRow({ episode, isNew, onPress, onTitlePress, onMarkWatched, isMarking }: UpcomingEpisodeRowProps) {
   const { t, dateFnsLocale } = useI18n();
   const colors = useThemeColors();
   const posterUrl = getPosterUrl(episode.posterPath, 200);
@@ -37,7 +38,7 @@ export function UpcomingEpisodeRow({ episode, isNew, onPress, onMarkWatched, isM
 
   return (
     <TouchableOpacity
-      className={`flex-row items-center bg-surface rounded-lg p-3 mb-3 active:opacity-70 ${!isAired ? "opacity-60" : ""}`}
+      className="flex-row items-center bg-surface rounded-lg p-3 mb-3 active:opacity-70"
       onPress={onPress}
     >
       {posterUrl ? (
@@ -52,11 +53,26 @@ export function UpcomingEpisodeRow({ episode, isNew, onPress, onMarkWatched, isM
         </View>
       )}
       <View className="flex-1 ml-3">
-        <View className="bg-surface-light rounded-full px-3 py-1 self-start mb-1.5">
-          <Text className="text-text text-xs font-medium" numberOfLines={1}>
-            {episode.title}
-          </Text>
-        </View>
+        {onTitlePress ? (
+          <TouchableOpacity
+            onPress={(e) => {
+              e.stopPropagation();
+              onTitlePress();
+            }}
+            className="bg-surface-light rounded-full px-3 py-1 self-start mb-1.5"
+            activeOpacity={0.7}
+          >
+            <Text className="text-text text-xs font-medium" numberOfLines={1}>
+              {episode.title}
+            </Text>
+          </TouchableOpacity>
+        ) : (
+          <View className="bg-surface-light rounded-full px-3 py-1 self-start mb-1.5">
+            <Text className="text-text text-xs font-medium" numberOfLines={1}>
+              {episode.title}
+            </Text>
+          </View>
+        )}
         <Text className="text-text font-bold text-base mb-0.5">
           {seasonEpisodeLabel}
         </Text>

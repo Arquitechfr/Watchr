@@ -24,7 +24,6 @@ import { ProfileLanguageScreen } from "../screens/profile/ProfileLanguageScreen"
 import { ProfileNotificationsScreen } from "../screens/profile/ProfileNotificationsScreen";
 import { ProfileAboutScreen } from "../screens/profile/ProfileAboutScreen";
 import { ProfileAppearanceScreen } from "../screens/profile/ProfileAppearanceScreen";
-import { ProfileSettingsScreen } from "../screens/profile/ProfileSettingsScreen";
 import { ProfileDataScreen } from "../screens/profile/ProfileDataScreen";
 import { usePushNotifications } from "../hooks/usePushNotifications";
 import { useThemeSync } from "../hooks/useThemeSync";
@@ -164,9 +163,13 @@ export function RootNavigator() {
                 {() => (
                   <OnboardingStack
                     onComplete={() => {
+                      queryClient.invalidateQueries({ queryKey: ["unwatched"] });
+                      queryClient.invalidateQueries({ queryKey: ["upcoming"] });
                       meQuery.refetch();
                     }}
                     onSkip={() => {
+                      queryClient.invalidateQueries({ queryKey: ["unwatched"] });
+                      queryClient.invalidateQueries({ queryKey: ["upcoming"] });
                       completeOnboarding()
                         .then(() => meQuery.refetch())
                         .catch(() => meQuery.refetch());
@@ -190,7 +193,6 @@ export function RootNavigator() {
             <Stack.Screen name="ProfileNotifications" component={ProfileNotificationsScreen} />
             <Stack.Screen name="ProfileAbout" component={ProfileAboutScreen} />
             <Stack.Screen name="ProfileAppearance" component={ProfileAppearanceScreen} />
-            <Stack.Screen name="ProfileSettings" component={ProfileSettingsScreen} />
             <Stack.Screen name="ProfileData" component={ProfileDataScreen} />
             <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
             <Stack.Screen name="NewsArticleDetail" component={NewsArticleDetailScreen} />

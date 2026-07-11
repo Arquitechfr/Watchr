@@ -1,12 +1,12 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { OnboardingWelcomeScreen } from "../screens/onboarding/OnboardingWelcomeScreen";
+import { OnboardingImportScreen } from "../screens/onboarding/OnboardingImportScreen";
 import { OnboardingSelectionScreen } from "../screens/onboarding/OnboardingSelectionScreen";
-import { OnboardingConfirmationScreen } from "../screens/onboarding/OnboardingConfirmationScreen";
 
 export type OnboardingStackParamList = {
   OnboardingWelcome: undefined;
+  OnboardingImport: undefined;
   OnboardingSelection: undefined;
-  OnboardingConfirmation: undefined;
 };
 
 const Stack = createNativeStackNavigator<OnboardingStackParamList>();
@@ -22,11 +22,16 @@ export function OnboardingStack({ onComplete, onSkip }: OnboardingStackProps) {
       <Stack.Screen name="OnboardingWelcome">
         {({ navigation }) => <OnboardingWelcomeScreen navigation={navigation} onSkip={onSkip} />}
       </Stack.Screen>
-      <Stack.Screen name="OnboardingSelection">
-        {({ navigation }) => <OnboardingSelectionScreen navigation={navigation} onSkip={onSkip} />}
+      <Stack.Screen name="OnboardingImport">
+        {({ navigation }) => (
+          <OnboardingImportScreen
+            onComplete={onComplete}
+            onSkip={() => navigation.navigate("OnboardingSelection")}
+          />
+        )}
       </Stack.Screen>
-      <Stack.Screen name="OnboardingConfirmation">
-        {() => <OnboardingConfirmationScreen onComplete={onComplete} />}
+      <Stack.Screen name="OnboardingSelection">
+        {() => <OnboardingSelectionScreen onComplete={onComplete} onSkip={onSkip} />}
       </Stack.Screen>
     </Stack.Navigator>
   );

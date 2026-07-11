@@ -1,8 +1,8 @@
 import { Text, FlatList, RefreshControl, TouchableOpacity, View, Image, ActivityIndicator, useWindowDimensions } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useScrollToTop } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { EmptyState } from "../components/EmptyState";
 import { NetworkError } from "../components/NetworkError";
@@ -22,6 +22,7 @@ import { getPosterUrl, SearchResultItem } from "../services/shows.service";
 import { useThemeColors } from "../theme/useThemeColors";
 import { useI18n } from "../i18n/useI18n";
 import { Seo } from "../components/Seo";
+import { ImportProgressBanner } from "../components/ImportProgressBanner";
 import { WatchStatus } from "../services/tracking.service";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "ShowDetail">;
@@ -118,6 +119,8 @@ export function MoviesScreen() {
   const libraryViewMode = useUIStore((state) => state.libraryViewMode);
   const hydrateLibraryViewMode = useUIStore((state) => state.hydrateLibraryViewMode);
   const { width: windowWidth } = useWindowDimensions();
+  const flatListRef = useRef<FlatList>(null);
+  useScrollToTop(flatListRef);
   const { data, isLoading, isError, error, refetch } = useUnwatchedMovies();
   const quickMarkMovie = useQuickMarkMovieWatched();
   const throttledRefresh = useRefreshRateLimit();
@@ -234,6 +237,8 @@ export function MoviesScreen() {
         }
       />
 
+      <ImportProgressBanner />
+
       {isSearchVisible && (
         <>
           <SearchBar
@@ -270,12 +275,13 @@ export function MoviesScreen() {
         {libraryViewMode === "grid" ? (
           <FlatList
             key="grid"
+            ref={flatListRef}
             data={filteredMovies}
             keyExtractor={(item) => item.showId}
             numColumns={gridNumColumns}
             columnWrapperStyle={{ gap: gridGap }}
             renderItem={({ item }) => {
-              const genreNames = (item.genres ?? []).filter((g) => g.name).slice(0, 2).map((g) => g.name!);
+              const genreNames = (item.genres ?? []).filter((g: { id: number; name?: string }) => g.name).slice(0, 2).map((g: { id: number; name?: string }) => g.name!);
               const statusColorMap: Record<WatchStatus, string> = {
                 watching: "text-primary",
                 completed: "text-success",
@@ -293,7 +299,7 @@ export function MoviesScreen() {
                   width={gridCardWidth}
                   genres={genreNames}
                   statusLabel={getStatusLabel(t, item.status)}
-                  statusColor={statusColorMap[item.status]}
+                  statusColor={statusColorMap[item.status as WatchStatus]}
                 />
               </View>
               );
@@ -318,6 +324,7 @@ export function MoviesScreen() {
         ) : (
           <FlatList
             key="list"
+            ref={flatListRef}
             data={filteredMovies}
             keyExtractor={(item) => item.showId}
             renderItem={({ item }) => (

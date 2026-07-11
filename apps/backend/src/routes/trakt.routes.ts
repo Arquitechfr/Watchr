@@ -11,6 +11,8 @@ import {
   getTraktLink,
   toggleTraktAutoSync,
   syncFromTrakt,
+  syncToTrakt,
+  setTraktSyncDirection,
   exchangeTraktCode,
   getTraktUsername,
 } from "../services/trakt.service.js";
@@ -22,6 +24,10 @@ const router: Router = Router();
 const traktCallbackSchema = z.object({
   code: z.string().min(1, "Authorization code is required"),
   state: z.string().optional(),
+});
+
+const traktSyncDirectionSchema = z.object({
+  direction: z.enum(["from", "both"]),
 });
 
 router.get(
@@ -91,6 +97,9 @@ router.post(
     res.json({
       traktUsername: link.traktUsername,
       autoSync: link.autoSync,
+      syncDirection: link.syncDirection,
+      lastSyncAt: link.lastSyncAt,
+      lastSyncToTraktAt: link.lastSyncToTraktAt,
     });
   }),
 );
@@ -108,7 +117,9 @@ router.get(
       linked: true,
       traktUsername: link.traktUsername,
       autoSync: link.autoSync,
+      syncDirection: link.syncDirection,
       lastSyncAt: link.lastSyncAt,
+      lastSyncToTraktAt: link.lastSyncToTraktAt,
     });
   }),
 );
@@ -119,6 +130,32 @@ router.post(
   asyncHandler(async (req: Request, res: Response) => {
     const result = await syncFromTrakt(req.userId!);
     res.status(202).json(result);
+  }),
+);
+
+router.post(
+  "/sync-to-trakt",
+  requireAuth,
+  asyncHandler(async (req: Request, res: Response) => {
+    const result = await syncToTrakt(req.userId!);
+    res.json(result);
+  }),
+);
+
+router.put(
+  "/sync-direction",
+  requireAuth,
+  validateRequest(traktSyncDirectionSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { direction } = req.body as z.infer<typeof traktSyncDirectionSchema>;
+    const link = await setTraktSyncDirection(req.userId!, direction);
+    res.json({
+      traktUsername: link.traktUsername,
+      autoSync: link.autoSync,
+      syncDirection: link.syncDirection,
+      lastSyncAt: link.lastSyncAt,
+      lastSyncToTraktAt: link.lastSyncToTraktAt,
+    });
   }),
 );
 
@@ -140,6 +177,9 @@ router.put(
     res.json({
       traktUsername: link!.traktUsername,
       autoSync: link!.autoSync,
+      syncDirection: link!.syncDirection,
+      lastSyncAt: link!.lastSyncAt,
+      lastSyncToTraktAt: link!.lastSyncToTraktAt,
     });
   }),
 );

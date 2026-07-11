@@ -570,6 +570,8 @@ export function useAddToWatchlistBatch() {
       log("useTracking", "batchAdd success", { added: data.added, failed: data.failed });
       queryClient.invalidateQueries({ queryKey: ["tracking", "list"] });
       queryClient.invalidateQueries({ queryKey: ["tracking", "tmdb-ids"] });
+      queryClient.invalidateQueries({ queryKey: ["unwatched"] });
+      queryClient.invalidateQueries({ queryKey: ["upcoming"] });
     },
     onError: (err) => {
       log("useTracking", "batchAdd error", { err });

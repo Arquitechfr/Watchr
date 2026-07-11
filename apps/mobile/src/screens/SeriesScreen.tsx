@@ -1,8 +1,8 @@
 import { View, Text, FlatList, RefreshControl, TouchableOpacity, useWindowDimensions } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useScrollToTop } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { TopTabs, TopTab } from "../components/TopTabs";
 import { UpcomingEpisodeRow } from "../components/UpcomingEpisodeRow";
@@ -27,6 +27,7 @@ import { UpcomingEpisode } from "../services/upcoming.service";
 import { useThemeColors } from "../theme/useThemeColors";
 import { useI18n } from "../i18n/useI18n";
 import { Seo } from "../components/Seo";
+import { ImportProgressBanner } from "../components/ImportProgressBanner";
 import { log } from "../utils/logger";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "ShowDetail" | "EpisodeDetail">;
@@ -54,21 +55,25 @@ function UnwatchedList({
   isLoading,
   refetch,
   onEpisodePress,
+  onTitlePress,
   onMarkWatched,
   markingEpisodeKey,
   viewMode,
   cardWidth,
   searchQuery,
+  listRef,
 }: {
   shows: UnwatchedShow[];
   isLoading: boolean;
   refetch: () => void;
   onEpisodePress: (item: FlattenedEpisode) => void;
+  onTitlePress: (tmdbId: number, title: string) => void;
   onMarkWatched?: (item: FlattenedEpisode) => void;
   markingEpisodeKey?: string;
   viewMode: "list" | "grid";
   cardWidth: number;
   searchQuery: string;
+  listRef: React.RefObject<FlatList | null>;
 }) {
   const { t } = useI18n();
   const colors = useThemeColors();
@@ -114,6 +119,7 @@ function UnwatchedList({
     return (
       <FlatList
         key="grid"
+        ref={listRef}
         data={episodes}
         keyExtractor={(item, index) => `${item.showId}-${item.episode.season}-${item.episode.episode}-${index}`}
         numColumns={3}
@@ -131,6 +137,7 @@ function UnwatchedList({
                 isNew={item.isNew}
                 airDate={item.episode.airDate}
                 onPress={() => onEpisodePress(item)}
+                onTitlePress={() => onTitlePress(item.tmdbId, item.title)}
                 onMarkWatched={onMarkWatched ? () => onMarkWatched(item) : undefined}
                 isMarking={markingEpisodeKey === epKey}
                 width={cardWidth}
@@ -147,6 +154,7 @@ function UnwatchedList({
   return (
     <FlatList
       key="list"
+      ref={listRef}
       data={episodes}
       keyExtractor={(item, index) => `${item.showId}-${item.episode.season}-${item.episode.episode}-${index}`}
       renderItem={({ item }) => {
@@ -160,6 +168,7 @@ function UnwatchedList({
             episode={item.episode}
             isNew={item.isNew}
             onPress={() => onEpisodePress(item)}
+            onTitlePress={() => onTitlePress(item.tmdbId, item.title)}
             onMarkWatched={onMarkWatched ? () => onMarkWatched(item) : undefined}
             isMarking={markingEpisodeKey === epKey}
           />
@@ -177,22 +186,26 @@ function UpcomingList({
   error,
   refetch,
   onEpisodePress,
+  onTitlePress,
   onMarkWatched,
   markingEpisodeKey,
   viewMode,
   cardWidth,
   searchQuery,
+  listRef,
 }: {
   data: { today: UpcomingEpisode[]; thisWeek: UpcomingEpisode[]; nextWeek: UpcomingEpisode[]; later: UpcomingEpisode[] } | undefined;
   isLoading: boolean;
   error: Error | null;
   refetch: () => void;
   onEpisodePress: (episode: UpcomingEpisode) => void;
+  onTitlePress: (tmdbId: number, title: string) => void;
   onMarkWatched?: (episode: UpcomingEpisode) => void;
   markingEpisodeKey?: string;
   viewMode: "list" | "grid";
   cardWidth: number;
   searchQuery: string;
+  listRef: React.RefObject<FlatList | null>;
 }) {
   const { t } = useI18n();
   const colors = useThemeColors();
@@ -242,6 +255,7 @@ function UpcomingList({
     return (
       <FlatList
         key="grid"
+        ref={listRef}
         data={allEpisodes}
         keyExtractor={(item, index) => `${item.showId}-${item.season}-${item.episode}-${index}`}
         numColumns={3}
@@ -260,6 +274,7 @@ function UpcomingList({
                 network={item.network}
                 airDate={item.airDate}
                 onPress={() => onEpisodePress(item)}
+                onTitlePress={() => onTitlePress(item.tmdbId, item.title)}
                 onMarkWatched={onMarkWatched ? () => onMarkWatched(item) : undefined}
                 isMarking={markingEpisodeKey === epKey}
                 width={cardWidth}
@@ -308,6 +323,7 @@ function UpcomingList({
   return (
     <FlatList
       key="list"
+      ref={listRef}
       data={rows}
       keyExtractor={(item, index) => (item.type === "header" ? `header-${index}` : `${item.episode?.showId}-${index}`)}
       renderItem={({ item }) => {
@@ -322,6 +338,7 @@ function UpcomingList({
             episode={ep}
             isNew={isNew}
             onPress={() => onEpisodePress(ep)}
+            onTitlePress={() => onTitlePress(ep.tmdbId, ep.title)}
             onMarkWatched={onMarkWatched ? () => onMarkWatched(ep) : undefined}
             isMarking={markingEpisodeKey === epKey}
           />
@@ -342,6 +359,8 @@ export function SeriesScreen() {
   const hydrateLibraryViewMode = useUIStore((state) => state.hydrateLibraryViewMode);
   const { width: windowWidth } = useWindowDimensions();
   const tabs = useTabs();
+  const flatListRef = useRef<FlatList>(null);
+  useScrollToTop(flatListRef);
   const [activeTab, setActiveTab] = useState<TopTab>("unwatched");
   const [isSearchVisible, setIsSearchVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -384,6 +403,11 @@ export function SeriesScreen() {
       episodeNumber: item.episode.episode,
       title: item.title,
     });
+  }
+
+  function handleTitlePress(tmdbId: number, title: string) {
+    if (!tmdbId) return;
+    navigation.navigate("ShowDetail", { tmdbId, title });
   }
 
   function handleViewLibrary() {
@@ -435,6 +459,8 @@ export function SeriesScreen() {
         }
       />
 
+      <ImportProgressBanner />
+
       {isSearchVisible && (
         <SearchBar
           value={searchQuery}
@@ -473,11 +499,13 @@ export function SeriesScreen() {
               isLoading={isUnwatchedLoading}
               refetch={() => throttledRefreshUnwatched(refetchUnwatched)}
               onEpisodePress={handleEpisodePress}
+              onTitlePress={handleTitlePress}
               onMarkWatched={handleMarkUnwatchedEpisode}
               markingEpisodeKey={markingEpisodeKey}
               viewMode={libraryViewMode}
               cardWidth={cardWidth}
               searchQuery={searchQuery}
+              listRef={flatListRef}
             />
           )}
         </View>
@@ -491,11 +519,13 @@ export function SeriesScreen() {
             error={upcomingError}
             refetch={() => throttledRefreshUpcoming(refetchUpcoming)}
             onEpisodePress={handleUpcomingPress}
+            onTitlePress={handleTitlePress}
             onMarkWatched={handleMarkUpcomingWatched}
             markingEpisodeKey={markingEpisodeKey}
             viewMode={libraryViewMode}
             cardWidth={cardWidth}
             searchQuery={searchQuery}
+            listRef={flatListRef}
           />
         </View>
       )}

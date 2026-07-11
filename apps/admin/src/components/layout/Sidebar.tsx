@@ -66,6 +66,7 @@ export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
           mobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
         )}
       >
+        <div className="h-safe-top bg-surface shrink-0" />
         <div className="flex h-16 items-center justify-between gap-2 px-6 border-b border-border">
           <div className="flex items-center gap-2">
             <img src={icon} alt="Watchr" className="h-8 w-8 rounded-lg" />

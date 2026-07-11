@@ -8,6 +8,8 @@ export interface ITraktLink extends Document {
   tokenExpiresAt: Date;
   autoSync: boolean;
   lastSyncAt?: Date;
+  lastSyncToTraktAt?: Date;
+  syncDirection?: "from" | "both";
   createdAt: Date;
   updatedAt: Date;
 }
@@ -41,6 +43,14 @@ const traktLinkSchema = new Schema<ITraktLink>(
     },
     lastSyncAt: {
       type: Date,
+    },
+    lastSyncToTraktAt: {
+      type: Date,
+    },
+    syncDirection: {
+      type: String,
+      enum: ["from", "both"],
+      default: "from",
     },
   },
   { timestamps: true },

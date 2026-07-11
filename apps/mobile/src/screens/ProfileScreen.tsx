@@ -1,6 +1,6 @@
 import { Text, TouchableOpacity, ActivityIndicator, View, ScrollView, Platform, useWindowDimensions, Modal } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useScrollToTop } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { getItem as secureGetItem } from "../utils/secureStorage";
 import { useQuery } from "@tanstack/react-query";
@@ -23,7 +23,7 @@ import { logout, getMe } from "../services/auth.service";
 import { log } from "../utils/logger";
 import { RootStackParamList } from "../navigation/RootNavigator";
 import { useThemeColors } from "../theme/useThemeColors";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useI18n } from "../i18n/useI18n";
 import { Seo } from "../components/Seo";
 import { useUserStats } from "../hooks/useStats";
@@ -40,6 +40,8 @@ export function ProfileScreen() {
   const { t, dateFnsLocale } = useI18n();
   const colors = useThemeColors();
   const getErrorMessage = useErrorMessage();
+  const scrollRef = useRef<ScrollView>(null);
+  useScrollToTop(scrollRef);
   const [isLoading, setIsLoading] = useState(false);
   const [showYearInReview, setShowYearInReview] = useState(false);
   const { width } = useWindowDimensions();
@@ -93,7 +95,7 @@ export function ProfileScreen() {
       <Seo title={t("seo.profile")} />
       <View style={Platform.OS === "web" ? { maxWidth: 800, alignSelf: "center", width: "100%", flex: 1 } : undefined}>
       <MainHeader rightElement={<ProfileMenuButton />} />
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerClassName="pb-24">
+      <ScrollView ref={scrollRef} showsVerticalScrollIndicator={false} contentContainerClassName="pb-24">
         <View className="items-center mb-6">
           <TouchableOpacity onPress={pickAvatar} disabled={isAvatarUploading || meLoading} activeOpacity={0.8}>
             <View className="relative">

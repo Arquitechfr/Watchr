@@ -166,7 +166,7 @@ function AddFavoriteModal({ visible, onClose, type, title }: AddFavoriteModalPro
         />
         <View
           className="rounded-t-2xl relative"
-          style={{ backgroundColor: colors.background, maxHeight: "80%" }}
+          style={{ backgroundColor: colors.background, maxHeight: "80%", flex: 1 }}
         >
           <View className="flex-row items-center justify-between px-4 py-4 border-b" style={{ borderBottomColor: colors.border }}>
             <Text className="text-text text-lg font-bold">{title}</Text>
@@ -201,6 +201,7 @@ function AddFavoriteModal({ visible, onClose, type, title }: AddFavoriteModalPro
           <FlatList
             data={filteredItems}
             keyExtractor={(item) => item.id}
+            style={{ flex: 1 }}
             contentContainerClassName="px-4 pb-3"
             ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
             onEndReached={() => {

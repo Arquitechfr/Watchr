@@ -1,13 +1,13 @@
 # AGENTS.md — Watchr
 
-> [?] "Watchr" est un nom de code placeholder. Renommer avant tout déploiement public (vérifier dispo domaine/store).
+> [?] "Watchr" est un nom de code placeholder. Renommer avant tout déploiement public.
 
 ## Contexte
 
-Watchr est un tracker de séries/films (successeur perso de TV Time, qui ferme ses portes).
-MVP scope : tracking watch-status + notes/ratings + commentaires publics sur shows/épisodes, import prioritaire des exports GDPR TV Time.
+Watchr est un tracker de séries/films (successeur perso de TV Time).
+MVP : tracking watch-status + notes/ratings + commentaires publics sur shows/épisodes, import prioritaire des exports GDPR TV Time.
 
-Délai : livraison MVP avant le 15/07/2026.
+Délai : MVP avant le 15/07/2026.
 
 ## Stack
 
@@ -17,20 +17,20 @@ Délai : livraison MVP avant le 15/07/2026.
 | Backend framework | Express.js |
 | BDD | MongoDB + Mongoose |
 | Auth | JWT (access + refresh) |
-| Validation | Zod (backend et frontend) |
-| Mobile | React Native + Expo (dev client, **prebuild autorisé**) |
+| Validation | Zod |
+| Mobile | React Native + Expo (prebuild autorisé) |
 | État mobile | Zustand + TanStack Query |
 | Navigation mobile | React Navigation (native-stack, bottom-tabs) |
 | Réseau mobile | Axios |
-| Stockage local mobile | expo-secure-store (tokens), AsyncStorage (cache léger) |
+| Stockage local mobile | expo-secure-store (tokens), AsyncStorage (cache) |
 | Style mobile | NativeWind |
-| Web (same app) | react-native-web via Expo Web (`expo start --web`) |
-| Style web | NativeWind + Tailwind breakpoints (`md:`, `lg:`) |
-| Package manager | pnpm exclusivement |
+| Web | react-native-web via Expo Web (`expo start --web`) |
+| Style web | NativeWind + Tailwind breakpoints |
+| Package manager | pnpm |
 | Lint/Format | ESLint + Prettier |
 | Tests | Vitest |
-| Admin backoffice | ViteJS + React 18 + TypeScript |
-| Admin UI | TailwindCSS + shadcn/ui (Radix primitives) |
+| Admin | ViteJS + React 18 + TypeScript |
+| Admin UI | TailwindCSS + shadcn/ui |
 | Admin state | Zustand |
 | Admin routing | React Router v6 |
 
@@ -59,75 +59,88 @@ watchr/
 │   │   │   └── navigation/
 │   │   ├── App.tsx              # Entry point — mobile + web
 │   │   └── package.json
-│   ├── admin/                          # NOUVEAU — backoffice admin
-│   │   ├── src/
-│   │   │   ├── pages/
-│   │   │   ├── components/
-│   │   │   │   ├── ui/                # shadcn/ui
-│   │   │   │   ├── layout/
-│   │   │   │   └── shared/
-│   │   │   ├── hooks/
-│   │   │   ├── lib/                   # api client, utils
-│   │   │   ├── store/                 # Zustand
-│   │   │   └── types/
-│   │   ├── package.json
-│   │   └── vite.config.ts
+│   └── admin/
+│       ├── src/
+│       │   ├── pages/
+│       │   ├── components/
+│       │   │   ├── ui/                # shadcn/ui
+│       │   │   ├── layout/
+│       │   │   └── shared/
+│       │   ├── hooks/
+│       │   ├── lib/                   # api client, utils
+│       │   ├── store/                 # Zustand
+│       │   └── types/
+│       ├── package.json
+│       └── vite.config.ts
 ├── pnpm-workspace.yaml
 └── AGENTS.md
 ```
 
 ## Commandes
 
-- Install : `pnpm install` (à la racine, workspace)
-- Backend dev : `pnpm --filter backend dev`
-- Mobile dev : `pnpm --filter mobile start` (dev client Expo, prebuild autorisé)
-- Web dev : `pnpm --filter mobile web` (expo start --web, react-native-web)
-- Web build : `npx expo export --platform web --output-dir dist` (depuis apps/mobile)
-- Remote config CLI : `pnpm --filter backend mobile-config set <key> <value> [type]` (types: string, number, boolean, json)
-- Remote config list : `pnpm --filter backend mobile-config list`
-- Remote config seed : `pnpm --filter backend mobile-config:seed` (peuple avec les valeurs par défaut)
-- Admin dev : `pnpm --filter admin dev` (ViteJS, port 5173)
-- Admin build : `pnpm --filter admin build`
-- Promote admin : `pnpm --filter backend promote-admin <email>` (promeut un user au rôle admin)
+- `pnpm install` : installation à la racine
+- `pnpm --filter backend dev` : backend dev
+- `pnpm --filter mobile start` : mobile dev (Expo dev client)
+- `pnpm --filter mobile web` : web dev
+- `npx expo export --platform web --output-dir dist` : build web (depuis `apps/mobile`)
+- `pnpm --filter backend mobile-config set <key> <value> [type]` : écriture remote config (types: string, number, boolean, json)
+- `pnpm --filter backend mobile-config list` : liste remote config
+- `pnpm --filter backend mobile-config:seed` : seed remote config
+- `pnpm --filter admin dev` : admin dev (port 5173)
+- `pnpm --filter admin build` : admin build
+- `pnpm --filter backend promote-admin <email>` : promouvoir un user admin
 
 ## URLs de production
 
-- **Site web (landing page)** : https://watchr.me
-- **Web app (Expo Web, version desktop de l'app mobile)** : https://app.watchr.me
-- **API backend** : https://api.watchr.me
-- **Backoffice admin** : https://backoffice.watchr.me
+- **Landing** : https://watchr.me
+- **Web app** : https://app.watchr.me
+- **API** : https://api.watchr.me
+- **Backoffice** : https://backoffice.watchr.me
 
-## Contraintes et principes actifs
+## Contraintes et principes
 
-1. **Modules natifs côté mobile.** Les libs nécessitant du code natif doivent avoir un config plugin Expo officiel. Le prebuild est autorisé (dev client Expo). Signaler avant d'ajouter une lib nécessitant du code natif custom.
-2. **pnpm uniquement**, jamais npm/yarn/bun dans les commandes ou la doc.
-3. **Sources de données** : TMDB est la source de données principale. Le parser d'import GDPR TV Time reste tolérant (détection de colonnes par header) et produit un rapport d'erreurs ligne par ligne.
-4. **Planification obligatoire** : toute nouvelle feature ou changement architectural doit faire l'objet d'un plan validé avant implémentation.
-5. **Internationalisation (i18n)** : l'application supporte `en` et `fr`.
-   - Côté mobile, tout texte UI doit passer par `useI18n` et `t()` (interdiction de laisser du texte en dur dans les composants/écrans).
-   - Les fichiers de traduction sont splités par langue, côté mobile **et** backend :
-     - Mobile : `apps/mobile/src/i18n/locales/<lang>.ts` (agrégés dans `translations.ts`)
-     - Backend : `apps/backend/src/i18n/locales/<lang>.ts` (agrégés dans `translations.ts`)
-   - Les dates et formats localisés utilisent `date-fns` avec la locale dynamique fournie par `useI18n` (`dateFnsLocale`).
-   - Les messages d'erreur API utilisent le hook `useErrorMessage` ; les messages snackbar utilisent des clés de traduction.
-   - **Synchronisation obligatoire** : toute nouvelle clé ou modification de traduction doit être répercutée dans **tous** les fichiers de locale (`en.ts`, `fr.ts`, et toute autre langue supportée) côté mobile **et** backend. Les fichiers doivent rester en parité parfaite. Une tâche n'est pas terminée tant que toutes les langues ne sont pas à jour.
-   - **Synchronisation obligatoire** : toute nouvelle clé ou modification de traduction doit être répercutée dans **tous** les fichiers de locale (`en.ts`, `fr.ts`, et toute autre langue supportée) côté mobile **et** backend. Les fichiers doivent rester en parité parfaite. Une tâche n'est pas terminée tant que toutes les langues ne sont pas à jour.
-   - **mobile** is **Source of truth** par rapport au autres. 
-   - Utilisez tous les MCP que vous jugez pertinents pour votre demande.
-   - Toujours mettre en place des logiques optimistic pour l'utilisateur via du UI et UX moderne.
-6. **Compatibilité Web (Expo Web)** : l'app mobile Expo sert également de web app desktop via `react-native-web`. Toute nouvelle page, composant ou logique doit être compatible web.
-   - **Guards `Platform.OS`** : tout usage de module natif (`expo-notifications`, `expo-secure-store`, `expo-file-system`, `expo-sharing`, `react-native-android-widget`, etc.) doit être conditionné par `Platform.OS !== 'web'` ou abstrait derrière un wrapper cross-platform (ex: `secureStorage`).
-   - **Layout responsive** : tout écran doit utiliser des breakpoints Tailwind (`md:`, `lg:`) ou `useWindowDimensions()` pour s'adapter au desktop. Les bottom tabs deviennent une sidebar sur large screen.
-   - **Stockage web** : `expo-secure-store` n'existe pas sur web → utiliser l'abstraction `src/utils/secureStorage.ts` (localStorage fallback). Jamais importer `expo-secure-store` directement hors de ce wrapper.
-   - **Navigation web** : le linking `watchr://` ne fonctionne pas sur web. Les paths URL browser doivent être configurés dans le `linking` config de React Navigation.
-   - **Pas de régression mobile** : les adaptations web ne doivent jamais modifier le comportement mobile existant. Tout guard web doit préserver le flow native intact.
-   - **Test web** : vérifier `pnpm --filter mobile web` lance sans crash avant de considérer une tâche terminée.
-8. **Recommandations explicites** : lorsque l'agent formule une recommandation (approche technique, choix d'architecture, librairie, pattern, etc.), il doit la préfixer avec **`(RECOMMANDATION)`** pour la rendre immédiatement identifiable.
-9. **Backoffice Admin (apps/admin)** : le backoffice est une app ViteJS séparée (React + Tailwind + shadcn/ui), partageant le backend Express via des routes dédiées `/api/admin/*`.
-   - **Auth** : réutilise le JWT existant. Le modèle User a un champ `role` (`"user" | "admin"`, default `"user"`). Le middleware `requireAdmin` protège toutes les routes `/api/admin/*`.
-   - **Thème** : aligné sur le mobile — mêmes couleurs (`#1A1614` dark bg, `#C65D3A` primary, `#F5F0EB` text). Dark mode par défaut.
-   - **Sécurité** : toutes les routes admin sont validées avec Zod. Le broadcast push est batché et loggé dans `NotificationLog`.
-   - **Remote Config** : l'admin peut lire/écrire la MobileConfig via l'UI (endpoint `requireAdmin`), en complément du CLI existant. La règle "CLI uniquement" est étendue : l'écriture via l'API admin est autorisée car authentifiée + autorisée.
-   - **Pas de régression backend** : les routes admin sont additive — aucun changement aux routes existantes utilisées par le mobile.
-   - **i18n** : le backoffice n'est pas internationalisé par défaut (interface admin en anglais). Si du texte utilisateur apparaît, utiliser l'anglais.
-   - **Test admin** : `pnpm --filter admin dev` doit lancer sans crash avant de considérer une tâche admin terminée.
+1. **Modules natifs** : les libs natives doivent avoir un config plugin Expo officiel. Prebuild autorisé. Signaler avant d'ajouter du code natif custom.
+2. **pnpm uniquement** : jamais npm/yarn/bun dans les commandes ou la doc.
+3. **Sources de données** : TMDB est la source principale. Le parser TV Time GDPR est tolérant (détection par header) et produit un rapport d'erreurs ligne par ligne.
+4. **Planification obligatoire** : toute feature ou changement architectural > 2 fichiers ou intégration externe fait l'objet d'un plan validé avant implémentation.
+5. **Internationalisation** : `en` et `fr`. Tout texte UI mobile passe par `useI18n`/`t()`. Dates via `date-fns` + `dateFnsLocale`. Messages d'erreur API via `useErrorMessage`. Traductions dans `apps/mobile/src/i18n/locales/<lang>.ts` (mobile) et `apps/backend/src/i18n/locales/<lang>.ts` (backend). Toute clé/modification doit être répercutée dans **tous** les fichiers de locale (`en.ts`, `fr.ts`, etc.) des deux côtés — parfaite parité obligatoire.
+6. **Compatibilité Web** : l'app Expo est aussi une web app desktop. Tout code doit être compatible web.
+   - Guards `Platform.OS` pour les modules natifs (`expo-notifications`, `expo-secure-store`, `expo-file-system`, `expo-sharing`, etc.).
+   - Layout responsive via Tailwind breakpoints (`md:`, `lg:`) ou `useWindowDimensions()`.
+   - Stockage sécurisé : utiliser `src/utils/secureStorage.ts` (localStorage fallback). Jamais importer `expo-secure-store` directement hors de ce wrapper.
+   - Navigation web : configurer les paths URL dans `linking` de React Navigation.
+   - Pas de régression mobile : les guards web préservent le flow native.
+   - Test web : `pnpm --filter mobile web` doit lancer sans crash.
+7. **Backoffice Admin** : app ViteJS séparée, routes `/api/admin/*`.
+   - Auth via JWT, rôle `role: "user" | "admin"`, middleware `requireAdmin`.
+   - Thème aligné mobile : dark bg `#1A1614`, primary `#C65D3A`, text `#F5F0EB`. Dark mode par défaut.
+   - Toutes les routes admin validées avec Zod.
+   - Remote Config : l'admin peut lire/écrire via UI (endpoint `requireAdmin`), en complément du CLI.
+   - Routes admin additives, pas de régression backend.
+   - Interface admin en anglais.
+   - Test admin : `pnpm --filter admin dev` lance sans crash.
+8. **Recommandations explicites** : tout conseil technique, architectural, librairie ou pattern doit être préfixé par **`(RECOMMANDATION)`**.
+9. **Remote Config** : valeurs runtime (`backend_url`, flags, etc.) dans MongoDB `mobile_config`, endpoint public `GET /internal/mobile-config` (cache 30s côté backend).
+   - Mobile : `remoteConfigService` init bloquant, cache AsyncStorage, refresh 5 min + foreground.
+   - Écriture = CLI (`pnpm --filter backend mobile-config set ...`) ou API admin authentifiée. Jamais d'endpoint public d'écriture.
+   - Lecture = endpoint public sans auth (pas de données sensibles).
+   - URL backend non hardcodée : `remoteConfigService.getConfig().backend_url` ou `getApiBaseUrl()`.
+   - Build-time vars (Firebase, EAS, Sentry) restent dans `.env`.
+   - Nouvelle valeur runtime : ajouter à `DEFAULT_REMOTE_CONFIG`, seeder MongoDB, documenter dans le plan.
+
+## Principes transversaux
+
+- **Mobile = source of truth** par rapport aux autres apps.
+- Utiliser tous les **MCP** pertinents pour la demande.
+- Mettre en place des logiques **optimistic** et une UX moderne.
+
+## Definition of Done
+
+- [ ] Code sans placeholder ni `console.log` de debug oublié.
+- [ ] Erreurs et edge cases gérés (réseau down, 401/403, données vides, import malformé).
+- [ ] Hypothèses non confirmées documentées avec `[?]` dans la description du changement.
+- [ ] Remote Config : nouvelle valeur runtime ajoutée à `DEFAULT_REMOTE_CONFIG`, seedée, aucune URL backend hardcodée.
+- [ ] Web : `pnpm --filter mobile web` sans crash, guards `Platform.OS`, layout responsive.
+- [ ] Admin : si touché, `pnpm --filter admin dev` sans crash, routes validées Zod, pas de régression backend.
+- [ ] Mobile : pas de régression iOS/Android.
+- [ ] Translations : tous les fichiers de locale mobile et backend restent en parité.

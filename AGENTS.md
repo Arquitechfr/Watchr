@@ -122,7 +122,8 @@ watchr/
    - **Navigation web** : le linking `watchr://` ne fonctionne pas sur web. Les paths URL browser doivent être configurés dans le `linking` config de React Navigation.
    - **Pas de régression mobile** : les adaptations web ne doivent jamais modifier le comportement mobile existant. Tout guard web doit préserver le flow native intact.
    - **Test web** : vérifier `pnpm --filter mobile web` lance sans crash avant de considérer une tâche terminée.
-7. **Backoffice Admin (apps/admin)** : le backoffice est une app ViteJS séparée (React + Tailwind + shadcn/ui), partageant le backend Express via des routes dédiées `/api/admin/*`.
+8. **Recommandations explicites** : lorsque l'agent formule une recommandation (approche technique, choix d'architecture, librairie, pattern, etc.), il doit la préfixer avec **`(RECOMMANDATION)`** pour la rendre immédiatement identifiable.
+9. **Backoffice Admin (apps/admin)** : le backoffice est une app ViteJS séparée (React + Tailwind + shadcn/ui), partageant le backend Express via des routes dédiées `/api/admin/*`.
    - **Auth** : réutilise le JWT existant. Le modèle User a un champ `role` (`"user" | "admin"`, default `"user"`). Le middleware `requireAdmin` protège toutes les routes `/api/admin/*`.
    - **Thème** : aligné sur le mobile — mêmes couleurs (`#1A1614` dark bg, `#C65D3A` primary, `#F5F0EB` text). Dark mode par défaut.
    - **Sécurité** : toutes les routes admin sont validées avec Zod. Le broadcast push est batché et loggé dans `NotificationLog`.

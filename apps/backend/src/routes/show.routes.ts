@@ -159,7 +159,7 @@ router.get(
       res.json({ shows: [], source: "fallback" });
       return;
     }
-    const results = await getSimilarShows(show._id.toString(), req.language);
+    const results = await getSimilarShows(show._id.toString(), req.language, req.userId);
     res.json(results);
   }),
 );

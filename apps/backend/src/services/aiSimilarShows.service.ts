@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import { mistralService } from "./mistral.service.js";
 import { log, logError } from "../lib/logger.js";
 import { MobileConfig } from "../models/MobileConfig.js";
@@ -7,6 +8,7 @@ import { tmdbService } from "./tmdb.service.js";
 import type { TmdbSearchResult } from "./tmdb.service.js";
 import { Show } from "../models/show.model.js";
 import { getShowTitle } from "../models/show.model.js";
+import { WatchEntry } from "../models/watchEntry.model.js";
 import type { SupportedLocale } from "../i18n/translations.js";
 
 const CACHE_TTL = 24 * 60 * 60;
@@ -30,20 +32,46 @@ export interface SimilarShowsResult {
   source: "ai" | "fallback";
 }
 
+async function filterFollowedShows(
+  shows: SimilarShow[],
+  userId: string,
+): Promise<SimilarShow[]> {
+  const entries = await WatchEntry.find({ userId: new Types.ObjectId(userId) })
+    .populate("showId", "tmdbId")
+    .lean();
+  const followedTmdbIds = new Set<number>();
+  for (const entry of entries) {
+    const show = entry.showId as unknown as { tmdbId?: number } | null;
+    if (show?.tmdbId) {
+      followedTmdbIds.add(show.tmdbId);
+    }
+  }
+  return shows.filter((s) => !followedTmdbIds.has(s.tmdbId));
+}
+
 export async function getSimilarShows(
   showId: string,
   locale: SupportedLocale = "en",
+  userId?: string,
 ): Promise<SimilarShowsResult> {
   const enabled = await isFeatureEnabled();
   if (!enabled || !mistralService.isConfigured()) {
-    return getFallbackSimilarShows(showId, locale);
+    const fallback = await getFallbackSimilarShows(showId, locale);
+    if (userId) {
+      fallback.shows = await filterFollowedShows(fallback.shows, userId);
+    }
+    return fallback;
   }
 
   const cacheKey = `ai:similar:${showId}:${locale}`;
   const cached = await getRedisValue(cacheKey);
   if (cached) {
     try {
-      return JSON.parse(cached) as SimilarShowsResult;
+      const cachedResult = JSON.parse(cached) as SimilarShowsResult;
+      if (userId) {
+        cachedResult.shows = await filterFollowedShows(cachedResult.shows, userId);
+      }
+      return cachedResult;
     } catch {
       // Cache corrupt, proceed
     }
@@ -61,7 +89,7 @@ export async function getSimilarShows(
 
   const languageName = languageNameForLocale(locale);
 
-  const systemPrompt = `You are a "similar shows" recommendation engine for "Watchr", a TV show and movie tracking app. Based on the given show, suggest 10 similar shows/movies that a fan of the original would enjoy.
+  const systemPrompt = `You are a "similar shows" recommendation engine for "Watchr", a TV show and movie tracking app. Based on the given show, suggest 15 similar shows/movies that a fan of the original would enjoy.
 
 Rules:
 - Respond in ${languageName}
@@ -88,7 +116,11 @@ Overview: ${showOverview.slice(0, 500)}`;
 
   if (!result) {
     log("AISimilarShows", "AI unavailable, using fallback");
-    return getFallbackSimilarShows(showId, locale);
+    const fallback = await getFallbackSimilarShows(showId, locale);
+    if (userId) {
+      fallback.shows = await filterFollowedShows(fallback.shows, userId);
+    }
+    return fallback;
   }
 
   try {
@@ -98,7 +130,11 @@ Overview: ${showOverview.slice(0, 500)}`;
       : parsed.shows ?? parsed.recommendations ?? parsed.data ?? [];
 
     if (!Array.isArray(items) || items.length === 0) {
-      return getFallbackSimilarShows(showId, locale);
+      const fallback = await getFallbackSimilarShows(showId, locale);
+      if (userId) {
+        fallback.shows = await filterFollowedShows(fallback.shows, userId);
+      }
+      return fallback;
     }
 
     const tmdbLanguageMap: Record<string, string> = {
@@ -108,7 +144,7 @@ Overview: ${showOverview.slice(0, 500)}`;
 
     const shows: SimilarShow[] = [];
 
-    for (const item of items.slice(0, 10)) {
+    for (const item of items.slice(0, 15)) {
       try {
         const searchResult = await tmdbService.searchMulti(item.tmdb_title, tmdbLanguage);
         const match = searchResult.results.find(
@@ -130,16 +166,27 @@ Overview: ${showOverview.slice(0, 500)}`;
     }
 
     if (shows.length === 0) {
-      return getFallbackSimilarShows(showId, locale);
+      const fallback = await getFallbackSimilarShows(showId, locale);
+      if (userId) {
+        fallback.shows = await filterFollowedShows(fallback.shows, userId);
+      }
+      return fallback;
     }
 
     const similarResult: SimilarShowsResult = { shows, source: "ai" };
     await setRedisValue(cacheKey, JSON.stringify(similarResult), CACHE_TTL);
     log("AISimilarShows", "similar shows generated", { showId, count: shows.length });
+    if (userId) {
+      similarResult.shows = await filterFollowedShows(similarResult.shows, userId);
+    }
     return similarResult;
   } catch (err) {
     logError("AISimilarShows", "parse error", err, { content: result.content.slice(0, 200) });
-    return getFallbackSimilarShows(showId, locale);
+    const fallback = await getFallbackSimilarShows(showId, locale);
+    if (userId) {
+      fallback.shows = await filterFollowedShows(fallback.shows, userId);
+    }
+    return fallback;
   }
 }
 
@@ -159,7 +206,7 @@ async function getFallbackSimilarShows(
     const tmdbLanguage = tmdbLanguageMap[locale] ?? "en-US";
 
     const results = await tmdbService.getSimilar(show.tmdbId, show.type, tmdbLanguage);
-    const topResults = results.slice(0, 10);
+    const topResults = results.slice(0, 15);
 
     const shows: SimilarShow[] = topResults.map((item: TmdbSearchResult) => ({
       tmdbId: item.id,

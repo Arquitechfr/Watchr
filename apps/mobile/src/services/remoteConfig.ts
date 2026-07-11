@@ -2,6 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { AppState, AppStateStatus, Platform } from "react-native";
 import { DEFAULT_REMOTE_CONFIG, DEFAULT_REMOTE_CONFIG_DESCRIPTIONS, RemoteConfig, RemoteConfigDescriptions } from "../config/defaults";
+import { warn } from "../utils/logger";
 
 const CACHE_KEY = "remote_config_cache";
 const CACHE_DESCRIPTIONS_KEY = "remote_config_descriptions_cache";
@@ -68,7 +69,7 @@ class RemoteConfigService {
         await this.saveDescriptionsToCache(this.currentDescriptions);
       }
     } catch (err) {
-      console.warn("[remoteConfig] refresh \u00e9chou\u00e9, fallback conserv\u00e9:", (err as Error).message);
+      warn("remoteConfig", "refresh \u00e9chou\u00e9, fallback conserv\u00e9:", (err as Error).message);
     }
   }
 
@@ -87,7 +88,7 @@ class RemoteConfigService {
         this.notifyDescriptions();
       }
     } catch (err) {
-      console.warn("[remoteConfig] lecture cache \u00e9chou\u00e9e:", (err as Error).message);
+      warn("remoteConfig", "lecture cache \u00e9chou\u00e9e:", (err as Error).message);
     }
   }
 
@@ -95,7 +96,7 @@ class RemoteConfigService {
     try {
       await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(config));
     } catch (err) {
-      console.warn("[remoteConfig] \u00e9criture cache \u00e9chou\u00e9e:", (err as Error).message);
+      warn("remoteConfig", "\u00e9criture cache \u00e9chou\u00e9e:", (err as Error).message);
     }
   }
 
@@ -103,7 +104,7 @@ class RemoteConfigService {
     try {
       await AsyncStorage.setItem(CACHE_DESCRIPTIONS_KEY, JSON.stringify(descriptions));
     } catch (err) {
-      console.warn("[remoteConfig] \u00e9criture cache descriptions \u00e9chou\u00e9e:", (err as Error).message);
+      warn("remoteConfig", "\u00e9criture cache descriptions \u00e9chou\u00e9e:", (err as Error).message);
     }
   }
 
@@ -142,7 +143,7 @@ class RemoteConfigService {
           }
         });
       } catch (err) {
-        console.warn("[remoteConfig] WS listener init failed:", (err as Error).message);
+        warn("remoteConfig", "WS listener init failed:", (err as Error).message);
       }
     };
     setupListener();

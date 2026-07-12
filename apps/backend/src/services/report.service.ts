@@ -138,20 +138,38 @@ export async function createReport(
   }
 
   import("./admin/adminFeedNotification.service.js")
-    .then(({ createNotification }) =>
+    .then(async ({ createNotification }) => {
+      const [show, commentAuthor, reporter] = await Promise.all([
+        Show.findById(comment.showId).select("title translations").lean(),
+        User.findById(comment.userId).select("username").lean(),
+        User.findById(reporterId).select("username").lean(),
+      ]);
+      const showTitle = show ? getShowTitle(show, "en") : "Unknown";
+      const authorUsername = commentAuthor?.username ?? "Unknown";
+      const reporterUsername = reporter?.username ?? "Unknown";
+      const contentPreview = comment.content.length > 80 ? comment.content.slice(0, 80) + "…" : comment.content;
+      const episodeStr = comment.episodeRef ? ` S${comment.episodeRef.season}E${comment.episodeRef.episode}` : "";
+
       createNotification({
         type: "new_report",
         title: "New comment report",
-        message: `A comment was reported for: ${reason}.`,
+        message: `Report (${reason}): "${contentPreview}" by ${authorUsername} on "${showTitle}"${episodeStr}. Reported by ${reporterUsername}.`,
         severity: "warning",
         metadata: {
           refId: report._id.toString(),
           refType: "report",
           commentId,
-          reporterId: reporterId,
+          reporterId,
+          reporterUsername,
+          commentAuthorId: comment.userId.toString(),
+          commentAuthorUsername: authorUsername,
+          showId: comment.showId.toString(),
+          showTitle,
+          episodeRef: comment.episodeRef,
+          commentContentPreview: contentPreview,
         },
-      }),
-    )
+      });
+    })
     .catch(() => {});
 
   return { id: report._id.toString(), status: report.status };

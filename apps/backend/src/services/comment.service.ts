@@ -295,18 +295,27 @@ export async function createComment(userId: string, input: CreateCommentInput) {
     logError("CommentService", "translation failed", err),
   );
 
+  const commentUser = await User.findById(userId).select("username").lean();
+  const commentUsername = commentUser?.username ?? "Unknown";
+  const contentPreview = input.content.length > 80 ? input.content.slice(0, 80) + "…" : input.content;
+  const episodeStr = input.episodeRef ? ` S${input.episodeRef.season}E${input.episodeRef.episode}` : "";
+
   import("./admin/adminFeedNotification.service.js")
     .then(({ createNotification }) =>
       createNotification({
         type: "new_comment",
         title: "New comment posted",
-        message: `New comment on show ${showTitle}${input.episodeRef ? ` S${input.episodeRef.season}E${input.episodeRef.episode}` : ""}.`,
+        message: `${commentUsername} commented on "${showTitle}"${episodeStr}: "${contentPreview}"`,
         severity: "info",
         metadata: {
           refId: comment._id.toString(),
           refType: "comment",
           userId,
           showId: input.showId,
+          showTitle,
+          username: commentUsername,
+          episodeRef: input.episodeRef,
+          contentPreview,
         },
       }),
     )

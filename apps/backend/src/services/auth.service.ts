@@ -78,6 +78,8 @@ export async function registerUser(email: string, password: string): Promise<Tok
           refType: "user",
           userId: user._id.toString(),
           username: user.username,
+          email: user.email,
+          provider: "email",
         },
       }),
     )

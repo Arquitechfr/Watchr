@@ -1,9 +1,11 @@
 import { Types } from "mongoose";
 import { Rating } from "../models/rating.model.js";
 import { Show } from "../models/show.model.js";
+import { User } from "../models/user.model.js";
 import { MobileConfig } from "../models/MobileConfig.js";
 import { ApiError } from "../middleware/error.middleware.js";
 import { getRedisValue, setRedisValue, invalidateRedisPattern } from "../lib/redis.js";
+import { getShowTitle } from "../models/show.model.js";
 
 const DEFAULT_RATING_COOLDOWN_DAYS = 7;
 
@@ -162,18 +164,28 @@ export async function upsertRating(userId: string, input: UpsertRatingInput) {
   await invalidateRedisPattern(`community-ratings:${input.showId}`);
   const community = await getCommunityRatings(input.showId);
 
+  const showTitle = getShowTitle(show, "en");
+  const episodeStr = input.episodeRef
+    ? ` (S${input.episodeRef.season}E${input.episodeRef.episode})`
+    : "";
+  const ratingUser = await User.findById(userId).select("username").lean();
+  const ratingUsername = ratingUser?.username ?? "Unknown";
+
   import("./admin/adminFeedNotification.service.js")
     .then(({ createNotification }) =>
       createNotification({
         type: "new_rating",
         title: "New rating submitted",
-        message: `User rated a show ${normalizedValue}/5${input.episodeRef ? ` (S${input.episodeRef.season}E${input.episodeRef.episode})` : ""}.`,
+        message: `${ratingUsername} rated "${showTitle}" ${normalizedValue}/5${episodeStr}.`,
         severity: "info",
         metadata: {
           refId: rating._id.toString(),
           refType: "rating",
           userId,
           showId: input.showId,
+          showTitle,
+          username: ratingUsername,
+          episodeRef: input.episodeRef,
         },
       }),
     )

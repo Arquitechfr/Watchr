@@ -93,16 +93,35 @@ class PushbulletService {
     }
   }
 
-  async notifySignup(email: string, username: string): Promise<boolean> {
-    return this.push("New user registered", `${username} (${email}) just signed up.`);
+  async notifySignup(email: string, username: string, provider: string = "email"): Promise<boolean> {
+    return this.push("New user registered", `${username} (${email}) just signed up via ${provider}.`);
   }
 
-  async notifyReport(reason: string, reporterId: string): Promise<boolean> {
-    return this.push("New comment report", `A comment was reported for: ${reason}. Reporter: ${reporterId}`);
+  async notifyReport(
+    reason: string,
+    reporterId: string,
+    showTitle?: string,
+    commentPreview?: string,
+    authorUsername?: string,
+  ): Promise<boolean> {
+    const parts = [`Report (${reason})`];
+    if (showTitle) parts.push(`on "${showTitle}"`);
+    if (authorUsername) parts.push(`by ${authorUsername}`);
+    if (commentPreview) parts.push(`: "${commentPreview}"`);
+    parts.push(`Reporter: ${reporterId}`);
+    return this.push("New comment report", parts.join(" "));
   }
 
-  async notifyContact(subject: string, category: string, username: string): Promise<boolean> {
-    return this.push(`New contact message: ${category}`, `${username}: ${subject}`);
+  async notifyContact(
+    subject: string,
+    category: string,
+    username: string,
+    messagePreview?: string,
+  ): Promise<boolean> {
+    const body = messagePreview
+      ? `${username} — ${subject}: ${messagePreview}`
+      : `${username}: ${subject}`;
+    return this.push(`New contact message: ${category}`, body);
   }
 
   async notifyError(service: string, message: string): Promise<boolean> {

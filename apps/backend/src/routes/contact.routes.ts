@@ -52,18 +52,23 @@ router.post(
       status: "new",
     });
 
+    const messagePreview = message.length > 80 ? message.slice(0, 80) + "…" : message;
+
     import("../services/admin/adminFeedNotification.service.js")
       .then(({ createNotification }) =>
         createNotification({
           type: "new_contact",
           title: `New contact message: ${category}`,
-          message: `${user.username}: ${subject}`,
+          message: `${user.username} — ${subject}: ${messagePreview}`,
           severity: category === "bug" ? "warning" : "info",
           metadata: {
             refId: doc._id.toString(),
             refType: "contact_message",
             userId: req.userId,
             username: user.username,
+            category,
+            subject,
+            messagePreview,
           },
         }),
       )

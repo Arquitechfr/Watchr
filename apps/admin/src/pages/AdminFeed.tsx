@@ -245,6 +245,21 @@ export function AdminFeed() {
                         )}
                       </div>
                       <p className="text-sm text-text-muted mt-1">{notif.message}</p>
+                      {!!notif.metadata?.showTitle && (
+                        <div className="flex items-center gap-2 mt-1 flex-wrap">
+                          <Badge className="bg-surface-light text-text-muted">
+                            {String(notif.metadata.showTitle)}
+                            {notif.metadata.episodeRef
+                              ? ` — S${(notif.metadata.episodeRef as { season: number }).season}E${(notif.metadata.episodeRef as { episode: number }).episode}`
+                              : ""}
+                          </Badge>
+                        </div>
+                      )}
+                      {!!notif.metadata?.username && notif.type !== "user_registered" && (
+                        <span className="text-xs text-text-muted/60 mt-0.5">
+                          by {String(notif.metadata.username)}
+                        </span>
+                      )}
                       <p className="text-xs text-text-muted/70 mt-1">{formatDate(notif.createdAt)}</p>
                     </div>
                     <div className="flex items-center gap-1 shrink-0">

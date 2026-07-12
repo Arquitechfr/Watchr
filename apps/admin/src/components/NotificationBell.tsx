@@ -156,10 +156,12 @@ function navigateToResource(navigate: ReturnType<typeof useNavigate>, notif: Fee
       else navigate("/users");
       break;
     case "new_comment":
-      navigate("/comments");
+      if (meta.showId) navigate(`/shows/${meta.showId}`);
+      else navigate("/comments");
       break;
     case "new_rating":
-      navigate("/shows");
+      if (meta.showId) navigate(`/shows/${meta.showId}`);
+      else navigate("/shows");
       break;
     case "new_contact":
       navigate("/contact");
@@ -199,6 +201,16 @@ function NotificationItem({
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium text-text truncate">{notif.title}</p>
         <p className="text-xs text-text-muted line-clamp-2">{notif.message}</p>
+        {!!notif.metadata?.showTitle && (
+          <div className="flex items-center gap-1 mt-0.5">
+            <span className="text-[10px] text-text-muted/60">
+              {String(notif.metadata.showTitle)}
+              {notif.metadata.episodeRef
+                ? ` — S${(notif.metadata.episodeRef as { season: number }).season}E${(notif.metadata.episodeRef as { episode: number }).episode}`
+                : ""}
+            </span>
+          </div>
+        )}
         <p className="text-[10px] text-text-muted/70 mt-0.5">{timeAgo(notif.createdAt)}</p>
       </div>
       {!notif.readAt && (

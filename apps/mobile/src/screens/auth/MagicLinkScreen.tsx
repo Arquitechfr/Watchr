@@ -57,6 +57,18 @@ export function MagicLinkScreen({ route }: { route: { params: { token: string } 
       }, 2000);
       return () => clearTimeout(timeout);
     }
+    if (status === "success") {
+      if (Platform.OS === "web") {
+        window.history.replaceState({}, "", window.location.origin);
+      }
+      const timeout = setTimeout(() => {
+        navigation.reset({
+          index: 0,
+          routes: [{ name: "Main" as never }],
+        });
+      }, 1000);
+      return () => clearTimeout(timeout);
+    }
   }, [status, navigation]);
 
   return (

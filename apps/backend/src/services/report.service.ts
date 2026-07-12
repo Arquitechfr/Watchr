@@ -137,6 +137,23 @@ export async function createReport(
     notifyAuthorOfAction({ userId: updatedComment.userId, showId: updatedComment.showId }, "auto_spoiler");
   }
 
+  import("./admin/adminFeedNotification.service.js")
+    .then(({ createNotification }) =>
+      createNotification({
+        type: "new_report",
+        title: "New comment report",
+        message: `A comment was reported for: ${reason}.`,
+        severity: "warning",
+        metadata: {
+          refId: report._id.toString(),
+          refType: "report",
+          commentId,
+          reporterId: reporterId,
+        },
+      }),
+    )
+    .catch(() => {});
+
   return { id: report._id.toString(), status: report.status };
 }
 

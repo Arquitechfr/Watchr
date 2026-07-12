@@ -135,6 +135,23 @@ export async function upsertRating(userId: string, input: UpsertRatingInput) {
   await invalidateRedisPattern(`community-ratings:${input.showId}`);
   const community = await getCommunityRatings(input.showId);
 
+  import("./admin/adminFeedNotification.service.js")
+    .then(({ createNotification }) =>
+      createNotification({
+        type: "new_rating",
+        title: "New rating submitted",
+        message: `User rated a show ${normalizedValue}/5${input.episodeRef ? ` (S${input.episodeRef.season}E${input.episodeRef.episode})` : ""}.`,
+        severity: "info",
+        metadata: {
+          refId: rating._id.toString(),
+          refType: "rating",
+          userId,
+          showId: input.showId,
+        },
+      }),
+    )
+    .catch(() => {});
+
   return { rating, community };
 }
 

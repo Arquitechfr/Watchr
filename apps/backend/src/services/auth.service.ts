@@ -66,6 +66,23 @@ export async function registerUser(email: string, password: string): Promise<Tok
     console.error("Failed to send signup webhook:", err),
   );
 
+  import("./admin/adminFeedNotification.service.js")
+    .then(({ createNotification }) =>
+      createNotification({
+        type: "user_registered",
+        title: "New user registered",
+        message: `${user.username} (${user.email}) just signed up.`,
+        severity: "info",
+        metadata: {
+          refId: user._id.toString(),
+          refType: "user",
+          userId: user._id.toString(),
+          username: user.username,
+        },
+      }),
+    )
+    .catch(() => {});
+
   return await issueTokenPair(user._id.toString(), user.preferredLanguage);
 }
 

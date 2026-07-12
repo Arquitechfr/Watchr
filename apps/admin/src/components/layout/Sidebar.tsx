@@ -17,9 +17,11 @@ import {
   Moon,
   Sun,
   X,
+  Activity,
 } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
 import { useNewUsersStore } from "../../store/newUsersStore";
+import { NotificationBell } from "../NotificationBell";
 import { cn } from "../../lib/utils";
 import icon from "../../assets/icon.png";
 
@@ -36,6 +38,7 @@ const navItems = [
   { to: "/config", label: "Remote Config", icon: Settings },
   { to: "/imports", label: "Import Jobs", icon: Download },
   { to: "/ai", label: "AI", icon: BrainCircuit },
+  { to: "/admin-feed", label: "Activity Feed", icon: Activity },
 ];
 
 interface SidebarProps {
@@ -81,13 +84,16 @@ export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
             <img src={icon} alt="Watchr" className="h-8 w-8 rounded-lg" />
             <span className="text-xs text-text-muted">Admin</span>
           </div>
-          <button
-            onClick={onClose}
-            className="md:hidden text-text-muted hover:text-text"
-            aria-label="Close menu"
-          >
-            <X size={20} />
-          </button>
+          <div className="flex items-center gap-1">
+            <NotificationBell />
+            <button
+              onClick={onClose}
+              className="md:hidden text-text-muted hover:text-text"
+              aria-label="Close menu"
+            >
+              <X size={20} />
+            </button>
+          </div>
         </div>
 
         <nav className="flex-1 overflow-y-auto px-3 py-4">

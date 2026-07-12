@@ -395,6 +395,10 @@ export async function getSeasonDetails(tmdbId: number, seasonNumber: number, loc
     }
   }
 
+  if (!show) {
+    throw new ApiError(404, "SEASON_NOT_FOUND", "Season not found");
+  }
+
   // Final resolution: prefer translation season, fallback to top-level.
   if (!season) {
     const tr = getTranslationValue(show.translations, normalizedLocale);

@@ -295,6 +295,23 @@ export async function createComment(userId: string, input: CreateCommentInput) {
     logError("CommentService", "translation failed", err),
   );
 
+  import("./admin/adminFeedNotification.service.js")
+    .then(({ createNotification }) =>
+      createNotification({
+        type: "new_comment",
+        title: "New comment posted",
+        message: `New comment on show ${showTitle}${input.episodeRef ? ` S${input.episodeRef.season}E${input.episodeRef.episode}` : ""}.`,
+        severity: "info",
+        metadata: {
+          refId: comment._id.toString(),
+          refType: "comment",
+          userId,
+          showId: input.showId,
+        },
+      }),
+    )
+    .catch(() => {});
+
   const [likedIds, reactionMap, userMap] = await Promise.all([
     getLikedCommentIds(userId, [comment._id.toString()]),
     getReactionsForComments(userId, [comment._id.toString()]),

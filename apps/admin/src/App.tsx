@@ -17,6 +17,7 @@ const RemoteConfig = lazy(() => import("./pages/RemoteConfig").then((m) => ({ de
 const ImportJobs = lazy(() => import("./pages/ImportJobs").then((m) => ({ default: m.ImportJobs })));
 const AI = lazy(() => import("./pages/AI").then((m) => ({ default: m.AI })));
 const ContactMessages = lazy(() => import("./pages/ContactMessages").then((m) => ({ default: m.ContactMessages })));
+const AdminFeed = lazy(() => import("./pages/AdminFeed").then((m) => ({ default: m.AdminFeed })));
 
 function PageLoader() {
   return (
@@ -52,6 +53,7 @@ export default function App() {
             <Route path="/imports" element={<ImportJobs />} />
             <Route path="/ai" element={<AI />} />
             <Route path="/contact" element={<ContactMessages />} />
+            <Route path="/admin-feed" element={<AdminFeed />} />
           </Route>
         </Routes>
       </Suspense>

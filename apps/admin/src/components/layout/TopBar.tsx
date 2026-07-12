@@ -1,5 +1,6 @@
 import { Menu, Moon, Sun } from "lucide-react";
 import icon from "../../assets/icon.png";
+import { NotificationBell } from "../NotificationBell";
 
 interface TopBarProps {
   onMenuClick: () => void;
@@ -25,14 +26,17 @@ export function TopBar({ onMenuClick }: TopBarProps) {
           <img src={icon} alt="Watchr" className="h-7 w-7 rounded-lg" />
           <span className="text-sm font-semibold text-text">Watchr Admin</span>
         </div>
-        <button
-          onClick={toggleTheme}
-          className="text-text-muted hover:text-text transition-colors"
-          aria-label="Toggle theme"
-        >
-          <Moon size={20} className="dark:hidden" />
-          <Sun size={20} className="hidden dark:block" />
-        </button>
+        <div className="flex items-center gap-1">
+          <NotificationBell />
+          <button
+            onClick={toggleTheme}
+            className="text-text-muted hover:text-text transition-colors"
+            aria-label="Toggle theme"
+          >
+            <Moon size={20} className="dark:hidden" />
+            <Sun size={20} className="hidden dark:block" />
+          </button>
+        </div>
       </div>
     </header>
   );

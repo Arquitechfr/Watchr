@@ -284,6 +284,11 @@ export async function syncEpisodesForShow(show: ShowDocument, language = "en-US"
           freshShow.seasons.push(mapped);
         }
 
+        // TODO: If getTranslationValue returns undefined (language never cached via getShowDetails),
+        // episodes are only written to freshShow.seasons (top-level), not isolated per-language.
+        // Affected flows: deep-link to a season, push notification, background prefetch — all with
+        // a locale that was never loaded before. Normal mobile flow (detail screen before season
+        // screen) is unaffected because getShowDetails caches the translation first.
         const trans = getTranslationValue(freshShow.translations, normalizedLanguage);
         if (trans) {
           const trSeason = trans.seasons?.find((s) => s.seasonNumber === seasonNumber);

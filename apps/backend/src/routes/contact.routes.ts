@@ -52,6 +52,23 @@ router.post(
       status: "new",
     });
 
+    import("../services/admin/adminFeedNotification.service.js")
+      .then(({ createNotification }) =>
+        createNotification({
+          type: "new_contact",
+          title: `New contact message: ${category}`,
+          message: `${user.username}: ${subject}`,
+          severity: category === "bug" ? "warning" : "info",
+          metadata: {
+            refId: doc._id.toString(),
+            refType: "contact_message",
+            userId: req.userId,
+            username: user.username,
+          },
+        }),
+      )
+      .catch(() => {});
+
     res.status(201).json({
       id: doc._id.toString(),
       createdAt: doc.createdAt?.toISOString(),

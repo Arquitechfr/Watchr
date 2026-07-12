@@ -393,6 +393,10 @@ export function createApp(): Application {
 
   app.use(errorMiddleware);
 
+  import("./services/admin/adminNotificationListener.js")
+    .then(({ initAdminNotificationListener }) => initAdminNotificationListener())
+    .catch(() => {});
+
   return app;
 }
 

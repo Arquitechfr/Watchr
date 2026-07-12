@@ -16,6 +16,8 @@ import { improveTextSchema } from "../../validators/admin/adminAi.validator.js";
 import { listAiLogsQuerySchema, aiLogIdParamSchema, aiStatsQuerySchema, aiFlagParamSchema, setAiFlagSchema } from "../../validators/admin/adminAiLog.validator.js";
 import { listReportsQuerySchema, reportIdParamSchema, aiReportIdParamSchema } from "../../validators/report.validator.js";
 import { listContactQuerySchema, contactIdParamSchema, updateContactStatusSchema, replyContactSchema } from "../../validators/contact.validator.js";
+import { listFeedNotificationsQuerySchema, feedNotificationIdParamSchema } from "../../validators/admin/adminFeedNotification.validator.js";
+import { listNotifications, getUnreadCount, markAsRead, markAllAsRead, deleteNotification } from "../../services/admin/adminFeedNotification.service.js";
 import { mistralService } from "../../services/mistral.service.js";
 import { getAdminStats, getUserGrowth, getCommentActivity, getShowTypeBreakdown } from "../../services/admin/adminStats.service.js";
 import { listUsers, getUserDetail, scheduleUserStatusAction, cancelBanAction, getBanHistory, updateUserRole, deleteUser, markUsersAsSeen, countNewUsersSinceLastVisit } from "../../services/admin/adminUser.service.js";
@@ -809,6 +811,61 @@ router.post(
   asyncHandler(async (req: Request, res: Response) => {
     const result = await replyToContactMessage(req.params.id, req.body.replyMessage, req.userId!);
     res.json(result);
+  }),
+);
+
+// Admin Feed Notifications
+router.get(
+  "/feed-notifications",
+  validateRequest(undefined, listFeedNotificationsQuerySchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const query = req.query as unknown as {
+      page: number;
+      limit: number;
+      unreadOnly?: boolean;
+      type?: string;
+    };
+    const result = await listNotifications({
+      page: query.page,
+      limit: query.limit,
+      unreadOnly: query.unreadOnly,
+      type: query.type as any,
+    });
+    res.json(result);
+  }),
+);
+
+router.get(
+  "/feed-notifications/unread-count",
+  asyncHandler(async (_req: Request, res: Response) => {
+    const count = await getUnreadCount();
+    res.json({ count });
+  }),
+);
+
+router.patch(
+  "/feed-notifications/:id/read",
+  validateRequest(undefined, undefined, feedNotificationIdParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    await markAsRead(req.params.id);
+    res.json({ success: true });
+  }),
+);
+
+router.patch(
+  "/feed-notifications/read-all",
+  asyncHandler(async (_req: Request, res: Response) => {
+    const result = await markAllAsRead();
+    res.json(result);
+  }),
+);
+
+router.delete(
+  "/feed-notifications/:id",
+  validateRequest(undefined, undefined, feedNotificationIdParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    await deleteNotification(req.params.id);
+    res.status(204).send();
   }),
 );
 

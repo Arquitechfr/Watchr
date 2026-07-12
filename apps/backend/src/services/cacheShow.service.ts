@@ -339,8 +339,15 @@ export async function syncEpisodesForShow(show: ShowDocument, language = "en-US"
 
     if (plainShow.translations) {
       const translationsObj: Record<string, unknown> = {};
-      for (const [lang, tr] of Object.entries(plainShow.translations)) {
-        translationsObj[lang] = tr;
+      const trMap = plainShow.translations;
+      if (trMap instanceof Map) {
+        for (const [lang, tr] of Array.from(trMap.entries())) {
+          translationsObj[lang] = tr;
+        }
+      } else {
+        for (const [lang, tr] of Object.entries(trMap)) {
+          translationsObj[lang] = tr;
+        }
       }
       updateDoc.translations = translationsObj;
     }

@@ -27,6 +27,7 @@ interface UserRow {
   suspendedUntil: string | null;
   banReason: string | null;
   preferredLanguage?: string;
+  signupPlatform?: string | null;
   isNew: boolean;
 }
 
@@ -55,6 +56,18 @@ const LANGUAGE_NAMES: Record<string, string> = {
   de: "German",
   it: "Italian",
   ar: "Arabic",
+};
+
+const PLATFORM_LABELS: Record<string, string> = {
+  ios: "iOS",
+  android: "Android",
+  web: "Web",
+};
+
+const PLATFORM_ICONS: Record<string, string> = {
+  ios: "📱",
+  android: "🤖",
+  web: "🌐",
 };
 
 function getStatusBadge(user: UserRow) {
@@ -296,6 +309,11 @@ export function Users() {
                           {user.preferredLanguage && (
                             <span className="text-xs text-text-muted">
                               {LANGUAGE_FLAGS[user.preferredLanguage] ?? user.preferredLanguage}
+                            </span>
+                          )}
+                          {user.signupPlatform && (
+                            <span className="text-xs text-text-muted" title={`Signed up via ${PLATFORM_LABELS[user.signupPlatform] ?? user.signupPlatform}`}>
+                              {PLATFORM_ICONS[user.signupPlatform] ?? "❓"}
                             </span>
                           )}
                         </div>

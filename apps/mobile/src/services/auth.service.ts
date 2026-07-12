@@ -11,9 +11,12 @@ export interface LoginInput {
   password: string;
 }
 
+export type SignupPlatform = "ios" | "android" | "web";
+
 export interface RegisterInput {
   email: string;
   password: string;
+  signupPlatform?: SignupPlatform;
 }
 
 export async function login(input: LoginInput): Promise<AuthTokens> {
@@ -23,9 +26,9 @@ export async function login(input: LoginInput): Promise<AuthTokens> {
   return response.data;
 }
 
-export async function loginWithGoogle(idToken: string): Promise<AuthTokens> {
+export async function loginWithGoogle(idToken: string, signupPlatform?: SignupPlatform): Promise<AuthTokens> {
   log("AuthService", "google login request");
-  const response = await api.post<AuthTokens>("/auth/firebase", { idToken });
+  const response = await api.post<AuthTokens>("/auth/firebase", { idToken, signupPlatform });
   log("AuthService", "google login response", { status: response.status });
   return response.data;
 }

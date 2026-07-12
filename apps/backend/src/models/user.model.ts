@@ -35,6 +35,7 @@ export interface IUser extends Document {
   bannedAt: Date | null;
   suspendedUntil: Date | null;
   banReason: string | null;
+  signupPlatform?: "ios" | "android" | "web";
   lastUsersVisitAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
@@ -165,6 +166,12 @@ const userSchema = new Schema<IUser>(
     lastUsersVisitAt: {
       type: Date,
       default: null,
+    },
+    signupPlatform: {
+      type: String,
+      enum: ["ios", "android", "web"],
+      required: false,
+      index: true,
     },
   },
   { timestamps: true },

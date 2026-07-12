@@ -63,6 +63,13 @@ const ar = {
     CONTACT_ALREADY_REPLIED: "تمت الرد على هذه الرسالة بالفعل.",
     RATING_COOLDOWN: "يمكنك التقييم مرة أخرى خلال {{days}} يوم/أيام.",
     TOO_MANY_RATING_REQUESTS: "طلبات تقييم كثيرة جداً. حاول مرة أخرى لاحقاً.",
+    TOO_MANY_COMMENT_REQUESTS: "طلبات تعليق كثيرة جداً. حاول مرة أخرى لاحقاً.",
+    TOO_MANY_LIKE_REQUESTS: "طلبات إعجاب كثيرة جداً. حاول مرة أخرى لاحقاً.",
+    TOO_MANY_REACTION_REQUESTS: "طلبات تفاعل كثيرة جداً. حاول مرة أخرى لاحقاً.",
+    TOO_MANY_REPORT_REQUESTS: "بلاغات كثيرة جداً. حاول مرة أخرى لاحقاً.",
+    TOO_MANY_UPLOAD_REQUESTS: "طلبات رفع كثيرة جداً. حاول مرة أخرى لاحقاً.",
+    TOO_MANY_TRAKT_SYNC_REQUESTS: "مزامنات Trakt كثيرة جداً. حاول مرة أخرى لاحقاً.",
+    TOO_MANY_AI_REQUESTS: "طلبات ذكاء اصطناعي كثيرة جداً. حاول مرة أخرى لاحقاً.",
   },
   notifications: {
     commentReplyTitle: "رد جديد على تعليقك",

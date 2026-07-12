@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import multer from "multer";
 import { requireAuth } from "../middleware/requireAuth.middleware.js";
+import { createRateLimiter } from "../middleware/rateLimit.middleware.js";
 import { asyncHandler } from "../lib/asyncHandler.js";
 import { uploadCommentImage } from "../services/upload.service.js";
 
@@ -13,8 +14,15 @@ const imageUpload = multer({
 
 router.use(requireAuth);
 
+const uploadRateLimiter = createRateLimiter({
+  windowMs: 60 * 1000,
+  max: 10,
+  errorCode: "TOO_MANY_UPLOAD_REQUESTS",
+});
+
 router.post(
   "/comment-image",
+  uploadRateLimiter,
   imageUpload.single("image"),
   asyncHandler(async (req: Request, res: Response) => {
     if (!req.file) {

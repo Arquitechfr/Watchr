@@ -1,5 +1,6 @@
 import { Router, Request, Response } from "express";
 import { requireAuth } from "../middleware/requireAuth.middleware.js";
+import { createRateLimiter } from "../middleware/rateLimit.middleware.js";
 import { getShowDetails, getSeasonDetails, searchShows, getDiscoverSections, getDiscoverSectionItems } from "../services/show.service.js";
 import { aiSearchShows } from "../services/aiSearch.service.js";
 import { getRecommendations } from "../services/recommendation.service.js";
@@ -18,6 +19,12 @@ import { Show } from "../models/show.model.js";
 const router: Router = Router();
 
 router.use(requireAuth);
+
+const aiRateLimiter = createRateLimiter({
+  windowMs: 60 * 1000,
+  max: 5,
+  errorCode: "TOO_MANY_AI_REQUESTS",
+});
 
 router.get(
   "/search",
@@ -69,6 +76,7 @@ router.get(
 
 router.post(
   "/onboarding-suggestions",
+  aiRateLimiter,
   asyncHandler(async (req: Request, res: Response) => {
     const { genres, mood, type } = req.body as {
       genres?: string[];

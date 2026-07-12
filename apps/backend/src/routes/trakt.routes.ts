@@ -1,5 +1,6 @@
 import { Router, Request, Response } from "express";
 import { requireAuth } from "../middleware/requireAuth.middleware.js";
+import { createRateLimiter } from "../middleware/rateLimit.middleware.js";
 import { asyncHandler } from "../lib/asyncHandler.js";
 import { ApiError } from "../middleware/error.middleware.js";
 import { env } from "../config/env.js";
@@ -28,6 +29,12 @@ const traktCallbackSchema = z.object({
 
 const traktSyncDirectionSchema = z.object({
   direction: z.enum(["from", "both"]),
+});
+
+const traktSyncRateLimiter = createRateLimiter({
+  windowMs: 60 * 60 * 1000,
+  max: 3,
+  errorCode: "TOO_MANY_TRAKT_SYNC_REQUESTS",
 });
 
 router.get(
@@ -127,6 +134,7 @@ router.get(
 router.post(
   "/sync",
   requireAuth,
+  traktSyncRateLimiter,
   asyncHandler(async (req: Request, res: Response) => {
     const result = await syncFromTrakt(req.userId!);
     res.status(202).json(result);
@@ -136,6 +144,7 @@ router.post(
 router.post(
   "/sync-to-trakt",
   requireAuth,
+  traktSyncRateLimiter,
   asyncHandler(async (req: Request, res: Response) => {
     const result = await syncToTrakt(req.userId!);
     res.json(result);

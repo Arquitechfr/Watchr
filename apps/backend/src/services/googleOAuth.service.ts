@@ -22,9 +22,13 @@ export function buildGoogleAuthUrl(state: string): string {
   return `${GOOGLE_AUTH_URL}?${params.toString()}`;
 }
 
-export async function createOAuthState(appRedirect: string): Promise<string> {
+export async function createOAuthState(
+  appRedirect: string,
+  signupPlatform?: "ios" | "android" | "web",
+): Promise<string> {
   const state = crypto.randomUUID();
-  await setRedisValue(`${STATE_KEY_PREFIX}${state}`, appRedirect, STATE_TTL_SECONDS);
+  const stateData = JSON.stringify({ appRedirect, signupPlatform });
+  await setRedisValue(`${STATE_KEY_PREFIX}${state}`, stateData, STATE_TTL_SECONDS);
   return state;
 }
 
@@ -65,17 +69,27 @@ export async function handleGoogleCallback(
   code: string,
   state: string,
 ): Promise<{ accessToken: string; refreshToken: string; appRedirect: string }> {
-  const appRedirect = await getAppRedirect(state);
-  if (!appRedirect) {
+  const stateRaw = await getAppRedirect(state);
+  if (!stateRaw) {
     logError("GoogleOAuth", "state not found or expired", { state });
     throw new Error("Invalid or expired OAuth state");
   }
   await cleanupOAuthState(state);
 
+  let appRedirect: string;
+  let signupPlatform: "ios" | "android" | "web" | undefined;
+  try {
+    const parsed = JSON.parse(stateRaw);
+    appRedirect = parsed.appRedirect;
+    signupPlatform = parsed.signupPlatform;
+  } catch {
+    appRedirect = stateRaw;
+  }
+
   const googleIdToken = await exchangeCodeForIdToken(code);
   log("GoogleOAuth", "exchanged code for id token");
 
-  const tokens = await loginWithFirebase(googleIdToken);
+  const tokens = await loginWithFirebase(googleIdToken, signupPlatform);
 
   return {
     accessToken: tokens.accessToken,

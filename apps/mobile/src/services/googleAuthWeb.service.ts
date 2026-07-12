@@ -20,7 +20,7 @@ export async function signInWithGoogleWeb(): Promise<AuthTokens> {
     const appRedirect = window.location.origin;
     log("GoogleAuthWeb", "appRedirect (web)", { appRedirect });
 
-    const { data } = await api.post<GoogleInitResponse>("/auth/google/init", { appRedirect });
+    const { data } = await api.post<GoogleInitResponse>("/auth/google/init", { appRedirect, signupPlatform: "web" });
     window.location.href = data.authUrl;
 
     return new Promise<AuthTokens>(() => {
@@ -33,7 +33,7 @@ export async function signInWithGoogleWeb(): Promise<AuthTokens> {
   const appRedirect = makeRedirectUri({ path: "auth" });
   log("GoogleAuthWeb", "appRedirect (native)", { appRedirect });
 
-  const { data } = await api.post<GoogleInitResponse>("/auth/google/init", { appRedirect });
+  const { data } = await api.post<GoogleInitResponse>("/auth/google/init", { appRedirect, signupPlatform: Platform.OS });
   const { authUrl } = data;
 
   const result = await WebBrowser.openAuthSessionAsync(authUrl, appRedirect);

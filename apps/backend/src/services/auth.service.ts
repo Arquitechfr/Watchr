@@ -48,7 +48,11 @@ export function checkUserCanLogin(user: IUser): void {
   }
 }
 
-export async function registerUser(email: string, password: string): Promise<TokenPair> {
+export async function registerUser(
+  email: string,
+  password: string,
+  signupPlatform?: "ios" | "android" | "web",
+): Promise<TokenPair> {
   const existing = await User.findOne({ email: email.toLowerCase() });
   if (existing) {
     throw new ApiError(409, "EMAIL_IN_USE", "Email already registered");
@@ -56,7 +60,7 @@ export async function registerUser(email: string, password: string): Promise<Tok
 
   const passwordHash = await bcrypt.hash(password, 12);
   const username = await generateUniqueUsername();
-  const user = await User.create({ email, passwordHash, username });
+  const user = await User.create({ email, passwordHash, username, signupPlatform });
 
   EmailService.sendWelcomeEmail(user.email, user.username, user.preferredLanguage).catch((err) =>
     console.error("Failed to send welcome email:", err),
@@ -80,6 +84,7 @@ export async function registerUser(email: string, password: string): Promise<Tok
           username: user.username,
           email: user.email,
           provider: "email",
+          signupPlatform: signupPlatform ?? "unknown",
         },
       }),
     )
@@ -107,7 +112,10 @@ export async function loginUser(email: string, password: string): Promise<TokenP
   return await issueTokenPair(user._id.toString(), user.preferredLanguage);
 }
 
-export async function loginWithFirebase(idToken: string): Promise<TokenPair> {
+export async function loginWithFirebase(
+  idToken: string,
+  signupPlatform?: "ios" | "android" | "web",
+): Promise<TokenPair> {
   let decoded;
   try {
     decoded = await firebaseAuth.verifyIdToken(idToken);
@@ -125,7 +133,7 @@ export async function loginWithFirebase(idToken: string): Promise<TokenPair> {
 
   if (!user) {
     const username = await generateUniqueUsername();
-    user = await User.create({ email, firebaseUid: decoded.uid, username });
+    user = await User.create({ email, firebaseUid: decoded.uid, username, signupPlatform });
     isNewUser = true;
   } else if (!user.firebaseUid) {
     user.firebaseUid = decoded.uid;

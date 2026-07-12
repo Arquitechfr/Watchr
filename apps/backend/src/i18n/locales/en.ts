@@ -63,6 +63,13 @@ const en = {
     CONTACT_ALREADY_REPLIED: "This message has already been replied to.",
     RATING_COOLDOWN: "You can rate this again in {{days}} day(s).",
     TOO_MANY_RATING_REQUESTS: "Too many rating requests. Try again later.",
+    TOO_MANY_COMMENT_REQUESTS: "Too many comment requests. Try again later.",
+    TOO_MANY_LIKE_REQUESTS: "Too many like requests. Try again later.",
+    TOO_MANY_REACTION_REQUESTS: "Too many reaction requests. Try again later.",
+    TOO_MANY_REPORT_REQUESTS: "Too many report requests. Try again later.",
+    TOO_MANY_UPLOAD_REQUESTS: "Too many upload requests. Try again later.",
+    TOO_MANY_TRAKT_SYNC_REQUESTS: "Too many Trakt sync requests. Try again later.",
+    TOO_MANY_AI_REQUESTS: "Too many AI requests. Try again later.",
   },
   notifications: {
     commentReplyTitle: "New reply to your comment",

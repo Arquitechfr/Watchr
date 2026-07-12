@@ -1,5 +1,6 @@
 import { Router, Request, Response } from "express";
 import { requireAuth } from "../middleware/requireAuth.middleware.js";
+import { createRateLimiter } from "../middleware/rateLimit.middleware.js";
 import { asyncHandler } from "../lib/asyncHandler.js";
 import { validateRequest } from "../validators/validateRequest.js";
 import {
@@ -31,6 +32,30 @@ import { summarizeThread } from "../services/aiCommentSummary.service.js";
 const router: Router = Router();
 
 router.use(requireAuth);
+
+const commentWriteRateLimiter = createRateLimiter({
+  windowMs: 60 * 1000,
+  max: 10,
+  errorCode: "TOO_MANY_COMMENT_REQUESTS",
+});
+
+const likeRateLimiter = createRateLimiter({
+  windowMs: 60 * 1000,
+  max: 30,
+  errorCode: "TOO_MANY_LIKE_REQUESTS",
+});
+
+const reactionRateLimiter = createRateLimiter({
+  windowMs: 60 * 1000,
+  max: 30,
+  errorCode: "TOO_MANY_REACTION_REQUESTS",
+});
+
+const reportRateLimiter = createRateLimiter({
+  windowMs: 60 * 1000,
+  max: 5,
+  errorCode: "TOO_MANY_REPORT_REQUESTS",
+});
 
 router.get(
   "/show/:showId/count",
@@ -123,6 +148,7 @@ router.get(
 
 router.post(
   "/",
+  commentWriteRateLimiter,
   validateRequest(createCommentSchema),
   asyncHandler(async (req: Request, res: Response) => {
     const comment = await createComment(req.userId!, req.body);
@@ -132,6 +158,7 @@ router.post(
 
 router.patch(
   "/:id",
+  commentWriteRateLimiter,
   validateRequest(updateCommentSchema, undefined, commentParamsSchema),
   asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
@@ -142,6 +169,7 @@ router.patch(
 
 router.delete(
   "/:id",
+  commentWriteRateLimiter,
   validateRequest(undefined, undefined, commentParamsSchema),
   asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
@@ -152,6 +180,7 @@ router.delete(
 
 router.post(
   "/:id/like",
+  likeRateLimiter,
   validateRequest(undefined, undefined, commentParamsSchema),
   asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
@@ -162,6 +191,7 @@ router.post(
 
 router.delete(
   "/:id/like",
+  likeRateLimiter,
   validateRequest(undefined, undefined, commentParamsSchema),
   asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
@@ -172,6 +202,7 @@ router.delete(
 
 router.post(
   "/:id/reactions",
+  reactionRateLimiter,
   validateRequest(reactionBodySchema, undefined, commentParamsSchema),
   asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
@@ -183,6 +214,7 @@ router.post(
 
 router.post(
   "/:id/reactions/remove",
+  reactionRateLimiter,
   validateRequest(reactionBodySchema, undefined, commentParamsSchema),
   asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
@@ -194,6 +226,7 @@ router.post(
 
 router.post(
   "/:id/report",
+  reportRateLimiter,
   validateRequest(createReportSchema, undefined, commentParamsSchema),
   asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;

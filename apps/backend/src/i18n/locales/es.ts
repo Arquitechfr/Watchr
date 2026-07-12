@@ -63,6 +63,13 @@ const es = {
     CONTACT_ALREADY_REPLIED: "Este mensaje ya ha recibido respuesta.",
     RATING_COOLDOWN: "Puedes valorar de nuevo en {{days}} día(s).",
     TOO_MANY_RATING_REQUESTS: "Demasiadas solicitudes de valoración. Inténtalo más tarde.",
+    TOO_MANY_COMMENT_REQUESTS: "Demasiadas solicitudes de comentarios. Inténtalo más tarde.",
+    TOO_MANY_LIKE_REQUESTS: "Demasiadas solicitudes de likes. Inténtalo más tarde.",
+    TOO_MANY_REACTION_REQUESTS: "Demasiadas solicitudes de reacciones. Inténtalo más tarde.",
+    TOO_MANY_REPORT_REQUESTS: "Demasiados reportes. Inténtalo más tarde.",
+    TOO_MANY_UPLOAD_REQUESTS: "Demasiadas solicitudes de subida. Inténtalo más tarde.",
+    TOO_MANY_TRAKT_SYNC_REQUESTS: "Demasiadas sincronizaciones de Trakt. Inténtalo más tarde.",
+    TOO_MANY_AI_REQUESTS: "Demasiadas solicitudes de IA. Inténtalo más tarde.",
   },
   notifications: {
     commentReplyTitle: "Nueva respuesta a tu comentario",

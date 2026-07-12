@@ -63,6 +63,13 @@ const de = {
     CONTACT_ALREADY_REPLIED: "Diese Nachricht wurde bereits beantwortet.",
     RATING_COOLDOWN: "Du kannst in {{days}} Tag(en) erneut bewerten.",
     TOO_MANY_RATING_REQUESTS: "Zu viele Bewertungsanfragen. Versuche es später erneut.",
+    TOO_MANY_COMMENT_REQUESTS: "Zu viele Kommentaranfragen. Versuche es später erneut.",
+    TOO_MANY_LIKE_REQUESTS: "Zu viele Like-Anfragen. Versuche es später erneut.",
+    TOO_MANY_REACTION_REQUESTS: "Zu viele Reaktionsanfragen. Versuche es später erneut.",
+    TOO_MANY_REPORT_REQUESTS: "Zu viele Meldungen. Versuche es später erneut.",
+    TOO_MANY_UPLOAD_REQUESTS: "Zu viele Upload-Anfragen. Versuche es später erneut.",
+    TOO_MANY_TRAKT_SYNC_REQUESTS: "Zu viele Trakt-Sync-Anfragen. Versuche es später erneut.",
+    TOO_MANY_AI_REQUESTS: "Zu viele KI-Anfragen. Versuche es später erneut.",
   },
   notifications: {
     commentReplyTitle: "Neue Antwort auf deinen Kommentar",

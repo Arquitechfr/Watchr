@@ -6,7 +6,7 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useQueryClient } from "@tanstack/react-query";
 import Animated, { FadeIn, FadeOut, SlideInDown } from "react-native-reanimated";
-import { register } from "../../services/auth.service";
+import { register, type SignupPlatform } from "../../services/auth.service";
 import { useAuthStore } from "../../store/authStore";
 import { useUIStore } from "../../store/uiStore";
 import { useErrorMessage } from "../../services/api";
@@ -56,7 +56,7 @@ export function RegisterScreen() {
     setIsLoading(true);
     try {
       log("Register", "calling api");
-      const tokens = await register({ email: email.trim(), password });
+      const tokens = await register({ email: email.trim(), password, signupPlatform: Platform.OS as SignupPlatform });
       log("Register", "api success, persisting tokens");
       await setTokens(tokens.accessToken, tokens.refreshToken);
       syncPreferencesToBackend();

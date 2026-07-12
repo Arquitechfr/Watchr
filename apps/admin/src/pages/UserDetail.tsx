@@ -20,6 +20,18 @@ const LANGUAGE_FLAGS: Record<string, string> = {
   ar: "🇸🇦",
 };
 
+const PLATFORM_LABELS: Record<string, string> = {
+  ios: "iOS",
+  android: "Android",
+  web: "Web",
+};
+
+const PLATFORM_ICONS: Record<string, string> = {
+  ios: "📱",
+  android: "🤖",
+  web: "🌐",
+};
+
 interface UserDetail {
   id: string;
   email: string;
@@ -35,6 +47,7 @@ interface UserDetail {
   bannedAt: string | null;
   suspendedUntil: string | null;
   banReason: string | null;
+  signupPlatform?: string | null;
   trackingCount: number;
   favoritesCount: number;
   ratingsCount: number;
@@ -229,6 +242,10 @@ export function UserDetail() {
             <div className="flex justify-between">
               <span className="text-text-muted">Onboarding</span>
               <span>{user.hasCompletedOnboarding ? "Completed" : "Pending"}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-text-muted">Signup Platform</span>
+              <span>{user.signupPlatform ? `${PLATFORM_ICONS[user.signupPlatform] ?? "❓"} ${PLATFORM_LABELS[user.signupPlatform] ?? user.signupPlatform}` : "—"}</span>
             </div>
           </CardContent>
         </Card>

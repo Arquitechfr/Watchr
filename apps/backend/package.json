@@ -10,6 +10,7 @@
     "worker": "tsx watch --import ./src/instrument.ts src/workers/startImportWorker.ts",
     "sync": "tsx watch --import ./src/instrument.ts src/workers/startEpisodeSyncWorker.ts",
     "sync-all-episodes": "tsx scripts/sync-all-episodes.ts",
+    "purge-corrupted-translations": "tsx scripts/purge-corrupted-translations.ts",
     "notifications": "tsx scripts/sendNotifications.ts",
     "notifications-worker": "tsx watch --import ./src/instrument.ts src/workers/startNotificationWorker.ts",
     "news-worker": "tsx watch --import ./src/instrument.ts src/workers/startNewsSyncWorker.ts",

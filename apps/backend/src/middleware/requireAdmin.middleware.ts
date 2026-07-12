@@ -22,7 +22,12 @@ export async function requireAdmin(req: Request, _res: Response, next: NextFunct
   try {
     const payload = verifyAccessToken(token);
     req.userId = payload.sub;
-    if (payload.lang) {
+    const headerLang = req.headers["accept-language"];
+    const headerLocale = typeof headerLang === "string" ? normalizeLocale(headerLang) : undefined;
+    if (headerLocale) {
+      req.language = headerLocale as typeof req.language;
+      req.preferredLanguage = headerLocale;
+    } else if (payload.lang) {
       const normalized = normalizeLocale(payload.lang);
       req.language = normalized;
       req.preferredLanguage = normalized;

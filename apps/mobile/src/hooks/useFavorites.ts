@@ -8,15 +8,17 @@ import {
   type FavoritesResponse,
 } from "../services/favorites.service";
 import { useAuthStore } from "../store/authStore";
+import { useLocaleStore } from "../store/localeStore";
 import { log } from "../utils/logger";
 
 export type FavoriteType = "tv" | "movie" | undefined;
 
 export function useFavorites(type: FavoriteType) {
   const isHydrated = useAuthStore((state) => state.isHydrated);
+  const locale = useLocaleStore((state) => state.locale);
 
   return useInfiniteQuery<FavoritesResponse>({
-    queryKey: ["favorites", type],
+    queryKey: ["favorites", type, locale],
     queryFn: ({ pageParam }) => getFavorites(type, (pageParam as number) ?? 1, 20),
     initialPageParam: 1,
     enabled: isHydrated,

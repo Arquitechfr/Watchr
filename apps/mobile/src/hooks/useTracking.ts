@@ -31,6 +31,7 @@ import {
 import type { UnwatchedShow } from "../services/unwatched.service";
 import { log } from "../utils/logger";
 import { useAuthStore } from "../store/authStore";
+import { useLocaleStore } from "../store/localeStore";
 
 const TRACKING_QUERY_KEY = "tracking";
 
@@ -78,8 +79,9 @@ function updateTrackingEntryCache(
 
 export function useTrackingList(status?: WatchStatus) {
   const isHydrated = useAuthStore((state) => state.isHydrated);
+  const locale = useLocaleStore((state) => state.locale);
   return useInfiniteQuery({
-    queryKey: [TRACKING_QUERY_KEY, { status }],
+    queryKey: [TRACKING_QUERY_KEY, { status }, locale],
     queryFn: ({ pageParam = 1 }) => listTracking(pageParam, 20, status),
     initialPageParam: 1,
     enabled: isHydrated,

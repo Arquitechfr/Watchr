@@ -1,6 +1,7 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { fetchDiscoverSectionItems, SearchResultItem } from "../services/shows.service";
 import { useAuthStore } from "../store/authStore";
+import { useLocaleStore } from "../store/localeStore";
 
 export interface DiscoverSectionData {
   items: SearchResultItem[];
@@ -9,9 +10,10 @@ export interface DiscoverSectionData {
 
 export function useDiscoverSection(sectionId: string, initialItems: SearchResultItem[]) {
   const isHydrated = useAuthStore((state) => state.isHydrated);
+  const locale = useLocaleStore((state) => state.locale);
 
   return useInfiniteQuery<DiscoverSectionData>({
-    queryKey: ["shows", "discover", sectionId],
+    queryKey: ["shows", "discover", sectionId, locale],
     queryFn: async ({ pageParam }) => {
       const page = pageParam as number;
       if (page === 1) {

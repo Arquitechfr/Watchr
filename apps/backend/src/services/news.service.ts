@@ -47,7 +47,7 @@ export async function getNews(sourceId?: string, limit: number = 30, locale: str
 }
 
 async function getNewsFromSingleSource(sourceId: string, limit: number, locale: string): Promise<NewsArticle[]> {
-  const cacheKey = `news:${sourceId}:${limit}`;
+  const cacheKey = `news:${sourceId}:${locale}:${limit}`;
   const cached = await getRedisValue(cacheKey);
   if (cached) {
     try {

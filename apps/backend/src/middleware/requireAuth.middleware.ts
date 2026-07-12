@@ -60,7 +60,12 @@ export async function requireAuth(req: Request, _res: Response, next: NextFuncti
   try {
     const payload = verifyAccessToken(token);
     req.userId = payload.sub;
-    if (payload.lang) {
+    const headerLang = req.headers["accept-language"];
+    const headerLocale = typeof headerLang === "string" ? normalizeLocale(headerLang) : undefined;
+    if (headerLocale) {
+      req.language = headerLocale as typeof req.language;
+      req.preferredLanguage = headerLocale;
+    } else if (payload.lang) {
       const normalized = normalizeLocale(payload.lang);
       req.language = normalized;
       req.preferredLanguage = normalized;

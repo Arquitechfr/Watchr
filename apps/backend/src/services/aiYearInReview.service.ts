@@ -37,12 +37,9 @@ export interface YearInReviewResult {
   source: "ai" | "fallback";
 }
 
-async function gatherYearData(userId: string, year: number): Promise<YearInReviewData> {
+async function gatherYearData(userId: string, year: number, locale: SupportedLocale): Promise<YearInReviewData> {
   const startOfYear = new Date(year, 0, 1);
   const endOfYear = new Date(year, 11, 31, 23, 59, 59);
-
-  const user = await User.findById(userId).select("preferredLanguage").lean();
-  const locale = (user?.preferredLanguage ?? "en") as SupportedLocale;
 
   const watchEntries = await WatchEntry.find({
     userId,
@@ -106,7 +103,11 @@ async function gatherYearData(userId: string, year: number): Promise<YearInRevie
 
 export async function getYearInReview(userId: string, year?: number): Promise<YearInReviewResult> {
   const reviewYear = year ?? new Date().getFullYear();
-  const cacheKey = `ai:year-in-review:${userId}:${reviewYear}`;
+
+  const user = await User.findById(userId).select("preferredLanguage username").lean();
+  const locale = (user?.preferredLanguage ?? "en") as SupportedLocale;
+
+  const cacheKey = `ai:year-in-review:${userId}:${reviewYear}:${locale}`;
 
   const cached = await getRedisValue(cacheKey);
   if (cached) {
@@ -117,9 +118,7 @@ export async function getYearInReview(userId: string, year?: number): Promise<Ye
     }
   }
 
-  const data = await gatherYearData(userId, reviewYear);
-  const user = await User.findById(userId).select("preferredLanguage username").lean();
-  const locale = (user?.preferredLanguage ?? "en") as SupportedLocale;
+  const data = await gatherYearData(userId, reviewYear, locale);
 
   const enabled = await isFeatureEnabled();
   if (!enabled || !mistralService.isConfigured()) {

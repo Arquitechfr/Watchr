@@ -93,7 +93,7 @@ export function NotificationBell() {
       </button>
 
       {dropdownOpen && (
-        <div className="absolute right-0 top-full z-50 mt-2 w-80 max-w-[calc(100vw-2rem)] rounded-lg border border-border bg-surface shadow-lg">
+        <div className="absolute top-full z-50 mt-2 w-80 rounded-lg border border-border bg-surface shadow-lg right-0 md:left-full md:right-auto">
           <div className="flex items-center justify-between border-b border-border px-4 py-3">
             <span className="text-sm font-semibold text-text">Notifications</span>
             {unreadCount > 0 && (
@@ -132,6 +132,7 @@ export function NotificationBell() {
 
           <div className="border-t border-border px-4 py-2">
             <button
+              onMouseDown={(e) => e.stopPropagation()}
               onClick={() => {
                 setDropdownOpen(false);
                 navigate("/admin-feed");
@@ -189,6 +190,7 @@ function NotificationItem({
         "flex gap-3 border-b border-border/50 px-4 py-3 transition-colors hover:bg-surface-light/50 cursor-pointer",
         !notif.readAt && "bg-primary/5",
       )}
+      onMouseDown={(e) => e.stopPropagation()}
       onClick={onClick}
     >
       <div className="shrink-0">

@@ -20,6 +20,7 @@ import {
 } from "../services/comments.service";
 import { log } from "../utils/logger";
 import { useAuthStore } from "../store/authStore";
+import { useLocaleStore } from "../store/localeStore";
 
 const COMMENTS_QUERY_KEY = "comments";
 
@@ -391,8 +392,9 @@ export function useThreadSummary(
   episodeRef?: { season: number; episode: number },
 ) {
   const isHydrated = useAuthStore((state) => state.isHydrated);
+  const locale = useLocaleStore((state) => state.locale);
   return useQuery({
-    queryKey: [COMMENTS_QUERY_KEY, "summary", showId, episodeRef?.season, episodeRef?.episode],
+    queryKey: [COMMENTS_QUERY_KEY, "summary", showId, episodeRef?.season, episodeRef?.episode, locale],
     queryFn: () => getThreadSummary(showId, episodeRef),
     enabled: isHydrated && Boolean(showId) && commentCount >= 20,
     staleTime: 60 * 60 * 1000,

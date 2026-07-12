@@ -12,6 +12,7 @@ export interface MistralChatMessage {
 
 export interface MistralChatParams {
   model?: string;
+  fallbackModel?: string;
   messages: MistralChatMessage[];
   temperature?: number;
   maxTokens?: number;
@@ -41,6 +42,10 @@ export interface MistralEmbeddingsResult {
 
 const DEFAULT_CHAT_MODEL = "mistral-large-latest";
 const DEFAULT_EMBEDDINGS_MODEL = "mistral-embed";
+const PREFERRED_SMALL_MODEL = "mistral-small-latest";
+const FALLBACK_CHAT_MODEL = "mistral-large-latest";
+
+export { PREFERRED_SMALL_MODEL, FALLBACK_CHAT_MODEL };
 
 const PROJECT_CONTEXT = `You are assisting with "Watchr", a TV show and movie tracking app (successor to TV Time). Features: watch-status tracking, ratings, public comments on shows/episodes, GDPR import from TV Time, Trakt sync. The app supports English and French. Audience: TV/movie enthusiasts. Tone: friendly, professional, concise.`;
 
@@ -277,6 +282,28 @@ class MistralService {
       logError("MistralService", "safeChat swallowed error", err);
       return null;
     }
+  }
+
+  async safeChatWithFallback(params: MistralChatParams): Promise<MistralChatResult | null> {
+    const primaryModel = params.model ?? DEFAULT_CHAT_MODEL;
+    const fallbackModel = params.fallbackModel ?? FALLBACK_CHAT_MODEL;
+
+    const primaryResult = await this.safeChat({ ...params, model: primaryModel });
+    if (primaryResult) {
+      return primaryResult;
+    }
+
+    if (primaryModel === fallbackModel) {
+      return null;
+    }
+
+    log("MistralService", "primary model failed, falling back", {
+      primaryModel,
+      fallbackModel,
+      feature: params.feature ?? "unknown",
+    });
+
+    return this.safeChat({ ...params, model: fallbackModel });
   }
 
   async safeEmbeddings(params: MistralEmbeddingsParams): Promise<MistralEmbeddingsResult | null> {

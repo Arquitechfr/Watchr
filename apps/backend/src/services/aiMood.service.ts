@@ -68,11 +68,13 @@ Rules:
 - Focus on titles that match the mood
 - Keep reasons concise and mood-focused`;
 
-  const result = await mistralService.safeChat({
+  const result = await mistralService.safeChatWithFallback({
     messages: [
       { role: "system", content: systemPrompt },
       { role: "user", content: `My mood: ${mood}` },
     ],
+    model: "mistral-small-latest",
+    fallbackModel: "mistral-large-latest",
     temperature: 0.8,
     responseFormat: { type: "json_object" },
     maxTokens: 1500,

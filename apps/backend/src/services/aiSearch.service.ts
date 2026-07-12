@@ -41,11 +41,13 @@ Examples:
 - "funny 90s sitcom" → {"keywords": ["sitcom comedy"], "genres": ["comedy"], "year_range": [1990, 1999]}
 - "recent sci-fi movie about space" → {"keywords": ["sci-fi space"], "genres": ["sci-fi"], "year_range": [2020, 2025]}`;
 
-  const result = await mistralService.safeChat({
+  const result = await mistralService.safeChatWithFallback({
     messages: [
       { role: "system", content: systemPrompt },
       { role: "user", content: query },
     ],
+    model: "mistral-small-latest",
+    fallbackModel: "mistral-large-latest",
     temperature: 0.1,
     responseFormat: { type: "json_object" },
     maxTokens: 200,

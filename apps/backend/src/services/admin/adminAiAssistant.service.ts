@@ -39,11 +39,13 @@ export async function analyzeComment(commentId: string): Promise<CommentAnalysis
 
 Return ONLY a JSON object with: sentiment, confidence, suggestedAction, reason`;
 
-  const result = await mistralService.safeChat({
+  const result = await mistralService.safeChatWithFallback({
     messages: [
       { role: "system", content: systemPrompt },
       { role: "user", content: comment.content.slice(0, 1000) },
     ],
+    model: "mistral-small-latest",
+    fallbackModel: "mistral-large-latest",
     temperature: 0.2,
     responseFormat: { type: "json_object" },
     maxTokens: 300,
@@ -101,11 +103,13 @@ Return ONLY a JSON object with: recommendedAction, reason, draftResponse`;
   const userContent = `Report reason: ${report.reason}
 Comment content: ${comment.content.slice(0, 500)}`;
 
-  const result = await mistralService.safeChat({
+  const result = await mistralService.safeChatWithFallback({
     messages: [
       { role: "system", content: systemPrompt },
       { role: "user", content: userContent },
     ],
+    model: "mistral-small-latest",
+    fallbackModel: "mistral-large-latest",
     temperature: 0.3,
     responseFormat: { type: "json_object" },
     maxTokens: 400,
@@ -162,11 +166,13 @@ Type: ${show.type}
 Genres: ${genres.join(", ") || "Unknown"}
 TMDB Overview: ${(show.translations?.[locale]?.overview ?? show.translations?.en?.overview ?? "").slice(0, 500)}`;
 
-  const result = await mistralService.safeChat({
+  const result = await mistralService.safeChatWithFallback({
     messages: [
       { role: "system", content: systemPrompt },
       { role: "user", content: userContent },
     ],
+    model: "mistral-small-latest",
+    fallbackModel: "mistral-large-latest",
     temperature: 0.6,
     responseFormat: { type: "json_object" },
     maxTokens: 500,

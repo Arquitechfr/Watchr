@@ -145,11 +145,13 @@ Ratings given: ${data.totalRatings}
 Average rating: ${data.averageRating}
 Favorite genre: ${data.favoriteGenre}`;
 
-  const result = await mistralService.safeChat({
+  const result = await mistralService.safeChatWithFallback({
     messages: [
       { role: "system", content: systemPrompt },
       { role: "user", content: userContent },
     ],
+    model: "mistral-small-latest",
+    fallbackModel: "mistral-large-latest",
     temperature: 0.7,
     responseFormat: { type: "json_object" },
     maxTokens: 500,

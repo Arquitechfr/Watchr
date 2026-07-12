@@ -44,11 +44,13 @@ Year: ${record.year ?? "unknown"}
 Type: ${record.type ?? "unknown"}
 IMDB ID: ${record.imdbId ?? "none"}`;
 
-  const result = await mistralService.safeChat({
+  const result = await mistralService.safeChatWithFallback({
     messages: [
       { role: "system", content: systemPrompt },
       { role: "user", content: userContent },
     ],
+    model: "mistral-small-latest",
+    fallbackModel: "mistral-large-latest",
     temperature: 0.1,
     responseFormat: { type: "json_object" },
     maxTokens: 150,

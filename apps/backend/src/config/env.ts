@@ -44,6 +44,7 @@ const envSchema = z.object({
   MAKE_WEBHOOK_URL: z.string().optional(),
   MAKE_API_KEY: z.string().optional(),
   MISTRAL_API_KEY: z.string().optional(),
+  PUSHBULLET_ACCESS_TOKEN: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);

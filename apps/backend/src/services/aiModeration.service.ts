@@ -52,11 +52,13 @@ export async function moderateComment(content: string, showTitle?: string): Prom
   parts.push('Respond in JSON format only: {"is_spoiler": boolean, "is_toxic": boolean, "toxic_category": string | null, "confidence": number (0-1)}');
   const systemPrompt = parts.join("\n");
 
-  const result = await mistralService.safeChat({
+  const result = await mistralService.safeChatWithFallback({
     messages: [
       { role: "system", content: systemPrompt },
       { role: "user", content },
     ],
+    model: "mistral-small-latest",
+    fallbackModel: "mistral-large-latest",
     temperature: 0.1,
     responseFormat: { type: "json_object" },
     maxTokens: 200,

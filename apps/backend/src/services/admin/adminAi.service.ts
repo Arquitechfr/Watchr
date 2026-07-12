@@ -194,7 +194,8 @@ export async function getAiStatus() {
   return {
     configured: mistralService.isConfigured(),
     hasApiKey: !!process.env.MISTRAL_API_KEY,
-    defaultChatModel: "mistral-large-latest",
+    defaultChatModel: "mistral-small-latest",
+    fallbackChatModel: "mistral-large-latest",
     defaultEmbeddingsModel: "mistral-embed",
     rateLimiter: {
       capacity: 10,

@@ -129,11 +129,13 @@ Rules:
 - Keep reasons under 100 characters
 - Respond in ${languageName}`;
 
-  const result = await mistralService.safeChat({
+  const result = await mistralService.safeChatWithFallback({
     messages: [
       { role: "system", content: systemPrompt },
       { role: "user", content: `Here is my watch history:\n${historyItems}` },
     ],
+    model: "mistral-small-latest",
+    fallbackModel: "mistral-large-latest",
     temperature: 0.7,
     responseFormat: { type: "json_object" },
     maxTokens: 1500,

@@ -68,11 +68,13 @@ Rules:
 - Mood: ${preferences.mood ?? "Any"}
 - Type preference: ${preferences.type ?? "both"}`;
 
-  const result = await mistralService.safeChat({
+  const result = await mistralService.safeChatWithFallback({
     messages: [
       { role: "system", content: systemPrompt },
       { role: "user", content: userContent },
     ],
+    model: "mistral-small-latest",
+    fallbackModel: "mistral-large-latest",
     temperature: 0.8,
     responseFormat: { type: "json_object" },
     maxTokens: 2000,

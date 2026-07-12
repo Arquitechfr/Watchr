@@ -52,6 +52,15 @@ const pt = {
     COMMENT_REJECTED_SELF_HARM: "Se você está passando por dificuldades, procure ajuda. Este conteúdo não é permitido.",
     COMMENT_REJECTED_VIOLENCE: "Seu comentário contém conteúdo violento. Seja respeitoso.",
     COMMENT_REJECTED_OTHER: "Seu comentário foi sinalizado como inadequado. Revise nossas diretrizes da comunidade.",
+    EMAIL_CODE_EXPIRED: "Código expirado ou não encontrado. Solicite um novo.",
+    INVALID_EMAIL_CODE: "Código inválido.",
+    TOO_MANY_CODE_ATTEMPTS: "Muitas tentativas. Solicite um novo código.",
+    TOO_MANY_CODE_REQUESTS: "Muitas solicitações de código. Tente novamente mais tarde.",
+    CODE_COOLDOWN: "Aguarde antes de solicitar outro código.",
+    INVALID_MAGIC_LINK: "Link mágico inválido ou expirado.",
+    TOO_MANY_CONTACT_REQUESTS: "Muitas solicitações de contato. Tente novamente mais tarde.",
+    CONTACT_NOT_FOUND: "Mensagem de contato não encontrada.",
+    CONTACT_ALREADY_REPLIED: "Esta mensagem já recebeu resposta.",
   },
   notifications: {
     commentReplyTitle: "Nova resposta ao seu comentário",
@@ -116,6 +125,14 @@ const pt = {
     commentSpoilerBody: "Olá {{username}}, seu comentário em \"{{show}}\" foi marcado como spoiler após denúncias da comunidade. Lembre-se de usar a etiqueta de spoiler ao discutir detalhes da trama.",
     commentSpoilerTip: "Para marcar um spoiler, use o botão de spoiler ao escrever seu comentário ou envolva o texto sensível com a etiqueta de spoiler. Isso mantém a experiência agradável para toda a comunidade.",
     commentSpoilerFooter: "Revise nossas diretrizes da comunidade em https://watchr.me/community-guidelines. Se acredita que é um erro, entre em contato com o suporte.",
+    emailCodeSubject: "Seu código de login do Watchr",
+    emailCodeHeading: "Entre no Watchr",
+    emailCodeBody: "Use o código abaixo para entrar na sua conta. Este código expira em 15 minutos.",
+    emailCodeLabel: "Seu código de login:",
+    emailCodeCta: "Entrar",
+    emailCodeWebCta: "Ou entrar via web",
+    emailCodeTipSecurity: "Nunca compartilhe este código com ninguém. A equipe Watchr nunca pedirá.",
+    emailCodeFooter: "Se você não solicitou este código, ignore este email. Sua conta está segura.",
   },
   websocket: {
     reconnecting: "Reconectando…",
@@ -127,6 +144,15 @@ const pt = {
       noEpisode: "Nenhum episódio",
       title: "A SEGUIR",
     },
+  },
+  discover: {
+    trendingTv: "Séries em alta",
+    trendingMovies: "Filmes em alta",
+    popularTv: "Séries populares",
+    popularMovies: "Filmes populares",
+  },
+  recommendations: {
+    fallbackReason: "Em alta agora",
   },
 };
 

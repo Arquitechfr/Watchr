@@ -63,6 +63,7 @@ export function CommentItem({
   const [viewingImage, setViewingImage] = useState<string | null>(null);
   const [spoilerRevealed, setSpoilerRevealed] = useState(false);
   const [reportVisible, setReportVisible] = useState(false);
+  const [showOriginal, setShowOriginal] = useState(false);
   const isEdited = comment.updatedAt !== comment.createdAt;
 
   const keyboardHeight = useSharedValue(0);
@@ -139,6 +140,18 @@ export function CommentItem({
                 <Text className="text-text-muted text-xs mt-0.5">
                   {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true, locale: dateFnsLocale })}
                   {isEdited && <Text className="text-text-muted"> · {t("screens.comments.edited")}</Text>}
+                  {comment.isTranslated && (
+                    <TouchableOpacity
+                      onPress={() => setShowOriginal((v) => !v)}
+                      className="ml-1.5 flex-row items-center"
+                      hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }}
+                    >
+                      <Ionicons name="language-outline" size={11} color={colors.primary} />
+                      <Text className="text-primary text-xs ml-0.5">
+                        {showOriginal ? t("screens.comments.showTranslation") : t("screens.comments.translated")}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
                 </Text>
               </View>
             </View>
@@ -163,6 +176,16 @@ export function CommentItem({
                 <Text className="text-text-muted text-xs ml-2">
                   {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true, locale: dateFnsLocale })}
                   {isEdited && <Text className="text-text-muted"> · {t("screens.comments.edited")}</Text>}
+                  {comment.isTranslated && (
+                    <TouchableOpacity
+                      onPress={() => setShowOriginal((v) => !v)}
+                      hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }}
+                    >
+                      <Text className="text-primary text-xs ml-1.5">
+                        {showOriginal ? t("screens.comments.showTranslation") : t("screens.comments.translated")}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
                 </Text>
               </View>
             )}
@@ -184,7 +207,9 @@ export function CommentItem({
             ) : (
               <>
                 <Text className={`text-text leading-relaxed mt-0.5 ${isParent ? "text-base" : "text-sm"}`}>
-                  {comment.content}
+                  {comment.isTranslated && !showOriginal && comment.translatedContent
+                    ? comment.translatedContent
+                    : comment.content}
                 </Text>
 
                 {comment.images?.length > 0 && (

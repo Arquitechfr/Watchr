@@ -25,10 +25,12 @@ import { ProfileNotificationsScreen } from "../screens/profile/ProfileNotificati
 import { ProfileAboutScreen } from "../screens/profile/ProfileAboutScreen";
 import { ProfileAppearanceScreen } from "../screens/profile/ProfileAppearanceScreen";
 import { ProfileDataScreen } from "../screens/profile/ProfileDataScreen";
+import { ProfileContactScreen } from "../screens/profile/ProfileContactScreen";
 import { usePushNotifications } from "../hooks/usePushNotifications";
 import { useThemeSync } from "../hooks/useThemeSync";
 import { log } from "../utils/logger";
 import { ResetPasswordScreen } from "../screens/auth/ResetPasswordScreen";
+import { MagicLinkScreen } from "../screens/auth/MagicLinkScreen";
 import { NewsArticleDetailScreen } from "../screens/NewsArticleDetailScreen";
 import { getMe, Me, completeOnboarding } from "../services/auth.service";
 
@@ -51,7 +53,9 @@ export type RootStackParamList = {
   ProfileAppearance: undefined;
   ProfileSettings: undefined;
   ProfileData: undefined;
+  ProfileContact: undefined;
   ResetPassword: { token: string };
+  MagicLink: { token: string };
   NewsArticleDetail: { link: string; title: string };
 };
 
@@ -126,6 +130,7 @@ export function RootNavigator() {
       screens: {
         Auth: "",
         ResetPassword: "reset-password",
+        MagicLink: "auth/magic-link",
         ShowDetail: "show",
         ShowComments: "comments",
         EpisodeDetail: "episode",
@@ -194,13 +199,21 @@ export function RootNavigator() {
             <Stack.Screen name="ProfileAbout" component={ProfileAboutScreen} />
             <Stack.Screen name="ProfileAppearance" component={ProfileAppearanceScreen} />
             <Stack.Screen name="ProfileData" component={ProfileDataScreen} />
+            <Stack.Screen name="ProfileContact" component={ProfileContactScreen} />
             <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
+            <Stack.Screen name="MagicLink" component={MagicLinkScreen} />
             <Stack.Screen name="NewsArticleDetail" component={NewsArticleDetailScreen} />
           </>
         ) : config.auth_enabled ? (
-          <Stack.Screen name="Auth" component={AuthStack} />
+          <>
+            <Stack.Screen name="Auth" component={AuthStack} />
+            <Stack.Screen name="MagicLink" component={MagicLinkScreen} />
+          </>
         ) : (
-          <Stack.Screen name="Auth" component={AuthDisabledScreen} />
+          <>
+            <Stack.Screen name="Auth" component={AuthDisabledScreen} />
+            <Stack.Screen name="MagicLink" component={MagicLinkScreen} />
+          </>
         )}
       </Stack.Navigator>
     </NavigationContainer>

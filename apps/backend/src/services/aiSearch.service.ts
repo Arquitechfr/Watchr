@@ -66,11 +66,11 @@ Examples:
       : undefined;
 
     const [tvResults, movieResults] = await Promise.all([
-      tmdbService.searchShows(keywords).catch((err: Error) => {
+      tmdbService.searchShows(keywords, tmdbLanguage).catch((err: Error) => {
         logError("AISearch", "TMDB TV search failed", err);
         return [];
       }),
-      tmdbService.searchMovies(keywords).catch((err: Error) => {
+      tmdbService.searchMovies(keywords, tmdbLanguage).catch((err: Error) => {
         logError("AISearch", "TMDB movie search failed", err);
         return [];
       }),

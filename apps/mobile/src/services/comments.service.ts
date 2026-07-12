@@ -28,6 +28,8 @@ export interface Comment {
   createdAt: string;
   updatedAt: string;
   aiSpoilerDetected?: boolean;
+  translatedContent?: string;
+  isTranslated?: boolean;
 }
 
 export interface CreateCommentInput {

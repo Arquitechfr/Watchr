@@ -31,6 +31,19 @@ export const resetPasswordSchema = z.object({
   newPassword: z.string().min(8, "Password must be at least 8 characters"),
 });
 
+export const emailCodeRequestSchema = z.object({
+  email: z.string().email("Invalid email"),
+});
+
+export const emailCodeVerifySchema = z.object({
+  email: z.string().email("Invalid email"),
+  code: z.string().regex(/^\d{6}$/, "Code must be 6 digits"),
+});
+
+export const magicLinkVerifySchema = z.object({
+  token: z.string().min(1, "Token is required"),
+});
+
 export const pushTokenSchema = z.object({
   token: z.string().min(1, "Push token is required"),
 });

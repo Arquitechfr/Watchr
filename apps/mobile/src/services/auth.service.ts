@@ -100,6 +100,25 @@ export async function resetPassword(token: string, newPassword: string): Promise
   await api.post("/auth/reset-password", { token, newPassword });
 }
 
+export async function requestEmailCode(email: string): Promise<void> {
+  log("AuthService", "requestEmailCode", { email });
+  await api.post("/auth/email-code/request", { email });
+}
+
+export async function verifyEmailCode(email: string, code: string): Promise<AuthTokens> {
+  log("AuthService", "verifyEmailCode");
+  const response = await api.post<AuthTokens>("/auth/email-code/verify", { email, code });
+  log("AuthService", "verifyEmailCode response", { status: response.status });
+  return response.data;
+}
+
+export async function verifyMagicLink(token: string): Promise<AuthTokens> {
+  log("AuthService", "verifyMagicLink");
+  const response = await api.post<AuthTokens>("/auth/email-code/magic-link", { token });
+  log("AuthService", "verifyMagicLink response", { status: response.status });
+  return response.data;
+}
+
 export async function registerPushToken(token: string): Promise<void> {
   await api.post("/auth/me/push-token", { token });
 }

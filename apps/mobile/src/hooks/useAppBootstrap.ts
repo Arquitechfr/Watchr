@@ -17,6 +17,7 @@ import { useThemeStore } from "../store/themeStore";
 import { useAuthStore } from "../store/authStore";
 import { getMe } from "../services/auth.service";
 import { remoteConfigService } from "../services/remoteConfig";
+import { prefetchSeriesData } from "../utils/prefetch";
 import { log } from "../utils/logger";
 
 const BOOTSTRAP_TIMEOUT_MS = 2500;
@@ -70,6 +71,8 @@ export function useAppBootstrap(queryClient: QueryClient) {
           } catch {
             log("Bootstrap", "getMe prefetch failed — will retry in RootNavigator");
           }
+
+          await prefetchSeriesData(queryClient);
         }
 
         log("Bootstrap", "stores ready");

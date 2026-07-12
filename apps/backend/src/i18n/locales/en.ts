@@ -52,6 +52,15 @@ const en = {
     COMMENT_REJECTED_SELF_HARM: "If you're struggling, please reach out for help. This content is not allowed.",
     COMMENT_REJECTED_VIOLENCE: "Your comment contains violent content. Please be respectful.",
     COMMENT_REJECTED_OTHER: "Your comment was flagged as inappropriate. Please review our community guidelines.",
+    EMAIL_CODE_EXPIRED: "Code expired or not found. Please request a new one.",
+    INVALID_EMAIL_CODE: "Invalid code.",
+    TOO_MANY_CODE_ATTEMPTS: "Too many attempts. Please request a new code.",
+    TOO_MANY_CODE_REQUESTS: "Too many code requests. Try again later.",
+    CODE_COOLDOWN: "Please wait before requesting another code.",
+    INVALID_MAGIC_LINK: "Invalid or expired magic link.",
+    TOO_MANY_CONTACT_REQUESTS: "Too many contact requests. Try again later.",
+    CONTACT_NOT_FOUND: "Contact message not found.",
+    CONTACT_ALREADY_REPLIED: "This message has already been replied to.",
   },
   notifications: {
     commentReplyTitle: "New reply to your comment",
@@ -116,6 +125,14 @@ const en = {
     commentSpoilerBody: "Hello {{username}}, your comment on \"{{show}}\" was marked as a spoiler following reports from the community. Please remember to use the spoiler tag when discussing plot details.",
     commentSpoilerTip: "To mark a spoiler, use the spoiler button when writing your comment or wrap sensitive text with the spoiler tag. This keeps the community experience enjoyable for everyone.",
     commentSpoilerFooter: "Review our community guidelines at https://watchr.me/community-guidelines. If you believe this was an error, please contact support.",
+    emailCodeSubject: "Your Watchr sign-in code",
+    emailCodeHeading: "Sign in to Watchr",
+    emailCodeBody: "Use the code below to sign in to your account. This code expires in 15 minutes.",
+    emailCodeLabel: "Your sign-in code:",
+    emailCodeCta: "Sign in",
+    emailCodeWebCta: "Or sign in via web",
+    emailCodeTipSecurity: "Never share this code with anyone. Watchr staff will never ask for it.",
+    emailCodeFooter: "If you didn't request this code, ignore this email. Your account is safe.",
   },
   websocket: {
     reconnecting: "Reconnecting…",
@@ -127,6 +144,15 @@ const en = {
       noEpisode: "No episode",
       title: "UP NEXT",
     },
+  },
+  discover: {
+    trendingTv: "Trending TV Shows",
+    trendingMovies: "Trending Movies",
+    popularTv: "Popular TV Shows",
+    popularMovies: "Popular Movies",
+  },
+  recommendations: {
+    fallbackReason: "Currently trending",
   },
 };
 

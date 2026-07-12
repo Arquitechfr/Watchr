@@ -4,11 +4,13 @@ import { Rating } from "../models/rating.model.js";
 import { Favorite } from "../models/favorite.model.js";
 import { mistralService } from "./mistral.service.js";
 import { tmdbService } from "./tmdb.service.js";
+import { toTmdbLanguage } from "./show.service.js";
 import { getRedisValue, setRedisValue } from "../lib/redis.js";
 import { log, logError } from "../lib/logger.js";
 import { MobileConfig } from "../models/MobileConfig.js";
 import { getTranslationValue } from "../models/show.model.js";
 import { languageNameForLocale } from "./aiLanguageMap.js";
+import { translateRecommendation } from "../i18n/index.js";
 
 export interface RecommendationItem {
   tmdbId: number;
@@ -148,11 +150,12 @@ Rules:
     const items: Array<{ tmdb_title: string; type: "tv" | "movie"; reason: string }> = parsed.recommendations ?? parsed;
 
     const recommendations: RecommendationItem[] = [];
+    const tmdbLanguage = toTmdbLanguage(language);
     for (const item of items.slice(0, 10)) {
       try {
         const tmdbResults = item.type === "tv"
-          ? await tmdbService.searchShows(item.tmdb_title)
-          : await tmdbService.searchMovies(item.tmdb_title);
+          ? await tmdbService.searchShows(item.tmdb_title, tmdbLanguage)
+          : await tmdbService.searchMovies(item.tmdb_title, tmdbLanguage);
 
         const match = tmdbResults[0];
         if (!match) continue;
@@ -186,8 +189,7 @@ Rules:
 
 async function getFallbackRecommendations(language = "en"): Promise<RecommendationResult> {
   try {
-    const tmdbLanguageMap: Record<string, string> = { en: "en-US", fr: "fr-FR", es: "es-ES", pt: "pt-BR", de: "de-DE", it: "it-IT", ar: "ar-SA" };
-    const tmdbLanguage = tmdbLanguageMap[language] ?? "en-US";
+    const tmdbLanguage = toTmdbLanguage(language);
     const [trendingTv, trendingMovies] = await Promise.all([
       tmdbService.getTrendingTv(10, tmdbLanguage).catch(() => ({ results: [] as any[] })),
       tmdbService.getTrendingMovies(10, tmdbLanguage).catch(() => ({ results: [] as any[] })),
@@ -200,7 +202,7 @@ async function getFallbackRecommendations(language = "en"): Promise<Recommendati
       title: item.name ?? item.title ?? "Unknown",
       posterPath: item.poster_path ?? undefined,
       overview: item.overview,
-      reason: language === "fr" ? "Tendance actuellement" : language === "es" ? "Tendencia actual" : language === "pt" ? "Em alta agora" : language === "de" ? "Aktuell im Trend" : language === "it" ? "Di tendenza ora" : language === "ar" ? "رائج حالياً" : "Currently trending",
+      reason: translateRecommendation("fallbackReason", language),
     }));
 
     return { recommendations, source: "fallback" };

@@ -52,6 +52,15 @@ const ar = {
     COMMENT_REJECTED_SELF_HARM: "إذا كنت تواجه صعوبات، اطلب المساعدة. هذا المحتوى غير مسموح.",
     COMMENT_REJECTED_VIOLENCE: "تعليقك يحتوي على محتوى عنيف. كن محترماً.",
     COMMENT_REJECTED_OTHER: "تم وضع علامة على تعليقك كغير لائق. راجع إرشادات مجتمعنا.",
+    EMAIL_CODE_EXPIRED: "انتهت صلاحية الرمز أو لم يتم العثور عليه. يرجى طلب رمز جديد.",
+    INVALID_EMAIL_CODE: "رمز غير صالح.",
+    TOO_MANY_CODE_ATTEMPTS: "محاولات كثيرة جداً. يرجى طلب رمز جديد.",
+    TOO_MANY_CODE_REQUESTS: "طلبات رمز كثيرة جداً. حاول مرة أخرى لاحقاً.",
+    CODE_COOLDOWN: "يرجى الانتظار قبل طلب رمز آخر.",
+    INVALID_MAGIC_LINK: "رابط سحري غير صالح أو منتهي الصلاحية.",
+    TOO_MANY_CONTACT_REQUESTS: "طلبات تواصل كثيرة جداً. حاول مرة أخرى لاحقاً.",
+    CONTACT_NOT_FOUND: "رسالة التواصل غير موجودة.",
+    CONTACT_ALREADY_REPLIED: "تمت الرد على هذه الرسالة بالفعل.",
   },
   notifications: {
     commentReplyTitle: "رد جديد على تعليقك",
@@ -116,6 +125,14 @@ const ar = {
     commentSpoilerBody: "مرحبًا {{username}}، تم وضع علامة سبويلر على تعليقك على \"{{show}}\" بعد بلاغات من المجتمع. يرجى تذكر استخدام علامة سبويلر عند مناقشة تفاصيل الحبكة.",
     commentSpoilerTip: "لوضع علامة سبويلر، استخدم زر السبويلر عند كتابة تعليقك أو غلّف النص الحساس بعلامة السبويلر. هذا يحافظ على تجربة ممتعة للمجتمع بأكمله.",
     commentSpoilerFooter: "راجع إرشادات المجتمع على https://watchr.me/community-guidelines. إذا كنت تعتقد أن هذا خطأ، يرجى التواصل مع الدعم.",
+    emailCodeSubject: "رمز تسجيل الدخول إلى Watchr",
+    emailCodeHeading: "تسجيل الدخول إلى Watchr",
+    emailCodeBody: "استخدم الرمز أدناه لتسجيل الدخول إلى حسابك. تنتهي صلاحية هذا الرمز خلال 15 دقيقة.",
+    emailCodeLabel: "رمز تسجيل الدخول الخاص بك:",
+    emailCodeCta: "تسجيل الدخول",
+    emailCodeWebCta: "أو تسجيل الدخول عبر الويب",
+    emailCodeTipSecurity: "لا تشارك هذا الرمز مع أي شخص أبدًا. فريق Watchr لن يطلبه منك أبدًا.",
+    emailCodeFooter: "إذا لم تطلب هذا الرمز، تجاهل هذا البريد الإلكتروني. حسابك آمن.",
   },
   websocket: {
     reconnecting: "إعادة الاتصال…",
@@ -127,6 +144,15 @@ const ar = {
       noEpisode: "لا توجد حلقة",
       title: "التالي",
     },
+  },
+  discover: {
+    trendingTv: "المسلسلات الرائجة",
+    trendingMovies: "الأفلام الرائجة",
+    popularTv: "المسلسلات الشائعة",
+    popularMovies: "الأفلام الشائعة",
+  },
+  recommendations: {
+    fallbackReason: "رائج حالياً",
   },
 };
 

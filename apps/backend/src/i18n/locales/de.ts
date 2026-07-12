@@ -52,6 +52,15 @@ const de = {
     COMMENT_REJECTED_SELF_HARM: "Wenn du Schwierigkeiten hast, bitte um Hilfe. Dieser Inhalt ist nicht erlaubt.",
     COMMENT_REJECTED_VIOLENCE: "Dein Kommentar enthält gewalttätige Inhalte. Sei respektvoll.",
     COMMENT_REJECTED_OTHER: "Dein Kommentar wurde als unangemessen markiert. Überprüfe unsere Community-Richtlinien.",
+    EMAIL_CODE_EXPIRED: "Code abgelaufen oder nicht gefunden. Bitte fordere einen neuen an.",
+    INVALID_EMAIL_CODE: "Ungültiger Code.",
+    TOO_MANY_CODE_ATTEMPTS: "Zu viele Versuche. Bitte fordere einen neuen Code an.",
+    TOO_MANY_CODE_REQUESTS: "Zu viele Code-Anfragen. Versuche es später erneut.",
+    CODE_COOLDOWN: "Warte, bevor du einen weiteren Code anforderst.",
+    INVALID_MAGIC_LINK: "Ungültiger oder abgelaufener Magischer Link.",
+    TOO_MANY_CONTACT_REQUESTS: "Zu viele Kontaktanfragen. Versuche es später erneut.",
+    CONTACT_NOT_FOUND: "Kontaktnachricht nicht gefunden.",
+    CONTACT_ALREADY_REPLIED: "Diese Nachricht wurde bereits beantwortet.",
   },
   notifications: {
     commentReplyTitle: "Neue Antwort auf deinen Kommentar",
@@ -116,6 +125,14 @@ const de = {
     commentSpoilerBody: "Hallo {{username}}, dein Kommentar zu \"{{show}}\" wurde nach Meldungen aus der Community als Spoiler markiert. Bitte denke daran, das Spoiler-Tag zu verwenden, wenn du Handlungsdetails diskutierst.",
     commentSpoilerTip: "Um einen Spoiler zu markieren, verwende den Spoiler-Button beim Schreiben deines Kommentars oder umschließe den sensiblen Text mit dem Spoiler-Tag. So bleibt das Community-Erlebnis für alle angenehm.",
     commentSpoilerFooter: "Überprüfe unsere Community-Richtlinien unter https://watchr.me/community-guidelines. Wenn du glaubst, dass dies ein Fehler ist, wende dich an den Support.",
+    emailCodeSubject: "Dein Watchr-Anmeldecode",
+    emailCodeHeading: "Bei Watchr anmelden",
+    emailCodeBody: "Verwende den untenstehenden Code, um dich bei deinem Konto anzumelden. Dieser Code läuft in 15 Minuten ab.",
+    emailCodeLabel: "Dein Anmeldecode:",
+    emailCodeCta: "Anmelden",
+    emailCodeWebCta: "Oder über das Web anmelden",
+    emailCodeTipSecurity: "Teile diesen Code niemals mit jemandem. Das Watchr-Team wird dich nie danach fragen.",
+    emailCodeFooter: "Wenn du diesen Code nicht angefordert hast, ignoriere diese E-Mail. Dein Konto ist sicher.",
   },
   websocket: {
     reconnecting: "Verbinde neu…",
@@ -127,6 +144,15 @@ const de = {
       noEpisode: "Keine Episode",
       title: "WEITER",
     },
+  },
+  discover: {
+    trendingTv: "Trendende Serien",
+    trendingMovies: "Trendende Filme",
+    popularTv: "Beliebte Serien",
+    popularMovies: "Beliebte Filme",
+  },
+  recommendations: {
+    fallbackReason: "Aktuell im Trend",
   },
 };
 

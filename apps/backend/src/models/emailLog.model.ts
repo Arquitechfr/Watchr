@@ -1,6 +1,6 @@
 import { Schema, model, Document } from "mongoose";
 
-export type EmailTemplate = "welcome" | "reset_password" | "ban_notification" | "comment_deleted" | "comment_hidden" | "comment_spoiler" | "custom";
+export type EmailTemplate = "welcome" | "reset_password" | "ban_notification" | "comment_deleted" | "comment_hidden" | "comment_spoiler" | "email_code" | "contact_reply" | "custom";
 export type EmailStatus = "sent" | "failed" | "skipped";
 export type EmailErrorType = "brevo_api_error" | "connection_timeout" | "auth_failed" | "smtp_error" | "unknown";
 
@@ -23,7 +23,7 @@ const emailLogSchema = new Schema<IEmailLog>(
     subject: { type: String, required: true },
     template: {
       type: String,
-      enum: ["welcome", "reset_password", "ban_notification", "comment_deleted", "comment_hidden", "comment_spoiler", "custom"],
+      enum: ["welcome", "reset_password", "ban_notification", "comment_deleted", "comment_hidden", "comment_spoiler", "email_code", "contact_reply", "custom"],
       required: true,
       index: true,
     },

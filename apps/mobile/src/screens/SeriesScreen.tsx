@@ -1,6 +1,7 @@
 import { View, Text, FlatList, RefreshControl, TouchableOpacity, useWindowDimensions } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation, useScrollToTop } from "@react-navigation/native";
+import { useNavigation, useScrollToTop, CompositeNavigationProp } from "@react-navigation/native";
+import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useMemo, useState, useEffect, useRef } from "react";
 import { ScreenContainer } from "../components/ScreenContainer";
@@ -31,7 +32,10 @@ import { Seo } from "../components/Seo";
 import { ImportProgressBanner } from "../components/ImportProgressBanner";
 import { log } from "../utils/logger";
 
-type NavigationProp = NativeStackNavigationProp<RootStackParamList, "ShowDetail" | "EpisodeDetail">;
+type NavigationProp = CompositeNavigationProp<
+  BottomTabNavigationProp<{ Search: undefined }>,
+  NativeStackNavigationProp<RootStackParamList, "ShowDetail" | "EpisodeDetail">
+>;
 
 interface FlattenedEpisode {
   showId: string;
@@ -63,6 +67,7 @@ function UnwatchedList({
   cardWidth,
   searchQuery,
   listRef,
+  onAddPress,
 }: {
   shows: UnwatchedShow[];
   isLoading: boolean;
@@ -75,6 +80,7 @@ function UnwatchedList({
   cardWidth: number;
   searchQuery: string;
   listRef: React.RefObject<FlatList | null>;
+  onAddPress: () => void;
 }) {
   const { t } = useI18n();
   const colors = useThemeColors();
@@ -108,6 +114,8 @@ function UnwatchedList({
       <EmptyState
         icon="checkmark-circle-outline"
         title={t("screens.home.noUnwatched")}
+        actionLabel={t("screens.series.addBtn")}
+        onAction={onAddPress}
       />
     );
   }
@@ -507,6 +515,7 @@ export function SeriesScreen() {
               cardWidth={cardWidth}
               searchQuery={searchQuery}
               listRef={flatListRef}
+              onAddPress={() => navigation.navigate("Search")}
             />
           )}
         </View>

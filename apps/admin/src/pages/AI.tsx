@@ -104,6 +104,7 @@ const FLAG_LABELS: Record<string, { label: string; description: string }> = {
   ai_import_matching_enabled: { label: "Import Matching", description: "AI fuzzy matching for TV Time import titles" },
   ai_news_summary_enabled: { label: "News Summary", description: "AI-generated summaries for RSS news articles" },
   ai_thread_summary_enabled: { label: "Thread Summary", description: "AI summary of long comment threads" },
+  ai_comment_translation_enabled: { label: "Comment Translation", description: "AI automatic comment translation to user's preferred language" },
   ai_push_personalization_enabled: { label: "Push Personalization", description: "AI-personalized push notification text" },
   ai_insights_enabled: { label: "Watch Insights", description: "AI-generated narrative insights from user stats" },
   ai_mood_recommendations_enabled: { label: "Mood Recommendations", description: "Recommendations based on user mood input" },

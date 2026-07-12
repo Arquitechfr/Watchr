@@ -1,6 +1,7 @@
 import { Text, FlatList, RefreshControl, TouchableOpacity, View, Image, ActivityIndicator, useWindowDimensions } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation, useScrollToTop } from "@react-navigation/native";
+import { useNavigation, useScrollToTop, CompositeNavigationProp } from "@react-navigation/native";
+import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ScreenContainer } from "../components/ScreenContainer";
@@ -25,7 +26,10 @@ import { Seo } from "../components/Seo";
 import { ImportProgressBanner } from "../components/ImportProgressBanner";
 import { WatchStatus } from "../services/tracking.service";
 
-type NavigationProp = NativeStackNavigationProp<RootStackParamList, "ShowDetail">;
+type NavigationProp = CompositeNavigationProp<
+  BottomTabNavigationProp<{ Search: undefined }>,
+  NativeStackNavigationProp<RootStackParamList, "ShowDetail">
+>;
 
 function getStatusLabel(t: ReturnType<typeof useI18n>["t"], status: WatchStatus): string {
   switch (status) {
@@ -317,6 +321,8 @@ export function MoviesScreen() {
                   icon="film-outline"
                   title={t("screens.movies.empty")}
                   subtitle={t("screens.movies.addFromSearch")}
+                  actionLabel={t("screens.movies.addBtn")}
+                  onAction={() => navigation.navigate("Search")}
                 />
               )
             }
@@ -351,6 +357,8 @@ export function MoviesScreen() {
                   icon="film-outline"
                   title={t("screens.movies.empty")}
                   subtitle={t("screens.movies.addFromSearch")}
+                  actionLabel={t("screens.movies.addBtn")}
+                  onAction={() => navigation.navigate("Search")}
                 />
               )
             }

@@ -27,6 +27,7 @@ export const AI_FLAG_KEYS = [
   "ai_import_matching_enabled",
   "ai_news_summary_enabled",
   "ai_thread_summary_enabled",
+  "ai_comment_translation_enabled",
   "ai_push_personalization_enabled",
   "ai_insights_enabled",
   "ai_mood_recommendations_enabled",

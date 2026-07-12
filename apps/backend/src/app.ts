@@ -25,6 +25,7 @@ import newsRoutes from "./routes/news.routes.js";
 import uploadRoutes from "./routes/upload.routes.js";
 import ciRoutes from "./routes/ci.routes.js";
 import favoriteRoutes from "./routes/favorite.routes.js";
+import contactRoutes from "./routes/contact.routes.js";
 import mobileConfigRoutes from "./routes/internal/mobileConfig.routes.js";
 import adminRoutes from "./routes/admin/index.js";
 
@@ -360,6 +361,7 @@ export function createApp(): Application {
   app.use("/api/news", newsRoutes);
   app.use("/api/uploads", uploadRoutes);
   app.use("/api/favorites", favoriteRoutes);
+  app.use("/api/contact", contactRoutes);
   app.use("/ci", ciRoutes);
   app.use("/internal", mobileConfigRoutes);
   app.use("/api/admin", adminRoutes);

@@ -4,6 +4,7 @@ import { MobileConfig } from "../models/MobileConfig.js";
 import { getRedisValue, setRedisValue } from "../lib/redis.js";
 import { languageNameForLocale } from "./aiLanguageMap.js";
 import { tmdbService } from "./tmdb.service.js";
+import { toTmdbLanguage } from "./show.service.js";
 import type { TmdbSearchResult } from "./tmdb.service.js";
 import type { SupportedLocale } from "../i18n/translations.js";
 
@@ -93,10 +94,7 @@ Rules:
       return getFallbackMoodRecommendations(mood, locale);
     }
 
-    const tmdbLanguageMap: Record<string, string> = {
-      en: "en-US", fr: "fr-FR", es: "es-ES", pt: "pt-BR", de: "de-DE", it: "it-IT", ar: "ar-SA",
-    };
-    const tmdbLanguage = tmdbLanguageMap[locale] ?? "en-US";
+    const tmdbLanguage = toTmdbLanguage(locale);
 
     const recommendations: MoodRecommendation[] = [];
 
@@ -140,10 +138,7 @@ async function getFallbackMoodRecommendations(
   locale: SupportedLocale,
 ): Promise<MoodRecommendationResult> {
   try {
-    const tmdbLanguageMap: Record<string, string> = {
-      en: "en-US", fr: "fr-FR", es: "es-ES", pt: "pt-BR", de: "de-DE", it: "it-IT", ar: "ar-SA",
-    };
-    const tmdbLanguage = tmdbLanguageMap[locale] ?? "en-US";
+    const tmdbLanguage = toTmdbLanguage(locale);
 
     const keywords = MOOD_KEYWORDS[mood.toLowerCase()] ?? MOOD_KEYWORDS.happy;
     const query = keywords[0];

@@ -1,5 +1,6 @@
 import { useCallback, useState } from "react";
 import { Text, TouchableOpacity, ActivityIndicator } from "react-native";
+import { useQueryClient } from "@tanstack/react-query";
 import { useGoogleAuth, type AuthTokens } from "../services/googleAuth.service";
 import { useAuthStore } from "../store/authStore";
 import { useUIStore } from "../store/uiStore";
@@ -8,6 +9,7 @@ import { useI18n } from "../i18n/useI18n";
 import { log } from "../utils/logger";
 import { useThemeColors } from "../theme/useThemeColors";
 import { syncPreferencesToBackend } from "../hooks/useSyncPreferences";
+import { prefetchSeriesData } from "../utils/prefetch";
 
 interface GoogleSignInButtonProps {
   label: string;
@@ -19,6 +21,7 @@ export function GoogleSignInButton({ label }: GoogleSignInButtonProps) {
   const { t } = useI18n();
   const colors = useThemeColors();
   const getErrorMessage = useErrorMessage();
+  const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSuccess = useCallback(
@@ -27,6 +30,7 @@ export function GoogleSignInButton({ label }: GoogleSignInButtonProps) {
       try {
         await setTokens(tokens.accessToken, tokens.refreshToken);
         syncPreferencesToBackend();
+        prefetchSeriesData(queryClient);
         log("GoogleSignInButton", "tokens persisted");
         showSnackbar(t("auth.connectedWithGoogle"), "success");
       } catch (err) {
@@ -36,7 +40,7 @@ export function GoogleSignInButton({ label }: GoogleSignInButtonProps) {
         setIsSubmitting(false);
       }
     },
-    [setTokens, showSnackbar, t, getErrorMessage],
+    [setTokens, showSnackbar, t, getErrorMessage, queryClient],
   );
 
   const handleError = useCallback(

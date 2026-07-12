@@ -5,6 +5,7 @@ import { MobileConfig } from "../models/MobileConfig.js";
 import { getRedisValue, setRedisValue } from "../lib/redis.js";
 import { languageNameForLocale } from "./aiLanguageMap.js";
 import { tmdbService } from "./tmdb.service.js";
+import { toTmdbLanguage } from "./show.service.js";
 import type { TmdbSearchResult } from "./tmdb.service.js";
 import { Show } from "../models/show.model.js";
 import { getShowTitle } from "../models/show.model.js";
@@ -137,10 +138,7 @@ Overview: ${showOverview.slice(0, 500)}`;
       return fallback;
     }
 
-    const tmdbLanguageMap: Record<string, string> = {
-      en: "en-US", fr: "fr-FR", es: "es-ES", pt: "pt-BR", de: "de-DE", it: "it-IT", ar: "ar-SA",
-    };
-    const tmdbLanguage = tmdbLanguageMap[locale] ?? "en-US";
+    const tmdbLanguage = toTmdbLanguage(locale);
 
     const shows: SimilarShow[] = [];
 
@@ -200,10 +198,7 @@ async function getFallbackSimilarShows(
       return { shows: [], source: "fallback" };
     }
 
-    const tmdbLanguageMap: Record<string, string> = {
-      en: "en-US", fr: "fr-FR", es: "es-ES", pt: "pt-BR", de: "de-DE", it: "it-IT", ar: "ar-SA",
-    };
-    const tmdbLanguage = tmdbLanguageMap[locale] ?? "en-US";
+    const tmdbLanguage = toTmdbLanguage(locale);
 
     const results = await tmdbService.getSimilar(show.tmdbId, show.type, tmdbLanguage);
     const topResults = results.slice(0, 15);

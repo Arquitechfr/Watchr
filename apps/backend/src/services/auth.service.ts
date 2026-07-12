@@ -1,9 +1,11 @@
 /* eslint-disable no-console */
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
 import { env } from "../config/env.js";
 import { firebaseAuth } from "../config/firebaseAdmin.js";
 import { User, NotificationPreferences, IUser } from "../models/user.model.js";
+import { AuthCode } from "../models/authCode.model.js";
 import { generateRefreshToken, hashToken } from "../lib/hashToken.js";
 import { generateUniqueUsername } from "../lib/usernameGenerator.js";
 import { uploadAvatar as uploadAvatarToS3 } from "../services/upload.service.js";
@@ -14,6 +16,20 @@ import { ApiError } from "../middleware/error.middleware.js";
 const ACCESS_TOKEN_TTL_SECONDS = 15 * 60;
 const REFRESH_TOKEN_TTL_DAYS = 30;
 const PASSWORD_RESET_TOKEN_TTL_SECONDS = 15 * 60;
+const EMAIL_CODE_TTL_SECONDS = 15 * 60;
+const EMAIL_CODE_MAX_ATTEMPTS = 5;
+const EMAIL_CODE_REQUEST_COOLDOWN_MS = 30_000;
+const EMAIL_CODE_MAX_REQUESTS_PER_WINDOW = 5;
+const EMAIL_CODE_REQUEST_WINDOW_MS = 15 * 60 * 1000;
+const MAGIC_LINK_TOKEN_TTL_SECONDS = 15 * 60;
+
+function hashEmailCode(code: string): string {
+  return crypto.createHash("sha256").update(code).digest("hex");
+}
+
+function generateSixDigitCode(): string {
+  return String(crypto.randomInt(0, 1_000_000)).padStart(6, "0");
+}
 
 export interface TokenPair {
   accessToken: string;
@@ -286,6 +302,129 @@ export async function resetPassword(token: string, newPassword: string): Promise
   if (result.matchedCount === 0) {
     throw new ApiError(404, "USER_NOT_FOUND", "User not found");
   }
+}
+
+export async function requestEmailCode(email: string): Promise<void> {
+  const normalizedEmail = email.toLowerCase().trim();
+
+  const user = await User.findOne({ email: normalizedEmail });
+  if (!user) {
+    return;
+  }
+
+  checkUserCanLogin(user);
+
+  const recentCodes = await AuthCode.find({
+    email: normalizedEmail,
+    createdAt: { $gte: new Date(Date.now() - EMAIL_CODE_REQUEST_WINDOW_MS) },
+  }).sort({ createdAt: -1 });
+
+  if (recentCodes.length >= EMAIL_CODE_MAX_REQUESTS_PER_WINDOW) {
+    throw new ApiError(429, "TOO_MANY_CODE_REQUESTS", "Too many code requests. Try again later.");
+  }
+
+  if (recentCodes.length > 0) {
+    const lastCode = recentCodes[0];
+    const elapsed = Date.now() - lastCode.createdAt.getTime();
+    if (elapsed < EMAIL_CODE_REQUEST_COOLDOWN_MS) {
+      throw new ApiError(429, "CODE_COOLDOWN", "Please wait before requesting another code.");
+    }
+  }
+
+  const code = generateSixDigitCode();
+  const codeHash = hashEmailCode(code);
+
+  const magicLinkToken = jwt.sign(
+    { sub: user._id.toString(), type: "email_magic" },
+    env.JWT_REFRESH_SECRET,
+    { expiresIn: MAGIC_LINK_TOKEN_TTL_SECONDS },
+  );
+
+  const expiresAt = new Date(Date.now() + EMAIL_CODE_TTL_SECONDS * 1000);
+
+  await AuthCode.create({
+    email: normalizedEmail,
+    codeHash,
+    magicLinkToken,
+    expiresAt,
+    attempts: 0,
+  });
+
+  const magicLinkUrl = `watchr://magic-link?token=${magicLinkToken}`;
+  const webMagicLinkUrl = `https://app.watchr.me/auth/magic-link?token=${magicLinkToken}`;
+
+  EmailService.sendEmailCodeEmail(user.email, code, magicLinkUrl, webMagicLinkUrl, user.preferredLanguage).catch((err) =>
+    console.error("Failed to send email code:", err),
+  );
+}
+
+export async function verifyEmailCode(email: string, code: string): Promise<TokenPair> {
+  const normalizedEmail = email.toLowerCase().trim();
+
+  const authCode = await AuthCode.findOne({
+    email: normalizedEmail,
+    expiresAt: { $gt: new Date() },
+  }).sort({ createdAt: -1 });
+
+  if (!authCode) {
+    throw new ApiError(401, "EMAIL_CODE_EXPIRED", "Code expired or not found. Please request a new one.");
+  }
+
+  if (authCode.attempts >= EMAIL_CODE_MAX_ATTEMPTS) {
+    await AuthCode.deleteOne({ _id: authCode._id });
+    throw new ApiError(401, "TOO_MANY_CODE_ATTEMPTS", "Too many attempts. Please request a new code.");
+  }
+
+  const inputHash = hashEmailCode(code);
+  if (inputHash !== authCode.codeHash) {
+    authCode.attempts += 1;
+    await authCode.save();
+    throw new ApiError(401, "INVALID_EMAIL_CODE", "Invalid code.");
+  }
+
+  await AuthCode.deleteOne({ _id: authCode._id });
+
+  const user = await User.findOne({ email: normalizedEmail });
+  if (!user) {
+    throw new ApiError(404, "USER_NOT_FOUND", "User not found");
+  }
+
+  user.lastLoginAt = new Date();
+  checkUserCanLogin(user);
+  await user.save();
+
+  return await issueTokenPair(user._id.toString(), user.preferredLanguage);
+}
+
+export async function verifyMagicLink(token: string): Promise<TokenPair> {
+  let payload: { sub: string; type: string };
+  try {
+    payload = jwt.verify(token, env.JWT_REFRESH_SECRET) as { sub: string; type: string };
+  } catch {
+    throw new ApiError(401, "INVALID_MAGIC_LINK", "Invalid or expired magic link");
+  }
+
+  if (payload.type !== "email_magic") {
+    throw new ApiError(401, "INVALID_MAGIC_LINK", "Invalid magic link token");
+  }
+
+  const authCode = await AuthCode.findOne({ magicLinkToken: token });
+  if (!authCode || authCode.expiresAt < new Date()) {
+    throw new ApiError(401, "INVALID_MAGIC_LINK", "Invalid or expired magic link");
+  }
+
+  await AuthCode.deleteOne({ _id: authCode._id });
+
+  const user = await User.findById(payload.sub);
+  if (!user) {
+    throw new ApiError(404, "USER_NOT_FOUND", "User not found");
+  }
+
+  user.lastLoginAt = new Date();
+  checkUserCanLogin(user);
+  await user.save();
+
+  return await issueTokenPair(user._id.toString(), user.preferredLanguage);
 }
 
 export async function registerPushToken(userId: string, token: string): Promise<void> {

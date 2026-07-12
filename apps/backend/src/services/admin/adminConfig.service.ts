@@ -37,14 +37,8 @@ export async function setConfig(
 
   invalidateMobileConfigCache();
 
-  const remoteConfigFlags = new Set([
-    "traffic_notice_enabled",
-    "auth_enabled",
-    "maintenance_enabled",
-  ]);
-  if (remoteConfigFlags.has(key)) {
-    const parsedValue = type === "boolean" ? value === "true" : value;
-    wsEvents.emit("remote_config_update", { key, value: parsedValue });
+  if (type === "boolean") {
+    wsEvents.emit("remote_config_update", { key, value: value === "true" });
   }
 
   return { key, value, type, description: description ?? "", updatedBy };

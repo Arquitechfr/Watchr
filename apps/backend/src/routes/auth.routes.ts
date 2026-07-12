@@ -13,6 +13,9 @@ import {
   updateUsername,
   requestPasswordReset,
   resetPassword,
+  requestEmailCode,
+  verifyEmailCode,
+  verifyMagicLink,
   registerPushToken,
   unregisterPushToken,
   updateNotificationPreferences,
@@ -35,6 +38,9 @@ import {
   registerSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
+  emailCodeRequestSchema,
+  emailCodeVerifySchema,
+  magicLinkVerifySchema,
   pushTokenSchema,
   notificationPreferencesSchema,
   themePreferenceSchema,
@@ -206,6 +212,42 @@ router.post(
     const { token, newPassword } = req.body;
     await resetPassword(token, newPassword);
     res.json({ success: true });
+  }),
+);
+
+router.post(
+  "/email-code/request",
+  checkAuthEnabled,
+  authRateLimiter,
+  validateRequest(emailCodeRequestSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { email } = req.body;
+    await requestEmailCode(email);
+    res.json({ success: true });
+  }),
+);
+
+router.post(
+  "/email-code/verify",
+  checkAuthEnabled,
+  authRateLimiter,
+  validateRequest(emailCodeVerifySchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { email, code } = req.body;
+    const tokens = await verifyEmailCode(email, code);
+    res.json(tokens);
+  }),
+);
+
+router.post(
+  "/email-code/magic-link",
+  checkAuthEnabled,
+  authRateLimiter,
+  validateRequest(magicLinkVerifySchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { token } = req.body;
+    const tokens = await verifyMagicLink(token);
+    res.json(tokens);
   }),
 );
 

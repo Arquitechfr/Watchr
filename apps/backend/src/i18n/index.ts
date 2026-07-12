@@ -5,6 +5,8 @@ export { normalizeLocale, DEFAULT_LOCALE, SUPPORTED_LOCALES } from "./translatio
 export type I18nKey = keyof typeof translations.en.errors;
 export type NotificationKey = keyof typeof translations.en.notifications;
 export type EmailKey = keyof typeof translations.en.emails;
+export type DiscoverKey = keyof typeof translations.en.discover;
+export type RecommendationKey = keyof typeof translations.en.recommendations;
 
 function interpolate(template: string, params?: Record<string, string | number>): string {
   if (!params) return template;
@@ -53,3 +55,20 @@ export function translateEmail(
   return interpolate(template, params);
 }
 
+export function translateDiscover(
+  key: DiscoverKey,
+  language: SupportedLocale | string | undefined,
+): string {
+  const locale = normalizeLocale(language);
+  const pack = translations[locale] ?? translations[DEFAULT_LOCALE];
+  return pack.discover[key] ?? translations[DEFAULT_LOCALE].discover[key] ?? key;
+}
+
+export function translateRecommendation(
+  key: RecommendationKey,
+  language: SupportedLocale | string | undefined,
+): string {
+  const locale = normalizeLocale(language);
+  const pack = translations[locale] ?? translations[DEFAULT_LOCALE];
+  return pack.recommendations[key] ?? translations[DEFAULT_LOCALE].recommendations[key] ?? key;
+}

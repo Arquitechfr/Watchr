@@ -2,7 +2,7 @@ import nodemailer from "nodemailer";
 import axios from "axios";
 import { env } from "../config/env.js";
 import { SupportedLocale } from "../i18n/translations.js";
-import { welcomeTemplate, resetPasswordTemplate, banNotificationTemplate, commentDeletedTemplate, commentHiddenTemplate, commentSpoilerTemplate, baseHtml } from "./emailTemplates.js";
+import { welcomeTemplate, resetPasswordTemplate, banNotificationTemplate, commentDeletedTemplate, commentHiddenTemplate, commentSpoilerTemplate, emailCodeTemplate, baseHtml } from "./emailTemplates.js";
 import { log, logError } from "../lib/logger.js";
 import { EmailLog, EmailTemplate, EmailStatus } from "../models/emailLog.model.js";
 
@@ -283,6 +283,17 @@ export const EmailService = {
     return sendEmail({ to, subject, html, template: "comment_spoiler", locale: locale ?? undefined });
   },
 
+  async sendEmailCodeEmail(
+    to: string,
+    code: string,
+    magicLinkUrl: string,
+    webMagicLinkUrl: string,
+    locale: SupportedLocale | string | undefined,
+  ): Promise<boolean> {
+    const { subject, html } = emailCodeTemplate(locale, { code, magicLinkUrl, webMagicLinkUrl });
+    return sendEmail({ to, subject, html, template: "email_code", locale: locale ?? undefined });
+  },
+
   async sendCustomEmail(
     to: string,
     subject: string,
@@ -293,5 +304,18 @@ export const EmailService = {
     const sanitized = sanitizeHtml(htmlContent);
     const html = baseHtml(sanitized, locale);
     return sendEmail({ to, subject, html, template: "custom", locale, triggeredBy });
+  },
+
+  async sendContactReplyEmail(
+    to: string,
+    originalSubject: string,
+    replyMessage: string,
+    locale: string | undefined,
+    triggeredBy?: string,
+  ): Promise<boolean> {
+    const subject = `Re: ${originalSubject}`;
+    const sanitized = sanitizeHtml(replyMessage);
+    const html = baseHtml(sanitized, locale);
+    return sendEmail({ to, subject, html, template: "contact_reply", locale, triggeredBy });
   },
 };

@@ -55,7 +55,7 @@ router.get(
   validateRequest(undefined, undefined, commentParamsSchema),
   asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
-    const comment = await getCommentById(req.userId!, id);
+    const comment = await getCommentById(req.userId!, id, req.language);
     res.json(comment);
   }),
 );
@@ -74,6 +74,7 @@ router.get(
       id,
       Number(query.page || 1),
       Number(query.limit || 20),
+      req.language,
     );
     res.json(result);
   }),
@@ -97,7 +98,7 @@ router.get(
       page: Number(query.page || 1),
       limit: Number(query.limit || 20),
       sort: (query.sort as "relevant" | "liked" | "replied" | "recent") || "recent",
-    });
+    }, req.language);
     res.json(result);
   }),
 );
@@ -134,7 +135,7 @@ router.patch(
   validateRequest(updateCommentSchema, undefined, commentParamsSchema),
   asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
-    const comment = await updateComment(req.userId!, id, req.body);
+    const comment = await updateComment(req.userId!, id, req.body, req.language);
     res.json(comment);
   }),
 );

@@ -4,6 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { useQueryClient } from "@tanstack/react-query";
 import Animated, { FadeIn, FadeOut, SlideInDown } from "react-native-reanimated";
 import { register } from "../../services/auth.service";
 import { useAuthStore } from "../../store/authStore";
@@ -15,6 +16,7 @@ import { ScreenContainer } from "../../components/ScreenContainer";
 import { GoogleSignInButton } from "../../components/GoogleSignInButton";
 import { AuthSettingsMenu } from "../../components/AuthSettingsMenu";
 import { syncPreferencesToBackend } from "../../hooks/useSyncPreferences";
+import { prefetchSeriesData } from "../../utils/prefetch";
 import { AuthStackParamList } from "../../navigation/AuthStack";
 import { useI18n } from "../../i18n/useI18n";
 import { useRemoteConfig } from "../../hooks/useRemoteConfig";
@@ -30,6 +32,7 @@ export function RegisterScreen() {
   const colors = useThemeColors();
   const getErrorMessage = useErrorMessage();
   const config = useRemoteConfig();
+  const queryClient = useQueryClient();
   const authDisabled = !config.auth_enabled;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -57,6 +60,7 @@ export function RegisterScreen() {
       log("Register", "api success, persisting tokens");
       await setTokens(tokens.accessToken, tokens.refreshToken);
       syncPreferencesToBackend();
+      prefetchSeriesData(queryClient);
       log("Register", "tokens persisted");
       showSnackbar(t("auth.connected"), "success");
     } catch (err) {

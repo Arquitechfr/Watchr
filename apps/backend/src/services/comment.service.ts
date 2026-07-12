@@ -7,8 +7,11 @@ import { User } from "../models/user.model.js";
 import { ApiError } from "../middleware/error.middleware.js";
 import { PushNotificationService } from "./pushNotification.service.js";
 import { wsEvents } from "../lib/wsEvents.js";
+import { logError } from "../lib/logger.js";
 import { getShowTitle } from "../models/show.model.js";
 import { moderateComment } from "./aiModeration.service.js";
+import { translateCommentAsync } from "./aiCommentTranslation.service.js";
+import type { SupportedLocale } from "../i18n/translations.js";
 
 export interface CreateCommentInput {
   showId: string;
@@ -55,6 +58,8 @@ export interface CommentItem {
   createdAt: string;
   updatedAt: string;
   aiSpoilerDetected?: boolean;
+  translatedContent?: string;
+  isTranslated?: boolean;
 }
 
 export interface ListCommentsResult {
@@ -187,8 +192,12 @@ function buildCommentItem(
   likedIds: Set<string>,
   reactionMap: Map<string, ReactionItem[]>,
   userMap: Map<string, UserInfo>,
+  locale: SupportedLocale = "en",
 ): CommentItem {
   const userInfo = userMap.get(comment.userId.toString());
+  const translations = comment.translations ?? new Map<string, string>();
+  const translatedContent = translations.get(locale) ?? null;
+  const isTranslated = translatedContent !== null && translatedContent !== comment.content;
   return {
     id: comment._id.toString(),
     userId: comment.userId.toString(),
@@ -204,6 +213,8 @@ function buildCommentItem(
     reactions: reactionMap.get(comment._id.toString()) ?? [],
     createdAt: comment.createdAt.toISOString(),
     updatedAt: comment.updatedAt.toISOString(),
+    translatedContent: isTranslated ? translatedContent! : undefined,
+    isTranslated,
   };
 }
 
@@ -280,6 +291,10 @@ export async function createComment(userId: string, input: CreateCommentInput) {
     },
   });
 
+  translateCommentAsync(comment._id.toString(), input.content).catch((err) =>
+    logError("CommentService", "translation failed", err),
+  );
+
   const [likedIds, reactionMap, userMap] = await Promise.all([
     getLikedCommentIds(userId, [comment._id.toString()]),
     getReactionsForComments(userId, [comment._id.toString()]),
@@ -310,13 +325,15 @@ function getToxicErrorCode(category?: string): string {
   }
 }
 
-export async function updateComment(userId: string, commentId: string, input: UpdateCommentInput) {
+export async function updateComment(userId: string, commentId: string, input: UpdateCommentInput, locale: SupportedLocale = "en") {
   const comment = await validateCommentAccess(commentId, userId);
   comment.content = input.content;
   comment.images = input.images ?? [];
   if (input.isSpoiler !== undefined) {
     comment.isSpoiler = input.isSpoiler;
   }
+  comment.translations = new Map();
+  comment.originalLanguage = undefined;
   await comment.save();
 
   wsEvents.emit("comment:updated", {
@@ -330,13 +347,17 @@ export async function updateComment(userId: string, commentId: string, input: Up
     },
   });
 
+  translateCommentAsync(comment._id.toString(), input.content).catch((err) =>
+    logError("CommentService", "translation on update failed", err),
+  );
+
   const [likedIds, reactionMap, userMap] = await Promise.all([
     getLikedCommentIds(userId, [comment._id.toString()]),
     getReactionsForComments(userId, [comment._id.toString()]),
     getUserInfoMap([comment.userId.toString()]),
   ]);
 
-  return buildCommentItem(comment, likedIds, reactionMap, userMap);
+  return buildCommentItem(comment, likedIds, reactionMap, userMap, locale);
 }
 
 export async function deleteComment(userId: string, commentId: string) {
@@ -366,6 +387,7 @@ export async function listCommentsForShow(
   userId: string,
   showId: string,
   query: ListCommentsQuery,
+  locale: SupportedLocale = "en",
 ): Promise<ListCommentsResult> {
   await validateShowExists(showId);
 
@@ -463,6 +485,9 @@ export async function listCommentsForShow(
       count: r.count,
       reactedByMe: r.reactedByMe,
     }));
+    const translations = doc.translations instanceof Map ? doc.translations : new Map<string, string>(Object.entries(doc.translations ?? {}));
+    const translatedContent = translations.get(locale) ?? null;
+    const isTranslated = translatedContent !== null && translatedContent !== doc.content;
     return {
       id: doc._id.toString(),
       userId: doc.userId.toString(),
@@ -477,6 +502,8 @@ export async function listCommentsForShow(
       reactions,
       createdAt: doc.createdAt.toISOString(),
       updatedAt: doc.updatedAt.toISOString(),
+      translatedContent: isTranslated ? translatedContent! : undefined,
+      isTranslated,
     };
   });
 
@@ -496,6 +523,7 @@ export async function listCommentsForShow(
 export async function getCommentById(
   userId: string,
   commentId: string,
+  locale: SupportedLocale = "en",
 ): Promise<CommentItem> {
   const comment = await Comment.findById(commentId);
   if (!comment) {
@@ -508,7 +536,7 @@ export async function getCommentById(
     getUserInfoMap([comment.userId.toString()]),
   ]);
 
-  return buildCommentItem(comment, likedIds, reactionMap, userMap);
+  return buildCommentItem(comment, likedIds, reactionMap, userMap, locale);
 }
 
 export async function listRepliesForComment(
@@ -516,6 +544,7 @@ export async function listRepliesForComment(
   commentId: string,
   page: number,
   limit: number,
+  locale: SupportedLocale = "en",
 ): Promise<ListRepliesResult> {
   const parent = await Comment.findById(commentId);
   if (!parent) {
@@ -539,7 +568,7 @@ export async function listRepliesForComment(
   ]);
 
   const replyItems = replies.map((reply) =>
-    buildCommentItem(reply, likedIds, reactionMap, userMap),
+    buildCommentItem(reply, likedIds, reactionMap, userMap, locale),
   );
 
   return {

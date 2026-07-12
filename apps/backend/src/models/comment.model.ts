@@ -18,6 +18,8 @@ export interface IComment extends Document {
   replyCount: number;
   reportCount: number;
   spoilerReportCount: number;
+  translations: Map<string, string>;
+  originalLanguage?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -85,6 +87,15 @@ const commentSchema = new Schema<IComment>(
     spoilerReportCount: {
       type: Number,
       default: 0,
+    },
+    translations: {
+      type: Map,
+      of: String,
+      default: new Map(),
+    },
+    originalLanguage: {
+      type: String,
+      default: null,
     },
   },
   { timestamps: true },

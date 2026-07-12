@@ -200,6 +200,48 @@ export function banNotificationTemplate(
   };
 }
 
+export function emailCodeTemplate(
+  locale: SupportedLocale | string | undefined,
+  params: { code: string; magicLinkUrl: string; webMagicLinkUrl: string },
+): { subject: string; html: string } {
+  const subject = translateEmail("emailCodeSubject", locale);
+  const heading = translateEmail("emailCodeHeading", locale);
+  const body = translateEmail("emailCodeBody", locale);
+  const codeLabel = translateEmail("emailCodeLabel", locale);
+  const cta = translateEmail("emailCodeCta", locale);
+  const webCta = translateEmail("emailCodeWebCta", locale);
+  const tipSecurity = translateEmail("emailCodeTipSecurity", locale);
+  const footer = translateEmail("emailCodeFooter", locale);
+
+  return {
+    subject,
+    html: baseHtml(`
+      <h1 class="email-heading" style="color:#F5F0EB;font-size:1.5rem;margin:0 0 16px 0;font-weight:700;">${heading}</h1>
+      <p class="email-body-text" style="color:#C4BDB6;font-size:1rem;line-height:1.6;margin:0 0 24px 0;">
+        ${body}
+      </p>
+      <p class="email-body-text" style="color:#C4BDB6;font-size:0.9rem;line-height:1.6;margin:0 0 8px 0;">${codeLabel}</p>
+      <p class="email-heading" style="color:#F5F0EB;font-size:2.5rem;font-weight:700;letter-spacing:0.5rem;margin:0 0 24px 0;text-align:center;">${params.code}</p>
+      <a href="${params.magicLinkUrl}" class="email-cta" style="display:inline-block;background-color:#C65D3A;color:#F5F0EB;text-decoration:none;padding:12px 32px;border-radius:8px;font-weight:600;font-size:0.95rem;">
+        ${cta}
+      </a>
+      <p style="margin:12px 0 0 0;">
+        <a href="${params.webMagicLinkUrl}" class="email-link-secondary" style="color:#8B8278;font-size:0.85rem;text-decoration:underline;">${webCta}</a>
+      </p>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:24px 0 0 0;">
+        <tr>
+          <td class="email-tip" style="background-color:#2A2420;border-left:3px solid #C65D3A;border-radius:0 8px 8px 0;padding:16px 20px;">
+            <p class="email-body-text" style="color:#C4BDB6;font-size:0.9rem;line-height:1.6;margin:0;">&#128274; ${tipSecurity}</p>
+          </td>
+        </tr>
+      </table>
+      <p class="email-footer" style="color:#8B8278;font-size:0.85rem;margin:24px 0 0 0;line-height:1.5;">
+        ${footer}
+      </p>
+    `, locale),
+  };
+}
+
 export function commentDeletedTemplate(
   locale: SupportedLocale | string | undefined,
   params: { username: string; showTitle: string },

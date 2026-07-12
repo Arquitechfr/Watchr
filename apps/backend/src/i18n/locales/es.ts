@@ -52,6 +52,15 @@ const es = {
     COMMENT_REJECTED_SELF_HARM: "Si estás pasando por dificultades, busca ayuda. Este contenido no está permitido.",
     COMMENT_REJECTED_VIOLENCE: "Tu comentario contiene contenido violento. Sé respetuoso.",
     COMMENT_REJECTED_OTHER: "Tu comentario fue marcado como inapropiado. Revisa nuestras normas de la comunidad.",
+    EMAIL_CODE_EXPIRED: "Código expirado o no encontrado. Solicita uno nuevo.",
+    INVALID_EMAIL_CODE: "Código inválido.",
+    TOO_MANY_CODE_ATTEMPTS: "Demasiados intentos. Solicita un nuevo código.",
+    TOO_MANY_CODE_REQUESTS: "Demasiadas solicitudes de código. Inténtalo más tarde.",
+    CODE_COOLDOWN: "Espera antes de solicitar otro código.",
+    INVALID_MAGIC_LINK: "Enlace mágico inválido o expirado.",
+    TOO_MANY_CONTACT_REQUESTS: "Demasiadas solicitudes de contacto. Inténtalo más tarde.",
+    CONTACT_NOT_FOUND: "Mensaje de contacto no encontrado.",
+    CONTACT_ALREADY_REPLIED: "Este mensaje ya ha recibido respuesta.",
   },
   notifications: {
     commentReplyTitle: "Nueva respuesta a tu comentario",
@@ -116,6 +125,14 @@ const es = {
     commentSpoilerBody: "Hola {{username}}, tu comentario en \"{{show}}\" fue marcado como spoiler tras reportes de la comunidad. Recuerda usar la etiqueta de spoiler cuando discutas detalles de la trama.",
     commentSpoilerTip: "Para marcar un spoiler, usa el botón de spoiler al escribir tu comentario o envuelve el texto sensible con la etiqueta de spoiler. Esto mantiene una experiencia agradable para toda la comunidad.",
     commentSpoilerFooter: "Revisa nuestras normas de la comunidad en https://watchr.me/community-guidelines. Si crees que es un error, contacta con soporte.",
+    emailCodeSubject: "Tu código de inicio de sesión de Watchr",
+    emailCodeHeading: "Inicia sesión en Watchr",
+    emailCodeBody: "Usa el código de abajo para iniciar sesión en tu cuenta. Este código expira en 15 minutos.",
+    emailCodeLabel: "Tu código de inicio de sesión:",
+    emailCodeCta: "Iniciar sesión",
+    emailCodeWebCta: "O iniciar sesión vía web",
+    emailCodeTipSecurity: "Nunca compartas este código con nadie. El equipo de Watchr nunca te lo pedirá.",
+    emailCodeFooter: "Si no solicitaste este código, ignora este correo. Tu cuenta está segura.",
   },
   websocket: {
     reconnecting: "Reconectando…",
@@ -127,6 +144,15 @@ const es = {
       noEpisode: "Ningún episodio",
       title: "A CONTINUACIÓN",
     },
+  },
+  discover: {
+    trendingTv: "Series en tendencia",
+    trendingMovies: "Películas en tendencia",
+    popularTv: "Series populares",
+    popularMovies: "Películas populares",
+  },
+  recommendations: {
+    fallbackReason: "Tendencia actual",
   },
 };
 

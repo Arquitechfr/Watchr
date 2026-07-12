@@ -15,6 +15,7 @@ import { listImportsQuerySchema } from "../../validators/admin/adminImport.valid
 import { improveTextSchema } from "../../validators/admin/adminAi.validator.js";
 import { listAiLogsQuerySchema, aiLogIdParamSchema, aiStatsQuerySchema, aiFlagParamSchema, setAiFlagSchema } from "../../validators/admin/adminAiLog.validator.js";
 import { listReportsQuerySchema, reportIdParamSchema, aiReportIdParamSchema } from "../../validators/report.validator.js";
+import { listContactQuerySchema, contactIdParamSchema, updateContactStatusSchema, replyContactSchema } from "../../validators/contact.validator.js";
 import { mistralService } from "../../services/mistral.service.js";
 import { getAdminStats, getUserGrowth, getCommentActivity, getShowTypeBreakdown } from "../../services/admin/adminStats.service.js";
 import { listUsers, getUserDetail, scheduleUserStatusAction, cancelBanAction, getBanHistory, updateUserRole, deleteUser, markUsersAsSeen, countNewUsersSinceLastVisit } from "../../services/admin/adminUser.service.js";
@@ -33,6 +34,7 @@ import { sendWeeklyDigestBatch, sendWeeklyDigestToUser } from "../../services/ai
 import { analyzeComment, suggestReportAction, suggestShowDescription } from "../../services/admin/adminAiAssistant.service.js";
 import { sendReengagementBatch } from "../../services/aiReengagement.service.js";
 import { detectAnomalies } from "../../services/aiAnomalyDetection.service.js";
+import { listContactMessages, getContactStats, getContactDetail, updateContactStatus, replyToContactMessage } from "../../services/admin/adminContact.service.js";
 
 const router: Router = Router();
 
@@ -747,6 +749,66 @@ router.post(
     const { showId } = req.params;
     const suggestion = await suggestShowDescription(showId, req.language);
     res.json(suggestion);
+  }),
+);
+
+// Contact Messages
+router.get(
+  "/contact",
+  validateRequest(undefined, listContactQuerySchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const query = req.query as unknown as {
+      page: number;
+      limit: number;
+      status?: "new" | "read" | "resolved" | "archived";
+      category?: "bug" | "suggestion" | "question" | "other";
+    };
+    const result = await listContactMessages({
+      page: query.page,
+      limit: query.limit,
+      status: query.status,
+      category: query.category,
+    });
+    res.json(result);
+  }),
+);
+
+router.get(
+  "/contact/stats",
+  asyncHandler(async (_req: Request, res: Response) => {
+    const stats = await getContactStats();
+    res.json(stats);
+  }),
+);
+
+router.get(
+  "/contact/:id",
+  validateRequest(undefined, undefined, contactIdParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const detail = await getContactDetail(req.params.id);
+    if (!detail) {
+      res.status(404).json({ error: { code: "NOT_FOUND", message: "Contact message not found" } });
+      return;
+    }
+    res.json(detail);
+  }),
+);
+
+router.patch(
+  "/contact/:id/status",
+  validateRequest(updateContactStatusSchema, undefined, contactIdParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const result = await updateContactStatus(req.params.id, req.body.status);
+    res.json(result);
+  }),
+);
+
+router.post(
+  "/contact/:id/reply",
+  validateRequest(replyContactSchema, undefined, contactIdParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const result = await replyToContactMessage(req.params.id, req.body.replyMessage, req.userId!);
+    res.json(result);
   }),
 );
 

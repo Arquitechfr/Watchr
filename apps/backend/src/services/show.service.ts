@@ -1,7 +1,8 @@
 import { Show, getLocalizedShow } from "../models/show.model.js";
 import { ApiError } from "../middleware/error.middleware.js";
 import { tmdbService, TmdbSearchResult, TmdbPaginatedResult } from "./tmdb.service.js";
-import { normalizeLocale } from "../i18n/index.js";
+import { normalizeLocale, translateDiscover } from "../i18n/index.js";
+import type { SupportedLocale } from "../i18n/translations.js";
 import {
   isShowCacheStale,
   isEpisodesCacheStale,
@@ -13,10 +14,19 @@ import { scheduleShowRefresh } from "../workers/episodeSync.worker.js";
 import { invalidateRedisPattern } from "../lib/redis.js";
 import { log, logError } from "../lib/logger.js";
 
+const LOCALE_TO_TMDB_LANGUAGE: Record<SupportedLocale, string> = {
+  en: "en-US",
+  fr: "fr-FR",
+  es: "es-ES",
+  pt: "pt-BR",
+  de: "de-DE",
+  it: "it-IT",
+  ar: "ar-SA",
+};
+
 export function toTmdbLanguage(locale: string): string {
   const base = normalizeLocale(locale);
-  const region = base === "fr" ? "FR" : "US";
-  return `${base}-${region}`;
+  return LOCALE_TO_TMDB_LANGUAGE[base];
 }
 
 export interface SearchResultItem {
@@ -85,7 +95,6 @@ export async function searchShows(query: string, locale = "en"): Promise<SearchR
 export async function getDiscoverSections(locale = "en"): Promise<DiscoverResult> {
   log("ShowService", "discover start", { locale });
   const tmdbLanguage = toTmdbLanguage(locale);
-  const isFr = normalizeLocale(locale) === "fr";
 
   const [trendingTv, trendingMovies, popularTv, popularMovies] = await Promise.all([
     tmdbService.getTrendingTv(10, tmdbLanguage).catch((err: Error) => {
@@ -109,25 +118,25 @@ export async function getDiscoverSections(locale = "en"): Promise<DiscoverResult
   const sections: DiscoverSection[] = [
     {
       id: "trending-tv",
-      title: isFr ? "Séries tendances" : "Trending TV Shows",
+      title: translateDiscover("trendingTv", locale),
       type: "tv",
       items: trendingTv.results.map((item) => mapTmdbResult(item, "tv")),
     },
     {
       id: "trending-movie",
-      title: isFr ? "Films tendances" : "Trending Movies",
+      title: translateDiscover("trendingMovies", locale),
       type: "movie",
       items: trendingMovies.results.map((item) => mapTmdbResult(item, "movie")),
     },
     {
       id: "popular-tv",
-      title: isFr ? "Séries populaires" : "Popular TV Shows",
+      title: translateDiscover("popularTv", locale),
       type: "tv",
       items: popularTv.results.map((item) => mapTmdbResult(item, "tv")),
     },
     {
       id: "popular-movie",
-      title: isFr ? "Films populaires" : "Popular Movies",
+      title: translateDiscover("popularMovies", locale),
       type: "movie",
       items: popularMovies.results.map((item) => mapTmdbResult(item, "movie")),
     },

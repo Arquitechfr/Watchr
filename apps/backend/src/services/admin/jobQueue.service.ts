@@ -4,6 +4,7 @@ import { NotificationLog } from "../../models/notificationLog.model.js";
 import { PushTicket } from "../../models/pushTicket.model.js";
 import { EmailService } from "../email.service.js";
 import { PushNotificationService } from "../pushNotification.service.js";
+import { translateMultiLang, detectLanguage, type TranslationInput, type TranslationResult } from "../translation.service.js";
 import { log, logError } from "../../lib/logger.js";
 import type { Types } from "mongoose";
 
@@ -46,6 +47,32 @@ async function processEmailBroadcast(job: IAdminJob): Promise<void> {
   job.targetCount = users.length;
   await job.save();
 
+  // Auto-translate to user languages
+  const sourceText = `${job.subject ?? ""} ${job.htmlContent ?? ""}`.trim();
+  const sourceLang = sourceText ? await detectLanguage(sourceText) : "en";
+  job.sourceLanguage = sourceLang;
+  job.translationStatus = "pending";
+  await job.save();
+
+  const userLangs = [...new Set(
+    users
+      .map((u) => u.preferredLanguage)
+      .filter((lang): lang is string => !!lang && lang !== sourceLang),
+  )];
+
+  const translations = new Map<string, TranslationInput>();
+  if (userLangs.length > 0) {
+    const input: TranslationInput = { subject: job.subject, htmlContent: job.htmlContent };
+    const result = await translateMultiLang(input, userLangs, sourceLang);
+    for (const [lang, translated] of result) {
+      translations.set(lang, translated);
+    }
+  }
+
+  job.translations = translations as Map<string, { subject?: string; htmlContent?: string; title?: string; body?: string }>;
+  job.translationStatus = translations.size > 0 ? "completed" : (userLangs.length > 0 ? "failed" : "skipped");
+  await job.save();
+
   const BATCH_SIZE = 10;
   const BATCH_PAUSE_MS = 1000;
 
@@ -53,15 +80,19 @@ async function processEmailBroadcast(job: IAdminJob): Promise<void> {
     const batch = users.slice(i, i + BATCH_SIZE);
 
     const results = await Promise.allSettled(
-      batch.map((u) =>
-        EmailService.sendCustomEmail(
+      batch.map((u) => {
+        const lang = u.preferredLanguage;
+        const translated = lang ? translations.get(lang) : undefined;
+        const subject = translated?.subject ?? job.subject!;
+        const htmlContent = translated?.htmlContent ?? job.htmlContent!;
+        return EmailService.sendCustomEmail(
           u.email,
-          job.subject!,
-          job.htmlContent!,
+          subject,
+          htmlContent,
           u.preferredLanguage,
           "admin",
-        ),
-      ),
+        );
+      }),
     );
 
     for (const result of results) {
@@ -88,6 +119,8 @@ async function processEmailBroadcast(job: IAdminJob): Promise<void> {
     successCount: job.successCount,
     failureCount: job.failureCount,
     skippedCount: job.skippedCount,
+    translationStatus: job.translationStatus,
+    translatedLangs: Array.from(translations.keys()),
   });
 }
 
@@ -98,8 +131,46 @@ async function processPushBroadcast(job: IAdminJob): Promise<void> {
   }
 
   const users = await User.find(filter).select("expoPushToken preferredLanguage").lean();
-  const tokens = users.map((u) => u.expoPushToken).filter(Boolean) as string[];
 
+  // Auto-translate to user languages
+  const sourceText = `${job.title ?? ""} ${job.body ?? ""}`.trim();
+  const sourceLang = sourceText ? await detectLanguage(sourceText) : "en";
+  job.sourceLanguage = sourceLang;
+  job.translationStatus = "pending";
+  await job.save();
+
+  const userLangs = [...new Set(
+    users
+      .map((u) => u.preferredLanguage)
+      .filter((lang): lang is string => !!lang && lang !== sourceLang),
+  )];
+
+  const translations = new Map<string, TranslationInput>();
+  if (userLangs.length > 0) {
+    const input: TranslationInput = { title: job.title, body: job.body };
+    const result = await translateMultiLang(input, userLangs, sourceLang);
+    for (const [lang, translated] of result) {
+      translations.set(lang, translated);
+    }
+  }
+
+  job.translations = translations as Map<string, { subject?: string; htmlContent?: string; title?: string; body?: string }>;
+  job.translationStatus = translations.size > 0 ? "completed" : (userLangs.length > 0 ? "failed" : "skipped");
+  await job.save();
+
+  // Build user → translated title/body mapping
+  const userMessages = users.map((u) => {
+    const lang = u.preferredLanguage;
+    const translated = lang ? translations.get(lang) : undefined;
+    return {
+      token: u.expoPushToken!,
+      title: translated?.title ?? job.title!,
+      body: translated?.body ?? job.body!,
+      lang: lang ?? sourceLang,
+    };
+  }).filter((m) => m.token);
+
+  const tokens = userMessages.map((m) => m.token);
   job.targetCount = tokens.length;
   await job.save();
 
@@ -111,15 +182,15 @@ async function processPushBroadcast(job: IAdminJob): Promise<void> {
   const allTickets: TicketInfo[] = [];
   const allTokens: string[] = [];
 
-  for (let i = 0; i < tokens.length; i += BATCH_SIZE) {
-    const batch = tokens.slice(i, i + BATCH_SIZE);
-    allTokens.push(...batch);
+  for (let i = 0; i < userMessages.length; i += BATCH_SIZE) {
+    const batch = userMessages.slice(i, i + BATCH_SIZE);
+    allTokens.push(...batch.map((m) => m.token));
 
     try {
-      const messages = batch.map((token) => ({
-        to: token,
-        title: job.title!,
-        body: job.body!,
+      const messages = batch.map((m) => ({
+        to: m.token,
+        title: m.title,
+        body: m.body,
         data: job.data,
         sound: "default" as const,
       }));
@@ -145,7 +216,7 @@ async function processPushBroadcast(job: IAdminJob): Promise<void> {
     job.failureCount = failureCount;
     await job.save();
 
-    if (i + BATCH_SIZE < tokens.length) {
+    if (i + BATCH_SIZE < userMessages.length) {
       await sleep(BATCH_PAUSE_MS);
     }
   }
@@ -170,6 +241,8 @@ async function processPushBroadcast(job: IAdminJob): Promise<void> {
     targetCount: tokens.length,
     successCount,
     failureCount,
+    translationStatus: job.translationStatus,
+    translatedLangs: Array.from(translations.keys()),
   });
 }
 
@@ -226,6 +299,21 @@ export async function getJobStatus(jobId: string) {
     startedAt: job.startedAt?.toISOString() ?? null,
     completedAt: job.completedAt?.toISOString() ?? null,
     errorMessage: job.errorMessage ?? null,
+    translations: job.translations
+      ? Object.fromEntries(
+          Array.from(job.translations.entries()).map(([lang, t]) => [
+            lang,
+            {
+              subject: t.subject ?? null,
+              htmlContent: t.htmlContent ?? null,
+              title: t.title ?? null,
+              body: t.body ?? null,
+            },
+          ]),
+        )
+      : null,
+    sourceLanguage: job.sourceLanguage ?? null,
+    translationStatus: job.translationStatus ?? null,
     createdAt: job.createdAt.toISOString(),
     updatedAt: job.updatedAt.toISOString(),
   };

@@ -295,6 +295,8 @@ export function Notifications() {
         </div>
       )}
 
+      <TranslationProgress job={isPolling ? job : null} />
+
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
         {kpiCards.map((kpi) => (
           <Card key={kpi.label}>
@@ -658,4 +660,5 @@ export function Notifications() {
       </Dialog>
     </div>
   );
+}
 }

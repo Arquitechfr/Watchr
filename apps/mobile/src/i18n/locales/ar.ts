@@ -545,6 +545,7 @@ const ar = {
       aiPicksTitle: "اخيارات الذكاء الاصطناعي لك",
       aiPicksSubtitle: "مبنية على المسلسلات الشائعة — اضغط للإضافة إلى اختيارك.",
       browseAll: "تصفح الكل",
+      loadingMore: "جارٍ التحميل…",
       selectionSearchPlaceholder: "بحث…",
       selectionNoResults: "لا نتائج",
       selectedCount: "{{count}} محدد",

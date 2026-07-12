@@ -1,6 +1,13 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import api from "../lib/api";
 
+export interface JobTranslation {
+  subject?: string | null;
+  htmlContent?: string | null;
+  title?: string | null;
+  body?: string | null;
+}
+
 export interface JobStatus {
   id: string;
   type: "email_broadcast" | "push_broadcast";
@@ -19,6 +26,9 @@ export interface JobStatus {
   startedAt: string | null;
   completedAt: string | null;
   errorMessage: string | null;
+  translations: Record<string, JobTranslation> | null;
+  sourceLanguage: string | null;
+  translationStatus: "pending" | "completed" | "failed" | "skipped" | null;
   createdAt: string;
   updatedAt: string;
 }

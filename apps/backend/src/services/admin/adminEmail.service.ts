@@ -5,6 +5,7 @@ import { EmailService } from "../email.service.js";
 import { processJob } from "./jobQueue.service.js";
 import { ApiError } from "../../middleware/error.middleware.js";
 import { logError } from "../../lib/logger.js";
+import { detectLanguage, translateForUser, type TranslationInput } from "../translation.service.js";
 import type { Types } from "mongoose";
 
 export interface EmailHistoryFilters {
@@ -143,10 +144,16 @@ export async function sendTargetedEmail(
     throw new ApiError(404, "USER_NOT_FOUND", "User not found");
   }
 
+  // Auto-translate to user's preferred language
+  const sourceText = `${input.subject} ${input.htmlContent}`.trim();
+  const sourceLang = sourceText ? await detectLanguage(sourceText) : "en";
+  const translationInput: TranslationInput = { subject: input.subject, htmlContent: input.htmlContent };
+  const translated = await translateForUser(translationInput, user.preferredLanguage, sourceLang);
+
   const success = await EmailService.sendCustomEmail(
     user.email,
-    input.subject,
-    input.htmlContent,
+    translated.subject ?? input.subject,
+    translated.htmlContent ?? input.htmlContent,
     user.preferredLanguage,
     "admin",
   );

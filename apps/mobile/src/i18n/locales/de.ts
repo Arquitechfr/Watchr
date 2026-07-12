@@ -545,6 +545,7 @@ const de = {
       aiPicksTitle: "KI-Auswahl für dich",
       aiPicksSubtitle: "Basierend auf beliebten Serien — tippe zum Hinzufügen.",
       browseAll: "Alle durchsuchen",
+      loadingMore: "Mehr wird geladen…",
       selectionSearchPlaceholder: "Suchen…",
       selectionNoResults: "Keine Treffer",
       selectedCount: "{{count}} ausgewählt",

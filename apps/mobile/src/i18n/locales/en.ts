@@ -545,6 +545,7 @@ const en = {
       aiPicksTitle: "AI picks for you",
       aiPicksSubtitle: "Based on popular shows — tap to add to your selection.",
       browseAll: "Browse all",
+      loadingMore: "Loading more…",
       selectionSearchPlaceholder: "Search…",
       selectionNoResults: "No results",
       selectedCount: "{{count}} selected",

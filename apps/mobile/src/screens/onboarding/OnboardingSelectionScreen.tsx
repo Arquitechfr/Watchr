@@ -8,7 +8,7 @@ import { OnboardingPosterTile } from "./OnboardingPosterTile";
 import { OnboardingSkipButton } from "./OnboardingSkipButton";
 import { useI18n } from "../../i18n/useI18n";
 import { useThemeColors } from "../../theme/useThemeColors";
-import { useDiscoverSections } from "../../hooks/useDiscover";
+import { useOnboardingDiscover } from "../../hooks/useOnboardingDiscover";
 import { useShowSearch } from "../../hooks/useShowSearch";
 import { useOnboardingStore } from "../../store/onboardingStore";
 import { useOnboardingSuggestions } from "../../hooks/useOnboardingSuggestions";
@@ -27,7 +27,15 @@ export function OnboardingSelectionScreen({ onComplete, onSkip }: OnboardingSele
   const insets = useSafeAreaInsets();
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { data: discoverData, isLoading: discoverLoading, isError: discoverError, refetch: refetchDiscover } = useDiscoverSections();
+  const {
+    data: discoverData,
+    isLoading: discoverLoading,
+    isError: discoverError,
+    refetch: refetchDiscover,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useOnboardingDiscover();
   const searchResult = useShowSearch(searchQuery);
 
   const { selectedItems, toggleItem, isSelected, reset } = useOnboardingStore();
@@ -79,8 +87,8 @@ export function OnboardingSelectionScreen({ onComplete, onSkip }: OnboardingSele
     if (isSearching && searchResult.data) {
       return searchResult.data.results;
     }
-    if (discoverData?.sections) {
-      return discoverData.sections.flatMap((s: { items: SearchResultItem[] }) => s.items);
+    if (discoverData?.pages) {
+      return discoverData.pages.flatMap((p) => p.items);
     }
     return [];
   }, [isSearching, searchResult.data, discoverData]);
@@ -193,6 +201,20 @@ export function OnboardingSelectionScreen({ onComplete, onSkip }: OnboardingSele
           columnWrapperStyle={{ justifyContent: "flex-start", gap: 8, paddingHorizontal: 16 }}
           contentContainerStyle={{ paddingBottom: 80 }}
           showsVerticalScrollIndicator={false}
+          onEndReached={() => {
+            if (!isSearching && hasNextPage && !isFetchingNextPage) {
+              fetchNextPage();
+            }
+          }}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={
+            !isSearching && isFetchingNextPage ? (
+              <View className="py-4 items-center">
+                <ActivityIndicator size="small" color={colors.primary} />
+                <Text className="text-text-muted text-xs mt-2">{t("screens.onboarding.loadingMore")}</Text>
+              </View>
+            ) : null
+          }
           ListHeaderComponent={
             !isSearching && aiSuggestionsData && aiSuggestionsData.suggestions.length > 0 ? (
               <View className="px-4 mb-4">

@@ -275,6 +275,8 @@ export function EmailLogs() {
         </div>
       )}
 
+      <TranslationProgress job={isPolling ? job : null} />
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <Card>
           <CardHeader>

@@ -545,6 +545,7 @@ const fr = {
       aiPicksTitle: "Sélections IA pour toi",
       aiPicksSubtitle: "Basées sur les séries populaires — tape pour ajouter à ta sélection.",
       browseAll: "Tout parcourir",
+      loadingMore: "Chargement…",
       selectionSearchPlaceholder: "Rechercher…",
       selectionNoResults: "Aucun résultat",
       selectedCount: "{{count}} sélectionné(s)",

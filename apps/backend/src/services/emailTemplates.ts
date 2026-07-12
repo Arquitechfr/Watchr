@@ -4,9 +4,10 @@ import { env } from "../config/env.js";
 
 export function baseHtml(innerHtml: string, locale?: SupportedLocale | string | undefined): string {
   const lang = normalizeLocale(locale);
+  const dir = lang === "ar" ? "rtl" : "ltr";
   const logoUrl = `${env.PUBLIC_URL}/assets/icon.png`;
   return `<!DOCTYPE html>
-<html lang="${lang}">
+<html lang="${lang}" dir="${dir}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">

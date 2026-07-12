@@ -164,12 +164,12 @@ const errorMessageKeys: Record<string, string> = {
   UNAUTHORIZED: "errors.unauthorized",
   ACCOUNT_BANNED: "auth.accountBanned",
   ACCOUNT_SUSPENDED: "auth.accountSuspended",
-  COMMENT_REJECTED_HATE: "comments.rejectedHate",
-  COMMENT_REJECTED_HARASSMENT: "comments.rejectedHarassment",
-  COMMENT_REJECTED_SPAM: "comments.rejectedSpam",
-  COMMENT_REJECTED_SELF_HARM: "comments.rejectedSelfHarm",
-  COMMENT_REJECTED_VIOLENCE: "comments.rejectedViolence",
-  COMMENT_REJECTED_OTHER: "comments.rejectedOther",
+  COMMENT_REJECTED_HATE: "screens.comments.rejectedHate",
+  COMMENT_REJECTED_HARASSMENT: "screens.comments.rejectedHarassment",
+  COMMENT_REJECTED_SPAM: "screens.comments.rejectedSpam",
+  COMMENT_REJECTED_SELF_HARM: "screens.comments.rejectedSelfHarm",
+  COMMENT_REJECTED_VIOLENCE: "screens.comments.rejectedViolence",
+  COMMENT_REJECTED_OTHER: "screens.comments.rejectedOther",
 };
 
 export function getErrorMessage(

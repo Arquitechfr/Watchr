@@ -6,6 +6,7 @@ import { PushNotificationService } from "../pushNotification.service.js";
 import { processJob } from "./jobQueue.service.js";
 import { ApiError } from "../../middleware/error.middleware.js";
 import { logError } from "../../lib/logger.js";
+import { detectLanguage, translateForUser, type TranslationInput } from "../translation.service.js";
 import type { Types } from "mongoose";
 
 export interface BroadcastInput {
@@ -89,9 +90,18 @@ export async function sendTargeted(
     throw new ApiError(400, "NO_PUSH_TOKEN", "User has no push token");
   }
 
+  // Auto-translate to user's preferred language
+  const sourceText = `${input.title} ${input.body}`.trim();
+  const sourceLang = sourceText ? await detectLanguage(sourceText) : "en";
+  const translationInput: TranslationInput = { title: input.title, body: input.body };
+  const translated = await translateForUser(translationInput, user.preferredLanguage, sourceLang);
+
+  const finalTitle = translated.title ?? input.title;
+  const finalBody = translated.body ?? input.body;
+
   try {
     const tickets = await PushNotificationService.sendPushBatch([
-      { to: user.expoPushToken, title: input.title, body: input.body, data: input.data, sound: "default" },
+      { to: user.expoPushToken, title: finalTitle, body: finalBody, data: input.data, sound: "default" },
     ]);
 
     const ticket = tickets[0];
@@ -99,8 +109,8 @@ export async function sendTargeted(
 
     const notificationLog = await NotificationLog.create({
       type: "targeted",
-      title: input.title,
-      body: input.body,
+      title: finalTitle,
+      body: finalBody,
       data: input.data,
       sentBy: sentBy,
       targetCount: 1,
@@ -115,8 +125,8 @@ export async function sendTargeted(
   } catch (err) {
     const notificationLog = await NotificationLog.create({
       type: "targeted",
-      title: input.title,
-      body: input.body,
+      title: finalTitle,
+      body: finalBody,
       data: input.data,
       sentBy: sentBy,
       targetCount: 1,

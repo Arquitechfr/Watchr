@@ -3,6 +3,14 @@ import { Schema, model, Document, Types } from "mongoose";
 export type AdminJobType = "email_broadcast" | "push_broadcast";
 export type AdminJobStatus = "pending" | "processing" | "completed" | "failed";
 export type AdminJobTarget = "all" | "locale";
+export type TranslationStatus = "pending" | "completed" | "failed" | "skipped";
+
+export interface JobTranslation {
+  subject?: string;
+  htmlContent?: string;
+  title?: string;
+  body?: string;
+}
 
 export interface IAdminJob extends Document {
   type: AdminJobType;
@@ -18,6 +26,9 @@ export interface IAdminJob extends Document {
   successCount: number;
   failureCount: number;
   skippedCount: number;
+  translations?: Map<string, JobTranslation>;
+  sourceLanguage?: string;
+  translationStatus?: TranslationStatus;
   sentBy: Types.ObjectId;
   startedAt?: Date;
   completedAt?: Date;
@@ -61,6 +72,17 @@ const adminJobSchema = new Schema<IAdminJob>(
     startedAt: { type: Date, required: false },
     completedAt: { type: Date, required: false },
     errorMessage: { type: String, required: false },
+    translations: {
+      type: Map,
+      of: Schema.Types.Mixed,
+      required: false,
+    },
+    sourceLanguage: { type: String, required: false },
+    translationStatus: {
+      type: String,
+      enum: ["pending", "completed", "failed", "skipped"],
+      required: false,
+    },
   },
   { timestamps: true },
 );

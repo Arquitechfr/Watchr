@@ -1,4 +1,4 @@
-import { Show, getLocalizedShow } from "../models/show.model.js";
+import { Show, getLocalizedShow, getTranslationValue } from "../models/show.model.js";
 import { ApiError } from "../middleware/error.middleware.js";
 import { tmdbService, TmdbSearchResult, TmdbPaginatedResult } from "./tmdb.service.js";
 import { normalizeLocale, translateDiscover } from "../i18n/index.js";
@@ -356,13 +356,26 @@ export async function getSeasonDetails(tmdbId: number, seasonNumber: number, loc
     throw new ApiError(404, "SEASON_NOT_FOUND", "Season not found");
   }
 
-  let season = show.seasons.find((s) => s.seasonNumber === seasonNumber);
-  const isMissingEpisodes = !season || season.episodes.length === 0;
+  // Resolve season from translation first, fallback to top-level seasons.
+  // isEpisodesCacheStale is a global TTL check (6h) on lastEpisodesSyncedAt —
+  // it is NOT per-language. The per-language check is isMissingEpisodes below,
+  // which reads the translation via getTranslationValue. Both checks are
+  // complementary: the TTL forces periodic refresh of all episodes (new
+  // episodes, corrections from TMDB), while isMissingEpisodes covers the
+  // case where a specific language has never been synced.
+  const translation = getTranslationValue(show.translations, normalizedLocale);
+  const translationSeason = translation?.seasons?.find(
+    (s) => s.seasonNumber === seasonNumber,
+  );
+  let season = translationSeason ?? show.seasons.find((s) => s.seasonNumber === seasonNumber);
+  const isMissingEpisodes = !translationSeason || translationSeason.episodes.length === 0;
 
   if (isMissingEpisodes || isEpisodesCacheStale(show)) {
     try {
       show = await syncEpisodesForShow(show, tmdbLanguage);
-      season = show.seasons.find((s) => s.seasonNumber === seasonNumber);
+      const tr = getTranslationValue(show.translations, normalizedLocale);
+      const trSeason = tr?.seasons?.find((s) => s.seasonNumber === seasonNumber);
+      season = trSeason ?? show.seasons.find((s) => s.seasonNumber === seasonNumber);
       await invalidateRedisPattern(`api:GET:/api/shows/${tmdbId}*`);
     } catch (syncErr) {
       logError("ShowService", "season episode sync failed", syncErr, { tmdbId, seasonNumber });
@@ -371,13 +384,22 @@ export async function getSeasonDetails(tmdbId: number, seasonNumber: number, loc
       if (show) {
         try {
           show = await syncEpisodesForShow(show, tmdbLanguage);
-          season = show.seasons.find((s) => s.seasonNumber === seasonNumber);
+          const tr = getTranslationValue(show.translations, normalizedLocale);
+          const trSeason = tr?.seasons?.find((s) => s.seasonNumber === seasonNumber);
+          season = trSeason ?? show.seasons.find((s) => s.seasonNumber === seasonNumber);
           await invalidateRedisPattern(`api:GET:/api/shows/${tmdbId}*`);
         } catch (retryErr) {
           logError("ShowService", "season episode sync retry failed", retryErr, { tmdbId, seasonNumber });
         }
       }
     }
+  }
+
+  // Final resolution: prefer translation season, fallback to top-level.
+  if (!season) {
+    const tr = getTranslationValue(show.translations, normalizedLocale);
+    const trSeason = tr?.seasons?.find((s) => s.seasonNumber === seasonNumber);
+    season = trSeason ?? show.seasons.find((s) => s.seasonNumber === seasonNumber);
   }
 
   if (!season) {

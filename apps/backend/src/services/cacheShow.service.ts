@@ -1,4 +1,4 @@
-import { Show, IShow, ShowTranslation } from "../models/show.model.js";
+import { Show, IShow, ShowTranslation, getTranslationValue } from "../models/show.model.js";
 import { HydratedDocument } from "mongoose";
 import {
   TmdbCast,
@@ -284,11 +284,15 @@ export async function syncEpisodesForShow(show: ShowDocument, language = "en-US"
           freshShow.seasons.push(mapped);
         }
 
-        for (const [, translation] of freshShow.translations ?? []) {
-          const trSeason = translation.seasons?.find((s) => s.seasonNumber === seasonNumber);
+        const trans = getTranslationValue(freshShow.translations, normalizedLanguage);
+        if (trans) {
+          const trSeason = trans.seasons?.find((s) => s.seasonNumber === seasonNumber);
           if (trSeason) {
             trSeason.episodes = mapped.episodes;
             trSeason.episodeCount = mapped.episodeCount;
+          } else {
+            trans.seasons = trans.seasons ?? [];
+            trans.seasons.push(mapped);
           }
         }
       } catch (err) {

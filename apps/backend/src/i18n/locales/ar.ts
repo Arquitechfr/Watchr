@@ -61,6 +61,8 @@ const ar = {
     TOO_MANY_CONTACT_REQUESTS: "طلبات تواصل كثيرة جداً. حاول مرة أخرى لاحقاً.",
     CONTACT_NOT_FOUND: "رسالة التواصل غير موجودة.",
     CONTACT_ALREADY_REPLIED: "تمت الرد على هذه الرسالة بالفعل.",
+    RATING_COOLDOWN: "يمكنك التقييم مرة أخرى خلال {{days}} يوم/أيام.",
+    TOO_MANY_RATING_REQUESTS: "طلبات تقييم كثيرة جداً. حاول مرة أخرى لاحقاً.",
   },
   notifications: {
     commentReplyTitle: "رد جديد على تعليقك",

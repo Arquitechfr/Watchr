@@ -1,8 +1,18 @@
 import { Types } from "mongoose";
 import { Rating } from "../models/rating.model.js";
 import { Show } from "../models/show.model.js";
+import { MobileConfig } from "../models/MobileConfig.js";
 import { ApiError } from "../middleware/error.middleware.js";
 import { getRedisValue, setRedisValue, invalidateRedisPattern } from "../lib/redis.js";
+
+const DEFAULT_RATING_COOLDOWN_DAYS = 7;
+
+async function getRatingCooldownDays(): Promise<number> {
+  const entry = await MobileConfig.findOne({ key: "rating_cooldown_days" }).lean();
+  if (!entry) return DEFAULT_RATING_COOLDOWN_DAYS;
+  const parsed = Number(entry.value);
+  return Number.isNaN(parsed) || parsed < 0 ? DEFAULT_RATING_COOLDOWN_DAYS : parsed;
+}
 
 export interface UpsertRatingInput {
   showId: string;
@@ -119,6 +129,23 @@ export async function upsertRating(userId: string, input: UpsertRatingInput) {
     filter.episodeRef = input.episodeRef;
   } else {
     filter.episodeRef = { $exists: false } as unknown as { season: number; episode: number };
+  }
+
+  const existing = await Rating.findOne(filter).lean();
+  if (existing) {
+    const cooldownDays = await getRatingCooldownDays();
+    const cooldownMs = cooldownDays * 24 * 60 * 60 * 1000;
+    const elapsed = Date.now() - existing.updatedAt.getTime();
+    if (elapsed < cooldownMs) {
+      const remainingDays = Math.ceil((cooldownMs - elapsed) / (24 * 60 * 60 * 1000));
+      throw new ApiError(
+        429,
+        "RATING_COOLDOWN",
+        `You can rate this again in ${remainingDays} day(s).`,
+        undefined,
+        { days: remainingDays },
+      );
+    }
   }
 
   const rating = await Rating.findOneAndUpdate(

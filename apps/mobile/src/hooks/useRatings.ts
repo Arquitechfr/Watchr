@@ -1,3 +1,4 @@
+import { useCallback, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   listRatingsForShow,
@@ -11,6 +12,7 @@ import { log } from "../utils/logger";
 import { useAuthStore } from "../store/authStore";
 
 const RATINGS_QUERY_KEY = "ratings";
+const RATING_DEBOUNCE_MS = 500;
 
 export function useRatingsForShow(showId: string) {
   const isHydrated = useAuthStore((state) => state.isHydrated);
@@ -24,8 +26,10 @@ export function useRatingsForShow(showId: string) {
 
 export function useUpsertRating(showId: string) {
   const queryClient = useQueryClient();
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingInputRef = useRef<Omit<UpsertRatingInput, "showId"> | null>(null);
 
-  return useMutation<UpsertRatingResponse, Error, Omit<UpsertRatingInput, "showId">, { previousRatings: RatingsForShow | undefined }>({
+  const mutation = useMutation<UpsertRatingResponse, Error, Omit<UpsertRatingInput, "showId">, { previousRatings: RatingsForShow | undefined }>({
     mutationFn: (input: Omit<UpsertRatingInput, "showId">) => upsertRating({ ...input, showId }),
     onMutate: async (input) => {
       log("useRatings", "upsert mutate", { showId, value: input.value, episodeRef: input.episodeRef });
@@ -73,6 +77,26 @@ export function useUpsertRating(showId: string) {
       queryClient.invalidateQueries({ queryKey: [RATINGS_QUERY_KEY, showId] });
     },
   });
+
+  const debouncedMutate = useCallback(
+    (input: Omit<UpsertRatingInput, "showId">, options?: Parameters<typeof mutation.mutate>[1]) => {
+      pendingInputRef.current = input;
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      debounceRef.current = setTimeout(() => {
+        const pending = pendingInputRef.current;
+        if (pending) {
+          pendingInputRef.current = null;
+          mutation.mutate(pending, options);
+        }
+      }, RATING_DEBOUNCE_MS);
+    },
+    [mutation],
+  );
+
+  return {
+    ...mutation,
+    mutate: debouncedMutate,
+  };
 }
 
 export function useDeleteRating(showId: string) {

@@ -61,6 +61,8 @@ const pt = {
     TOO_MANY_CONTACT_REQUESTS: "Muitas solicitações de contato. Tente novamente mais tarde.",
     CONTACT_NOT_FOUND: "Mensagem de contato não encontrada.",
     CONTACT_ALREADY_REPLIED: "Esta mensagem já recebeu resposta.",
+    RATING_COOLDOWN: "Você pode avaliar novamente em {{days}} dia(s).",
+    TOO_MANY_RATING_REQUESTS: "Muitas solicitações de avaliação. Tente novamente mais tarde.",
   },
   notifications: {
     commentReplyTitle: "Nova resposta ao seu comentário",

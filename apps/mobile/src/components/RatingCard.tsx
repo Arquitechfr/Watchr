@@ -16,22 +16,23 @@ export function RatingCard({ value, onChange, communityData }: RatingCardProps) 
   const colors = useThemeColors();
   const { t } = useI18n();
   const isCommunity = communityData !== undefined;
-  const [showStars, setShowStars] = useState(false);
+  const [showInput, setShowInput] = useState(false);
 
   const displayValue: number | null = isCommunity
     ? (communityData?.average ?? null)
     : (value ?? null);
   const voteCount = isCommunity ? communityData?.count ?? 0 : 0;
 
-  const handleStarPress = (star: number) => {
+  const handleNumberPress = (num: number) => {
     if (onChange) {
-      onChange(star);
+      onChange(num);
     }
+    setShowInput(false);
   };
 
   const handleCardPress = () => {
     if (!isCommunity && onChange) {
-      setShowStars((prev) => !prev);
+      setShowInput((prev) => !prev);
     }
   };
 
@@ -47,31 +48,45 @@ export function RatingCard({ value, onChange, communityData }: RatingCardProps) 
       </Text>
 
       <Animated.View layout={Layout.springify().damping(20).stiffness(200)}>
-        {showStars && !isCommunity ? (
+        {showInput && !isCommunity ? (
           <Animated.View
             entering={FadeIn.duration(200)}
             exiting={FadeOut.duration(150)}
-            className="flex-row items-center flex-wrap"
+            className="flex-row items-center"
           >
-            {[1, 2, 3, 4, 5].map((star) => {
-              const isFilled = displayValue !== null && star <= displayValue;
+            {[1, 2, 3, 4, 5].map((num) => {
+              const isSelected = displayValue !== null && num === displayValue;
+              const isHighlighted = displayValue !== null && num <= displayValue;
               return (
                 <TouchableOpacity
-                  key={star}
-                  onPress={() => handleStarPress(star)}
-                  className="mr-1 mb-1"
+                  key={num}
+                  onPress={() => handleNumberPress(num)}
+                  className={`mr-1.5 px-3 py-2 rounded-lg ${
+                    isSelected
+                      ? "bg-primary"
+                      : isHighlighted
+                        ? "bg-primary/20"
+                        : "bg-background"
+                  }`}
                   hitSlop={{ top: 8, bottom: 8, left: 4, right: 4 }}
                 >
                   <Animated.View layout={Layout}>
-                    <Ionicons
-                      name={isFilled ? "star" : "star-outline"}
-                      size={28}
-                      color={isFilled ? colors.primary : colors.textMuted}
-                    />
+                    <Text
+                      className={`font-bold text-lg ${
+                        isSelected
+                          ? "text-white"
+                          : isHighlighted
+                            ? "text-primary"
+                            : "text-text-muted"
+                      }`}
+                    >
+                      {num}
+                    </Text>
                   </Animated.View>
                 </TouchableOpacity>
               );
             })}
+            <Text className="text-text-muted text-sm ml-1">/5</Text>
           </Animated.View>
         ) : (
           <Animated.View

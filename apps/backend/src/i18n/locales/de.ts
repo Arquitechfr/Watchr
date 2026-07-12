@@ -61,6 +61,8 @@ const de = {
     TOO_MANY_CONTACT_REQUESTS: "Zu viele Kontaktanfragen. Versuche es später erneut.",
     CONTACT_NOT_FOUND: "Kontaktnachricht nicht gefunden.",
     CONTACT_ALREADY_REPLIED: "Diese Nachricht wurde bereits beantwortet.",
+    RATING_COOLDOWN: "Du kannst in {{days}} Tag(en) erneut bewerten.",
+    TOO_MANY_RATING_REQUESTS: "Zu viele Bewertungsanfragen. Versuche es später erneut.",
   },
   notifications: {
     commentReplyTitle: "Neue Antwort auf deinen Kommentar",

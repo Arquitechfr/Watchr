@@ -61,6 +61,8 @@ const fr = {
     TOO_MANY_CONTACT_REQUESTS: "Trop de demandes de contact. Réessayez plus tard.",
     CONTACT_NOT_FOUND: "Message de contact introuvable.",
     CONTACT_ALREADY_REPLIED: "Ce message a déjà reçu une réponse.",
+    RATING_COOLDOWN: "Vous pourrez noter à nouveau dans {{days}} jour(s).",
+    TOO_MANY_RATING_REQUESTS: "Trop de demandes de notation. Réessayez plus tard.",
   },
   notifications: {
     commentReplyTitle: "Nouvelle réponse à votre commentaire",

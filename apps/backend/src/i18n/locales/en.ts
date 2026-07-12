@@ -61,6 +61,8 @@ const en = {
     TOO_MANY_CONTACT_REQUESTS: "Too many contact requests. Try again later.",
     CONTACT_NOT_FOUND: "Contact message not found.",
     CONTACT_ALREADY_REPLIED: "This message has already been replied to.",
+    RATING_COOLDOWN: "You can rate this again in {{days}} day(s).",
+    TOO_MANY_RATING_REQUESTS: "Too many rating requests. Try again later.",
   },
   notifications: {
     commentReplyTitle: "New reply to your comment",

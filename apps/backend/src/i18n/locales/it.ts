@@ -61,6 +61,8 @@ const it = {
     TOO_MANY_CONTACT_REQUESTS: "Troppe richieste di contatto. Riprova più tardi.",
     CONTACT_NOT_FOUND: "Messaggio di contatto non trovato.",
     CONTACT_ALREADY_REPLIED: "Questo messaggio ha già ricevuto risposta.",
+    RATING_COOLDOWN: "Puoi valutare di nuovo tra {{days}} giorno/i.",
+    TOO_MANY_RATING_REQUESTS: "Troppe richieste di valutazione. Riprova più tardi.",
   },
   notifications: {
     commentReplyTitle: "Nuova risposta al tuo commento",

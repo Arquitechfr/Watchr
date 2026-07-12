@@ -28,6 +28,30 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Redirect Android smartphones to Play Store -->
+    <script>
+      (function () {
+        try {
+          if (sessionStorage.getItem("watchr_web_bypass") === "1") return;
+        } catch (e) {}
+        var ua = navigator.userAgent || "";
+        var isAndroidPhone =
+          /Android/i.test(ua) && /Mobile/i.test(ua) && !/Tablet/i.test(ua);
+        var isBot = /bot|crawler|spider|googlebot|bingbot|yandex/i.test(ua);
+        var bypass = /[?&]web=1/.test(window.location.search);
+        if (bypass) {
+          try {
+            sessionStorage.setItem("watchr_web_bypass", "1");
+          } catch (e) {}
+          return;
+        }
+        if (isAndroidPhone && !isBot) {
+          window.location.replace(
+            "https://play.google.com/store/apps/details?id=com.watchr.app",
+          );
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

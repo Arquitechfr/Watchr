@@ -125,7 +125,10 @@ export function RootNavigator() {
   }, [isAuthenticated]);
 
   const linking: LinkingOptions<RootStackParamList> = {
-    prefixes: Platform.OS === "web" ? [window.location.origin] : ["watchr://"],
+    prefixes:
+      Platform.OS === "web"
+        ? [window.location.origin]
+        : ["watchr://", "https://app.watchr.me"],
     config: {
       screens: {
         Auth: "",

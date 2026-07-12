@@ -10,6 +10,7 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from ".
 import { Skeleton } from "../components/ui/Skeleton";
 import { EmptyState } from "../components/ui/EmptyState";
 import { Dialog } from "../components/ui/Dialog";
+import { TranslationProgress } from "../components/ui/TranslationProgress";
 import { useJobPolling } from "../hooks/useJobPolling";
 import { formatDate } from "../lib/utils";
 
@@ -660,5 +661,4 @@ export function Notifications() {
       </Dialog>
     </div>
   );
-}
 }

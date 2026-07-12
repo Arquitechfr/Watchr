@@ -1,10 +1,10 @@
 import { User } from "../../models/user.model.js";
-import { AdminJob, IAdminJob } from "../../models/adminJob.model.js";
+import { AdminJob, IAdminJob, type JobTranslation } from "../../models/adminJob.model.js";
 import { NotificationLog } from "../../models/notificationLog.model.js";
 import { PushTicket } from "../../models/pushTicket.model.js";
 import { EmailService } from "../email.service.js";
 import { PushNotificationService } from "../pushNotification.service.js";
-import { translateMultiLang, detectLanguage, type TranslationInput, type TranslationResult } from "../translation.service.js";
+import { translateMultiLang, detectLanguage, type TranslationInput } from "../translation.service.js";
 import { log, logError } from "../../lib/logger.js";
 import type { Types } from "mongoose";
 
@@ -301,7 +301,7 @@ export async function getJobStatus(jobId: string) {
     errorMessage: job.errorMessage ?? null,
     translations: job.translations
       ? Object.fromEntries(
-          Array.from(job.translations.entries()).map(([lang, t]) => [
+          Object.entries(job.translations as Record<string, JobTranslation>).map(([lang, t]) => [
             lang,
             {
               subject: t.subject ?? null,

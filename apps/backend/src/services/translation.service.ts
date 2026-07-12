@@ -158,7 +158,7 @@ export async function translateMultiLang(
   });
 
   if (!aiResult) {
-    logError("TranslationService", "AI translation failed, no result");
+    logError("TranslationService", "AI translation failed, no result", "No result returned from AI");
     return result;
   }
 

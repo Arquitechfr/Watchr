@@ -11,6 +11,7 @@ import { EmptyState } from "../components/ui/EmptyState";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "../components/ui/Table";
 import { Dialog } from "../components/ui/Dialog";
 import { RichTextEditor } from "../components/ui/RichTextEditor";
+import { TranslationProgress } from "../components/ui/TranslationProgress";
 import { useJobPolling } from "../hooks/useJobPolling";
 import { formatDate } from "../lib/utils";
 

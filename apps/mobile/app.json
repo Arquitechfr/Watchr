@@ -17,7 +17,8 @@
       },
       "supportsTablet": true,
       "bundleIdentifier": "com.watchr.app",
-      "googleServicesFile": "./GoogleService-Info.plist"
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "associatedDomains": ["applinks:app.watchr.me"]
     },
     "icon": "./assets/icon.png",
     "android": {

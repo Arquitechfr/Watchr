@@ -67,7 +67,20 @@ export async function detectLanguage(text: string): Promise<string> {
   return SUPPORTED_LOCALES.includes(detected as (typeof SUPPORTED_LOCALES)[number]) ? detected : "en";
 }
 
-function buildTranslationPrompt(
+export function pickLongestText(input: TranslationInput): string {
+  const candidates = [input.htmlContent, input.body, input.subject, input.title].filter(
+    (v): v is string => !!v,
+  );
+  if (candidates.length === 0) return "";
+  return candidates.reduce((longest, current) => (current.length > longest.length ? current : longest));
+}
+
+function buildTranslationSystemPrompt(targetLangs: string[]): string {
+  const langList = targetLangs.map((l) => `${l} (${LANG_NAMES[l] ?? l})`).join(", ");
+  return `You are a professional AI translator for the Watchr app. Your sole task is to translate admin messages into the target languages: ${langList}. You must always output a valid JSON object. Never refuse a translation. Never output empty JSON.`;
+}
+
+function buildTranslationUserPrompt(
   input: TranslationInput,
   targetLangs: string[],
   sourceLang?: string,
@@ -83,7 +96,7 @@ function buildTranslationPrompt(
     fields.push('  "body": <translated body as plain text>');
   }
   if (input.htmlContent !== undefined) {
-    fields.push('  "htmlContent": <translated HTML content — preserve ALL HTML tags, attributes, and structure, only translate text between tags>');
+    fields.push('  "htmlContent": <translated HTML — preserve ALL tags, attributes, styles, links. Only translate visible text between tags>');
   }
 
   const langList = targetLangs.map((l) => `"${l}"`).join(", ");
@@ -91,16 +104,14 @@ function buildTranslationPrompt(
 
   const inputJson = JSON.stringify(input);
 
-  return `You are a professional translator. Translate the provided content into the following languages: ${langList}.
+  return `Translate the following content into these languages: ${langList}.
 ${sourceHint}
 
 Return a JSON object where each key is a language code and the value is an object with the translated fields:
 {
-  "fr": {
+  "${targetLangs[0]}": {
 ${fields.join(",\n")}
-  },
-  "es": { ... },
-  ...
+  }${targetLangs.length > 1 ? ",\n  ..." : ""}
 }
 
 Rules:
@@ -108,6 +119,7 @@ Rules:
 - For "subject", "title", "body": translate as plain text.
 - For "htmlContent": preserve ALL HTML tags, attributes, inline styles, and links. Only translate the visible text between tags.
 - Return ONLY the JSON object, no markdown, no explanation.
+- NEVER return an empty object. Every requested language must be present in the output.
 
 Input content:
 ${inputJson}`;
@@ -145,12 +157,16 @@ export async function translateMultiLang(
     }
   }
 
-  const prompt = buildTranslationPrompt(input, targetLangs, sourceLang);
+  const systemPrompt = buildTranslationSystemPrompt(targetLangs);
+  const userPrompt = buildTranslationUserPrompt(input, targetLangs, sourceLang);
 
   const aiResult = await mistralService.safeChatWithFallback({
-    messages: [{ role: "user", content: prompt }],
-    model: "mistral-small-latest",
-    fallbackModel: "mistral-large-latest",
+    messages: [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userPrompt },
+    ],
+    model: "mistral-large-latest",
+    fallbackModel: "mistral-small-latest",
     temperature: 0.2,
     responseFormat: { type: "json_object" },
     maxTokens: 4000,
@@ -161,6 +177,12 @@ export async function translateMultiLang(
     logError("TranslationService", "AI translation failed, no result", "No result returned from AI");
     return result;
   }
+
+  log("TranslationService", "AI response received", {
+    contentLength: aiResult.content.length,
+    contentPreview: aiResult.content.slice(0, 300),
+    model: aiResult.model,
+  });
 
   try {
     const parsed = JSON.parse(aiResult.content) as Record<string, TranslationInput>;
@@ -188,6 +210,14 @@ export async function translateMultiLang(
       }
     }
 
+    if (result.size === 0 && targetLangs.length > 0) {
+      logError("TranslationService", "AI returned empty or missing translations", null, {
+        requestedLangs: targetLangs,
+        responseContent: aiResult.content.slice(0, 500),
+        parsedKeys: Object.keys(parsed),
+      });
+    }
+
     if (result.size > 0) {
       const cacheData: Record<string, TranslationInput> = {};
       for (const [lang, translation] of result) {
@@ -203,7 +233,7 @@ export async function translateMultiLang(
     });
   } catch (err) {
     logError("TranslationService", "failed to parse translation response", err, {
-      content: aiResult.content.slice(0, 200),
+      content: aiResult.content.slice(0, 500),
     });
   }
 

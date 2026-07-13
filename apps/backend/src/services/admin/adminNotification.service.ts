@@ -6,7 +6,7 @@ import { PushNotificationService } from "../pushNotification.service.js";
 import { processJob } from "./jobQueue.service.js";
 import { ApiError } from "../../middleware/error.middleware.js";
 import { logError } from "../../lib/logger.js";
-import { detectLanguage, translateForUser, type TranslationInput } from "../translation.service.js";
+import { detectLanguage, translateForUser, pickLongestText, type TranslationInput } from "../translation.service.js";
 import type { Types } from "mongoose";
 
 export interface BroadcastInput {
@@ -91,7 +91,7 @@ export async function sendTargeted(
   }
 
   // Auto-translate to user's preferred language
-  const sourceText = `${input.title} ${input.body}`.trim();
+  const sourceText = pickLongestText({ title: input.title, body: input.body });
   const sourceLang = sourceText ? await detectLanguage(sourceText) : "en";
   const translationInput: TranslationInput = { title: input.title, body: input.body };
   const translated = await translateForUser(translationInput, user.preferredLanguage, sourceLang);

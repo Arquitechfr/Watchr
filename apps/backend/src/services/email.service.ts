@@ -286,11 +286,10 @@ export const EmailService = {
   async sendEmailCodeEmail(
     to: string,
     code: string,
-    magicLinkUrl: string,
-    webMagicLinkUrl: string,
+    url: string,
     locale: SupportedLocale | string | undefined,
   ): Promise<boolean> {
-    const { subject, html } = emailCodeTemplate(locale, { code, magicLinkUrl, webMagicLinkUrl });
+    const { subject, html } = emailCodeTemplate(locale, { code, url });
     return sendEmail({ to, subject, html, template: "email_code", locale: locale ?? undefined });
   },
 

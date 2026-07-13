@@ -377,10 +377,9 @@ export async function requestEmailCode(email: string): Promise<void> {
     attempts: 0,
   });
 
-  const magicLinkUrl = `watchr://magic-link?token=${magicLinkToken}`;
-  const webMagicLinkUrl = `https://app.watchr.me/auth/magic-link?token=${magicLinkToken}`;
+  const magicLinkUrl = `https://app.watchr.me/auth/magic-link?token=${magicLinkToken}`;
 
-  EmailService.sendEmailCodeEmail(user.email, code, magicLinkUrl, webMagicLinkUrl, user.preferredLanguage).catch((err) =>
+  EmailService.sendEmailCodeEmail(user.email, code, magicLinkUrl, user.preferredLanguage).catch((err) =>
     console.error("Failed to send email code:", err),
   );
 }

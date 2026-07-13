@@ -210,11 +210,13 @@ export function RootNavigator() {
         ) : config.auth_enabled ? (
           <>
             <Stack.Screen name="Auth" component={AuthStack} />
+            <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
             <Stack.Screen name="MagicLink" component={MagicLinkScreen} />
           </>
         ) : (
           <>
             <Stack.Screen name="Auth" component={AuthDisabledScreen} />
+            <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
             <Stack.Screen name="MagicLink" component={MagicLinkScreen} />
           </>
         )}

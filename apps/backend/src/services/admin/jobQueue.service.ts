@@ -4,7 +4,7 @@ import { NotificationLog } from "../../models/notificationLog.model.js";
 import { PushTicket } from "../../models/pushTicket.model.js";
 import { EmailService } from "../email.service.js";
 import { PushNotificationService } from "../pushNotification.service.js";
-import { translateMultiLang, detectLanguage, type TranslationInput } from "../translation.service.js";
+import { translateMultiLang, detectLanguage, pickLongestText, type TranslationInput } from "../translation.service.js";
 import { log, logError } from "../../lib/logger.js";
 import type { Types } from "mongoose";
 
@@ -48,7 +48,7 @@ async function processEmailBroadcast(job: IAdminJob): Promise<void> {
   await job.save();
 
   // Auto-translate to user languages
-  const sourceText = `${job.subject ?? ""} ${job.htmlContent ?? ""}`.trim();
+  const sourceText = pickLongestText({ subject: job.subject, htmlContent: job.htmlContent });
   const sourceLang = sourceText ? await detectLanguage(sourceText) : "en";
   job.sourceLanguage = sourceLang;
   job.translationStatus = "pending";
@@ -133,7 +133,7 @@ async function processPushBroadcast(job: IAdminJob): Promise<void> {
   const users = await User.find(filter).select("expoPushToken preferredLanguage").lean();
 
   // Auto-translate to user languages
-  const sourceText = `${job.title ?? ""} ${job.body ?? ""}`.trim();
+  const sourceText = pickLongestText({ title: job.title, body: job.body });
   const sourceLang = sourceText ? await detectLanguage(sourceText) : "en";
   job.sourceLanguage = sourceLang;
   job.translationStatus = "pending";

@@ -4,6 +4,7 @@ import api from "../lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
+import { Checkbox } from "../components/ui/Checkbox";
 import { Badge } from "../components/ui/Badge";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "../components/ui/Table";
 import { Skeleton } from "../components/ui/Skeleton";
@@ -83,7 +84,17 @@ export function RemoteConfig() {
           <CardContent className="space-y-4">
             <div>
               <label className="mb-1.5 block text-sm text-text-muted">Value</label>
-              <Input value={editValue} onChange={(e) => setEditValue(e.target.value)} />
+              {editType === "boolean" ? (
+                <div className="flex h-10 items-center">
+                  <Checkbox
+                    checked={editValue === "true"}
+                    onChange={(e) => setEditValue(e.target.checked ? "true" : "false")}
+                  />
+                  <span className="ml-2 text-sm text-text">{editValue === "true" ? "true" : "false"}</span>
+                </div>
+              ) : (
+                <Input value={editValue} onChange={(e) => setEditValue(e.target.value)} />
+              )}
             </div>
             <div>
               <label className="mb-1.5 block text-sm text-text-muted">Type</label>
@@ -97,6 +108,9 @@ export function RemoteConfig() {
                 <option value="boolean">boolean</option>
                 <option value="json">json</option>
               </select>
+              {editType === "boolean" && editValue !== "true" && editValue !== "false" && (
+                <p className="mt-1 text-xs text-text-muted">Value will be set to "false"</p>
+              )}
             </div>
             <div>
               <label className="mb-1.5 block text-sm text-text-muted">Description</label>

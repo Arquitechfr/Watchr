@@ -115,6 +115,7 @@ const FLAG_LABELS: Record<string, { label: string; description: string }> = {
   ai_admin_assistant_enabled: { label: "Admin Assistant", description: "Extended admin AI tools (announcements, report replies, trends)" },
   ai_news_filtering_enabled: { label: "News Filtering", description: "Filter news based on tracked shows" },
   ai_reengagement_enabled: { label: "Re-engagement", description: "AI-personalized re-engagement messages for inactive users" },
+  activation_nudge_enabled: { label: "Activation Nudge", description: "Static push nudge for users inactive 24-72h after signup with no tracked shows" },
   ai_year_in_review_enabled: { label: "Year in Review", description: "AI-generated yearly recap (Spotify Wrapped style)" },
   ai_anomaly_detection_enabled: { label: "Anomaly Detection", description: "AI detection of suspicious user behavior patterns" },
   ai_episode_summary_enabled: { label: "Episode Summary", description: "AI-generated summaries for episodes without descriptions" },

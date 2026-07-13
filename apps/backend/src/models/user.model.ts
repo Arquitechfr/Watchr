@@ -37,6 +37,7 @@ export interface IUser extends Document {
   banReason: string | null;
   signupPlatform?: "ios" | "android" | "web";
   lastUsersVisitAt: Date | null;
+  activationNudgeSentAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -164,6 +165,10 @@ const userSchema = new Schema<IUser>(
       maxlength: 500,
     },
     lastUsersVisitAt: {
+      type: Date,
+      default: null,
+    },
+    activationNudgeSentAt: {
       type: Date,
       default: null,
     },

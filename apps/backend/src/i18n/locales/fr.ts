@@ -96,6 +96,8 @@ const fr = {
     commentAutoSpoilerBody: "Votre commentaire sur \"{{show}}\" a été automatiquement marqué comme spoiler suite à des signalements de la communauté.",
     commentAdminSpoilerTitle: "Votre commentaire a été marqué comme spoiler",
     commentAdminSpoilerBody: "Un modérateur a marqué votre commentaire sur \"{{show}}\" comme spoiler.",
+    activationNudgeTitle: "Votre liste vous attend",
+    activationNudgeBody: "Ajoutez quelques séries ou films pour commencer à recevoir vos prochains épisodes.",
   },
   emails: {
     welcomeSubject: "Bienvenue sur Watchr !",

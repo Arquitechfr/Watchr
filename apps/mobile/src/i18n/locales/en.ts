@@ -150,7 +150,7 @@ const en = {
       viewAll: "View all my series",
       markNextEpisode: "Mark next episode",
       searchPlaceholder: "Search a series…",
-      addBtn: "Add",
+      addBtn: "Add a series",
     },
     unwatched: {
       airedAgo: "Aired {{distance}}",
@@ -159,7 +159,7 @@ const en = {
       viewAll: "View all my movies",
       empty: "No movies",
       addFromSearch: "Add movies from the Search tab.",
-      addBtn: "Add",
+      addBtn: "Add a movie",
       markedWatched: "Movie marked as watched",
       markError: "Unable to mark movie",
       searchPlaceholder: "Search in your movies…",

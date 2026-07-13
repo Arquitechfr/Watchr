@@ -11,7 +11,7 @@ import {
   Pie,
   Cell,
 } from "recharts";
-import { Users, MessageSquare, Tv, Download, Bell, Shield, Sparkles, AlertTriangle, Send, Loader2, X } from "lucide-react";
+import { Users, MessageSquare, Tv, Download, Bell, Shield, Sparkles, AlertTriangle, Send, Loader2, X, Zap } from "lucide-react";
 import api from "../lib/api";
 import { Card, CardHeader, CardTitle, CardContent } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
@@ -46,6 +46,8 @@ export function Dashboard() {
 
   const [reengagementSending, setReengagementSending] = useState(false);
   const [reengagementResult, setReengagementResult] = useState("");
+  const [nudgeSending, setNudgeSending] = useState(false);
+  const [nudgeResult, setNudgeResult] = useState("");
   const [anomaliesLoading, setAnomaliesLoading] = useState(false);
   const [anomalies, setAnomalies] = useState<Array<{ userId: string; username: string; type: string; severity: string; description: string }>>([]);
   const [anomaliesOpen, setAnomaliesOpen] = useState(false);
@@ -226,6 +228,42 @@ export function Dashboard() {
             </Button>
             {reengagementResult && (
               <p className="mt-3 text-sm text-primary">{reengagementResult}</p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Zap className="text-primary" size={20} />
+              <CardTitle>Activation Nudge</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-text-muted mb-4">
+              Send a static push notification to users who signed up 24-72h ago, completed onboarding, but haven't added any shows yet.
+            </p>
+            <Button
+              onClick={async () => {
+                setNudgeSending(true);
+                setNudgeResult("");
+                try {
+                  await api.post("/admin/ai/activation-nudge");
+                  setNudgeResult("Activation nudge batch started successfully");
+                } catch (err) {
+                  setNudgeResult("Failed to start activation nudge batch");
+                  console.error("Activation nudge failed:", err);
+                } finally {
+                  setNudgeSending(false);
+                }
+              }}
+              disabled={nudgeSending}
+            >
+              {nudgeSending ? <Loader2 size={16} className="mr-2 animate-spin" /> : <Send size={16} className="mr-2" />}
+              Trigger Activation Nudge Batch
+            </Button>
+            {nudgeResult && (
+              <p className="mt-3 text-sm text-primary">{nudgeResult}</p>
             )}
           </CardContent>
         </Card>

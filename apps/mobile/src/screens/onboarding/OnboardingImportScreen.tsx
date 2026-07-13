@@ -41,10 +41,9 @@ function PlatformCard({ icon, name, description, onPress, disabled }: PlatformCa
 
 interface OnboardingImportScreenProps {
   onComplete: () => void;
-  onSkip: () => void;
 }
 
-export function OnboardingImportScreen({ onComplete, onSkip }: OnboardingImportScreenProps) {
+export function OnboardingImportScreen({ onComplete }: OnboardingImportScreenProps) {
   const { t } = useI18n();
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
@@ -194,7 +193,7 @@ export function OnboardingImportScreen({ onComplete, onSkip }: OnboardingImportS
       >
         <TouchableOpacity
           className="bg-surface py-3 rounded-lg items-center mb-3"
-          onPress={onSkip}
+          onPress={handleCompleteOnboarding}
           disabled={isPending}
           activeOpacity={0.8}
         >

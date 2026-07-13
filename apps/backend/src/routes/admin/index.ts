@@ -35,6 +35,7 @@ import { getAiStats, getAiLogs, getAiLogDetail, getAiStatus, getAiFlags, setAiFl
 import { sendWeeklyDigestBatch, sendWeeklyDigestToUser } from "../../services/aiWeeklyDigest.service.js";
 import { analyzeComment, suggestReportAction, suggestShowDescription } from "../../services/admin/adminAiAssistant.service.js";
 import { sendReengagementBatch } from "../../services/aiReengagement.service.js";
+import { sendActivationNudgeBatch } from "../../services/activationNudge.service.js";
 import { detectAnomalies } from "../../services/aiAnomalyDetection.service.js";
 import { listContactMessages, getContactStats, getContactDetail, updateContactStatus, replyToContactMessage } from "../../services/admin/adminContact.service.js";
 
@@ -88,6 +89,23 @@ router.get(
       lastUsersVisitAt: admin?.lastUsersVisitAt ?? null,
     });
     res.json(result);
+  }),
+);
+
+router.post(
+  "/users/mark-seen",
+  asyncHandler(async (req: Request, res: Response) => {
+    await markUsersAsSeen(req.userId!);
+    const newCount = await countNewUsersSinceLastVisit(req.userId!);
+    res.json({ marked: true, newCount });
+  }),
+);
+
+router.get(
+  "/users/new-count",
+  asyncHandler(async (req: Request, res: Response) => {
+    const count = await countNewUsersSinceLastVisit(req.userId!);
+    res.json({ count });
   }),
 );
 
@@ -147,23 +165,6 @@ router.delete(
   asyncHandler(async (req: Request, res: Response) => {
     await deleteUser(req.params.id);
     res.status(204).send();
-  }),
-);
-
-router.post(
-  "/users/mark-seen",
-  asyncHandler(async (req: Request, res: Response) => {
-    await markUsersAsSeen(req.userId!);
-    const newCount = await countNewUsersSinceLastVisit(req.userId!);
-    res.json({ marked: true, newCount });
-  }),
-);
-
-router.get(
-  "/users/new-count",
-  asyncHandler(async (req: Request, res: Response) => {
-    const count = await countNewUsersSinceLastVisit(req.userId!);
-    res.json({ count });
   }),
 );
 
@@ -713,6 +714,20 @@ router.post(
     }
     sendReengagementBatch().catch((err) => logError("AdminReengagement", "batch failed", err));
     res.json({ message: "Re-engagement batch started" });
+  }),
+);
+
+router.post(
+  "/ai/activation-nudge",
+  asyncHandler(async (_req: Request, res: Response) => {
+    const { MobileConfig } = await import("../../models/MobileConfig.js");
+    const flag = await MobileConfig.findOne({ key: "activation_nudge_enabled" }).lean();
+    if (flag?.value !== "true") {
+      res.json({ message: "Activation nudge is disabled. Enable the 'activation_nudge_enabled' flag first." });
+      return;
+    }
+    sendActivationNudgeBatch().catch((err) => logError("AdminActivationNudge", "batch failed", err));
+    res.json({ message: "Activation nudge batch started" });
   }),
 );
 

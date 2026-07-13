@@ -150,7 +150,7 @@ const it = {
       viewAll: "Vedi tutte le serie",
       markNextEpisode: "Segna prossimo episodio",
       searchPlaceholder: "Cerca una serie…",
-      addBtn: "Aggiungi",
+      addBtn: "Aggiungi una serie",
     },
     unwatched: {
       airedAgo: "Trasmesso {{distance}}",
@@ -159,7 +159,7 @@ const it = {
       viewAll: "Vedi tutti i film",
       empty: "Nessun film",
       addFromSearch: "Aggiungi film dalla scheda Cerca.",
-      addBtn: "Aggiungi",
+      addBtn: "Aggiungi un film",
       markedWatched: "Film segnato come visto",
       markError: "Impossibile segnare",
       searchPlaceholder: "Cerca nei tuoi film…",

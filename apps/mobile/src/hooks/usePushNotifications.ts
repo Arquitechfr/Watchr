@@ -8,14 +8,14 @@ import Constants from "expo-constants";
 
 type NotificationSubscription = import("expo-notifications").Subscription;
 
-export function usePushNotifications() {
+export function usePushNotifications(enabled: boolean) {
   const { isAuthenticated, logout } = useAuthStore();
   const colors = useThemeColors();
   const notificationListener = useRef<NotificationSubscription | null>(null);
   const responseListener = useRef<NotificationSubscription | null>(null);
 
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated || !enabled) return;
     if (Platform.OS === 'web') return;
 
     async function setup() {
@@ -82,7 +82,7 @@ export function usePushNotifications() {
       notificationListener.current?.remove();
       responseListener.current?.remove();
     };
-  }, [isAuthenticated]);
+  }, [isAuthenticated, enabled]);
 
   useEffect(() => {
     if (!isAuthenticated) return;

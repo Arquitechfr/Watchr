@@ -13,7 +13,6 @@ import { useShowSearch } from "../../hooks/useShowSearch";
 import { useOnboardingStore } from "../../store/onboardingStore";
 import { useOnboardingSuggestions } from "../../hooks/useOnboardingSuggestions";
 import { useAddToWatchlistBatch } from "../../hooks/useTracking";
-import { useCompleteOnboarding } from "../../hooks/useOnboarding";
 import { SearchResultItem, OnboardingSuggestion } from "../../services/shows.service";
 
 interface OnboardingSelectionScreenProps {
@@ -41,20 +40,13 @@ export function OnboardingSelectionScreen({ onComplete, onSkip }: OnboardingSele
   const { selectedItems, toggleItem, isSelected, reset } = useOnboardingStore();
   const { data: aiSuggestionsData, isLoading: aiSuggestionsLoading } = useOnboardingSuggestions({ type: "both" });
   const batchMutation = useAddToWatchlistBatch();
-  const completeOnboardingMutation = useCompleteOnboarding();
 
-  const isFinishing = batchMutation.isPending || completeOnboardingMutation.isPending;
-  const hasFinishError = batchMutation.isError || completeOnboardingMutation.isError;
+  const isFinishing = batchMutation.isPending;
+  const hasFinishError = batchMutation.isError;
 
   const handleFinish = useCallback(() => {
     if (selectedItems.length === 0) {
-      completeOnboardingMutation.mutate(undefined, {
-        onSuccess: () => {
-          reset();
-          onComplete();
-        },
-        onError: () => {},
-      });
+      onComplete();
       return;
     }
 
@@ -62,24 +54,18 @@ export function OnboardingSelectionScreen({ onComplete, onSkip }: OnboardingSele
       selectedItems.map((item) => ({ tmdbId: item.tmdbId, type: item.type })),
       {
         onSuccess: () => {
-          completeOnboardingMutation.mutate(undefined, {
-            onSuccess: () => {
-              reset();
-              onComplete();
-            },
-            onError: () => {},
-          });
+          reset();
+          onComplete();
         },
         onError: () => {},
       },
     );
-  }, [selectedItems, batchMutation, completeOnboardingMutation, reset, onComplete]);
+  }, [selectedItems, batchMutation, reset, onComplete]);
 
   const handleRetry = useCallback(() => {
     batchMutation.reset();
-    completeOnboardingMutation.reset();
     handleFinish();
-  }, [batchMutation, completeOnboardingMutation, handleFinish]);
+  }, [batchMutation, handleFinish]);
 
   const isSearching = searchQuery.trim().length > 0;
 

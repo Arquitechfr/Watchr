@@ -14,6 +14,8 @@
     "notifications": "tsx scripts/sendNotifications.ts",
     "notifications-worker": "tsx watch --import ./src/instrument.ts src/workers/startNotificationWorker.ts",
     "news-worker": "tsx watch --import ./src/instrument.ts src/workers/startNewsSyncWorker.ts",
+    "reengagement-worker": "tsx watch --import ./src/instrument.ts src/workers/startReengagementWorker.ts",
+    "activation-nudge-worker": "tsx watch --import ./src/instrument.ts src/workers/startActivationNudgeWorker.ts",
     "username-fix-worker": "tsx watch --import ./src/instrument.ts src/workers/startUsernameFixWorker.ts",
     "ban-scheduler-worker": "tsx watch --import ./src/instrument.ts src/workers/startBanSchedulerWorker.ts",
     "test": "vitest run",

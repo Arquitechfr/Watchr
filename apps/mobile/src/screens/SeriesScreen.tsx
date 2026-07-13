@@ -202,6 +202,7 @@ function UpcomingList({
   cardWidth,
   searchQuery,
   listRef,
+  onAddPress,
 }: {
   data: { today: UpcomingEpisode[]; thisWeek: UpcomingEpisode[]; nextWeek: UpcomingEpisode[]; later: UpcomingEpisode[] } | undefined;
   isLoading: boolean;
@@ -215,6 +216,7 @@ function UpcomingList({
   cardWidth: number;
   searchQuery: string;
   listRef: React.RefObject<FlatList | null>;
+  onAddPress: () => void;
 }) {
   const { t } = useI18n();
   const colors = useThemeColors();
@@ -254,6 +256,8 @@ function UpcomingList({
           icon="calendar-outline"
           title={t("screens.upcoming.empty")}
           subtitle={t("screens.upcoming.emptySubtitle")}
+          actionLabel={t("screens.series.addBtn")}
+          onAction={onAddPress}
         />
       );
     }
@@ -325,6 +329,8 @@ function UpcomingList({
         icon="calendar-outline"
         title={t("screens.upcoming.empty")}
         subtitle={t("screens.upcoming.emptySubtitle")}
+        actionLabel={t("screens.series.addBtn")}
+        onAction={onAddPress}
       />
     );
   }
@@ -536,6 +542,7 @@ export function SeriesScreen() {
             cardWidth={cardWidth}
             searchQuery={searchQuery}
             listRef={flatListRef}
+            onAddPress={() => navigation.navigate("Search")}
           />
         </View>
       )}

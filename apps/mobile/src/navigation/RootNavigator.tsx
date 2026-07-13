@@ -83,7 +83,7 @@ export function RootNavigator() {
   const me = meQuery.data;
   const isMeError = meQuery.isError;
 
-  usePushNotifications();
+  usePushNotifications(!!me?.hasCompletedOnboarding);
   useThemeSync();
 
   useEffect(() => {

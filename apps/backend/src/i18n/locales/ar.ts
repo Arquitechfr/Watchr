@@ -96,6 +96,8 @@ const ar = {
     commentAutoSpoilerBody: "تم وضع علامة سبويلر تلقائيًا على تعليقك على \"{{show}}\" بعد بلاغات من المجتمع.",
     commentAdminSpoilerTitle: "تم وضع علامة سبويلر على تعليقك",
     commentAdminSpoilerBody: "قام مشرف بوضع علامة سبويلر على تعليقك على \"{{show}}\".",
+    activationNudgeTitle: "قائمتك بانتظارك",
+    activationNudgeBody: "أضف بعض المسلسلات أو الأفلام لتبدأ في تلقي إشعارات عن الحلقات الجديدة.",
   },
   emails: {
     welcomeSubject: "مرحبًا بك في Watchr!",

@@ -96,6 +96,8 @@ const en = {
     commentAutoSpoilerBody: "Your comment on \"{{show}}\" was automatically marked as a spoiler following reports from the community.",
     commentAdminSpoilerTitle: "Your comment was marked as spoiler",
     commentAdminSpoilerBody: "A moderator has marked your comment on \"{{show}}\" as a spoiler.",
+    activationNudgeTitle: "Your watchlist is waiting",
+    activationNudgeBody: "Add a few shows or movies to start getting notified about new episodes.",
   },
   emails: {
     welcomeSubject: "Welcome to Watchr!",

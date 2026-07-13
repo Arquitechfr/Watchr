@@ -5,8 +5,8 @@ import { OnboardingSelectionScreen } from "../screens/onboarding/OnboardingSelec
 
 export type OnboardingStackParamList = {
   OnboardingWelcome: undefined;
-  OnboardingImport: undefined;
   OnboardingSelection: undefined;
+  OnboardingImport: undefined;
 };
 
 const Stack = createNativeStackNavigator<OnboardingStackParamList>();
@@ -22,16 +22,16 @@ export function OnboardingStack({ onComplete, onSkip }: OnboardingStackProps) {
       <Stack.Screen name="OnboardingWelcome">
         {({ navigation }) => <OnboardingWelcomeScreen navigation={navigation} onSkip={onSkip} />}
       </Stack.Screen>
-      <Stack.Screen name="OnboardingImport">
+      <Stack.Screen name="OnboardingSelection">
         {({ navigation }) => (
-          <OnboardingImportScreen
-            onComplete={onComplete}
-            onSkip={() => navigation.navigate("OnboardingSelection")}
+          <OnboardingSelectionScreen
+            onComplete={() => navigation.navigate("OnboardingImport")}
+            onSkip={() => navigation.navigate("OnboardingImport")}
           />
         )}
       </Stack.Screen>
-      <Stack.Screen name="OnboardingSelection">
-        {() => <OnboardingSelectionScreen onComplete={onComplete} onSkip={onSkip} />}
+      <Stack.Screen name="OnboardingImport">
+        {() => <OnboardingImportScreen onComplete={onComplete} />}
       </Stack.Screen>
     </Stack.Navigator>
   );

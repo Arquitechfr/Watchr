@@ -150,7 +150,7 @@ const fr = {
       viewAll: "Voir toutes mes séries",
       markNextEpisode: "Marquer le prochain épisode",
       searchPlaceholder: "Rechercher une série…",
-      addBtn: "Ajouter",
+      addBtn: "Ajouter une série",
     },
     unwatched: {
       airedAgo: "Diffusée {{distance}}",
@@ -159,7 +159,7 @@ const fr = {
       viewAll: "Voir tous mes films",
       empty: "Aucun film",
       addFromSearch: "Ajoutez des films depuis l'onglet Recherche.",
-      addBtn: "Ajouter",
+      addBtn: "Ajouter un film",
       markedWatched: "Film marqué comme vu",
       markError: "Impossible de marquer le film",
       searchPlaceholder: "Rechercher dans vos films…",

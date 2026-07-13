@@ -150,7 +150,7 @@ const ar = {
       viewAll: "عرض كل مسلسلاتي",
       markNextEpisode: "تحديد الحلقة القادمة",
       searchPlaceholder: "ابحث عن مسلسل…",
-      addBtn: "إضافة",
+      addBtn: "إضافة مسلسل",
     },
     unwatched: {
       airedAgo: "عُرض {{distance}}",
@@ -159,7 +159,7 @@ const ar = {
       viewAll: "عرض كل أفلامي",
       empty: "لا أفلام",
       addFromSearch: "أضف أفلامًا من تبويب البحث.",
-      addBtn: "إضافة",
+      addBtn: "إضافة فيلم",
       markedWatched: "تم تحديد الفيلم كمشاهد",
       markError: "تعذّر التحديد",
       searchPlaceholder: "ابحث في أفلامك…",

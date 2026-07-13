@@ -150,7 +150,7 @@ const de = {
       viewAll: "Alle Serien ansehen",
       markNextEpisode: "Nächste Episode markieren",
       searchPlaceholder: "Serie suchen…",
-      addBtn: "Hinzufügen",
+      addBtn: "Serie hinzufügen",
     },
     unwatched: {
       airedAgo: "Ausgestrahlt {{distance}}",
@@ -159,7 +159,7 @@ const de = {
       viewAll: "Alle Filme ansehen",
       empty: "Keine Filme",
       addFromSearch: "Füge Filme aus dem Such-Tab hinzu.",
-      addBtn: "Hinzufügen",
+      addBtn: "Film hinzufügen",
       markedWatched: "Film als gesehen markiert",
       markError: "Markierung fehlgeschlagen",
       searchPlaceholder: "Filme durchsuchen…",

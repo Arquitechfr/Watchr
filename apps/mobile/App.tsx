@@ -1,3 +1,4 @@
+import "./src/utils/atPolyfill";
 import "./global.css";
 import * as Sentry from "@sentry/react-native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";

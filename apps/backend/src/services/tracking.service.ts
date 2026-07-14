@@ -334,6 +334,13 @@ export async function addToWatchlistByTmdb(
   });
 
   log("TrackingService", "watchlist entry created", { tmdbId, showId: show._id.toString() });
+
+  posthogClient.capture({
+    distinctId: userId,
+    event: "watchlist_item_added",
+    properties: { tmdbId, type },
+  });
+
   await invalidateUnwatchedCache(userId);
   wsEvents.emit("tracking:updated", { userId, showId: show._id.toString() });
   return entry;

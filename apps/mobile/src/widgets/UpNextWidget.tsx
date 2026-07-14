@@ -25,6 +25,7 @@ const COLORS: Record<string, any> = {
   text: '#F5F0EB',
   textMuted: '#A89B91',
   border: '#3D352D',
+  borderSubtle: '#2D2620',
 };
 
 function TabButton({
@@ -42,23 +43,35 @@ function TabButton({
       clickActionData={{ tab }}
       style={{
         flex: 1,
-        paddingVertical: 8,
+        paddingVertical: 7,
         paddingHorizontal: 12,
-        borderRadius: 8,
-        backgroundColor: isActive ? COLORS.primary : 'transparent',
+        borderRadius: 6,
+        backgroundColor: isActive ? COLORS.surfaceLight : 'transparent',
         alignItems: 'center',
         justifyContent: 'center',
         marginHorizontal: 2,
+        flexDirection: 'column',
       }}
     >
       <TextWidget
         text={label}
         style={{
           fontSize: 13,
-          color: isActive ? COLORS.bg : COLORS.textMuted,
-          fontWeight: 'bold',
+          color: isActive ? COLORS.primary : COLORS.textMuted,
+          fontWeight: isActive ? 'bold' : 'normal',
         }}
       />
+      {isActive ? (
+        <FlexWidget
+          style={{
+            width: 'match_parent',
+            height: 2,
+            backgroundColor: COLORS.primary,
+            marginTop: 4,
+            borderRadius: 1,
+          }}
+        />
+      ) : null}
     </FlexWidget>
   );
 }
@@ -88,8 +101,9 @@ function EpisodeRow({ episode }: { episode: WidgetEpisode }) {
         backgroundColor: COLORS.surface,
         borderRadius: 8,
         borderWidth: 1,
-        borderColor: COLORS.border,
-        padding: 8,
+        borderColor: COLORS.borderSubtle,
+        paddingVertical: 6,
+        paddingHorizontal: 10,
         marginBottom: 6,
       }}
     >
@@ -115,14 +129,14 @@ function EpisodeRow({ episode }: { episode: WidgetEpisode }) {
             style={{
               width: 40,
               height: 60,
-              backgroundColor: COLORS.surfaceLight,
+              backgroundColor: COLORS.surface,
               borderRadius: 4,
               marginRight: 8,
               alignItems: 'center',
               justifyContent: 'center',
             }}
           >
-            <TextWidget text="📺" style={{ fontSize: 18 }} />
+            <TextWidget text="📺" style={{ fontSize: 14 }} />
           </FlexWidget>
         )}
 
@@ -156,10 +170,10 @@ function EpisodeRow({ episode }: { episode: WidgetEpisode }) {
           episode: episode.episode,
         }}
         style={{
-          width: 28,
-          height: 28,
-          borderRadius: 14,
-          backgroundColor: COLORS.surfaceLight,
+          width: 32,
+          height: 32,
+          borderRadius: 16,
+          backgroundColor: COLORS.primary,
           alignItems: 'center',
           justifyContent: 'center',
           marginLeft: 8,
@@ -167,7 +181,7 @@ function EpisodeRow({ episode }: { episode: WidgetEpisode }) {
       >
         <TextWidget
           text="✓"
-          style={{ fontSize: 14, color: COLORS.primary, fontWeight: 'bold' }}
+          style={{ fontSize: 16, color: COLORS.bg, fontWeight: 'bold' }}
         />
       </FlexWidget>
     </FlexWidget>
@@ -202,10 +216,18 @@ export function UpNextWidget({
           width: 'match_parent',
           flexDirection: 'row',
           alignItems: 'center',
-          justifyContent: 'space-between',
           marginBottom: 8,
         }}
       >
+        <FlexWidget
+          style={{
+            width: 4,
+            height: 4,
+            borderRadius: 2,
+            backgroundColor: COLORS.primary,
+            marginRight: 6,
+          }}
+        />
         <TextWidget
           text={headerTitle}
           style={{
@@ -221,7 +243,9 @@ export function UpNextWidget({
           width: 'match_parent',
           flexDirection: 'row',
           backgroundColor: COLORS.surface,
-          borderRadius: 8,
+          borderRadius: 6,
+          borderWidth: 1,
+          borderColor: COLORS.borderSubtle,
           padding: 4,
           marginBottom: 8,
         }}

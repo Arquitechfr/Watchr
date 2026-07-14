@@ -89,8 +89,8 @@ router.post(
   authRateLimiter,
   validateRequest(registerSchema),
   asyncHandler(async (req: Request, res: Response) => {
-    const { email, password, signupPlatform } = req.body;
-    const tokens = await registerUser(email, password, signupPlatform);
+    const { email, password, signupPlatform, language } = req.body;
+    const tokens = await registerUser(email, password, signupPlatform, language);
     res.status(201).json(tokens);
   }),
 );
@@ -113,8 +113,8 @@ router.post(
   authRateLimiter,
   validateRequest(firebaseLoginSchema),
   asyncHandler(async (req: Request, res: Response) => {
-    const { idToken, signupPlatform } = req.body;
-    const tokens = await loginWithFirebase(idToken, signupPlatform);
+    const { idToken, signupPlatform, language } = req.body;
+    const tokens = await loginWithFirebase(idToken, signupPlatform, language);
     res.json(tokens);
   }),
 );
@@ -122,6 +122,7 @@ router.post(
 const googleInitSchema = z.object({
   appRedirect: z.string().min(1),
   signupPlatform: z.enum(["ios", "android", "web"]).optional(),
+  language: z.string().min(2).max(5).optional(),
 });
 
 router.post(
@@ -130,8 +131,8 @@ router.post(
   authRateLimiter,
   validateRequest(googleInitSchema),
   asyncHandler(async (req: Request, res: Response) => {
-    const { appRedirect, signupPlatform } = req.body as { appRedirect: string; signupPlatform?: "ios" | "android" | "web" };
-    const state = await createOAuthState(appRedirect, signupPlatform);
+    const { appRedirect, signupPlatform, language } = req.body as { appRedirect: string; signupPlatform?: "ios" | "android" | "web"; language?: string };
+    const state = await createOAuthState(appRedirect, signupPlatform, language);
     const authUrl = buildGoogleAuthUrl(state);
     res.json({ authUrl });
   }),

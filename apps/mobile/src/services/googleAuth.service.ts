@@ -4,6 +4,7 @@ import Constants from "expo-constants";
 import { log } from "../utils/logger";
 import { loginWithGoogle, linkGoogleAccount, type SignupPlatform } from "./auth.service";
 import { signInWithGoogleWeb } from "./googleAuthWeb.service";
+import { useLocaleStore } from "../store/localeStore";
 
 declare const require: (id: string) => { signInWithGoogleNative: () => Promise<string> };
 
@@ -59,7 +60,7 @@ export function useGoogleAuth(
         log("GoogleAuth", "using native flow (dev build)");
         const { signInWithGoogleNative } = require("./googleSignInNative.service");
         const idToken = await signInWithGoogleNative();
-        const tokens = await loginWithGoogle(idToken, Platform.OS as SignupPlatform);
+        const tokens = await loginWithGoogle(idToken, Platform.OS as SignupPlatform, useLocaleStore.getState().locale);
         onSuccess(tokens);
       }
     } catch (err) {

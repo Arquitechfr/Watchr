@@ -4,6 +4,7 @@ export const registerSchema = z.object({
   email: z.string().email("Invalid email"),
   password: z.string().min(8, "Password must be at least 8 characters"),
   signupPlatform: z.enum(["ios", "android", "web"]).optional(),
+  language: z.string().min(2).max(5).optional(),
 });
 
 export const loginSchema = z.object({
@@ -22,6 +23,7 @@ export const logoutSchema = z.object({
 export const firebaseLoginSchema = z.object({
   idToken: z.string().min(1, "Firebase ID token is required"),
   signupPlatform: z.enum(["ios", "android", "web"]).optional(),
+  language: z.string().min(2).max(5).optional(),
 });
 
 export const forgotPasswordSchema = z.object({

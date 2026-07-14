@@ -17,6 +17,7 @@ export interface RegisterInput {
   email: string;
   password: string;
   signupPlatform?: SignupPlatform;
+  language?: string;
 }
 
 export async function login(input: LoginInput): Promise<AuthTokens> {
@@ -26,9 +27,9 @@ export async function login(input: LoginInput): Promise<AuthTokens> {
   return response.data;
 }
 
-export async function loginWithGoogle(idToken: string, signupPlatform?: SignupPlatform): Promise<AuthTokens> {
+export async function loginWithGoogle(idToken: string, signupPlatform?: SignupPlatform, language?: string): Promise<AuthTokens> {
   log("AuthService", "google login request");
-  const response = await api.post<AuthTokens>("/auth/firebase", { idToken, signupPlatform });
+  const response = await api.post<AuthTokens>("/auth/firebase", { idToken, signupPlatform, language });
   log("AuthService", "google login response", { status: response.status });
   return response.data;
 }

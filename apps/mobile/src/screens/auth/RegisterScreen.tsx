@@ -8,6 +8,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import Animated, { FadeIn, FadeOut, SlideInDown } from "react-native-reanimated";
 import { register, type SignupPlatform } from "../../services/auth.service";
 import { useAuthStore } from "../../store/authStore";
+import { useLocaleStore } from "../../store/localeStore";
 import { useUIStore } from "../../store/uiStore";
 import { useErrorMessage } from "../../services/api";
 import { log } from "../../utils/logger";
@@ -56,7 +57,12 @@ export function RegisterScreen() {
     setIsLoading(true);
     try {
       log("Register", "calling api");
-      const tokens = await register({ email: email.trim(), password, signupPlatform: Platform.OS as SignupPlatform });
+      const tokens = await register({
+        email: email.trim(),
+        password,
+        signupPlatform: Platform.OS as SignupPlatform,
+        language: useLocaleStore.getState().locale,
+      });
       log("Register", "api success, persisting tokens");
       await setTokens(tokens.accessToken, tokens.refreshToken);
       syncPreferencesToBackend();

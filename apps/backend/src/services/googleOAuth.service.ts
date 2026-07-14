@@ -25,9 +25,10 @@ export function buildGoogleAuthUrl(state: string): string {
 export async function createOAuthState(
   appRedirect: string,
   signupPlatform?: "ios" | "android" | "web",
+  language?: string,
 ): Promise<string> {
   const state = crypto.randomUUID();
-  const stateData = JSON.stringify({ appRedirect, signupPlatform });
+  const stateData = JSON.stringify({ appRedirect, signupPlatform, language });
   await setRedisValue(`${STATE_KEY_PREFIX}${state}`, stateData, STATE_TTL_SECONDS);
   return state;
 }
@@ -78,10 +79,12 @@ export async function handleGoogleCallback(
 
   let appRedirect: string;
   let signupPlatform: "ios" | "android" | "web" | undefined;
+  let language: string | undefined;
   try {
     const parsed = JSON.parse(stateRaw);
     appRedirect = parsed.appRedirect;
     signupPlatform = parsed.signupPlatform;
+    language = parsed.language;
   } catch {
     appRedirect = stateRaw;
   }
@@ -89,7 +92,7 @@ export async function handleGoogleCallback(
   const googleIdToken = await exchangeCodeForIdToken(code);
   log("GoogleOAuth", "exchanged code for id token");
 
-  const tokens = await loginWithFirebase(googleIdToken, signupPlatform);
+  const tokens = await loginWithFirebase(googleIdToken, signupPlatform, language);
 
   return {
     accessToken: tokens.accessToken,

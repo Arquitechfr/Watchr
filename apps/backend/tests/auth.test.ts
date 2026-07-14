@@ -49,6 +49,35 @@ describe("Auth", () => {
     expect(res.body.refreshToken).toBeDefined();
   });
 
+  it("should persist the preferred language sent at registration", async () => {
+    const register = await request(app).post("/api/auth/register").send({
+      email: "lang@example.com",
+      password: "password123",
+      language: "fr",
+    });
+    expect(register.status).toBe(201);
+
+    const me = await request(app)
+      .get("/api/auth/me")
+      .set("Authorization", `Bearer ${register.body.accessToken}`);
+    expect(me.status).toBe(200);
+    expect(me.body.preferredLanguage).toBe("fr");
+  });
+
+  it("should default to english when no language is sent at registration", async () => {
+    const register = await request(app).post("/api/auth/register").send({
+      email: "nolang@example.com",
+      password: "password123",
+    });
+    expect(register.status).toBe(201);
+
+    const me = await request(app)
+      .get("/api/auth/me")
+      .set("Authorization", `Bearer ${register.body.accessToken}`);
+    expect(me.status).toBe(200);
+    expect(me.body.preferredLanguage).toBe("en");
+  });
+
   it("should reject duplicate email", async () => {
     await request(app).post("/api/auth/register").send({
       email: "dup@example.com",
@@ -126,6 +155,22 @@ describe("Auth", () => {
     expect(res.status).toBe(200);
     expect(res.body.accessToken).toBeDefined();
     expect(res.body.refreshToken).toBeDefined();
+  });
+
+  it("should persist the preferred language sent at Firebase signup", async () => {
+    mockVerifyIdToken.mockResolvedValueOnce(makeDecodedToken({ email: "google-lang@example.com" }));
+
+    const res = await request(app).post("/api/auth/firebase").send({
+      idToken: "valid-id-token",
+      language: "fr",
+    });
+    expect(res.status).toBe(200);
+
+    const me = await request(app)
+      .get("/api/auth/me")
+      .set("Authorization", `Bearer ${res.body.accessToken}`);
+    expect(me.status).toBe(200);
+    expect(me.body.preferredLanguage).toBe("fr");
   });
 
   it("should link Firebase login to existing email account", async () => {

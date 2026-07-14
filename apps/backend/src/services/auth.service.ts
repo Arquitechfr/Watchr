@@ -13,6 +13,7 @@ import { EmailService } from "../services/email.service.js";
 import { sendSignupToMake } from "../services/webhook.service.js";
 import { ApiError } from "../middleware/error.middleware.js";
 import { posthogClient } from "../lib/posthog.js";
+import { normalizeLocale } from "../i18n/index.js";
 
 const ACCESS_TOKEN_TTL_SECONDS = 15 * 60;
 const REFRESH_TOKEN_TTL_DAYS = 30;
@@ -53,6 +54,7 @@ export async function registerUser(
   email: string,
   password: string,
   signupPlatform?: "ios" | "android" | "web",
+  language?: string,
 ): Promise<TokenPair> {
   const existing = await User.findOne({ email: email.toLowerCase() });
   if (existing) {
@@ -61,7 +63,8 @@ export async function registerUser(
 
   const passwordHash = await bcrypt.hash(password, 12);
   const username = await generateUniqueUsername();
-  const user = await User.create({ email, passwordHash, username, signupPlatform });
+  const preferredLanguage = normalizeLocale(language);
+  const user = await User.create({ email, passwordHash, username, signupPlatform, preferredLanguage });
 
   EmailService.sendWelcomeEmail(user.email, user.username, user.preferredLanguage).catch((err) =>
     console.error("Failed to send welcome email:", err),
@@ -122,6 +125,7 @@ export async function loginUser(email: string, password: string): Promise<TokenP
 export async function loginWithFirebase(
   idToken: string,
   signupPlatform?: "ios" | "android" | "web",
+  language?: string,
 ): Promise<TokenPair> {
   let decoded;
   try {
@@ -140,7 +144,8 @@ export async function loginWithFirebase(
 
   if (!user) {
     const username = await generateUniqueUsername();
-    user = await User.create({ email, firebaseUid: decoded.uid, username, signupPlatform });
+    const preferredLanguage = normalizeLocale(language);
+    user = await User.create({ email, firebaseUid: decoded.uid, username, signupPlatform, preferredLanguage });
     isNewUser = true;
   } else if (!user.firebaseUid) {
     user.firebaseUid = decoded.uid;

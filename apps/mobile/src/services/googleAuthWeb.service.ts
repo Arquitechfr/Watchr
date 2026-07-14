@@ -3,6 +3,7 @@ import * as WebBrowser from "expo-web-browser";
 import { makeRedirectUri } from "expo-auth-session";
 import { api } from "./api";
 import { log } from "../utils/logger";
+import { useLocaleStore } from "../store/localeStore";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -20,7 +21,7 @@ export async function signInWithGoogleWeb(): Promise<AuthTokens> {
     const appRedirect = window.location.origin;
     log("GoogleAuthWeb", "appRedirect (web)", { appRedirect });
 
-    const { data } = await api.post<GoogleInitResponse>("/auth/google/init", { appRedirect, signupPlatform: "web" });
+    const { data } = await api.post<GoogleInitResponse>("/auth/google/init", { appRedirect, signupPlatform: "web", language: useLocaleStore.getState().locale });
     window.location.href = data.authUrl;
 
     return new Promise<AuthTokens>(() => {
@@ -33,7 +34,7 @@ export async function signInWithGoogleWeb(): Promise<AuthTokens> {
   const appRedirect = makeRedirectUri({ path: "auth" });
   log("GoogleAuthWeb", "appRedirect (native)", { appRedirect });
 
-  const { data } = await api.post<GoogleInitResponse>("/auth/google/init", { appRedirect, signupPlatform: Platform.OS });
+  const { data } = await api.post<GoogleInitResponse>("/auth/google/init", { appRedirect, signupPlatform: Platform.OS, language: useLocaleStore.getState().locale });
   const { authUrl } = data;
 
   const result = await WebBrowser.openAuthSessionAsync(authUrl, appRedirect);

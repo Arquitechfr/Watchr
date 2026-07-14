@@ -1,6 +1,8 @@
+import { useRef } from "react";
 import { View, FlatList, ActivityIndicator } from "react-native";
 import { PosterCard } from "./PosterCard";
 import { SectionHeader } from "./SectionHeader";
+import { ScrollArrows } from "./ScrollArrows";
 import { useDiscoverSection } from "../hooks/useDiscoverSection";
 import { DiscoverSection, SearchResultItem } from "../services/shows.service";
 import { useThemeColors } from "../theme/useThemeColors";
@@ -21,14 +23,16 @@ export function DiscoverSectionRow({
   isTracked,
 }: DiscoverSectionRowProps) {
   const colors = useThemeColors();
+  const listRef = useRef<FlatList>(null);
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useDiscoverSection(section.id, section.items);
 
   const items = data?.pages.flatMap((page) => page.items) ?? section.items;
 
   return (
-    <View className="mb-6">
+    <View className="mb-6 relative">
       <SectionHeader title={section.title} />
       <FlatList
+        ref={listRef}
         horizontal
         showsHorizontalScrollIndicator={false}
         data={items}
@@ -57,6 +61,7 @@ export function DiscoverSectionRow({
         }
         contentContainerStyle={{ paddingHorizontal: 0 }}
       />
+      <ScrollArrows scrollRef={listRef} />
     </View>
   );
 }

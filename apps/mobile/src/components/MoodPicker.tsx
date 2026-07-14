@@ -1,7 +1,9 @@
+import { useRef } from "react";
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useI18n } from "../i18n/useI18n";
 import { useThemeColors } from "../theme/useThemeColors";
+import { ScrollArrows } from "./ScrollArrows";
 
 const MOODS = [
   { key: "happy", icon: "happy-outline" as const },
@@ -20,13 +22,15 @@ interface MoodPickerProps {
 export function MoodPicker({ selectedMood, onSelectMood }: MoodPickerProps) {
   const { t } = useI18n();
   const colors = useThemeColors();
+  const scrollRef = useRef<ScrollView>(null);
 
   return (
     <View className="mb-4">
       <Text className="text-text font-semibold text-base mb-3">
         {t("screens.search.moodTitle")}
       </Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerClassName="gap-2">
+      <View className="relative">
+      <ScrollView ref={scrollRef} horizontal showsHorizontalScrollIndicator={false} contentContainerClassName="gap-2">
         {MOODS.map((mood) => {
           const isSelected = selectedMood === mood.key;
           return (
@@ -57,6 +61,8 @@ export function MoodPicker({ selectedMood, onSelectMood }: MoodPickerProps) {
           );
         })}
       </ScrollView>
+      <ScrollArrows scrollRef={scrollRef} scrollAmount={200} />
+      </View>
     </View>
   );
 }

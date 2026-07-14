@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { View, Text, Image, ScrollView, TouchableOpacity, RefreshControl, Platform, useWindowDimensions } from "react-native";
 import { useRoute, useNavigation, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -12,6 +12,7 @@ import { useRefreshRateLimit } from "../hooks/useRefreshRateLimit";
 import { LazyEpisodeGrid } from "../components/LazyEpisodeGrid";
 import { RatingCard } from "../components/RatingCard";
 import { NetworkError } from "../components/NetworkError";
+import { ScrollArrows } from "../components/ScrollArrows";
 import { Skeleton } from "../components/Skeleton";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { DetailHeader } from "../components/DetailHeader";
@@ -65,6 +66,9 @@ export function ShowDetailScreen() {
   const { data: similarData, isLoading: similarLoading } = useSimilarShows(isValidTmdbId ? tmdbId : undefined);
   const { width } = useWindowDimensions();
   const isDesktopWeb = Platform.OS === "web" && width >= 768;
+  const castScrollRef = useRef<ScrollView>(null);
+  const crewScrollRef = useRef<ScrollView>(null);
+  const similarScrollRef = useRef<ScrollView>(null);
 
   const { data: show, isLoading, isRefetching, isError, refetch } = useShowDetails(tmdbId);
   const { data: enrichedTagsData } = useEnrichedTags(isValidTmdbId ? tmdbId : 0, show?.type);
@@ -558,11 +562,14 @@ export function ShowDetailScreen() {
           {show.cast && show.cast.length > 0 && (
             <View className="mb-6">
               <Text className="text-lg font-semibold text-text mb-2">{t("screens.showDetail.cast")}</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} className="-mx-4 px-4">
+              <View className="relative">
+              <ScrollView ref={castScrollRef} horizontal showsHorizontalScrollIndicator={false} className="-mx-4 px-4">
                 {show.cast.slice(0, 15).map((member: CastMember, index: number) => (
                   <CastMemberCard key={`${member.id}-${index}`} member={member} />
                 ))}
               </ScrollView>
+              <ScrollArrows scrollRef={castScrollRef} />
+              </View>
             </View>
           )}
 
@@ -571,11 +578,14 @@ export function ShowDetailScreen() {
               <Text className="text-lg font-semibold text-text mb-2">
                 {show.type === "tv" ? t("screens.showDetail.creators") : t("screens.showDetail.directors")}
               </Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} className="-mx-4 px-4">
+              <View className="relative">
+              <ScrollView ref={crewScrollRef} horizontal showsHorizontalScrollIndicator={false} className="-mx-4 px-4">
                 {show.crew.slice(0, 10).map((member: CrewMember, index: number) => (
                   <CrewMemberCard key={`${member.id}-${member.job ?? index}`} member={member} />
                 ))}
               </ScrollView>
+              <ScrollArrows scrollRef={crewScrollRef} />
+              </View>
             </View>
           )}
 
@@ -633,7 +643,8 @@ export function ShowDetailScreen() {
                   </View>
                 )}
               </View>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerClassName="gap-3">
+              <View className="relative">
+              <ScrollView ref={similarScrollRef} horizontal showsHorizontalScrollIndicator={false} contentContainerClassName="gap-3">
                 {similarData.shows.map((item: SimilarShow) => (
                   <TouchableOpacity
                     key={`${item.tmdbId}-${item.type}`}
@@ -659,6 +670,8 @@ export function ShowDetailScreen() {
                   </TouchableOpacity>
                 ))}
               </ScrollView>
+              <ScrollArrows scrollRef={similarScrollRef} />
+              </View>
             </View>
           )}
 

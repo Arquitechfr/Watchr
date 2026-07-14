@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import {
   View,
   Text,
@@ -28,6 +28,7 @@ import { useRefreshRateLimit } from "../hooks/useRefreshRateLimit";
 import { useUIStore } from "../store/uiStore";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { DetailHeader } from "../components/DetailHeader";
+import { ScrollArrows } from "../components/ScrollArrows";
 import { NetworkError } from "../components/NetworkError";
 import { Skeleton } from "../components/Skeleton";
 import { RatingCard } from "../components/RatingCard";
@@ -54,6 +55,7 @@ export function EpisodeDetailScreen() {
   const route = useRoute<EpisodeDetailRouteProp>();
   const navigation = useNavigation<EpisodeDetailNavigationProp>();
   const { showId, tmdbId, season, episodeNumber, title } = route.params;
+  const castScrollRef = useRef<ScrollView>(null);
   const { showSnackbar, showAlert } = useUIStore();
   const { t, dateFnsLocale } = useI18n();
   const getErrorMessage = useErrorMessage();
@@ -431,11 +433,14 @@ export function EpisodeDetailScreen() {
           {show.cast && show.cast.length > 0 && (
             <View className="mb-6">
               <Text className="text-lg font-semibold text-text mb-2">{t("screens.showDetail.cast")}</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} className="-mx-4 px-4">
+              <View className="relative">
+              <ScrollView ref={castScrollRef} horizontal showsHorizontalScrollIndicator={false} className="-mx-4 px-4">
                 {show.cast.slice(0, 10).map((member: CastMember, index: number) => (
                   <CastMemberCard key={`${member.id}-${index}`} member={member} />
                 ))}
               </ScrollView>
+              <ScrollArrows scrollRef={castScrollRef} />
+              </View>
             </View>
           )}
 

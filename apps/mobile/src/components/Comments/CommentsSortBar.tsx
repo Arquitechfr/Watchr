@@ -1,7 +1,9 @@
+import { useRef } from "react";
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useThemeColors } from "../../theme/useThemeColors";
 import { useI18n } from "../../i18n/useI18n";
+import { ScrollArrows } from "../ScrollArrows";
 import type { CommentSort } from "../../services/comments.service";
 
 interface CommentsSortBarProps {
@@ -12,6 +14,7 @@ interface CommentsSortBarProps {
 export function CommentsSortBar({ sort, onSortChange }: CommentsSortBarProps) {
   const { t } = useI18n();
   const colors = useThemeColors();
+  const scrollRef = useRef<ScrollView>(null);
 
   const options: { value: CommentSort; label: string; icon: keyof typeof Ionicons.glyphMap }[] = [
     { value: "recent", label: t("screens.comments.sortRecent"), icon: "time-outline" },
@@ -22,7 +25,8 @@ export function CommentsSortBar({ sort, onSortChange }: CommentsSortBarProps) {
 
   return (
     <View className="mb-3">
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} className="-mx-4 px-4">
+      <View className="relative">
+      <ScrollView ref={scrollRef} horizontal showsHorizontalScrollIndicator={false} className="-mx-4 px-4">
         <View className="flex-row items-center gap-2">
           {options.map((option) => {
             const isActive = sort === option.value;
@@ -47,6 +51,8 @@ export function CommentsSortBar({ sort, onSortChange }: CommentsSortBarProps) {
           })}
         </View>
       </ScrollView>
+      <ScrollArrows scrollRef={scrollRef} scrollAmount={200} />
+      </View>
     </View>
   );
 }

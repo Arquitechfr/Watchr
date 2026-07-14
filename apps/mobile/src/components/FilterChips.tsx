@@ -1,5 +1,7 @@
-import { ScrollView, Text, TouchableOpacity } from "react-native";
+import { useRef } from "react";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { cn } from "../utils/cn";
+import { ScrollArrows } from "./ScrollArrows";
 
 export interface FilterChipOption {
   label: string;
@@ -14,11 +16,13 @@ interface FilterChipsProps {
 }
 
 export function FilterChips({ options, selectedValue, onSelect, allLabel }: FilterChipsProps) {
+  const scrollRef = useRef<ScrollView>(null);
   return (
+    <View className="relative mb-3">
     <ScrollView
+      ref={scrollRef}
       horizontal
       showsHorizontalScrollIndicator={false}
-      className="mb-3"
     >
       <TouchableOpacity
         onPress={() => onSelect(undefined)}
@@ -61,5 +65,7 @@ export function FilterChips({ options, selectedValue, onSelect, allLabel }: Filt
         );
       })}
     </ScrollView>
+    <ScrollArrows scrollRef={scrollRef} scrollAmount={200} />
+    </View>
   );
 }

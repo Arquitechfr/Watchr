@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { View, Text, Image, TouchableOpacity, ScrollView, Modal, Pressable, FlatList, ActivityIndicator, TextInput } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -10,6 +10,7 @@ import { RootStackParamList } from "../../navigation/RootNavigator";
 import { useLibrary } from "../../hooks/useLibrary";
 import { useAddFavorite, useFavoriteShowIds } from "../../hooks/useFavorites";
 import { useUIStore } from "../../store/uiStore";
+import { ScrollArrows } from "../ScrollArrows";
 import type { FavoriteItem } from "../../services/favorites.service";
 import type { LibraryItem } from "../../services/library.service";
 
@@ -26,6 +27,7 @@ export function FavoriteCarousel({ items, type, onRefetch }: FavoriteCarouselPro
   const colors = useThemeColors();
   const navigation = useNavigation<NavigationProp>();
   const [modalVisible, setModalVisible] = useState(false);
+  const scrollRef = useRef<ScrollView>(null);
 
   const sectionTitle = type === "tv" ? t("screens.profile.favoritesTvSection") : t("screens.profile.favoritesMovieSection");
 
@@ -72,7 +74,9 @@ export function FavoriteCarousel({ items, type, onRefetch }: FavoriteCarouselPro
               <Text className="text-primary text-sm">{t("common.seeAll")}</Text>
             </TouchableOpacity>
           </View>
+          <View className="relative">
           <ScrollView
+            ref={scrollRef}
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerClassName="gap-3 pb-2"
@@ -104,6 +108,8 @@ export function FavoriteCarousel({ items, type, onRefetch }: FavoriteCarouselPro
               </TouchableOpacity>
             ))}
           </ScrollView>
+          <ScrollArrows scrollRef={scrollRef} scrollAmount={200} />
+          </View>
         </>
       )}
 

@@ -187,6 +187,9 @@ export function LibraryScreen() {
           <EmptyState
             icon="film-outline"
             title={t("screens.library.emptyTitle")}
+            subtitle={t("screens.library.emptySubtitle")}
+            actionLabel={t("screens.library.addBtn")}
+            onAction={() => navigation.navigate("Main", { screen: "Search" })}
           />
         ) : libraryViewMode === "grid" ? (
           <FlatList

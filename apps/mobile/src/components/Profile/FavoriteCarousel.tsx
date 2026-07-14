@@ -215,6 +215,11 @@ function AddFavoriteModal({ visible, onClose, type, title }: AddFavoriteModalPro
                 <Text className="text-text-muted text-sm">
                   {search.trim() ? t("common.noResults") : t("screens.profile.favoritesNoLibraryItems")}
                 </Text>
+                {!search.trim() && (
+                  <Text className="text-text-muted mt-1 text-center text-xs">
+                    {t("screens.profile.favoritesNoLibraryItemsSubtitle")}
+                  </Text>
+                )}
               </View>
             }
             ListFooterComponent={

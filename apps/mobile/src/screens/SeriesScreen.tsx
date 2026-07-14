@@ -114,6 +114,7 @@ function UnwatchedList({
       <EmptyState
         icon="checkmark-circle-outline"
         title={t("screens.home.noUnwatched")}
+        subtitle={t("screens.home.noUnwatchedSubtitle")}
         actionLabel={t("screens.series.addBtn")}
         onAction={onAddPress}
       />

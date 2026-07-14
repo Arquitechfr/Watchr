@@ -235,6 +235,7 @@ export function CommentThreadScreen() {
                 <View className="py-8 items-center">
                   <Ionicons name="chatbubbles-outline" size={40} color={colors.textMuted} />
                   <Text className="text-text-muted mt-2 text-center">{t("screens.comments.noReplies")}</Text>
+                  <Text className="text-text-muted mt-1 text-center text-sm">{t("screens.comments.noRepliesSubtitle")}</Text>
                 </View>
               ) : null
             }

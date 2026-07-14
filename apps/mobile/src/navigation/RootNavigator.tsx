@@ -9,7 +9,7 @@ import { useAuthStore } from "../store/authStore";
 import { useRemoteConfig } from "../hooks/useRemoteConfig";
 import { AuthStack } from "./AuthStack";
 import { AuthDisabledScreen } from "../screens/AuthDisabledScreen";
-import { MainTabs } from "./MainTabs";
+import { MainTabs, MainTabsParamList } from "./MainTabs";
 import { OnboardingStack } from "./OnboardingStack";
 import { ShowDetailScreen } from "../screens/ShowDetailScreen";
 import { ShowCommentsScreen } from "../screens/ShowCommentsScreen";
@@ -36,7 +36,7 @@ import { getMe, Me, completeOnboarding } from "../services/auth.service";
 
 export type RootStackParamList = {
   Auth: undefined;
-  Main: undefined;
+  Main: { screen?: keyof MainTabsParamList } | undefined;
   Onboarding: undefined;
   ShowDetail: { tmdbId: number; title: string };
   ShowComments: { showId: string; title: string; season?: number; episode?: number };
@@ -146,7 +146,7 @@ export function RootNavigator() {
             News: "news",
             Profile: "profile",
           },
-        },
+        } as any,
       },
     },
   };

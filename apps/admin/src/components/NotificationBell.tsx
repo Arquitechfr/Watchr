@@ -153,12 +153,10 @@ function navigateToResource(navigate: ReturnType<typeof useNavigate>, notif: Fee
       else navigate("/users");
       break;
     case "new_comment":
-      if (meta.showId) navigate(`/shows/${meta.showId}`);
-      else navigate("/comments");
+      navigate("/comments");
       break;
     case "new_rating":
-      if (meta.showId) navigate(`/shows/${meta.showId}`);
-      else navigate("/shows");
+      navigate("/shows");
       break;
     case "new_contact":
       navigate("/contact");

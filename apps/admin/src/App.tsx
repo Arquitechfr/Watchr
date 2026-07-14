@@ -27,6 +27,15 @@ function PageLoader() {
   );
 }
 
+function NotFound() {
+  return (
+    <div className="flex flex-col items-center justify-center py-20 text-center">
+      <h1 className="text-2xl font-bold text-text mb-2">404</h1>
+      <p className="text-text-muted">Page not found</p>
+    </div>
+  );
+}
+
 export default function App() {
   return (
     <BrowserRouter>
@@ -54,6 +63,7 @@ export default function App() {
             <Route path="/ai" element={<AI />} />
             <Route path="/contact" element={<ContactMessages />} />
             <Route path="/admin-feed" element={<AdminFeed />} />
+            <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>
       </Suspense>

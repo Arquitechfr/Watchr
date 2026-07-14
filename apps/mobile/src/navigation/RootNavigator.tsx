@@ -278,7 +278,7 @@ export function RootNavigator() {
       {showSidebar ? (
         <View className="flex-1 flex-row bg-background">
           <DesktopSidebar activeTab={activeTab} onTabPress={handleTabPress} />
-          <View className="flex-1 bg-background">{stackContent}</View>
+          <View className="flex-1 bg-background md:pl-2">{stackContent}</View>
         </View>
       ) : stackContent}
     </NavigationContainer>

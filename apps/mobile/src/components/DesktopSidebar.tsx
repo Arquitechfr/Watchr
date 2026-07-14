@@ -25,7 +25,7 @@ export function DesktopSidebar({ activeTab, onTabPress }: DesktopSidebarProps) {
   const unreadCount = useNotificationStore((s) => s.unreadCount);
 
   return (
-    <View style={{ width: 220, backgroundColor: colors.surface }} className="h-full border-r border-border py-6">
+    <View style={{ width: 220, backgroundColor: colors.background }} className="h-full border-r border-border py-6">
       <View className="flex-row items-center px-5 mb-8" style={{ gap: 8 }}>
         <Ionicons name="play-circle" size={28} color={colors.primary} />
         <Text style={{ fontFamily: "Outfit_700Bold", fontSize: 20 }} className="text-text">

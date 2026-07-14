@@ -4,6 +4,11 @@ import { useAdminNotificationStore } from "../store/adminNotificationStore";
 export function useAdminNotificationPolling() {
   const { fetchUnreadCount, fetchNotifications, dropdownOpen } = useAdminNotificationStore();
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const dropdownOpenRef = useRef(dropdownOpen);
+
+  useEffect(() => {
+    dropdownOpenRef.current = dropdownOpen;
+  }, [dropdownOpen]);
 
   useEffect(() => {
     fetchUnreadCount();
@@ -11,7 +16,7 @@ export function useAdminNotificationPolling() {
     const handleVisibility = () => {
       if (document.visibilityState === "visible") {
         fetchUnreadCount();
-        if (dropdownOpen) {
+        if (dropdownOpenRef.current) {
           fetchNotifications();
         }
       }
@@ -22,7 +27,7 @@ export function useAdminNotificationPolling() {
     intervalRef.current = setInterval(() => {
       if (document.visibilityState === "visible") {
         fetchUnreadCount();
-        if (dropdownOpen) {
+        if (dropdownOpenRef.current) {
           fetchNotifications();
         }
       }
@@ -34,5 +39,5 @@ export function useAdminNotificationPolling() {
         clearInterval(intervalRef.current);
       }
     };
-  }, [fetchUnreadCount, fetchNotifications, dropdownOpen]);
+  }, [fetchUnreadCount, fetchNotifications]);
 }

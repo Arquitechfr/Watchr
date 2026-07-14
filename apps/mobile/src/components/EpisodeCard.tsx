@@ -72,6 +72,7 @@ export function EpisodeCard({
           backgroundColor: colors.surfaceLight,
           overflow: "hidden",
         }}
+        className="hover:opacity-80"
         onPress={onPress}
         activeOpacity={0.7}
       >

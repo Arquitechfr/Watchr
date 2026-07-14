@@ -42,7 +42,7 @@ export function ProfileDataScreen() {
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
       <Seo title={t("seo.profileData")} />
       <SubScreenHeader title={t("screens.profile.myData")} />
-
+      <View className="md:max-w-lg md:mx-auto w-full">
       <MenuCard
         icon="download"
         label={t("screens.profile.importData")}
@@ -53,6 +53,7 @@ export function ProfileDataScreen() {
         label={t("screens.profile.exportData")}
         onPress={() => navigation.navigate("Export")}
       />
+      </View>
     </ScreenContainer>
   );
 }

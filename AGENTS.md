@@ -1,13 +1,8 @@
 # AGENTS.md — Watchr
-
-> [?] "Watchr" est un nom de code placeholder. Renommer avant tout déploiement public.
-
 ## Contexte
 
 Watchr est un tracker de séries/films (successeur perso de TV Time).
 MVP : tracking watch-status + notes/ratings + commentaires publics sur shows/épisodes, import prioritaire des exports GDPR TV Time.
-
-Délai : MVP avant le 15/07/2026.
 
 ## Stack
 

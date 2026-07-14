@@ -146,6 +146,7 @@ export function ImportReviewScreen({ route }: ImportReviewScreenProps) {
   return (
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
       <Seo title={t("seo.importReview")} />
+      <View className="md:max-w-lg md:mx-auto w-full">
       <View className="flex-row items-center justify-between mb-4">
         <Text className="text-2xl font-bold text-text">{t("screens.importReview.title")}</Text>
         <Text className="text-text-muted text-sm">
@@ -172,6 +173,7 @@ export function ImportReviewScreen({ route }: ImportReviewScreenProps) {
           contentContainerClassName="pb-24"
         />
       )}
+      </View>
     </ScreenContainer>
   );
 }

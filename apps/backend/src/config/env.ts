@@ -45,6 +45,8 @@ const envSchema = z.object({
   MAKE_API_KEY: z.string().optional(),
   MISTRAL_API_KEY: z.string().optional(),
   PUSHBULLET_ACCESS_TOKEN: z.string().optional(),
+  POSTHOG_API_KEY: z.string().min(1, "POSTHOG_API_KEY is required"),
+  POSTHOG_HOST: z.string().default("https://eu.i.posthog.com"),
 });
 
 const parsed = envSchema.safeParse(process.env);

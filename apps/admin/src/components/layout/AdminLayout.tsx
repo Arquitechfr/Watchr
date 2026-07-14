@@ -3,9 +3,12 @@ import { Outlet } from "react-router-dom";
 import { Sidebar } from "./Sidebar";
 import { TopBar } from "./TopBar";
 import { InstallPrompt } from "../InstallPrompt";
+import { useAdminNotificationPolling } from "../../hooks/useAdminNotificationPolling";
 
 export function AdminLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  useAdminNotificationPolling();
 
   return (
     <div className="min-h-screen bg-background">

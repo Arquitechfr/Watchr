@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Modal, View, Text, ScrollView, TouchableOpacity, Switch } from "react-native";
+import { Modal, View, Text, ScrollView, TouchableOpacity, Switch, Platform, useWindowDimensions } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { ShowDetails } from "../services/shows.service";
 import { WatchEntry } from "../services/tracking.service";
@@ -33,6 +33,8 @@ export function TrackingActionModal({
 }: TrackingActionModalProps) {
   const { t } = useI18n();
   const colors = useThemeColors();
+  const { width } = useWindowDimensions();
+  const isDesktopWeb = Platform.OS === "web" && width >= 768;
   const isTv = show.type === "tv";
   const initialSeason = trackingEntry?.currentSeason ?? (show.seasons[0]?.seasonNumber ?? 1);
   const initialEpisode = trackingEntry?.currentEpisode ?? 1;
@@ -84,9 +86,9 @@ export function TrackingActionModal({
   };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
-      <View className="flex-1 justify-end bg-black/70">
-        <View className="bg-background rounded-t-2xl max-h-[85%] flex-1">
+    <Modal visible={visible} animationType={isDesktopWeb ? "fade" : "slide"} transparent onRequestClose={onClose}>
+      <View className={isDesktopWeb ? "flex-1 justify-center items-center bg-black/70 px-6" : "flex-1 justify-end bg-black/70"}>
+        <View className={isDesktopWeb ? "bg-background rounded-2xl w-full max-w-md max-h-[85%]" : "bg-background rounded-t-2xl max-h-[85%] flex-1"}>
           <View className="flex-row items-center justify-between px-4 py-3 border-b border-border">
             <TouchableOpacity onPress={onClose} disabled={isPending}>
               <Text className="text-text-muted">{t("common.cancel")}</Text>

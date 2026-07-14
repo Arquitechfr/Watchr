@@ -103,6 +103,10 @@ export function Users() {
   const [markingSeen, setMarkingSeen] = useState(false);
   const [hasNewUsers, setHasNewUsers] = useState(false);
 
+  useEffect(() => {
+    markSeen();
+  }, [markSeen]);
+
   const [banDialog, setBanDialog] = useState<BanDialogState | null>(null);
   const [dialogAction, setDialogAction] = useState<"ban" | "unban" | "suspend" | "unsuspend">("ban");
   const [dialogReason, setDialogReason] = useState("");

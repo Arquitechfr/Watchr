@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo } from "react";
-import { View, Text, TextInput, FlatList, ActivityIndicator, TouchableOpacity, ScrollView, Image } from "react-native";
+import { View, Text, TextInput, FlatList, ActivityIndicator, TouchableOpacity, ScrollView, Image, Platform, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ScreenContainer } from "../../components/ScreenContainer";
 import { NetworkError } from "../../components/NetworkError";
@@ -14,6 +14,7 @@ import { useOnboardingStore } from "../../store/onboardingStore";
 import { useOnboardingSuggestions } from "../../hooks/useOnboardingSuggestions";
 import { useAddToWatchlistBatch } from "../../hooks/useTracking";
 import { SearchResultItem, OnboardingSuggestion } from "../../services/shows.service";
+import { usePostHog } from "posthog-react-native";
 
 interface OnboardingSelectionScreenProps {
   onComplete: () => void;
@@ -24,6 +25,10 @@ export function OnboardingSelectionScreen({ onComplete, onSkip }: OnboardingSele
   const { t } = useI18n();
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
+  const posthog = usePostHog();
+  const { width } = useWindowDimensions();
+  const isDesktopWeb = Platform.OS === "web" && width >= 768;
+  const numColumns = isDesktopWeb ? 6 : 3;
   const [searchQuery, setSearchQuery] = useState("");
 
   const {
@@ -46,9 +51,12 @@ export function OnboardingSelectionScreen({ onComplete, onSkip }: OnboardingSele
 
   const handleFinish = useCallback(() => {
     if (selectedItems.length === 0) {
+      posthog?.capture("onboarding_selection_finished", { itemsSelected: 0 });
       onComplete();
       return;
     }
+
+    posthog?.capture("onboarding_selection_finished", { itemsSelected: selectedItems.length });
 
     batchMutation.mutate(
       selectedItems.map((item) => ({ tmdbId: item.tmdbId, type: item.type })),
@@ -60,7 +68,7 @@ export function OnboardingSelectionScreen({ onComplete, onSkip }: OnboardingSele
         onError: () => {},
       },
     );
-  }, [selectedItems, batchMutation, reset, onComplete]);
+  }, [selectedItems, batchMutation, reset, onComplete, posthog]);
 
   const handleRetry = useCallback(() => {
     batchMutation.reset();
@@ -180,10 +188,11 @@ export function OnboardingSelectionScreen({ onComplete, onSkip }: OnboardingSele
         <EmptyState icon="search-outline" title={t("screens.onboarding.selectionNoResults")} />
       ) : (
         <FlatList
+          key={`onboarding-grid-${numColumns}`}
           data={items}
           keyExtractor={(item, index) => item.tmdbId?.toString() ?? `item-${index}`}
           renderItem={renderItem}
-          numColumns={3}
+          numColumns={numColumns}
           columnWrapperStyle={{ justifyContent: "flex-start", gap: 8, paddingHorizontal: 16 }}
           contentContainerStyle={{ paddingBottom: 80 }}
           showsVerticalScrollIndicator={false}
@@ -264,7 +273,10 @@ export function OnboardingSelectionScreen({ onComplete, onSkip }: OnboardingSele
         className="absolute bottom-0 left-0 right-0 flex-row items-center justify-between px-4 pt-2"
         style={{ backgroundColor: colors.background, paddingBottom: Math.max(insets.bottom, 16) }}
       >
-        <OnboardingSkipButton onPress={onSkip} />
+        <OnboardingSkipButton onPress={() => {
+          posthog?.capture("onboarding_selection_skipped");
+          onSkip();
+        }} />
         <TouchableOpacity
           className="bg-primary px-6 py-3 rounded-lg"
           onPress={handleFinish}

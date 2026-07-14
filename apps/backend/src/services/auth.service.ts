@@ -12,6 +12,7 @@ import { uploadAvatar as uploadAvatarToS3 } from "../services/upload.service.js"
 import { EmailService } from "../services/email.service.js";
 import { sendSignupToMake } from "../services/webhook.service.js";
 import { ApiError } from "../middleware/error.middleware.js";
+import { posthogClient } from "../lib/posthog.js";
 
 const ACCESS_TOKEN_TTL_SECONDS = 15 * 60;
 const REFRESH_TOKEN_TTL_DAYS = 30;
@@ -90,6 +91,12 @@ export async function registerUser(
     )
     .catch(() => {});
 
+  posthogClient.capture({
+    distinctId: user._id.toString(),
+    event: "user_signed_up",
+    properties: { signupPlatform: signupPlatform ?? "unknown", method: "email" },
+  });
+
   return await issueTokenPair(user._id.toString(), user.preferredLanguage);
 }
 
@@ -148,6 +155,12 @@ export async function loginWithFirebase(
     sendSignupToMake(user, "firebase").catch((err) =>
       console.error("Failed to send signup webhook:", err),
     );
+
+    posthogClient.capture({
+      distinctId: user._id.toString(),
+      event: "user_signed_up",
+      properties: { signupPlatform: signupPlatform ?? "unknown", method: "google" },
+    });
   }
 
   user.lastLoginAt = new Date();
@@ -455,6 +468,11 @@ export async function verifyMagicLink(token: string): Promise<TokenPair> {
 
 export async function registerPushToken(userId: string, token: string): Promise<void> {
   await User.updateOne({ _id: userId }, { $set: { expoPushToken: token } });
+
+  posthogClient.capture({
+    distinctId: userId,
+    event: "push_token_registered",
+  });
 }
 
 export async function unregisterPushToken(userId: string): Promise<void> {
@@ -511,6 +529,11 @@ export async function completeOnboarding(userId: string): Promise<{ hasCompleted
   if (!user) {
     throw new ApiError(404, "USER_NOT_FOUND", "User not found");
   }
+  posthogClient.capture({
+    distinctId: userId,
+    event: "onboarding_completed",
+  });
+
   return { hasCompletedOnboarding: user.hasCompletedOnboarding ?? true };
 }
 

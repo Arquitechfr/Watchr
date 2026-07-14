@@ -46,6 +46,7 @@ export function ProfileAppearanceScreen() {
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
       <Seo title={t("seo.profileAppearance")} />
       <SubScreenHeader title={t("screens.profile.appearance")} />
+      <View className="md:max-w-lg md:mx-auto w-full">
       <View className="gap-3">
         {OPTIONS.map((opt) => (
           <TouchableOpacity
@@ -64,6 +65,7 @@ export function ProfileAppearanceScreen() {
             ) : null}
           </TouchableOpacity>
         ))}
+      </View>
       </View>
     </ScreenContainer>
   );

@@ -18,6 +18,7 @@ import { ThemeProvider } from "./src/theme/ThemeProvider";
 import { useTheme } from "./src/theme/useTheme";
 import { Platform } from 'react-native';
 import { HelmetProvider } from "react-helmet-async";
+import { PostHogProvider } from "posthog-react-native";
 
 if (Platform.OS !== 'web') {
   const { registerWidgetTaskHandler } = require('react-native-android-widget');
@@ -58,8 +59,14 @@ const AppInner = () => {
               <ThemeProvider>
                 <StatusBarContent />
                 <KeyboardProvider>
-                  <MaintenanceScreen />
-                  <SplashScreen visible={!isReady} />
+                  <PostHogProvider
+                    apiKey={process.env.EXPO_PUBLIC_POSTHOG_API_KEY!}
+                    options={{ host: process.env.EXPO_PUBLIC_POSTHOG_HOST }}
+                    autocapture={{ captureScreens: false }}
+                  >
+                    <MaintenanceScreen />
+                    <SplashScreen visible={!isReady} />
+                  </PostHogProvider>
                 </KeyboardProvider>
               </ThemeProvider>
             </SafeAreaProvider>
@@ -77,13 +84,19 @@ const AppInner = () => {
           <ThemeProvider>
             <StatusBarContent />
             <KeyboardProvider>
-              <View style={{ flex: 1, position: "relative" }}>
-                {isReady && <RootNavigator />}
-                {isReady && <TrafficNoticeBanner />}
-                <Snackbar />
-                <CustomAlert />
-              </View>
-              <SplashScreen visible={!isReady} />
+              <PostHogProvider
+                apiKey={process.env.EXPO_PUBLIC_POSTHOG_API_KEY!}
+                options={{ host: process.env.EXPO_PUBLIC_POSTHOG_HOST }}
+                autocapture={{ captureScreens: false }}
+              >
+                <View style={{ flex: 1, position: "relative" }}>
+                  {isReady && <RootNavigator />}
+                  {isReady && <TrafficNoticeBanner />}
+                  <Snackbar />
+                  <CustomAlert />
+                </View>
+                <SplashScreen visible={!isReady} />
+              </PostHogProvider>
             </KeyboardProvider>
           </ThemeProvider>
         </SafeAreaProvider>

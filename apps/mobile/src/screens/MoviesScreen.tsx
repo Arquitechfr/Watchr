@@ -1,4 +1,4 @@
-import { Text, FlatList, RefreshControl, TouchableOpacity, View, Image, ActivityIndicator, useWindowDimensions } from "react-native";
+import { Text, FlatList, RefreshControl, TouchableOpacity, View, Image, ActivityIndicator, useWindowDimensions, Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useScrollToTop, CompositeNavigationProp } from "@react-navigation/native";
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
@@ -175,7 +175,8 @@ export function MoviesScreen() {
 
   const isFiltering = searchQuery.trim().length >= 3 || selectedGenre !== undefined || selectedYear !== undefined;
 
-  const gridNumColumns = 3;
+  const isDesktopWeb = Platform.OS === "web" && windowWidth >= 768;
+  const gridNumColumns = isDesktopWeb ? 5 : 3;
   const gridGap = 12;
   const gridPadding = 16;
   const gridCardWidth = (windowWidth - gridPadding * 2 - gridGap * (gridNumColumns - 1)) / gridNumColumns;
@@ -278,7 +279,7 @@ export function MoviesScreen() {
       <View className="flex-1">
         {libraryViewMode === "grid" ? (
           <FlatList
-            key="grid"
+            key={`grid-${gridNumColumns}`}
             ref={flatListRef}
             data={filteredMovies}
             keyExtractor={(item) => item.showId}

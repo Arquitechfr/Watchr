@@ -11,7 +11,6 @@ import {
   CheckCheck,
 } from "lucide-react";
 import { useAdminNotificationStore, type FeedNotification } from "../store/adminNotificationStore";
-import { useAdminNotificationPolling } from "../hooks/useAdminNotificationPolling";
 import { cn } from "../lib/utils";
 
 const TYPE_ICONS: Record<string, typeof Bell> = {
@@ -56,8 +55,6 @@ export function NotificationBell() {
     setDropdownOpen,
   } = useAdminNotificationStore();
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useAdminNotificationPolling();
 
   useEffect(() => {
     if (dropdownOpen) {

@@ -40,7 +40,7 @@ export function AuthSettingsMenu() {
         <TouchableWithoutFeedback onPress={() => setIsOpen(false)}>
           <View className="flex-1 bg-black/50 justify-center items-center px-6">
             <TouchableWithoutFeedback>
-              <View className="w-full bg-surface rounded-xl overflow-hidden">
+              <View className="w-full max-w-sm bg-surface rounded-xl overflow-hidden">
                 <View className="p-4 border-b border-border">
                   <View className="flex-row items-center mb-3">
                     <Ionicons name="globe-outline" size={16} color={colors.text} />

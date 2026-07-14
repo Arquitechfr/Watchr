@@ -1,4 +1,4 @@
-import { View, Text, FlatList, RefreshControl, TouchableOpacity, Image, useWindowDimensions } from "react-native";
+import { View, Text, FlatList, RefreshControl, TouchableOpacity, Image, useWindowDimensions, Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -162,7 +162,8 @@ export function LibraryScreen() {
     source: "tmdb",
   }), []);
 
-  const gridNumColumns = 3;
+  const isDesktopWeb = Platform.OS === "web" && windowWidth >= 768;
+  const gridNumColumns = isDesktopWeb ? 5 : 3;
   const gridGap = 12;
   const gridPadding = 16;
   const gridCardWidth = (windowWidth - gridPadding * 2 - gridGap * (gridNumColumns - 1)) / gridNumColumns;
@@ -193,7 +194,7 @@ export function LibraryScreen() {
           />
         ) : libraryViewMode === "grid" ? (
           <FlatList
-            key="grid-flatlist"
+            key={`grid-flatlist-${gridNumColumns}`}
             data={data}
             keyExtractor={(item) => item.id}
             numColumns={gridNumColumns}

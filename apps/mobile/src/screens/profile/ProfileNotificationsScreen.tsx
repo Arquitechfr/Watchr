@@ -76,6 +76,7 @@ export function ProfileNotificationsScreen() {
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
       <Seo title={t("seo.profileNotifications")} />
       <SubScreenHeader title={t("screens.profile.notifications")} />
+      <View className="md:max-w-lg md:mx-auto w-full">
       <View className="gap-3">
         <View
           className="rounded-lg p-4"
@@ -122,6 +123,7 @@ export function ProfileNotificationsScreen() {
             />
           </View>
         ))}
+      </View>
       </View>
     </ScreenContainer>
   );

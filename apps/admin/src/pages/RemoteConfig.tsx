@@ -4,7 +4,6 @@ import api from "../lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
-import { Checkbox } from "../components/ui/Checkbox";
 import { Badge } from "../components/ui/Badge";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "../components/ui/Table";
 import { Skeleton } from "../components/ui/Skeleton";
@@ -27,6 +26,26 @@ export function RemoteConfig() {
   const [editValue, setEditValue] = useState("");
   const [editType, setEditType] = useState("string");
   const [editDescription, setEditDescription] = useState("");
+  const [togglingKey, setTogglingKey] = useState<string | null>(null);
+
+  async function toggleBoolean(entry: ConfigEntry) {
+    const newValue = entry.value === "true" ? "false" : "true";
+    setTogglingKey(entry.key);
+    try {
+      await api.put(`/admin/config/${entry.key}`, {
+        value: newValue,
+        type: entry.type,
+        description: entry.description,
+      });
+      setConfig((prev) =>
+        prev.map((c) => (c.key === entry.key ? { ...c, value: newValue } : c)),
+      );
+    } catch (err) {
+      console.error("Failed to toggle config:", err);
+    } finally {
+      setTogglingKey(null);
+    }
+  }
 
   async function load() {
     setLoading(true);
@@ -85,12 +104,22 @@ export function RemoteConfig() {
             <div>
               <label className="mb-1.5 block text-sm text-text-muted">Value</label>
               {editType === "boolean" ? (
-                <div className="flex h-10 items-center">
-                  <Checkbox
-                    checked={editValue === "true"}
-                    onChange={(e) => setEditValue(e.target.checked ? "true" : "false")}
-                  />
-                  <span className="ml-2 text-sm text-text">{editValue === "true" ? "true" : "false"}</span>
+                <div className="flex h-10 items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setEditValue(editValue === "true" ? "false" : "true")}
+                    className={`relative h-6 w-11 rounded-full transition-colors ${
+                      editValue === "true" ? "bg-primary" : "bg-surface-light"
+                    }`}
+                    aria-label="Toggle boolean value"
+                  >
+                    <span
+                      className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform ${
+                        editValue === "true" ? "translate-x-5" : "translate-x-0.5"
+                      }`}
+                    />
+                  </button>
+                  <span className="text-sm text-text">{editValue === "true" ? "true" : "false"}</span>
                 </div>
               ) : (
                 <Input value={editValue} onChange={(e) => setEditValue(e.target.value)} />
@@ -159,7 +188,26 @@ export function RemoteConfig() {
                 : config.map((entry) => (
                     <TableRow key={entry.key}>
                       <TableCell className="font-mono text-xs font-medium">{entry.key}</TableCell>
-                      <TableCell className="font-mono text-xs text-text-muted max-w-xs truncate hidden md:table-cell">{entry.value}</TableCell>
+                      <TableCell className="text-xs text-text-muted max-w-xs truncate hidden md:table-cell">
+                        {entry.type === "boolean" ? (
+                          <button
+                            onClick={() => toggleBoolean(entry)}
+                            disabled={togglingKey === entry.key}
+                            className={`relative h-6 w-11 rounded-full transition-colors disabled:opacity-50 ${
+                              entry.value === "true" ? "bg-primary" : "bg-surface-light"
+                            }`}
+                            aria-label={`Toggle ${entry.key}`}
+                          >
+                            <span
+                              className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform ${
+                                entry.value === "true" ? "translate-x-5" : "translate-x-0.5"
+                              }`}
+                            />
+                          </button>
+                        ) : (
+                          <span className="font-mono">{entry.value}</span>
+                        )}
+                      </TableCell>
                       <TableCell className="hidden md:table-cell">
                         <Badge className="bg-surface-light text-text-muted">{entry.type}</Badge>
                       </TableCell>

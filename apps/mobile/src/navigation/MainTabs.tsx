@@ -1,9 +1,7 @@
-import { useState } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
 import { Platform, useWindowDimensions, View, Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { DesktopSidebar } from "../components/DesktopSidebar";
 import { SeriesScreen } from "../screens/SeriesScreen";
 import { MoviesScreen } from "../screens/MoviesScreen";
 import { SearchScreen } from "../screens/SearchScreen";
@@ -55,11 +53,6 @@ export function MainTabs() {
   const tabBarHeight = 64 + insets.bottom;
   const { width } = useWindowDimensions();
   const isDesktopWeb = Platform.OS === "web" && width >= 768;
-  const [activeTab, setActiveTab] = useState<"Series" | "Movies" | "Search" | "News" | "Profile">("Series");
-
-  function handleTabPress(tab: "Series" | "Movies" | "Search" | "News" | "Profile") {
-    setActiveTab(tab);
-  }
 
   useRealtimeNotifications();
   useTrackingRealtime();
@@ -91,37 +84,19 @@ export function MainTabs() {
     );
   }
 
-  if (isDesktopWeb) {
-    const SCREENS: Record<typeof activeTab, React.FC> = {
-      Series: SeriesScreen,
-      Movies: MoviesScreen,
-      Search: SearchScreen,
-      News: NewsScreen,
-      Profile: ProfileScreen,
-    };
-    const ActiveScreen = SCREENS[activeTab];
-
-    return (
-      <View className="flex-1 flex-row bg-background">
-        <DesktopSidebar activeTab={activeTab} onTabPress={handleTabPress} />
-        <View className="flex-1">
-          <ActiveScreen />
-        </View>
-      </View>
-    );
-  }
-
   return (
     <Tab.Navigator
       initialRouteName="Series"
       screenOptions={{
         headerShown: false,
-        tabBarStyle: {
-          backgroundColor: colors.surface,
-          borderTopColor: colors.border,
-          height: tabBarHeight,
-          paddingBottom: 8 + insets.bottom,
-        },
+        tabBarStyle: isDesktopWeb
+          ? { display: "none" }
+          : {
+              backgroundColor: colors.surface,
+              borderTopColor: colors.border,
+              height: tabBarHeight,
+              paddingBottom: 8 + insets.bottom,
+            },
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textMuted,
         tabBarLabelStyle: {

@@ -1,4 +1,4 @@
-import { View, Text, FlatList, RefreshControl, TouchableOpacity, useWindowDimensions } from "react-native";
+import { View, Text, FlatList, RefreshControl, TouchableOpacity, useWindowDimensions, Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useScrollToTop, CompositeNavigationProp } from "@react-navigation/native";
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
@@ -65,6 +65,7 @@ function UnwatchedList({
   markingEpisodeKey,
   viewMode,
   cardWidth,
+  gridNumColumns,
   searchQuery,
   listRef,
   onAddPress,
@@ -78,6 +79,7 @@ function UnwatchedList({
   markingEpisodeKey?: string;
   viewMode: "list" | "grid";
   cardWidth: number;
+  gridNumColumns: number;
   searchQuery: string;
   listRef: React.RefObject<FlatList | null>;
   onAddPress: () => void;
@@ -128,11 +130,11 @@ function UnwatchedList({
   if (viewMode === "grid") {
     return (
       <FlatList
-        key="grid"
+        key={`grid-${gridNumColumns}`}
         ref={listRef}
         data={episodes}
         keyExtractor={(item, index) => `${item.showId}-${item.episode.season}-${item.episode.episode}-${index}`}
-        numColumns={3}
+        numColumns={gridNumColumns}
         columnWrapperStyle={{ gap: 12 }}
         renderItem={({ item }) => {
           const epKey = `${item.showId}-${item.episode.season}-${item.episode.episode}`;
@@ -201,6 +203,7 @@ function UpcomingList({
   markingEpisodeKey,
   viewMode,
   cardWidth,
+  gridNumColumns,
   searchQuery,
   listRef,
   onAddPress,
@@ -215,6 +218,7 @@ function UpcomingList({
   markingEpisodeKey?: string;
   viewMode: "list" | "grid";
   cardWidth: number;
+  gridNumColumns: number;
   searchQuery: string;
   listRef: React.RefObject<FlatList | null>;
   onAddPress: () => void;
@@ -268,11 +272,11 @@ function UpcomingList({
 
     return (
       <FlatList
-        key="grid"
+        key={`grid-${gridNumColumns}`}
         ref={listRef}
         data={allEpisodes}
         keyExtractor={(item, index) => `${item.showId}-${item.season}-${item.episode}-${index}`}
-        numColumns={3}
+        numColumns={gridNumColumns}
         columnWrapperStyle={{ gap: 12 }}
         renderItem={({ item }) => {
           const epKey = `${item.showId}-${item.season}-${item.episode}`;
@@ -385,7 +389,8 @@ export function SeriesScreen() {
     hydrateLibraryViewMode();
   }, []);
 
-  const gridNumColumns = 3;
+  const isDesktopWeb = Platform.OS === "web" && windowWidth >= 768;
+  const gridNumColumns = isDesktopWeb ? 5 : 3;
   const gridGap = 12;
   const gridPadding = 16;
   const cardWidth = (windowWidth - gridPadding * 2 - gridGap * (gridNumColumns - 1)) / gridNumColumns;
@@ -520,6 +525,7 @@ export function SeriesScreen() {
               markingEpisodeKey={markingEpisodeKey}
               viewMode={libraryViewMode}
               cardWidth={cardWidth}
+              gridNumColumns={gridNumColumns}
               searchQuery={searchQuery}
               listRef={flatListRef}
               onAddPress={() => navigation.navigate("Search")}
@@ -541,6 +547,7 @@ export function SeriesScreen() {
             markingEpisodeKey={markingEpisodeKey}
             viewMode={libraryViewMode}
             cardWidth={cardWidth}
+            gridNumColumns={gridNumColumns}
             searchQuery={searchQuery}
             listRef={flatListRef}
             onAddPress={() => navigation.navigate("Search")}

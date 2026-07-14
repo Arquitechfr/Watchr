@@ -4,6 +4,7 @@ import { env } from "./config/env.js";
 import { createApp } from "./app.js";
 import { connectRedis } from "./lib/redis.js";
 import { createWsServer } from "./lib/wsServer.js";
+import { posthogClient } from "./lib/posthog.js";
 
 const app = createApp();
 
@@ -29,6 +30,7 @@ async function startServer() {
       io.close(() => {
         console.log("WebSocket server closed");
       });
+      await posthogClient.shutdown();
       server.close(async () => {
         await mongoose.disconnect();
         console.log("MongoDB disconnected");

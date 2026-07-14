@@ -25,6 +25,7 @@ import { WatchStatus } from "../services/tracking.service";
 import { useUIStore } from "../store/uiStore";
 import { log } from "../utils/logger";
 import { useI18n } from "../i18n/useI18n";
+import { useErrorMessage } from "../services/api";
 import { useSimilarShows } from "../hooks/useSimilarShows";
 import { useEnrichedTags } from "../hooks/useEnrichedTags";
 import { Seo } from "../components/Seo";
@@ -58,6 +59,7 @@ export function ShowDetailScreen() {
   const { tmdbId, title } = route.params;
   const { showSnackbar, showAlert } = useUIStore();
   const { t } = useI18n();
+  const getErrorMessage = useErrorMessage();
   const colors = useThemeColors();
   const isValidTmdbId = Number.isFinite(tmdbId) && tmdbId > 0;
   const { data: similarData, isLoading: similarLoading } = useSimilarShows(isValidTmdbId ? tmdbId : undefined);
@@ -195,7 +197,10 @@ export function ShowDetailScreen() {
         {
           onSuccess: () => {
             if (payload.rating !== undefined && payload.rating !== null) {
-              upsertRating.mutate({ value: payload.rating });
+              upsertRating.mutate(
+                { value: payload.rating },
+                { onError: (err) => showSnackbar(getErrorMessage(err), "error") },
+              );
             }
             setTrackingModalVisible(false);
           },
@@ -211,7 +216,10 @@ export function ShowDetailScreen() {
         {
           onSuccess: () => {
             if (payload.rating !== undefined && payload.rating !== null) {
-              upsertRating.mutate({ value: payload.rating });
+              upsertRating.mutate(
+                { value: payload.rating },
+                { onError: (err) => showSnackbar(getErrorMessage(err), "error") },
+              );
             }
             setTrackingModalVisible(false);
           },
@@ -464,7 +472,10 @@ export function ShowDetailScreen() {
               value={ratings?.user.show ?? null}
               onChange={(value) => {
                 log("ShowDetail", "rating change", { showId: show.id, value });
-                upsertRating.mutate({ value });
+                upsertRating.mutate(
+                  { value },
+                  { onError: (err) => showSnackbar(getErrorMessage(err), "error") },
+                );
               }}
             />
             <RatingCard

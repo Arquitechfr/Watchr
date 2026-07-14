@@ -1,10 +1,12 @@
-import { useEffect, useRef } from "react";
-import { Linking, Platform } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import { Linking, Platform, useWindowDimensions, View } from "react-native";
 import { NavigationContainer, LinkingOptions } from "@react-navigation/native";
+import { usePostHog } from "posthog-react-native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { NetworkError } from "../components/NetworkError";
 import { ScreenContainer } from "../components/ScreenContainer";
+import { DesktopSidebar } from "../components/DesktopSidebar";
 import { useAuthStore } from "../store/authStore";
 import { useRemoteConfig } from "../hooks/useRemoteConfig";
 import { AuthStack } from "./AuthStack";
@@ -61,11 +63,18 @@ export type RootStackParamList = {
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
+type TabName = "Series" | "Movies" | "Search" | "News" | "Profile";
+
 export function RootNavigator() {
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, userId } = useAuthStore();
   const config = useRemoteConfig();
   const navigationRef = useRef<any>(null);
+  const routeNameRef = useRef<string | undefined>(undefined);
+  const posthog = usePostHog();
   const queryClient = useQueryClient();
+  const { width } = useWindowDimensions();
+  const isDesktopWeb = Platform.OS === "web" && width >= 768;
+  const [activeTab, setActiveTab] = useState<TabName>("Series");
 
   const meQuery = useQuery<Me>({
     queryKey: ["me"],
@@ -85,6 +94,14 @@ export function RootNavigator() {
 
   usePushNotifications(!!me?.hasCompletedOnboarding);
   useThemeSync();
+
+  useEffect(() => {
+    if (isAuthenticated && userId) {
+      posthog?.identify(userId);
+    } else if (!isAuthenticated) {
+      posthog?.reset();
+    }
+  }, [isAuthenticated, userId, posthog]);
 
   useEffect(() => {
     if (Platform.OS === 'web') return;
@@ -160,10 +177,15 @@ export function RootNavigator() {
   }
 
   const showOnboarding = isAuthenticated && me && !me.hasCompletedOnboarding;
+  const showSidebar = isDesktopWeb && isAuthenticated && !showOnboarding;
 
-  return (
-    <NavigationContainer linking={linking} ref={navigationRef as any}>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
+  function handleTabPress(tab: TabName) {
+    setActiveTab(tab);
+    navigationRef.current?.navigate("Main", { screen: tab });
+  }
+
+  const stackContent = (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
         {isAuthenticated ? (
           <>
             {showOnboarding ? (
@@ -220,7 +242,45 @@ export function RootNavigator() {
             <Stack.Screen name="MagicLink" component={MagicLinkScreen} />
           </>
         )}
-      </Stack.Navigator>
+    </Stack.Navigator>
+  );
+
+  return (
+    <NavigationContainer
+      linking={linking}
+      ref={navigationRef as any}
+      onReady={() => {
+        routeNameRef.current = navigationRef.current?.getCurrentRoute()?.name;
+      }}
+      onStateChange={() => {
+        const previousRouteName = routeNameRef.current;
+        const currentRouteName = navigationRef.current?.getCurrentRoute()?.name;
+        if (previousRouteName !== currentRouteName && currentRouteName) {
+          posthog?.capture("$screen", { $screen_name: currentRouteName });
+        }
+        routeNameRef.current = currentRouteName;
+
+        if (isDesktopWeb) {
+          const rootState = navigationRef.current?.getRootState();
+          if (rootState && rootState.index !== undefined) {
+            const currentRoute = rootState.routes[rootState.index];
+            if (currentRoute?.name === "Main" && currentRoute.state) {
+              const tabState = currentRoute.state as any;
+              if (tabState.index !== undefined) {
+                const tabName = tabState.routes[tabState.index]?.name as TabName;
+                if (tabName) setActiveTab(tabName);
+              }
+            }
+          }
+        }
+      }}
+    >
+      {showSidebar ? (
+        <View className="flex-1 flex-row bg-background">
+          <DesktopSidebar activeTab={activeTab} onTabPress={handleTabPress} />
+          <View className="flex-1">{stackContent}</View>
+        </View>
+      ) : stackContent}
     </NavigationContainer>
   );
 }

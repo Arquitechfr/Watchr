@@ -13,7 +13,7 @@ export function ShowCard({ show, onPress }: ShowCardProps) {
 
   return (
     <TouchableOpacity
-      className="flex-row items-center bg-surface rounded-lg p-3 mb-3 active:opacity-70"
+      className="flex-row items-center bg-surface rounded-lg p-3 mb-3 active:opacity-70 hover:opacity-80"
       onPress={onPress}
     >
       {posterUrl ? (

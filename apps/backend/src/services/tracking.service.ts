@@ -10,6 +10,7 @@ import { wsEvents } from "../lib/wsEvents.js";
 import { getAiredEpisodeCount, getAiredWatchedCount } from "../lib/episodeUtils.js";
 import { getRedisValue, setRedisValue, deleteRedisKey } from "../lib/redis.js";
 import { invalidateUpcomingCache } from "./upcoming.service.js";
+import { posthogClient } from "../lib/posthog.js";
 
 function isShowEnded(status?: string): boolean {
   return ["ended", "canceled", "cancelled"].includes(status?.toLowerCase() ?? "");
@@ -367,6 +368,13 @@ export async function addToWatchlistBatch(
   });
 
   log("TrackingService", "addToWatchlistBatch done", { added, failed });
+
+  posthogClient.capture({
+    distinctId: userId,
+    event: "watchlist_batch_added",
+    properties: { count: items.length },
+  });
+
   return { added, failed, failedIds };
 }
 
@@ -430,6 +438,13 @@ export async function upsertTracking(
     userId: new Types.ObjectId(userId),
     showId: new Types.ObjectId(showId),
   }).lean();
+
+  if (!existing) {
+    posthogClient.capture({
+      distinctId: userId,
+      event: "watchlist_item_added",
+    });
+  }
 
   // Use provided status if available, otherwise calculate it
   const status = input.status || calculateWatchStatus(show, {

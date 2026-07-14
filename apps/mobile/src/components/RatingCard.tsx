@@ -1,10 +1,11 @@
-import { useState } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import Animated, { FadeIn, FadeOut, Layout } from "react-native-reanimated";
+import Animated, { FadeIn, ZoomIn } from "react-native-reanimated";
 import { useThemeColors } from "../theme/useThemeColors";
 import { useI18n } from "../i18n/useI18n";
 import { CommunityRating } from "../services/ratings.service";
+
+const STAR_SIZE = 22;
 
 interface RatingCardProps {
   value?: number | null;
@@ -12,113 +13,126 @@ interface RatingCardProps {
   communityData?: CommunityRating | null;
 }
 
+function StarRow({
+  count,
+  interactive,
+  onPress,
+  colors,
+}: {
+  count: number;
+  interactive: boolean;
+  onPress?: (n: number) => void;
+  colors: ReturnType<typeof useThemeColors>;
+}) {
+  return (
+    <View className="flex-row items-center">
+      {[1, 2, 3, 4, 5].map((n) => {
+        const filled = n <= Math.floor(count);
+        const half = !interactive && !filled && n === Math.ceil(count) && count % 1 >= 0.5;
+        const icon: "star" | "star-outline" | "star-half" = filled ? "star" : half ? "star-half" : "star-outline";
+        const color = filled || half ? colors.primary : colors.textMuted;
+
+        if (interactive && onPress) {
+          return (
+            <TouchableOpacity
+              key={n}
+              onPress={() => onPress(n)}
+              hitSlop={{ top: 10, bottom: 10, left: 6, right: 6 }}
+              className="mr-1"
+              activeOpacity={0.6}
+            >
+              <Animated.View entering={ZoomIn.duration(150).delay((n - 1) * 30)}>
+                <Ionicons name={icon} size={STAR_SIZE} color={color} />
+              </Animated.View>
+            </TouchableOpacity>
+          );
+        }
+
+        return (
+          <View key={n} className="mr-1">
+            <Ionicons name={icon} size={STAR_SIZE} color={color} />
+          </View>
+        );
+      })}
+    </View>
+  );
+}
+
 export function RatingCard({ value, onChange, communityData }: RatingCardProps) {
   const colors = useThemeColors();
   const { t } = useI18n();
   const isCommunity = communityData !== undefined;
-  const [showInput, setShowInput] = useState(false);
 
-  const displayValue: number | null = isCommunity
-    ? (communityData?.average ?? null)
-    : (value ?? null);
-  const voteCount = isCommunity ? communityData?.count ?? 0 : 0;
+  const userValue: number | null = value ?? null;
+  const communityAverage: number | null = communityData?.average ?? null;
+  const communityCount: number = communityData?.count ?? 0;
+  const communityStars: number = communityAverage ?? 0;
 
-  const handleNumberPress = (num: number) => {
+  const handleStarPress = (n: number) => {
     if (onChange) {
-      onChange(num);
-    }
-    setShowInput(false);
-  };
-
-  const handleCardPress = () => {
-    if (!isCommunity && onChange) {
-      setShowInput((prev) => !prev);
+      onChange(n);
     }
   };
 
-  return (
-    <TouchableOpacity
-      onPress={handleCardPress}
-      activeOpacity={onChange || isCommunity ? 0.8 : 1}
-      disabled={isCommunity}
-      className="bg-surface rounded-xl p-4 flex-1 min-w-[140px]"
-    >
-      <Text className="text-text-muted text-xs uppercase tracking-wider mb-2">
-        {isCommunity ? t("screens.showDetail.communityRating") : t("screens.showDetail.yourRating")}
-      </Text>
+  if (isCommunity) {
+    return (
+      <View className="bg-surface rounded-xl p-4 flex-1 min-w-[150px]">
+        <Text className="text-text-muted text-xs uppercase tracking-wider mb-3">
+          {t("screens.showDetail.communityRating")}
+        </Text>
 
-      <Animated.View layout={Layout.springify().damping(20).stiffness(200)}>
-        {showInput && !isCommunity ? (
-          <Animated.View
-            entering={FadeIn.duration(200)}
-            exiting={FadeOut.duration(150)}
-            className="flex-row items-center"
-          >
-            {[1, 2, 3, 4, 5].map((num) => {
-              const isSelected = displayValue !== null && num === displayValue;
-              const isHighlighted = displayValue !== null && num <= displayValue;
-              return (
-                <TouchableOpacity
-                  key={num}
-                  onPress={() => handleNumberPress(num)}
-                  className={`mr-1.5 px-3 py-2 rounded-lg ${
-                    isSelected
-                      ? "bg-primary"
-                      : isHighlighted
-                        ? "bg-primary/20"
-                        : "bg-background"
-                  }`}
-                  hitSlop={{ top: 8, bottom: 8, left: 4, right: 4 }}
-                >
-                  <Animated.View layout={Layout}>
-                    <Text
-                      className={`font-bold text-lg ${
-                        isSelected
-                          ? "text-white"
-                          : isHighlighted
-                            ? "text-primary"
-                            : "text-text-muted"
-                      }`}
-                    >
-                      {num}
-                    </Text>
-                  </Animated.View>
-                </TouchableOpacity>
-              );
-            })}
-            <Text className="text-text-muted text-sm ml-1">/5</Text>
+        {communityAverage !== null ? (
+          <Animated.View entering={FadeIn.duration(250)}>
+            <StarRow count={communityStars} interactive={false} colors={colors} />
+            <View className="flex-row items-center mt-2">
+              <Text className="text-text font-bold text-sm">
+                {communityAverage.toFixed(1)}
+              </Text>
+              {communityCount > 0 && (
+                <Text className="text-text-muted text-xs ml-1.5">
+                  · {t("screens.showDetail.votes", { count: communityCount })}
+                </Text>
+              )}
+            </View>
           </Animated.View>
         ) : (
-          <Animated.View
-            entering={FadeIn.duration(200)}
-            exiting={FadeOut.duration(150)}
-            className="flex-row items-center"
-          >
-            {displayValue !== null ? (
-              <>
-                <Ionicons name="star" size={32} color={colors.primary} />
-                <Text className="text-text font-bold text-2xl ml-2">
-                  {displayValue.toFixed(1)}
-                </Text>
-                <Text className="text-text-muted text-sm ml-1">/5</Text>
-              </>
-            ) : (
-              <View className="flex-row items-center py-1">
-                <Ionicons name="star-outline" size={28} color={colors.textMuted} />
-                <Text className="text-text-muted ml-2 text-sm">
-                  {isCommunity ? t("screens.showDetail.noRating") : t("screens.showDetail.tapToRate")}
-                </Text>
-              </View>
-            )}
+          <Animated.View entering={FadeIn.duration(250)} className="flex-row items-center">
+            <StarRow count={0} interactive={false} colors={colors} />
+            <Text className="text-text-muted text-xs mt-2">
+              {t("screens.showDetail.noRating")}
+            </Text>
           </Animated.View>
         )}
-      </Animated.View>
+      </View>
+    );
+  }
 
-      {isCommunity && voteCount > 0 && (
-        <Text className="text-text-muted text-xs mt-1">
-          {t("screens.showDetail.votes", { count: voteCount })}
-        </Text>
-      )}
-    </TouchableOpacity>
+  return (
+    <View className="bg-surface rounded-xl p-4 flex-1 min-w-[150px]">
+      <Text className="text-text-muted text-xs uppercase tracking-wider mb-3">
+        {t("screens.showDetail.yourRating")}
+      </Text>
+
+      <StarRow
+        count={userValue ?? 0}
+        interactive={!!onChange}
+        onPress={handleStarPress}
+        colors={colors}
+      />
+
+      <View className="mt-2 h-4">
+        {userValue !== null ? (
+          <Animated.View entering={FadeIn.duration(200)}>
+            <Text className="text-text-muted text-xs">
+              {userValue} / 5
+            </Text>
+          </Animated.View>
+        ) : onChange ? (
+          <Text className="text-text-muted text-xs">
+            {t("screens.showDetail.tapToRate")}
+          </Text>
+        ) : null}
+      </View>
+    </View>
   );
 }

@@ -1,9 +1,11 @@
+import { useEffect } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { ScreenContainer } from "../../components/ScreenContainer";
 import { OnboardingSkipButton } from "./OnboardingSkipButton";
 import { useI18n } from "../../i18n/useI18n";
 import { useThemeColors } from "../../theme/useThemeColors";
 import { Seo } from "../../components/Seo";
+import { usePostHog } from "posthog-react-native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 type OnboardingStackParamList = {
@@ -20,11 +22,21 @@ interface OnboardingWelcomeScreenProps {
 export function OnboardingWelcomeScreen({ navigation, onSkip }: OnboardingWelcomeScreenProps) {
   const { t } = useI18n();
   const colors = useThemeColors();
+  const posthog = usePostHog();
+
+  useEffect(() => {
+    posthog?.capture("onboarding_welcome_viewed");
+  }, [posthog]);
+
+  const handleSkip = () => {
+    posthog?.capture("onboarding_skipped_from_welcome");
+    onSkip();
+  };
 
   return (
     <ScreenContainer>
       <Seo title={t("seo.onboarding")} />
-      <View className="flex-1 items-center justify-center px-6">
+      <View className="flex-1 items-center justify-center px-6 md:max-w-md md:mx-auto w-full">
         <Text className="text-text text-3xl font-bold text-center mb-4">
           {t("screens.onboarding.welcomeTitle")}
         </Text>
@@ -43,7 +55,7 @@ export function OnboardingWelcomeScreen({ navigation, onSkip }: OnboardingWelcom
       </View>
 
       <View className="items-center pb-4">
-        <OnboardingSkipButton onPress={onSkip} />
+        <OnboardingSkipButton onPress={handleSkip} />
       </View>
     </ScreenContainer>
   );

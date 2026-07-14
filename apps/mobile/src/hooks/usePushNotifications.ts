@@ -5,12 +5,14 @@ import { useAuthStore } from "../store/authStore";
 import { useThemeColors } from "../theme/useThemeColors";
 import { log } from "../utils/logger";
 import Constants from "expo-constants";
+import { usePostHog } from "posthog-react-native";
 
 type NotificationSubscription = import("expo-notifications").Subscription;
 
 export function usePushNotifications(enabled: boolean) {
   const { isAuthenticated, logout } = useAuthStore();
   const colors = useThemeColors();
+  const posthog = usePostHog();
   const notificationListener = useRef<NotificationSubscription | null>(null);
   const responseListener = useRef<NotificationSubscription | null>(null);
 
@@ -61,6 +63,8 @@ export function usePushNotifications(enabled: boolean) {
           const { status } = await Notifications.requestPermissionsAsync();
           finalStatus = status;
         }
+        posthog?.capture("push_permission_result", { status: finalStatus });
+
         if (finalStatus !== "granted") {
           log("usePushNotifications", "push permission not granted");
           return;
@@ -81,7 +85,7 @@ export function usePushNotifications(enabled: boolean) {
       notificationListener.current?.remove();
       responseListener.current?.remove();
     };
-  }, [isAuthenticated, enabled]);
+  }, [isAuthenticated, enabled, posthog]);
 
   useEffect(() => {
     if (!isAuthenticated) return;

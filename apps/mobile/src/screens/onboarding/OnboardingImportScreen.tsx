@@ -11,6 +11,7 @@ import { useCompleteOnboarding } from "../../hooks/useOnboarding";
 import { useErrorMessage } from "../../services/api";
 import { uploadImport, ImportSource } from "../../services/import.service";
 import { log } from "../../utils/logger";
+import { usePostHog } from "posthog-react-native";
 
 interface PlatformCardProps {
   icon: string;
@@ -51,11 +52,13 @@ export function OnboardingImportScreen({ onComplete }: OnboardingImportScreenPro
   const getErrorMessage = useErrorMessage();
   const setActiveJobId = useImportStore((s) => s.setActiveJobId);
   const completeOnboardingMutation = useCompleteOnboarding();
+  const posthog = usePostHog();
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pendingSourceRef = useRef<ImportSource>("tvtime");
 
   const handleCompleteOnboarding = useCallback(() => {
+    posthog?.capture("onboarding_import_skipped");
     completeOnboardingMutation.mutate(undefined, {
       onSuccess: () => {
         onComplete();
@@ -64,7 +67,7 @@ export function OnboardingImportScreen({ onComplete }: OnboardingImportScreenPro
         onComplete();
       },
     });
-  }, [completeOnboardingMutation, onComplete]);
+  }, [completeOnboardingMutation, onComplete, posthog]);
 
   const pickAndUploadFile = useCallback(
     async (source: ImportSource, mimeType: string) => {
@@ -127,13 +130,14 @@ export function OnboardingImportScreen({ onComplete }: OnboardingImportScreenPro
 
   const handlePlatformPress = useCallback(
     (source: ImportSource, mimeType: string) => {
+      posthog?.capture("onboarding_import_attempted", { platform: source });
       if (Platform.OS === "web") {
         handleWebFilePick(source);
       } else {
         pickAndUploadFile(source, mimeType);
       }
     },
-    [handleWebFilePick, pickAndUploadFile],
+    [handleWebFilePick, pickAndUploadFile, posthog],
   );
 
   const isPending = isUploading || completeOnboardingMutation.isPending;
@@ -141,7 +145,7 @@ export function OnboardingImportScreen({ onComplete }: OnboardingImportScreenPro
   return (
     <ScreenContainer>
       <ScrollView className="flex-1" contentContainerStyle={{ flexGrow: 1 }}>
-        <View className="px-4 pt-6 pb-2 flex-1">
+        <View className="px-4 pt-6 pb-2 flex-1 md:max-w-lg md:mx-auto w-full">
           <Text className="text-text text-2xl font-bold mb-2">
             {t("screens.onboarding.importTitle")}
           </Text>

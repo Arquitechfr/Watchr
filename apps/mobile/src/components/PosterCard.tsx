@@ -41,6 +41,7 @@ export function PosterCard({ show, onPress, onAdd, isAdding, isAdded, watched, t
           backgroundColor: colors.surfaceLight,
           overflow: "hidden",
         }}
+        className="hover:opacity-80"
         onPress={onPress}
         activeOpacity={0.7}
       >

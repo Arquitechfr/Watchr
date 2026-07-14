@@ -44,6 +44,7 @@ import { Comment } from "../services/comments.service";
 import { useThemeColors } from "../theme/useThemeColors";
 import { log } from "../utils/logger";
 import { useI18n } from "../i18n/useI18n";
+import { useErrorMessage } from "../services/api";
 import { Seo } from "../components/Seo";
 
 type EpisodeDetailRouteProp = RouteProp<RootStackParamList, "EpisodeDetail">;
@@ -55,6 +56,7 @@ export function EpisodeDetailScreen() {
   const { showId, tmdbId, season, episodeNumber, title } = route.params;
   const { showSnackbar, showAlert } = useUIStore();
   const { t, dateFnsLocale } = useI18n();
+  const getErrorMessage = useErrorMessage();
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
@@ -235,7 +237,7 @@ export function EpisodeDetailScreen() {
   const handleRatingChange = (value: number) => {
     upsertRating.mutate(
       { value, episodeRef: { season, episode: episodeNumber } },
-      { onError: () => showSnackbar(t("screens.episode.ratingError"), "error") },
+      { onError: (err) => showSnackbar(getErrorMessage(err), "error") },
     );
   };
 
@@ -294,6 +296,7 @@ export function EpisodeDetailScreen() {
       <DetailHeader
         title={headerTitle}
         onBack={() => navigation.goBack()}
+        onTitlePress={() => navigation.navigate("ShowDetail", { tmdbId, title: show.title })}
         rightElement={
           <TouchableOpacity
             onPress={handleToggleWatched}
@@ -329,18 +332,32 @@ export function EpisodeDetailScreen() {
           className={isDesktopWeb ? "mt-6 px-4 self-center w-full" : "px-4 -mt-6"}
           style={isDesktopWeb ? { maxWidth: 800 } : undefined}
         >
-          <View className="flex-row items-center mb-1">
-            <Text className="text-primary font-bold text-base">S{season}E{episodeNumber}</Text>
+          <View className="flex-row items-center mb-3">
+            <View className="flex-row items-center rounded-xl bg-surface px-4 py-2">
+              <View className="items-center">
+                <Text className="text-text-muted text-[10px] font-medium uppercase tracking-wider">{t("screens.showDetail.season")}</Text>
+                <Text className="text-text font-bold text-base">{season}</Text>
+              </View>
+              <View className="w-px h-8 bg-border mx-6" />
+              <View className="items-center">
+                <Text className="text-text-muted text-[10px] font-medium uppercase tracking-wider">{t("screens.showDetail.episode")}</Text>
+                <Text className="text-text font-bold text-base">{episodeNumber}</Text>
+              </View>
+            </View>
             {isWatched && (
-              <View className="ml-3 px-2 py-1 rounded-full bg-primary/20">
-                <Text className="text-primary text-xs font-semibold">{t("screens.episode.watched")}</Text>
+              <View className="ml-3 flex-row items-center px-3 py-2 rounded-xl bg-primary/20">
+                <Ionicons name="checkmark-circle" size={14} color={colors.primary} />
+                <Text className="text-primary text-xs font-semibold ml-1">{t("screens.episode.watched")}</Text>
               </View>
             )}
           </View>
           <View className="flex-row flex-wrap items-center mb-4">
             {airDate && !Number.isNaN(airDate.getTime()) && (
               <Text className="text-text-muted text-sm mr-4">
-                {format(airDate, "EEEE d MMMM yyyy", { locale: dateFnsLocale })}
+                {t("screens.episode.airDate", {
+                  date: format(airDate, "EEEE d MMMM yyyy", { locale: dateFnsLocale }),
+                  network: show.networks?.[0]?.name ?? "",
+                })}
               </Text>
             )}
             {episode?.runtime && (
@@ -477,11 +494,11 @@ export function EpisodeDetailScreen() {
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => navigation.navigate("ShowDetail", { tmdbId, title: show.title })}
-          className="flex-row items-center px-4 py-2 rounded-lg bg-surface"
+          className="items-center justify-center p-2 rounded-lg bg-surface"
           activeOpacity={0.7}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
           <Ionicons name="tv-outline" size={18} color={colors.primary} />
-          <Text className="text-primary ml-1 text-sm font-semibold">{t("common.backToSeries")}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => nextEpisode && handleNavigate(nextEpisode)}

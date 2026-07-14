@@ -1,4 +1,5 @@
 import { View, Text, TouchableOpacity } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { useThemeColors } from "../theme/useThemeColors";
 
 interface RatingStarsProps {
@@ -8,44 +9,29 @@ interface RatingStarsProps {
   label?: string;
 }
 
-export function RatingStars({ value, onChange, label }: RatingStarsProps) {
+export function RatingStars({ value, onChange, size = 26, label }: RatingStarsProps) {
   const colors = useThemeColors();
   return (
     <View className="flex-row items-center">
       {label && <Text className="text-text-muted mr-3 text-sm">{label}</Text>}
       {[1, 2, 3, 4, 5].map((num) => {
-        const isSelected = value !== null && num === value;
-        const isHighlighted = value !== null && num <= value;
+        const filled = value !== null && num <= value;
         return (
           <TouchableOpacity
             key={num}
             onPress={() => onChange(num)}
-            className={`mr-1.5 px-3 py-2 rounded-lg ${
-              isSelected
-                ? "bg-primary"
-                : isHighlighted
-                  ? "bg-primary/20"
-                  : "bg-background"
-            }`}
-            hitSlop={{ top: 8, bottom: 8, left: 4, right: 4 }}
+            hitSlop={{ top: 10, bottom: 10, left: 6, right: 6 }}
+            className="mr-1.5"
+            activeOpacity={0.6}
           >
-            <Text
-              className={`font-bold text-lg ${
-                isSelected
-                  ? "text-white"
-                  : isHighlighted
-                    ? "text-primary"
-                    : "text-text-muted"
-              }`}
-            >
-              {num}
-            </Text>
+            <Ionicons
+              name={filled ? "star" : "star-outline"}
+              size={size}
+              color={filled ? colors.primary : colors.textMuted}
+            />
           </TouchableOpacity>
         );
       })}
-      <Text className="text-text-muted text-sm ml-1" style={{ color: colors.textMuted }}>
-        /5
-      </Text>
     </View>
   );
 }

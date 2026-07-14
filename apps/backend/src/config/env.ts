@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import { z } from "zod";
 import dotenv from "dotenv";
+import { writeSync } from "fs";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 
@@ -53,10 +54,8 @@ const parsed = envSchema.safeParse(process.env);
 
 if (!parsed.success) {
   const issues = parsed.error.issues.map((issue) => `${issue.path.join(".")}: ${issue.message}`);
-  console.error("Invalid environment variables:");
-  for (const issue of issues) {
-    console.error(`  - ${issue}`);
-  }
+  const message = `Invalid environment variables:\n${issues.map((issue) => `  - ${issue}`).join("\n")}\n`;
+  writeSync(2, message);
   process.exit(1);
 }
 

@@ -62,7 +62,16 @@ const AppInner = () => {
                 <KeyboardProvider>
                   <PostHogProvider
                     apiKey={process.env.EXPO_PUBLIC_POSTHOG_API_KEY!}
-                    options={{ host: process.env.EXPO_PUBLIC_POSTHOG_HOST }}
+                    options={{
+                      host: process.env.EXPO_PUBLIC_POSTHOG_HOST,
+                      enableSessionReplay: true,
+                      sessionReplayConfig: {
+                        maskAllTextInputs: true,
+                        maskAllImages: true,
+                        captureLog: true,
+                        captureNetworkTelemetry: true,
+                      },
+                    }}
                     autocapture={{ captureScreens: false }}
                   >
                     <MaintenanceScreen />
@@ -87,7 +96,16 @@ const AppInner = () => {
             <KeyboardProvider>
               <PostHogProvider
                 apiKey={process.env.EXPO_PUBLIC_POSTHOG_API_KEY!}
-                options={{ host: process.env.EXPO_PUBLIC_POSTHOG_HOST }}
+                options={{
+                  host: process.env.EXPO_PUBLIC_POSTHOG_HOST,
+                  enableSessionReplay: true,
+                  sessionReplayConfig: {
+                    maskAllTextInputs: true,
+                    maskAllImages: true,
+                    captureLog: true,
+                    captureNetworkTelemetry: true,
+                  },
+                }}
                 autocapture={{ captureScreens: false }}
               >
                 <View style={{ flex: 1, position: "relative" }}>

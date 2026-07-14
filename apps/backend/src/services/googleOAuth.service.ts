@@ -3,7 +3,7 @@ import axios from "axios";
 import { env } from "../config/env.js";
 import { setRedisValue, getRedisValue, deleteRedisKey } from "../lib/redis.js";
 import { log, logError } from "../lib/logger.js";
-import { loginWithFirebase } from "./auth.service.js";
+import { loginWithGoogleUserInfo } from "./auth.service.js";
 
 const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
 const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
@@ -48,7 +48,15 @@ interface GoogleTokenResponse {
   token_type: string;
 }
 
-async function exchangeCodeForIdToken(code: string): Promise<string> {
+interface GoogleUserInfo {
+  sub: string;
+  email: string;
+  email_verified: boolean;
+}
+
+const GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v3/userinfo";
+
+async function exchangeCodeForTokens(code: string): Promise<GoogleTokenResponse> {
   const redirectUri = `${env.PUBLIC_URL}/api/auth/google/callback`;
   const response = await axios.post<GoogleTokenResponse>(
     GOOGLE_TOKEN_URL,
@@ -63,7 +71,14 @@ async function exchangeCodeForIdToken(code: string): Promise<string> {
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
     },
   );
-  return response.data.id_token;
+  return response.data;
+}
+
+async function getGoogleUserInfo(accessToken: string): Promise<GoogleUserInfo> {
+  const response = await axios.get<GoogleUserInfo>(GOOGLE_USERINFO_URL, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  return response.data;
 }
 
 export async function handleGoogleCallback(
@@ -89,10 +104,17 @@ export async function handleGoogleCallback(
     appRedirect = stateRaw;
   }
 
-  const googleIdToken = await exchangeCodeForIdToken(code);
-  log("GoogleOAuth", "exchanged code for id token");
+  const googleTokens = await exchangeCodeForTokens(code);
+  log("GoogleOAuth", "exchanged code for tokens");
 
-  const tokens = await loginWithFirebase(googleIdToken, signupPlatform, language);
+  const userInfo = await getGoogleUserInfo(googleTokens.access_token);
+  log("GoogleOAuth", "fetched google user info", { sub: userInfo.sub });
+
+  if (!userInfo.email || !userInfo.email_verified) {
+    throw new Error("Google email is not verified");
+  }
+
+  const tokens = await loginWithGoogleUserInfo(userInfo.email, signupPlatform, language);
 
   return {
     accessToken: tokens.accessToken,

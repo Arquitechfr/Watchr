@@ -201,7 +201,7 @@ export function MoviesScreen() {
 
   if (isLoading) {
     return (
-      <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]}>
+      <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
         <MainHeader />
         {[...Array(4)].map((_, index) => (
           <Skeleton key={index} width="100%" height={112} className="mb-2" borderRadius={8} />
@@ -212,7 +212,7 @@ export function MoviesScreen() {
 
   if (isError) {
     return (
-      <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]}>
+      <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
         <MainHeader />
         <NetworkError isOffline={!error || !("response" in error)} onRetry={() => refetch()} />
       </ScreenContainer>
@@ -229,7 +229,7 @@ export function MoviesScreen() {
   });
 
   return (
-    <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]}>
+    <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
       <Seo title={t("seo.movies")} />
       <MainHeader
         rightElement={

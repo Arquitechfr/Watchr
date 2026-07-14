@@ -116,7 +116,7 @@ export function SearchScreen() {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]}>
+      <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
         <Seo title={t("seo.search")} />
         <MainHeader />
         <TextInput

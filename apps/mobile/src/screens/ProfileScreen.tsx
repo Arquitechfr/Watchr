@@ -91,7 +91,7 @@ export function ProfileScreen() {
     : "";
 
   return (
-    <ScreenContainer className="px-4 pt-6" edges={["top", "left", "right"]}>
+    <ScreenContainer className="px-4 pt-6" edges={["top", "left", "right"]} fullWidth>
       <Seo title={t("seo.profile")} />
       <View style={Platform.OS === "web" ? { maxWidth: 800, alignSelf: "center", width: "100%", flex: 1 } : undefined}>
       <MainHeader rightElement={<ProfileMenuButton />} />

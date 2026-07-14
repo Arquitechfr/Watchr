@@ -467,7 +467,7 @@ export function SeriesScreen() {
   }
 
   return (
-    <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]}>
+    <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
       <Seo title={t("seo.series")} />
       <MainHeader
         rightElement={

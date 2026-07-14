@@ -38,7 +38,7 @@ export function NewsScreen() {
   const displayRefetch = showFiltered ? refetchFiltered : refetch;
 
   return (
-    <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]}>
+    <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
       <Seo title={t("seo.news")} />
       <MainHeader />
 

@@ -175,6 +175,65 @@ export async function loginWithFirebase(
   return await issueTokenPair(user._id.toString(), user.preferredLanguage);
 }
 
+export async function loginWithGoogleUserInfo(
+  email: string,
+  signupPlatform?: "ios" | "android" | "web",
+  language?: string,
+): Promise<TokenPair> {
+  const normalizedEmail = email.toLowerCase();
+
+  let firebaseUid: string;
+  try {
+    let firebaseUser;
+    try {
+      firebaseUser = await firebaseAuth.getUserByEmail(normalizedEmail);
+    } catch {
+      firebaseUser = await firebaseAuth.createUser({
+        email: normalizedEmail,
+        emailVerified: true,
+      });
+    }
+    firebaseUid = firebaseUser.uid;
+  } catch {
+    throw new ApiError(401, "FIREBASE_USER_LOOKUP_FAILED", "Failed to find or create Firebase user");
+  }
+
+  let user = await User.findOne({ email: normalizedEmail });
+  let isNewUser = false;
+
+  if (!user) {
+    const username = await generateUniqueUsername();
+    const preferredLanguage = normalizeLocale(language);
+    user = await User.create({ email: normalizedEmail, firebaseUid, username, signupPlatform, preferredLanguage });
+    isNewUser = true;
+  } else if (!user.firebaseUid) {
+    user.firebaseUid = firebaseUid;
+    await user.save();
+  }
+
+  if (isNewUser) {
+    EmailService.sendWelcomeEmail(user.email, user.username, user.preferredLanguage).catch((err) =>
+      console.error("Failed to send welcome email:", err),
+    );
+
+    sendSignupToMake(user, "firebase").catch((err) =>
+      console.error("Failed to send signup webhook:", err),
+    );
+
+    posthogClient.capture({
+      distinctId: user._id.toString(),
+      event: "user_signed_up",
+      properties: { signupPlatform: signupPlatform ?? "unknown", method: "google" },
+    });
+  }
+
+  user.lastLoginAt = new Date();
+  checkUserCanLogin(user);
+  await user.save();
+
+  return await issueTokenPair(user._id.toString(), user.preferredLanguage);
+}
+
 export async function refreshAccessToken(refreshToken: string): Promise<TokenPair> {
   const tokenHash = hashToken(refreshToken);
   const user = await User.findOne({ "refreshTokens.tokenHash": tokenHash });

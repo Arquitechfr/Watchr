@@ -20,8 +20,8 @@ describe("AI Moderation Service", () => {
   });
 
   it("should return neutral result when Mistral is not configured", async () => {
-    const originalClient = (mistralService as any).client;
-    (mistralService as any).client = null;
+    const originalClients = (mistralService as any).clients;
+    (mistralService as any).clients = [];
 
     const result = await moderateComment("Some comment text");
 
@@ -29,7 +29,7 @@ describe("AI Moderation Service", () => {
     expect(result.isToxic).toBe(false);
     expect(result.confidence).toBe(0);
 
-    (mistralService as any).client = originalClient;
+    (mistralService as any).clients = originalClients;
   });
 
   it("should return neutral result when feature is disabled", async () => {
@@ -189,14 +189,14 @@ describe("AI Import Fuzzy Match", () => {
       lean: () => Promise.resolve({ value: "true" }),
     } as any);
 
-    const originalClient = (mistralService as any).client;
-    (mistralService as any).client = null;
+    const originalClients = (mistralService as any).clients;
+    (mistralService as any).clients = [];
 
     const result = await aiFuzzyMatch({ title: "Breaking Bda" });
 
     expect(result).toBeNull();
 
-    (mistralService as any).client = originalClient;
+    (mistralService as any).clients = originalClients;
   });
 
   it("should return null when feature is disabled", async () => {

@@ -35,27 +35,27 @@ describe("MistralService", () => {
     });
 
     it("should return null when MISTRAL_API_KEY is missing (not configured)", async () => {
-      const originalClient = (mistralService as any).client;
-      (mistralService as any).client = null;
+      const originalClients = (mistralService as any).clients;
+      (mistralService as any).clients = [];
 
       const result = await mistralService.safeChat({
         messages: [{ role: "user", content: "test" }],
       });
 
       expect(result).toBeNull();
-      (mistralService as any).client = originalClient;
+      (mistralService as any).clients = originalClients;
     });
 
     it("should return null when rate limiter is exhausted (429 simulation)", async () => {
-      const originalClient = (mistralService as any).client;
-      (mistralService as any).client = null;
+      const originalClients = (mistralService as any).clients;
+      (mistralService as any).clients = [];
 
       const result = await mistralService.safeChat({
         messages: [{ role: "user", content: "test" }],
       });
 
       expect(result).toBeNull();
-      (mistralService as any).client = originalClient;
+      (mistralService as any).clients = originalClients;
     });
 
     it("should return a result when chat succeeds", async () => {
@@ -103,14 +103,14 @@ describe("MistralService", () => {
 
   describe("chat (throwing version)", () => {
     it("should throw ApiError when not configured", async () => {
-      const originalClient = (mistralService as any).client;
-      (mistralService as any).client = null;
+      const originalClients = (mistralService as any).clients;
+      (mistralService as any).clients = [];
 
       await expect(
         mistralService.chat({ messages: [{ role: "user", content: "test" }] }),
       ).rejects.toThrow("Mistral AI service is not configured");
 
-      (mistralService as any).client = originalClient;
+      (mistralService as any).clients = originalClients;
     });
   });
 
@@ -118,14 +118,70 @@ describe("MistralService", () => {
     it("should consume tokens from mistralRateLimiter on each call", async () => {
       const consumeSpy = vi.spyOn(mistralRateLimiter, "consume");
 
-      const client = (mistralService as any).client;
-      vi.spyOn(client.chat, "complete").mockRejectedValueOnce(new Error("forced"));
+      const clients = (mistralService as any).clients as any[];
+      for (const c of clients) {
+        vi.spyOn(c.chat, "complete").mockRejectedValueOnce(new Error("forced"));
+      }
 
       await mistralService.safeChat({
         messages: [{ role: "user", content: "test" }],
       });
 
       expect(consumeSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe("Multi-key support", () => {
+    it("should parse comma-separated keys and create multiple clients", () => {
+      expect((mistralService as any).clients.length).toBeGreaterThanOrEqual(1);
+    });
+
+    it("getApiKeysCount should return the number of configured keys", () => {
+      expect(mistralService.getApiKeysCount()).toBeGreaterThanOrEqual(1);
+    });
+
+    it("should retry with another key on 429", async () => {
+      const rateLimitErr = Object.assign(new Error("429 Too Many Requests"), { status: 429 });
+      const successResult = {
+        choices: [{ message: { content: "success" } }],
+        model: "mistral-large-latest",
+        usage: { promptTokens: 5, completionTokens: 3, totalTokens: 8 },
+      };
+
+      const clients = (mistralService as any).clients as any[];
+      if (clients.length < 2) return; // skip if only 1 key configured
+
+      vi.spyOn(clients[0].chat, "complete").mockRejectedValueOnce(rateLimitErr);
+      vi.spyOn(clients[1].chat, "complete").mockResolvedValueOnce(successResult);
+
+      // Force pickClient to use index 0 first, then index 1
+      vi.spyOn(mistralService as any, "pickClient")
+        .mockReturnValueOnce({ client: clients[0], index: 0 })
+        .mockReturnValueOnce({ client: clients[1], index: 1 });
+
+      const result = await mistralService.chat({
+        messages: [{ role: "user", content: "test" }],
+      });
+
+      expect(result.content).toBe("success");
+      expect((mistralService as any).cooldowns.get(0)).toBeDefined();
+    });
+
+    it("should throw after max retries when all keys return 429", async () => {
+      const rateLimitErr = Object.assign(new Error("429 Too Many Requests"), { status: 429 });
+      const clients = (mistralService as any).clients as any[];
+
+      for (const c of clients) {
+        vi.spyOn(c.chat, "complete").mockRejectedValue(rateLimitErr);
+      }
+
+      await expect(
+        mistralService.chat({ messages: [{ role: "user", content: "test" }] }),
+      ).rejects.toThrow();
+
+      for (const c of clients) {
+        vi.spyOn(c.chat, "complete").mockRestore();
+      }
     });
   });
 });

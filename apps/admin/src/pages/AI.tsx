@@ -26,7 +26,7 @@ import { formatDate } from "../lib/utils";
 
 interface AiStatus {
   configured: boolean;
-  hasApiKey: boolean;
+  apiKeysCount: number;
   defaultChatModel: string;
   defaultEmbeddingsModel: string;
   rateLimiter: { capacity: number; refillRate: string };
@@ -256,9 +256,9 @@ export function AI() {
               )}
             </div>
             <div>
-              <p className="text-xs text-text-muted mb-1">API Key</p>
+              <p className="text-xs text-text-muted mb-1">API Keys</p>
               <p className="text-sm font-medium">
-                {status?.hasApiKey ? "Present" : "Missing"}
+                {status?.apiKeysCount ? `${status.apiKeysCount} configured` : "None"}
               </p>
             </div>
             <div>

@@ -60,30 +60,75 @@ function injectProjectContext(messages: MistralChatMessage[]): MistralChatMessag
 }
 
 class MistralService {
-  private client: Mistral | null = null;
+  private clients: Mistral[] = [];
+  private cooldowns: Map<number, number> = new Map();
+  private readonly COOLDOWN_MS = 60_000;
+  private readonly MAX_RETRIES = 3;
 
   constructor() {
     if (env.MISTRAL_API_KEY) {
-      this.client = new Mistral({ apiKey: env.MISTRAL_API_KEY });
-      log("MistralService", "initialized", { hasApiKey: true });
+      const keys = env.MISTRAL_API_KEY.split(",").map((k) => k.trim()).filter(Boolean);
+      this.clients = keys.map((key) => new Mistral({ apiKey: key }));
+      log("MistralService", "initialized", { apiKeysCount: this.clients.length });
     } else {
       log("MistralService", "not configured — MISTRAL_API_KEY missing");
     }
   }
 
   isConfigured(): boolean {
-    return this.client !== null;
+    return this.clients.length > 0;
   }
 
-  private ensureClient(): Mistral {
-    if (!this.client) {
+  getApiKeysCount(): number {
+    return this.clients.length;
+  }
+
+  private pickClient(): { client: Mistral; index: number } {
+    if (this.clients.length === 0) {
       throw new ApiError(503, "MISTRAL_NOT_CONFIGURED", "Mistral AI service is not configured (MISTRAL_API_KEY missing)");
     }
-    return this.client;
+
+    const now = Date.now();
+    const available = this.clients
+      .map((_, i) => i)
+      .filter((i) => !this.cooldowns.has(i) || this.cooldowns.get(i)! <= now);
+
+    if (available.length > 0) {
+      const index = available[Math.floor(Math.random() * available.length)];
+      this.cooldowns.delete(index);
+      return { client: this.clients[index], index };
+    }
+
+    let minIndex = 0;
+    let minCooldown = Infinity;
+    for (const [i, end] of this.cooldowns) {
+      if (end < minCooldown) {
+        minCooldown = end;
+        minIndex = i;
+      }
+    }
+
+    this.cooldowns.delete(minIndex);
+    log("MistralService", "all keys were in cooldown, reusing least-recently-cooled key", { keyIndex: minIndex });
+    return { client: this.clients[minIndex], index: minIndex };
+  }
+
+  private isRateLimitError(err: unknown): boolean {
+    const anyErr = err as Record<string, unknown>;
+    if (anyErr?.status === 429 || anyErr?.statusCode === 429 || anyErr?.code === 429) return true;
+    if (err instanceof Error) {
+      const msg = err.message.toLowerCase();
+      if (msg.includes("429") || msg.includes("rate limit")) return true;
+    }
+    return false;
+  }
+
+  private markCooldown(index: number): void {
+    this.cooldowns.set(index, Date.now() + this.COOLDOWN_MS);
+    log("MistralService", "key cooldown started", { keyIndex: index, cooldownMs: this.COOLDOWN_MS });
   }
 
   async chat(params: MistralChatParams): Promise<MistralChatResult> {
-    const client = this.ensureClient();
     const model = params.model ?? DEFAULT_CHAT_MODEL;
     const messages = injectProjectContext(params.messages);
 
@@ -97,116 +142,157 @@ class MistralService {
     const promptText = messages.map((m) => `[${m.role}] ${m.content}`).join("\n");
     const MAX_LOG_LENGTH = 5000;
 
-    try {
-      const result = await client.chat.complete({
-        model,
-        messages,
-        temperature: params.temperature,
-        maxTokens: params.maxTokens,
-        responseFormat: params.responseFormat,
-      });
+    let lastErr: unknown = null;
 
-      const content = result.choices?.[0]?.message?.content ?? "";
-      const textContent = typeof content === "string" ? content : JSON.stringify(content);
-      const latencyMs = Date.now() - startTime;
+    for (let attempt = 0; attempt <= this.MAX_RETRIES; attempt++) {
+      const { client, index } = this.pickClient();
 
-      log("MistralService", "chat response", {
-        model,
-        usage: result.usage,
-      });
+      try {
+        const result = await client.chat.complete({
+          model,
+          messages,
+          temperature: params.temperature,
+          maxTokens: params.maxTokens,
+          responseFormat: params.responseFormat,
+        });
 
-      AiLog.create({
-        service: "MistralService",
-        action: "chat",
-        feature,
-        status: "success",
-        aiModel: result.model ?? model,
-        tokens: {
-          prompt: result.usage?.promptTokens ?? 0,
-          completion: result.usage?.completionTokens ?? 0,
-          total: result.usage?.totalTokens ?? 0,
-        },
-        latencyMs,
-        prompt: promptText.slice(0, MAX_LOG_LENGTH),
-        response: textContent.slice(0, MAX_LOG_LENGTH),
-        metadata: {
-          promptLength: totalPromptLength,
-          responseLength: textContent.length,
-          messageCount: messages.length,
-        },
-      }).catch(() => {});
+        const content = result.choices?.[0]?.message?.content ?? "";
+        const textContent = typeof content === "string" ? content : JSON.stringify(content);
+        const latencyMs = Date.now() - startTime;
 
-      return {
-        content: textContent,
-        model: result.model ?? model,
-        usage: {
-          promptTokens: result.usage?.promptTokens,
-          completionTokens: result.usage?.completionTokens,
-          totalTokens: result.usage?.totalTokens,
-        },
-      };
-    } catch (err) {
-      const latencyMs = Date.now() - startTime;
-      const message = err instanceof Error ? err.message : String(err);
+        log("MistralService", "chat response", {
+          model,
+          usage: result.usage,
+          keyIndex: index,
+        });
 
-      logError("MistralService", "chat error", err, { model });
+        AiLog.create({
+          service: "MistralService",
+          action: "chat",
+          feature,
+          status: "success",
+          aiModel: result.model ?? model,
+          tokens: {
+            prompt: result.usage?.promptTokens ?? 0,
+            completion: result.usage?.completionTokens ?? 0,
+            total: result.usage?.totalTokens ?? 0,
+          },
+          latencyMs,
+          prompt: promptText.slice(0, MAX_LOG_LENGTH),
+          response: textContent.slice(0, MAX_LOG_LENGTH),
+          metadata: {
+            promptLength: totalPromptLength,
+            responseLength: textContent.length,
+            messageCount: messages.length,
+            keyIndex: index,
+          },
+        }).catch(() => {});
 
-      AiLog.create({
-        service: "MistralService",
-        action: "chat",
-        feature,
-        status: "error",
-        aiModel: model,
-        tokens: { prompt: 0, completion: 0, total: 0 },
-        latencyMs,
-        errorMessage: message,
-        prompt: promptText.slice(0, MAX_LOG_LENGTH),
-        metadata: {
-          promptLength: totalPromptLength,
-          messageCount: messages.length,
-        },
-      }).catch(() => {});
+        return {
+          content: textContent,
+          model: result.model ?? model,
+          usage: {
+            promptTokens: result.usage?.promptTokens,
+            completionTokens: result.usage?.completionTokens,
+            totalTokens: result.usage?.totalTokens,
+          },
+        };
+      } catch (err) {
+        lastErr = err;
 
-      throw this.handleError(err);
+        if (this.isRateLimitError(err) && attempt < this.MAX_RETRIES) {
+          this.markCooldown(index);
+          log("MistralService", "chat 429, retrying with another key", {
+            keyIndex: index,
+            attempt: attempt + 1,
+            maxRetries: this.MAX_RETRIES,
+          });
+          continue;
+        }
+
+        const latencyMs = Date.now() - startTime;
+        const message = err instanceof Error ? err.message : String(err);
+
+        logError("MistralService", "chat error", err, { model, keyIndex: index, attempt });
+
+        AiLog.create({
+          service: "MistralService",
+          action: "chat",
+          feature,
+          status: "error",
+          aiModel: model,
+          tokens: { prompt: 0, completion: 0, total: 0 },
+          latencyMs,
+          errorMessage: message,
+          prompt: promptText.slice(0, MAX_LOG_LENGTH),
+          metadata: {
+            promptLength: totalPromptLength,
+            messageCount: messages.length,
+            keyIndex: index,
+          },
+        }).catch(() => {});
+
+        throw this.handleError(err);
+      }
     }
+
+    throw this.handleError(lastErr);
   }
 
   async streamChat(params: MistralChatParams): Promise<AsyncIterable<{ content: string; done: boolean }>> {
-    const client = this.ensureClient();
     const model = params.model ?? DEFAULT_CHAT_MODEL;
     const messages = injectProjectContext(params.messages);
 
     log("MistralService", "stream chat request", { model, messageCount: messages.length });
 
-    try {
-      const stream = await client.chat.stream({
-        model,
-        messages,
-        temperature: params.temperature,
-        maxTokens: params.maxTokens,
-        responseFormat: params.responseFormat,
-      });
+    let lastErr: unknown = null;
 
-      async function* generator(): AsyncIterable<{ content: string; done: boolean }> {
-        for await (const chunk of stream) {
-          const delta = chunk.data.choices[0]?.delta?.content;
-          if (delta) {
-            const text = typeof delta === "string" ? delta : JSON.stringify(delta);
-            yield { content: text, done: false };
+    for (let attempt = 0; attempt <= this.MAX_RETRIES; attempt++) {
+      const { client, index } = this.pickClient();
+
+      try {
+        const stream = await client.chat.stream({
+          model,
+          messages,
+          temperature: params.temperature,
+          maxTokens: params.maxTokens,
+          responseFormat: params.responseFormat,
+        });
+
+        async function* generator(): AsyncIterable<{ content: string; done: boolean }> {
+          for await (const chunk of stream) {
+            const delta = chunk.data.choices[0]?.delta?.content;
+            if (delta) {
+              const text = typeof delta === "string" ? delta : JSON.stringify(delta);
+              yield { content: text, done: false };
+            }
           }
+          yield { content: "", done: true };
         }
-        yield { content: "", done: true };
-      }
 
-      return generator();
-    } catch (err) {
-      logError("MistralService", "stream chat error", err, { model });
-      throw this.handleError(err);
+        return generator();
+      } catch (err) {
+        lastErr = err;
+
+        if (this.isRateLimitError(err) && attempt < this.MAX_RETRIES) {
+          this.markCooldown(index);
+          log("MistralService", "stream chat 429, retrying with another key", {
+            keyIndex: index,
+            attempt: attempt + 1,
+            maxRetries: this.MAX_RETRIES,
+          });
+          continue;
+        }
+
+        logError("MistralService", "stream chat error", err, { model, keyIndex: index, attempt });
+        throw this.handleError(err);
+      }
     }
+
+    throw this.handleError(lastErr);
   }
 
   async embeddings(params: MistralEmbeddingsParams): Promise<MistralEmbeddingsResult> {
-    const client = this.ensureClient();
     const model = params.model ?? DEFAULT_EMBEDDINGS_MODEL;
 
     log("MistralService", "embeddings request", { model, inputCount: params.inputs.length });
@@ -216,57 +302,79 @@ class MistralService {
     const startTime = Date.now();
     const totalInputLength = params.inputs.reduce((sum, input) => sum + input.length, 0);
 
-    try {
-      const result = await client.embeddings.create({
-        model,
-        inputs: params.inputs,
-      });
+    let lastErr: unknown = null;
 
-      const embeddings = result.data?.map((item) => item.embedding).filter((e): e is number[] => e !== undefined) ?? [];
-      const latencyMs = Date.now() - startTime;
+    for (let attempt = 0; attempt <= this.MAX_RETRIES; attempt++) {
+      const { client, index } = this.pickClient();
 
-      log("MistralService", "embeddings response", { model, count: embeddings.length });
+      try {
+        const result = await client.embeddings.create({
+          model,
+          inputs: params.inputs,
+        });
 
-      AiLog.create({
-        service: "MistralService",
-        action: "embeddings",
-        status: "success",
-        aiModel: result.model ?? model,
-        tokens: { prompt: 0, completion: 0, total: 0 },
-        latencyMs,
-        metadata: {
-          inputCount: params.inputs.length,
-          totalInputLength,
-          embeddingCount: embeddings.length,
-        },
-      }).catch(() => {});
+        const embeddings = result.data?.map((item) => item.embedding).filter((e): e is number[] => e !== undefined) ?? [];
+        const latencyMs = Date.now() - startTime;
 
-      return {
-        embeddings,
-        model: result.model ?? model,
-      };
-    } catch (err) {
-      const latencyMs = Date.now() - startTime;
-      const message = err instanceof Error ? err.message : String(err);
+        log("MistralService", "embeddings response", { model, count: embeddings.length, keyIndex: index });
 
-      logError("MistralService", "embeddings error", err, { model });
+        AiLog.create({
+          service: "MistralService",
+          action: "embeddings",
+          status: "success",
+          aiModel: result.model ?? model,
+          tokens: { prompt: 0, completion: 0, total: 0 },
+          latencyMs,
+          metadata: {
+            inputCount: params.inputs.length,
+            totalInputLength,
+            embeddingCount: embeddings.length,
+            keyIndex: index,
+          },
+        }).catch(() => {});
 
-      AiLog.create({
-        service: "MistralService",
-        action: "embeddings",
-        status: "error",
-        aiModel: model,
-        tokens: { prompt: 0, completion: 0, total: 0 },
-        latencyMs,
-        errorMessage: message,
-        metadata: {
-          inputCount: params.inputs.length,
-          totalInputLength,
-        },
-      }).catch(() => {});
+        return {
+          embeddings,
+          model: result.model ?? model,
+        };
+      } catch (err) {
+        lastErr = err;
 
-      throw this.handleError(err);
+        if (this.isRateLimitError(err) && attempt < this.MAX_RETRIES) {
+          this.markCooldown(index);
+          log("MistralService", "embeddings 429, retrying with another key", {
+            keyIndex: index,
+            attempt: attempt + 1,
+            maxRetries: this.MAX_RETRIES,
+          });
+          continue;
+        }
+
+        const latencyMs = Date.now() - startTime;
+        const message = err instanceof Error ? err.message : String(err);
+
+        logError("MistralService", "embeddings error", err, { model, keyIndex: index, attempt });
+
+        AiLog.create({
+          service: "MistralService",
+          action: "embeddings",
+          status: "error",
+          aiModel: model,
+          tokens: { prompt: 0, completion: 0, total: 0 },
+          latencyMs,
+          errorMessage: message,
+          metadata: {
+            inputCount: params.inputs.length,
+            totalInputLength,
+            keyIndex: index,
+          },
+        }).catch(() => {});
+
+        throw this.handleError(err);
+      }
     }
+
+    throw this.handleError(lastErr);
   }
 
   private handleError(err: unknown): ApiError {

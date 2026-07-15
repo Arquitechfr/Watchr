@@ -156,9 +156,9 @@ export async function updateThemePreference(pref: "system" | "light" | "dark"): 
   return response.data;
 }
 
-export async function completeOnboarding(): Promise<{ hasCompletedOnboarding: boolean }> {
-  log("AuthService", "completeOnboarding request");
-  const response = await api.patch<{ hasCompletedOnboarding: boolean }>("/auth/me/onboarding", {});
+export async function completeOnboarding(source?: string): Promise<{ hasCompletedOnboarding: boolean }> {
+  log("AuthService", "completeOnboarding request", { source });
+  const response = await api.patch<{ hasCompletedOnboarding: boolean }>("/auth/me/onboarding", { source });
   log("AuthService", "completeOnboarding response", { status: response.status });
   return response.data;
 }

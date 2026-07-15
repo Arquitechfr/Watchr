@@ -200,7 +200,7 @@ export function RootNavigator() {
                     onSkip={() => {
                       queryClient.invalidateQueries({ queryKey: ["unwatched"] });
                       queryClient.invalidateQueries({ queryKey: ["upcoming"] });
-                      completeOnboarding()
+                      completeOnboarding("welcome_skip")
                         .then(() => meQuery.refetch())
                         .catch(() => meQuery.refetch());
                     }}

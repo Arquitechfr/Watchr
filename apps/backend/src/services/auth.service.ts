@@ -584,7 +584,10 @@ export async function getNotificationPreferences(userId: string): Promise<{ noti
   return { notificationPreferences: user.notificationPreferences ?? DEFAULT_NOTIFICATION_PREFERENCES };
 }
 
-export async function completeOnboarding(userId: string): Promise<{ hasCompletedOnboarding: boolean }> {
+export async function completeOnboarding(
+  userId: string,
+  source?: string,
+): Promise<{ hasCompletedOnboarding: boolean }> {
   const user = await User.findByIdAndUpdate(
     userId,
     { $set: { hasCompletedOnboarding: true } },
@@ -596,6 +599,7 @@ export async function completeOnboarding(userId: string): Promise<{ hasCompleted
   posthogClient.capture({
     distinctId: userId,
     event: "onboarding_completed",
+    properties: source ? { source } : {},
   });
 
   return { hasCompletedOnboarding: user.hasCompletedOnboarding ?? true };

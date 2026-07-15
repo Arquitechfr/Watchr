@@ -2,7 +2,7 @@ import { Mistral } from "@mistralai/mistralai";
 import { env } from "../config/env.js";
 import { ApiError } from "../middleware/error.middleware.js";
 import { log, logError } from "../lib/logger.js";
-import { mistralRateLimiter } from "../lib/rateLimiter.js";
+import { mistralRateLimiter, sleep } from "../lib/rateLimiter.js";
 import { AiLog } from "../models/aiLog.model.js";
 
 export interface MistralChatMessage {
@@ -64,6 +64,13 @@ class MistralService {
   private cooldowns: Map<number, number> = new Map();
   private readonly COOLDOWN_MS = 60_000;
   private readonly MAX_RETRIES = 3;
+  private readonly BACKOFF_BASE_MS = 1_000;
+  private readonly BACKOFF_CAP_MS = 10_000;
+  private readonly FAILURE_THRESHOLD = 5;
+  private readonly CIRCUIT_RESET_MS = 60_000;
+  private circuitOpen = false;
+  private circuitOpenedAt = 0;
+  private consecutiveFailures = 0;
 
   constructor() {
     if (env.MISTRAL_API_KEY) {
@@ -123,6 +130,57 @@ class MistralService {
     return false;
   }
 
+  private isTransientError(err: unknown): boolean {
+    if (this.isRateLimitError(err)) return true;
+    const anyErr = err as Record<string, unknown>;
+    const status = anyErr?.statusCode ?? anyErr?.status ?? anyErr?.code;
+    if (status === 503 || status === 502 || status === 504) return true;
+    if (err instanceof Error) {
+      const msg = err.message.toLowerCase();
+      if (msg.includes("503") || msg.includes("502") || msg.includes("504")) return true;
+      if (msg.includes("service unavailable") || msg.includes("bad gateway") || msg.includes("gateway timeout")) return true;
+      if (msg.includes("upstream connect error") || msg.includes("connection refused")) return true;
+    }
+    return false;
+  }
+
+  private async backoffDelay(attempt: number): Promise<void> {
+    const delay = Math.min(this.BACKOFF_CAP_MS, this.BACKOFF_BASE_MS * Math.pow(2, attempt));
+    const jitter = delay * 0.2 * (Math.random() * 2 - 1);
+    await sleep(Math.max(0, delay + jitter));
+  }
+
+  private checkCircuit(): void {
+    if (!this.circuitOpen) return;
+    const elapsed = Date.now() - this.circuitOpenedAt;
+    if (elapsed >= this.CIRCUIT_RESET_MS) {
+      this.circuitOpen = false;
+      log("MistralService", "circuit breaker half-open, allowing probe request");
+      return;
+    }
+    throw new ApiError(503, "MISTRAL_CIRCUIT_OPEN", "Mistral AI circuit breaker is open — service temporarily unavailable");
+  }
+
+  private recordSuccess(): void {
+    if (this.consecutiveFailures > 0 || this.circuitOpen) {
+      log("MistralService", "circuit breaker closed, failures reset", { previousFailures: this.consecutiveFailures });
+    }
+    this.consecutiveFailures = 0;
+    this.circuitOpen = false;
+  }
+
+  private recordFailure(): void {
+    this.consecutiveFailures++;
+    if (this.consecutiveFailures >= this.FAILURE_THRESHOLD && !this.circuitOpen) {
+      this.circuitOpen = true;
+      this.circuitOpenedAt = Date.now();
+      log("MistralService", "circuit breaker opened", {
+        consecutiveFailures: this.consecutiveFailures,
+        resetMs: this.CIRCUIT_RESET_MS,
+      });
+    }
+  }
+
   private markCooldown(index: number): void {
     this.cooldowns.set(index, Date.now() + this.COOLDOWN_MS);
     log("MistralService", "key cooldown started", { keyIndex: index, cooldownMs: this.COOLDOWN_MS });
@@ -134,6 +192,7 @@ class MistralService {
 
     log("MistralService", "chat request", { model, messageCount: messages.length });
 
+    this.checkCircuit();
     await mistralRateLimiter.consume();
 
     const startTime = Date.now();
@@ -188,6 +247,7 @@ class MistralService {
           },
         }).catch(() => {});
 
+        this.recordSuccess();
         return {
           content: textContent,
           model: result.model ?? model,
@@ -200,14 +260,23 @@ class MistralService {
       } catch (err) {
         lastErr = err;
 
-        if (this.isRateLimitError(err) && attempt < this.MAX_RETRIES) {
-          this.markCooldown(index);
-          log("MistralService", "chat 429, retrying with another key", {
+        if (this.isTransientError(err) && attempt < this.MAX_RETRIES) {
+          if (this.isRateLimitError(err)) {
+            this.markCooldown(index);
+          }
+          this.recordFailure();
+          log("MistralService", "chat transient error, retrying with backoff", {
             keyIndex: index,
             attempt: attempt + 1,
             maxRetries: this.MAX_RETRIES,
+            error: err instanceof Error ? err.message : String(err),
           });
+          await this.backoffDelay(attempt);
           continue;
+        }
+
+        if (this.isTransientError(err)) {
+          this.recordFailure();
         }
 
         const latencyMs = Date.now() - startTime;
@@ -245,6 +314,7 @@ class MistralService {
 
     log("MistralService", "stream chat request", { model, messageCount: messages.length });
 
+    this.checkCircuit();
     let lastErr: unknown = null;
 
     for (let attempt = 0; attempt <= this.MAX_RETRIES; attempt++) {
@@ -270,18 +340,28 @@ class MistralService {
           yield { content: "", done: true };
         }
 
+        this.recordSuccess();
         return generator();
       } catch (err) {
         lastErr = err;
 
-        if (this.isRateLimitError(err) && attempt < this.MAX_RETRIES) {
-          this.markCooldown(index);
-          log("MistralService", "stream chat 429, retrying with another key", {
+        if (this.isTransientError(err) && attempt < this.MAX_RETRIES) {
+          if (this.isRateLimitError(err)) {
+            this.markCooldown(index);
+          }
+          this.recordFailure();
+          log("MistralService", "stream chat transient error, retrying with backoff", {
             keyIndex: index,
             attempt: attempt + 1,
             maxRetries: this.MAX_RETRIES,
+            error: err instanceof Error ? err.message : String(err),
           });
+          await this.backoffDelay(attempt);
           continue;
+        }
+
+        if (this.isTransientError(err)) {
+          this.recordFailure();
         }
 
         logError("MistralService", "stream chat error", err, { model, keyIndex: index, attempt });
@@ -297,6 +377,7 @@ class MistralService {
 
     log("MistralService", "embeddings request", { model, inputCount: params.inputs.length });
 
+    this.checkCircuit();
     await mistralRateLimiter.consume();
 
     const startTime = Date.now();
@@ -333,6 +414,7 @@ class MistralService {
           },
         }).catch(() => {});
 
+        this.recordSuccess();
         return {
           embeddings,
           model: result.model ?? model,
@@ -340,14 +422,23 @@ class MistralService {
       } catch (err) {
         lastErr = err;
 
-        if (this.isRateLimitError(err) && attempt < this.MAX_RETRIES) {
-          this.markCooldown(index);
-          log("MistralService", "embeddings 429, retrying with another key", {
+        if (this.isTransientError(err) && attempt < this.MAX_RETRIES) {
+          if (this.isRateLimitError(err)) {
+            this.markCooldown(index);
+          }
+          this.recordFailure();
+          log("MistralService", "embeddings transient error, retrying with backoff", {
             keyIndex: index,
             attempt: attempt + 1,
             maxRetries: this.MAX_RETRIES,
+            error: err instanceof Error ? err.message : String(err),
           });
+          await this.backoffDelay(attempt);
           continue;
+        }
+
+        if (this.isTransientError(err)) {
+          this.recordFailure();
         }
 
         const latencyMs = Date.now() - startTime;
@@ -379,7 +470,21 @@ class MistralService {
 
   private handleError(err: unknown): ApiError {
     if (err instanceof ApiError) return err;
+
+    const anyErr = err as Record<string, unknown>;
+    const statusCode = (anyErr?.statusCode ?? anyErr?.status ?? anyErr?.code) as number | undefined;
     const message = err instanceof Error ? err.message : String(err);
+
+    if (statusCode === 429) {
+      return new ApiError(429, "MISTRAL_RATE_LIMITED", "Mistral AI rate limit exceeded");
+    }
+    if (statusCode === 503) {
+      return new ApiError(503, "MISTRAL_UNAVAILABLE", "Mistral AI service temporarily unavailable");
+    }
+    if (statusCode === 502 || statusCode === 504) {
+      return new ApiError(502, "MISTRAL_GATEWAY_ERROR", `Mistral AI gateway error: ${message}`);
+    }
+
     return new ApiError(502, "MISTRAL_ERROR", `Mistral AI error: ${message}`);
   }
 

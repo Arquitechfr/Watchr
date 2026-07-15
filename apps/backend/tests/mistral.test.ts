@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { mistralService } from "../src/services/mistral.service.js";
 import { mistralRateLimiter } from "../src/lib/rateLimiter.js";
+import { ApiError } from "../src/middleware/error.middleware.js";
 
 vi.mock("../src/config/env.js", () => ({
   env: {
@@ -8,9 +9,19 @@ vi.mock("../src/config/env.js", () => ({
   },
 }));
 
+vi.mock("../src/lib/rateLimiter.js", () => ({
+  mistralRateLimiter: { consume: vi.fn().mockResolvedValue(undefined) },
+  sleep: vi.fn().mockResolvedValue(undefined),
+  TokenBucket: vi.fn(),
+}));
+
 describe("MistralService", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+    (mistralService as any).circuitOpen = false;
+    (mistralService as any).circuitOpenedAt = 0;
+    (mistralService as any).consecutiveFailures = 0;
+    (mistralService as any).cooldowns.clear();
   });
 
   afterEach(() => {
@@ -116,7 +127,7 @@ describe("MistralService", () => {
 
   describe("Rate limiter integration", () => {
     it("should consume tokens from mistralRateLimiter on each call", async () => {
-      const consumeSpy = vi.spyOn(mistralRateLimiter, "consume");
+      (mistralRateLimiter.consume as any).mockClear();
 
       const clients = (mistralService as any).clients as any[];
       for (const c of clients) {
@@ -127,7 +138,7 @@ describe("MistralService", () => {
         messages: [{ role: "user", content: "test" }],
       });
 
-      expect(consumeSpy).toHaveBeenCalled();
+      expect(mistralRateLimiter.consume).toHaveBeenCalled();
     });
   });
 
@@ -182,6 +193,184 @@ describe("MistralService", () => {
       for (const c of clients) {
         vi.spyOn(c.chat, "complete").mockRestore();
       }
+    });
+  });
+
+  describe("503 retry", () => {
+    it("should retry on 503 and succeed on second attempt", async () => {
+      const err503 = Object.assign(new Error("upstream connect error"), { statusCode: 503 });
+      const successResult = {
+        choices: [{ message: { content: "recovered" } }],
+        model: "mistral-large-latest",
+        usage: { promptTokens: 5, completionTokens: 3, totalTokens: 8 },
+      };
+
+      const clients = (mistralService as any).clients as any[];
+      vi.spyOn(clients[0].chat, "complete")
+        .mockRejectedValueOnce(err503)
+        .mockResolvedValueOnce(successResult);
+
+      vi.spyOn(mistralService as any, "pickClient")
+        .mockReturnValue({ client: clients[0], index: 0 });
+
+      const result = await mistralService.chat({
+        messages: [{ role: "user", content: "test" }],
+      });
+
+      expect(result.content).toBe("recovered");
+    });
+
+    it("should throw ApiError(503) after exhausting retries on 503", async () => {
+      const err503 = Object.assign(new Error("upstream connect error"), { statusCode: 503 });
+      const clients = (mistralService as any).clients as any[];
+
+      for (const c of clients) {
+        vi.spyOn(c.chat, "complete").mockRejectedValue(err503);
+      }
+
+      await expect(
+        mistralService.chat({ messages: [{ role: "user", content: "test" }] }),
+      ).rejects.toMatchObject({ status: 503, code: "MISTRAL_UNAVAILABLE" });
+
+      for (const c of clients) {
+        vi.spyOn(c.chat, "complete").mockRestore();
+      }
+    });
+  });
+
+  describe("Circuit breaker", () => {
+    it("should open circuit after FAILURE_THRESHOLD consecutive transient failures", async () => {
+      const err503 = Object.assign(new Error("upstream connect error"), { statusCode: 503 });
+      const clients = (mistralService as any).clients as any[];
+
+      for (const c of clients) {
+        vi.spyOn(c.chat, "complete").mockRejectedValue(err503);
+      }
+
+      (mistralService as any).FAILURE_THRESHOLD = 3;
+
+      for (let i = 0; i < 3; i++) {
+        await mistralService.safeChat({ messages: [{ role: "user", content: "test" }] });
+      }
+
+      expect((mistralService as any).circuitOpen).toBe(true);
+
+      await expect(
+        mistralService.chat({ messages: [{ role: "user", content: "test" }] }),
+      ).rejects.toMatchObject({ code: "MISTRAL_CIRCUIT_OPEN" });
+
+      for (const c of clients) {
+        vi.spyOn(c.chat, "complete").mockRestore();
+      }
+      (mistralService as any).FAILURE_THRESHOLD = 5;
+    });
+
+    it("should reset consecutiveFailures on success", async () => {
+      const err503 = Object.assign(new Error("upstream connect error"), { statusCode: 503 });
+      const successResult = {
+        choices: [{ message: { content: "ok" } }],
+        model: "mistral-large-latest",
+        usage: { promptTokens: 1, completionTokens: 1, totalTokens: 2 },
+      };
+
+      const clients = (mistralService as any).clients as any[];
+
+      vi.spyOn(clients[0].chat, "complete")
+        .mockRejectedValueOnce(err503)
+        .mockResolvedValueOnce(successResult);
+
+      vi.spyOn(mistralService as any, "pickClient")
+        .mockReturnValue({ client: clients[0], index: 0 });
+
+      await mistralService.chat({ messages: [{ role: "user", content: "test" }] });
+
+      expect((mistralService as any).consecutiveFailures).toBe(0);
+      expect((mistralService as any).circuitOpen).toBe(false);
+    });
+
+    it("should half-open circuit after CIRCUIT_RESET_MS", async () => {
+      (mistralService as any).circuitOpen = true;
+      (mistralService as any).circuitOpenedAt = Date.now() - 61_000;
+
+      const successResult = {
+        choices: [{ message: { content: "ok" } }],
+        model: "mistral-large-latest",
+        usage: { promptTokens: 1, completionTokens: 1, totalTokens: 2 },
+      };
+
+      const clients = (mistralService as any).clients as any[];
+      vi.spyOn(clients[0].chat, "complete").mockResolvedValueOnce(successResult);
+      vi.spyOn(mistralService as any, "pickClient")
+        .mockReturnValue({ client: clients[0], index: 0 });
+
+      const result = await mistralService.chat({ messages: [{ role: "user", content: "test" }] });
+
+      expect(result.content).toBe("ok");
+      expect((mistralService as any).circuitOpen).toBe(false);
+    });
+  });
+
+  describe("Backoff delay", () => {
+    it("should call sleep with exponential backoff on transient errors", async () => {
+      const { sleep } = await import("../src/lib/rateLimiter.js");
+      const err503 = Object.assign(new Error("upstream connect error"), { statusCode: 503 });
+      const successResult = {
+        choices: [{ message: { content: "ok" } }],
+        model: "mistral-large-latest",
+        usage: { promptTokens: 1, completionTokens: 1, totalTokens: 2 },
+      };
+
+      const clients = (mistralService as any).clients as any[];
+      vi.spyOn(clients[0].chat, "complete")
+        .mockRejectedValueOnce(err503)
+        .mockResolvedValueOnce(successResult);
+
+      vi.spyOn(mistralService as any, "pickClient")
+        .mockReturnValue({ client: clients[0], index: 0 });
+
+      await mistralService.chat({ messages: [{ role: "user", content: "test" }] });
+
+      expect(sleep).toHaveBeenCalled();
+    });
+  });
+
+  describe("handleError mapping", () => {
+    it("should map 429 to ApiError(429, MISTRAL_RATE_LIMITED)", () => {
+      const err = Object.assign(new Error("Rate limit exceeded"), { statusCode: 429 });
+      const result = (mistralService as any).handleError(err);
+      expect(result).toBeInstanceOf(ApiError);
+      expect(result.status).toBe(429);
+      expect(result.code).toBe("MISTRAL_RATE_LIMITED");
+    });
+
+    it("should map 503 to ApiError(503, MISTRAL_UNAVAILABLE)", () => {
+      const err = Object.assign(new Error("Service unavailable"), { statusCode: 503 });
+      const result = (mistralService as any).handleError(err);
+      expect(result).toBeInstanceOf(ApiError);
+      expect(result.status).toBe(503);
+      expect(result.code).toBe("MISTRAL_UNAVAILABLE");
+    });
+
+    it("should map 502 to ApiError(502, MISTRAL_GATEWAY_ERROR)", () => {
+      const err = Object.assign(new Error("Bad gateway"), { statusCode: 502 });
+      const result = (mistralService as any).handleError(err);
+      expect(result).toBeInstanceOf(ApiError);
+      expect(result.status).toBe(502);
+      expect(result.code).toBe("MISTRAL_GATEWAY_ERROR");
+    });
+
+    it("should map unknown errors to ApiError(502, MISTRAL_ERROR)", () => {
+      const err = new Error("Something went wrong");
+      const result = (mistralService as any).handleError(err);
+      expect(result).toBeInstanceOf(ApiError);
+      expect(result.status).toBe(502);
+      expect(result.code).toBe("MISTRAL_ERROR");
+    });
+
+    it("should pass through existing ApiError", () => {
+      const apiErr = new ApiError(400, "CUSTOM_ERROR", "custom");
+      const result = (mistralService as any).handleError(apiErr);
+      expect(result).toBe(apiErr);
     });
   });
 });

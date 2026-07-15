@@ -362,7 +362,7 @@ router.patch(
   "/me/onboarding",
   validateRequest(onboardingCompleteSchema),
   asyncHandler(async (req: Request, res: Response) => {
-    const result = await completeOnboarding(req.userId!);
+    const result = await completeOnboarding(req.userId!, req.body.source);
     res.json(result);
   }),
 );

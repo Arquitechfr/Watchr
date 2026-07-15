@@ -57,9 +57,8 @@ export function OnboardingImportScreen({ onComplete }: OnboardingImportScreenPro
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pendingSourceRef = useRef<ImportSource>("tvtime");
 
-  const handleCompleteOnboarding = useCallback(() => {
-    posthog?.capture("onboarding_import_skipped");
-    completeOnboardingMutation.mutate(undefined, {
+  const handleCompleteOnboarding = useCallback((source: "import_skip" | "import_upload") => {
+    completeOnboardingMutation.mutate(source, {
       onSuccess: () => {
         onComplete();
       },
@@ -67,7 +66,7 @@ export function OnboardingImportScreen({ onComplete }: OnboardingImportScreenPro
         onComplete();
       },
     });
-  }, [completeOnboardingMutation, onComplete, posthog]);
+  }, [completeOnboardingMutation, onComplete]);
 
   const pickAndUploadFile = useCallback(
     async (source: ImportSource, mimeType: string) => {
@@ -85,7 +84,8 @@ export function OnboardingImportScreen({ onComplete }: OnboardingImportScreenPro
         log("OnboardingImport", "upload success", { jobId: newJobId });
         setActiveJobId(newJobId);
         showSnackbar(t("screens.onboarding.importStarted"), "success");
-        handleCompleteOnboarding();
+        posthog?.capture("onboarding_import_uploaded", { platform: source });
+        handleCompleteOnboarding("import_upload");
       } catch (err) {
         log("OnboardingImport", "upload error", err);
         showSnackbar(getErrorMessage(err), "error");
@@ -93,7 +93,7 @@ export function OnboardingImportScreen({ onComplete }: OnboardingImportScreenPro
         setIsUploading(false);
       }
     },
-    [t, showSnackbar, getErrorMessage, setActiveJobId, handleCompleteOnboarding],
+    [t, showSnackbar, getErrorMessage, setActiveJobId, handleCompleteOnboarding, posthog],
   );
 
   const handleWebFilePick = useCallback(
@@ -116,7 +116,8 @@ export function OnboardingImportScreen({ onComplete }: OnboardingImportScreenPro
         log("OnboardingImport", "web upload success", { jobId: newJobId });
         setActiveJobId(newJobId);
         showSnackbar(t("screens.onboarding.importStarted"), "success");
-        handleCompleteOnboarding();
+        posthog?.capture("onboarding_import_uploaded", { platform: pendingSourceRef.current });
+        handleCompleteOnboarding("import_upload");
       } catch (err) {
         log("OnboardingImport", "web upload error", err);
         showSnackbar(getErrorMessage(err), "error");
@@ -125,7 +126,7 @@ export function OnboardingImportScreen({ onComplete }: OnboardingImportScreenPro
         if (fileInputRef.current) fileInputRef.current.value = "";
       }
     },
-    [t, showSnackbar, getErrorMessage, setActiveJobId, handleCompleteOnboarding],
+    [t, showSnackbar, getErrorMessage, setActiveJobId, handleCompleteOnboarding, posthog],
   );
 
   const handlePlatformPress = useCallback(
@@ -197,7 +198,10 @@ export function OnboardingImportScreen({ onComplete }: OnboardingImportScreenPro
       >
         <TouchableOpacity
           className="bg-surface py-3 rounded-lg items-center mb-3"
-          onPress={handleCompleteOnboarding}
+          onPress={() => {
+            posthog?.capture("onboarding_import_skipped");
+            handleCompleteOnboarding("import_skip");
+          }}
           disabled={isPending}
           activeOpacity={0.8}
         >

@@ -66,4 +66,8 @@ export const notificationPreferencesSchema = z.object({
   notificationOffsetMinutes: z.number().int().min(-180).max(1440).optional(),
 });
 
-export const onboardingCompleteSchema = z.object({}).strict();
+export const onboardingCompleteSchema = z
+  .object({
+    source: z.enum(["welcome_skip", "import_skip", "import_upload"]).optional(),
+  })
+  .strict();

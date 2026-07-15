@@ -6,7 +6,7 @@ export function useCompleteOnboarding() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: () => completeOnboarding(),
+    mutationFn: (source?: string) => completeOnboarding(source),
     onMutate: () => {
       log("useOnboarding", "completeOnboarding mutate");
       queryClient.setQueryData<Me>(["me"], (old: Me | undefined) => {

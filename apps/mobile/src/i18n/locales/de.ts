@@ -132,6 +132,7 @@ const de = {
       discover: "Entdecken",
       moodTitle: "Wie ist deine Stimmung?",
       moodResults: "Auswahl nach deiner Stimmung",
+      recommendedForYou: "Für dich empfohlen",
       moods: {
         happy: "Fröhlich",
         sad: "Emotional",

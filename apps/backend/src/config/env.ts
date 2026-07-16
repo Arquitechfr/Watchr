@@ -41,7 +41,6 @@ const envSchema = z.object({
   TRAKT_CLIENT_ID: z.string().optional(),
   TRAKT_CLIENT_SECRET: z.string().optional(),
   CI_UPLOAD_TOKEN: z.string().optional(),
-  SENTRY_DSN: z.string().optional(),
   MAKE_WEBHOOK_URL: z.string().optional(),
   MAKE_API_KEY: z.string().optional(),
   MISTRAL_API_KEY: z.string().optional(),

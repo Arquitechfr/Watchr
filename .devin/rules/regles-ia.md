@@ -48,7 +48,7 @@ Ces règles s'appliquent à tout agent travaillant sur ce repo.
 - Écriture = CLI (`pnpm --filter backend mobile-config set ...`) ou API admin authentifiée. Jamais d'endpoint public d'écriture.
 - Lecture = endpoint public sans auth (pas de données sensibles).
 - URL backend non hardcodée : `remoteConfigService.getConfig().backend_url` ou `getApiBaseUrl()`.
-- Build-time vars (Firebase, EAS, Sentry) restent dans `.env`.
+- Build-time vars (Firebase, EAS) restent dans `.env`.
 - Nouvelle valeur runtime : (1) ajouter à `DEFAULT_REMOTE_CONFIG`, (2) seeder MongoDB, (3) documenter dans le plan.
 - Fichiers clés : `apps/backend/src/models/MobileConfig.ts`, `apps/backend/src/routes/internal/mobileConfig.routes.ts`, `apps/backend/scripts/mobile-config-cli.ts`, `apps/mobile/src/config/defaults.ts`, `apps/mobile/src/services/remoteConfig.ts`, `apps/mobile/src/hooks/useRemoteConfig.ts`.
 

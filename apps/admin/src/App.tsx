@@ -18,6 +18,7 @@ const ImportJobs = lazy(() => import("./pages/ImportJobs").then((m) => ({ defaul
 const AI = lazy(() => import("./pages/AI").then((m) => ({ default: m.AI })));
 const ContactMessages = lazy(() => import("./pages/ContactMessages").then((m) => ({ default: m.ContactMessages })));
 const AdminFeed = lazy(() => import("./pages/AdminFeed").then((m) => ({ default: m.AdminFeed })));
+const ErrorTracking = lazy(() => import("./pages/ErrorTracking").then((m) => ({ default: m.ErrorTracking })));
 
 function PageLoader() {
   return (
@@ -63,6 +64,7 @@ export default function App() {
             <Route path="/ai" element={<AI />} />
             <Route path="/contact" element={<ContactMessages />} />
             <Route path="/admin-feed" element={<AdminFeed />} />
+            <Route path="/errors" element={<ErrorTracking />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>

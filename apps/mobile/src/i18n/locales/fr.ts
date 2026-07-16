@@ -132,6 +132,7 @@ const fr = {
       discover: "Découvrir",
       moodTitle: "Quel est ton humeur ?",
       moodResults: "Sélections selon ton humeur",
+      recommendedForYou: "Recommandé pour toi",
       moods: {
         happy: "Joyeux",
         sad: "Émotif",

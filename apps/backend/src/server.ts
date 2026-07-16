@@ -5,8 +5,20 @@ import { createApp } from "./app.js";
 import { connectRedis } from "./lib/redis.js";
 import { createWsServer } from "./lib/wsServer.js";
 import { posthogClient } from "./lib/posthog.js";
+import { captureBackendError } from "./services/errorTracking.service.js";
 
 const app = createApp();
+
+process.on("unhandledRejection", (reason: unknown) => {
+  const err = reason instanceof Error ? reason : new Error(String(reason));
+  captureBackendError(err).catch(() => {});
+  console.error("Unhandled Rejection:", err);
+});
+
+process.on("uncaughtException", (err: Error) => {
+  captureBackendError(err).catch(() => {});
+  console.error("Uncaught Exception:", err);
+});
 
 async function startServer() {
   try {

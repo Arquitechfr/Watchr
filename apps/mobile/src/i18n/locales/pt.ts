@@ -132,6 +132,7 @@ const pt = {
       discover: "Descobrir",
       moodTitle: "Qual é seu humor?",
       moodResults: "Seleções segundo seu humor",
+      recommendedForYou: "Recomendado para ti",
       moods: {
         happy: "Feliz",
         sad: "Emocional",

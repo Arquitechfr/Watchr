@@ -132,6 +132,7 @@ const it = {
       discover: "Scopri",
       moodTitle: "Qual è il tuo umore?",
       moodResults: "Selezioni secondo il tuo umore",
+      recommendedForYou: "Consigliato per te",
       moods: {
         happy: "Felice",
         sad: "Emozionale",

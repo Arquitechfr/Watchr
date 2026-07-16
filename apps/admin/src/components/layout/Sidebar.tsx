@@ -18,6 +18,7 @@ import {
   Sun,
   X,
   Activity,
+  AlertTriangle,
 } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
 import { useNewUsersStore } from "../../store/newUsersStore";
@@ -39,6 +40,7 @@ const navItems = [
   { to: "/imports", label: "Import Jobs", icon: Download },
   { to: "/ai", label: "AI", icon: BrainCircuit },
   { to: "/admin-feed", label: "Activity Feed", icon: Activity },
+  { to: "/errors", label: "Error Tracking", icon: AlertTriangle },
 ];
 
 interface SidebarProps {

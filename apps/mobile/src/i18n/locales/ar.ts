@@ -132,6 +132,7 @@ const ar = {
       discover: "اكتشف",
       moodTitle: "ما هي مزاجك؟",
       moodResults: "اخيارات حسب مزاجك",
+      recommendedForYou: "موصى به لك",
       moods: {
         happy: "سعيد",
         sad: "عاطفي",

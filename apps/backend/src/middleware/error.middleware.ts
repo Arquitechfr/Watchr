@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { env } from "../config/env.js";
 import { translate } from "../i18n/index.js";
 import { logError } from "../lib/logger.js";
+import { captureBackendError } from "../services/errorTracking.service.js";
 
 function interpolate(template: string, params?: Record<string, string | number>): string {
   if (!params) return template;
@@ -46,6 +47,7 @@ export const errorMiddleware = (
   }
 
   logError("ErrorMiddleware", "Unhandled error", err, { path: req.path, method: req.method });
+  captureBackendError(err, { path: req.path, method: req.method }).catch(() => {});
   const message = env.NODE_ENV === "production" ? translate("UNKNOWN", lang) : err.message;
   res.status(500).json({
     error: {

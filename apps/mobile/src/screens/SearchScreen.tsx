@@ -18,6 +18,7 @@ import { useQuickAddToWatchlist, useTrackedTmdbIds } from "../hooks/useTracking"
 import { useRefreshRateLimit } from "../hooks/useRefreshRateLimit";
 import { ShowCard } from "../components/ShowCard";
 import { DiscoverSectionRow } from "../components/DiscoverSectionRow";
+import { RecommendationsRow } from "../components/RecommendationsRow";
 import { MoodPicker } from "../components/MoodPicker";
 import { EmptyState } from "../components/EmptyState";
 import { NetworkError } from "../components/NetworkError";
@@ -31,6 +32,7 @@ import { useUIStore } from "../store/uiStore";
 import { log } from "../utils/logger";
 import { useI18n } from "../i18n/useI18n";
 import { useMoodRecommendations } from "../hooks/useMoodRecommendations";
+import { useRecommendations } from "../hooks/useAIShows";
 import { useSemanticSearch } from "../hooks/useSemanticSearch";
 import { Seo } from "../components/Seo";
 import { Ionicons } from "@expo/vector-icons";
@@ -61,6 +63,7 @@ export function SearchScreen() {
   const throttledRefresh = useRefreshRateLimit();
   const throttledRefreshDiscover = useRefreshRateLimit();
   const { data: moodData, isLoading: moodLoading } = useMoodRecommendations(selectedMood);
+  const { data: recommendationsData } = useRecommendations();
   const [useSemantic, setUseSemantic] = useState(false);
   const semanticSearch = useSemanticSearch(useSemantic ? debouncedQuery : "");
 
@@ -150,6 +153,13 @@ export function SearchScreen() {
               />
             }
           >
+            <RecommendationsRow
+              recommendations={recommendationsData?.recommendations ?? []}
+              onShowPress={handleShowPress}
+              onQuickAdd={handleQuickAdd}
+              isAdding={quickAdd.isPending}
+              isTracked={(tmdbId) => trackedTmdbIds.has(tmdbId)}
+            />
             <View className="mb-4">
               <MoodPicker selectedMood={selectedMood} onSelectMood={setSelectedMood} />
             </View>

@@ -15,6 +15,7 @@ interface PosterCardProps {
   total?: number;
   width?: number;
   genres?: string[];
+  subtitle?: string;
   statusLabel?: string;
   statusColor?: string;
 }
@@ -22,7 +23,7 @@ interface PosterCardProps {
 const DEFAULT_CARD_WIDTH = 128;
 const DEFAULT_CARD_HEIGHT = 192;
 
-export function PosterCard({ show, onPress, onAdd, isAdding, isAdded, watched, total, width, genres, statusLabel, statusColor }: PosterCardProps) {
+export function PosterCard({ show, onPress, onAdd, isAdding, isAdded, watched, total, width, genres, subtitle, statusLabel, statusColor }: PosterCardProps) {
   const { t } = useI18n();
   const colors = useThemeColors();
   const posterUrl = getPosterUrl(show.posterPath, 200);
@@ -109,6 +110,11 @@ export function PosterCard({ show, onPress, onAdd, isAdding, isAdded, watched, t
         {genres && genres.length > 0 && (
           <Text className="text-text-muted text-xs mt-0.5" numberOfLines={1}>
             {genres.join(" · ")}
+          </Text>
+        )}
+        {subtitle && (
+          <Text className="text-text-muted text-xs mt-0.5" numberOfLines={2}>
+            {subtitle}
           </Text>
         )}
         {statusLabel && (

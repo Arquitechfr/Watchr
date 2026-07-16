@@ -14,7 +14,6 @@ name: Remote Android Build
 #   GOOGLE_SERVICES_JSON            → Contenu du fichier google-services.json (base64)
 #   CI_UPLOAD_TOKEN                 → Token d'auth pour l'endpoint /ci/upload-apk
 #   BACKEND_URL                     → URL base du backend pour l'upload CI (ex: https://api.watchr.me)
-#   SENTRY_AUTH_TOKEN               → Token d'auth Sentry pour l'upload des source maps
 #   EXPO_PUBLIC_POSTHOG_API_KEY     → PostHog project API key
 #   EXPO_PUBLIC_POSTHOG_HOST        → PostHog host URL (ex: https://eu.i.posthog.com)
 #
@@ -64,7 +63,6 @@ jobs:
       EXPO_PUBLIC_FIREBASE_APP_ID: ${{ secrets.EXPO_PUBLIC_FIREBASE_APP_ID }}
       EXPO_PUBLIC_FIREBASE_CLIENT_ID: ${{ secrets.EXPO_PUBLIC_FIREBASE_CLIENT_ID }}
       ANDROID_KEYSTORE_PATH: ${{ vars.ANDROID_KEYSTORE_PATH || '/opt/watchr/keys/keystore.jks' }}
-      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
       EXPO_PUBLIC_POSTHOG_API_KEY: ${{ secrets.EXPO_PUBLIC_POSTHOG_API_KEY }}
       EXPO_PUBLIC_POSTHOG_HOST: ${{ secrets.EXPO_PUBLIC_POSTHOG_HOST }}
 

@@ -17,6 +17,7 @@ import { listAiLogsQuerySchema, aiLogIdParamSchema, aiStatsQuerySchema, aiFlagPa
 import { listReportsQuerySchema, reportIdParamSchema, aiReportIdParamSchema } from "../../validators/report.validator.js";
 import { listContactQuerySchema, contactIdParamSchema, updateContactStatusSchema, replyContactSchema } from "../../validators/contact.validator.js";
 import { listFeedNotificationsQuerySchema, feedNotificationIdParamSchema } from "../../validators/admin/adminFeedNotification.validator.js";
+import { listErrorsQuerySchema, errorIdParamSchema, updateErrorStatusSchema, listErrorEventsQuerySchema } from "../../validators/admin/adminError.validator.js";
 import { listNotifications, getUnreadCount, markAsRead, markAllAsRead, deleteNotification } from "../../services/admin/adminFeedNotification.service.js";
 import { mistralService } from "../../services/mistral.service.js";
 import { getAdminStats, getUserGrowth, getCommentActivity, getShowTypeBreakdown } from "../../services/admin/adminStats.service.js";
@@ -38,6 +39,7 @@ import { sendReengagementBatch } from "../../services/aiReengagement.service.js"
 import { sendActivationNudgeBatch } from "../../services/activationNudge.service.js";
 import { detectAnomalies } from "../../services/aiAnomalyDetection.service.js";
 import { listContactMessages, getContactStats, getContactDetail, updateContactStatus, replyToContactMessage } from "../../services/admin/adminContact.service.js";
+import { listIssues, getIssueDetail, listIssueEvents, updateIssueStatus, deleteIssue, getErrorStats } from "../../services/errorTracking.service.js";
 
 const router: Router = Router();
 
@@ -880,6 +882,83 @@ router.delete(
   validateRequest(undefined, undefined, feedNotificationIdParamSchema),
   asyncHandler(async (req: Request, res: Response) => {
     await deleteNotification(req.params.id);
+    res.status(204).send();
+  }),
+);
+
+// Error Tracking
+router.get(
+  "/errors",
+  validateRequest(undefined, listErrorsQuerySchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const query = req.query as unknown as {
+      status?: "unresolved" | "resolved" | "ignored";
+      platform?: "ios" | "android" | "web" | "backend";
+      severity?: "error" | "warning" | "info";
+      search?: string;
+      startDate?: string;
+      endDate?: string;
+      page: number;
+      limit: number;
+    };
+    const result = await listIssues({
+      status: query.status,
+      platform: query.platform,
+      severity: query.severity,
+      search: query.search,
+      startDate: query.startDate,
+      endDate: query.endDate,
+      page: query.page,
+      limit: query.limit,
+    });
+    res.json(result);
+  }),
+);
+
+router.get(
+  "/errors/stats",
+  asyncHandler(async (_req: Request, res: Response) => {
+    const stats = await getErrorStats();
+    res.json(stats);
+  }),
+);
+
+router.get(
+  "/errors/:id",
+  validateRequest(undefined, undefined, errorIdParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const detail = await getIssueDetail(req.params.id);
+    res.json(detail);
+  }),
+);
+
+router.get(
+  "/errors/:id/events",
+  validateRequest(undefined, listErrorEventsQuerySchema, errorIdParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const query = req.query as unknown as { page: number; limit: number };
+    const result = await listIssueEvents(req.params.id, {
+      page: query.page,
+      limit: query.limit,
+    });
+    res.json(result);
+  }),
+);
+
+router.patch(
+  "/errors/:id/status",
+  validateRequest(updateErrorStatusSchema, undefined, errorIdParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const result = await updateIssueStatus(req.params.id, req.body.status, req.userId!);
+    res.json(result);
+  }),
+);
+
+router.delete(
+  "/errors/:id",
+  validateRequest(undefined, undefined, errorIdParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    await deleteIssue(req.params.id);
     res.status(204).send();
   }),
 );

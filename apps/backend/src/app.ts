@@ -1,5 +1,4 @@
 import express, { Application, Request, Response } from "express";
-import * as Sentry from "@sentry/node";
 import helmet from "helmet";
 import cors from "cors";
 import compression from "compression";
@@ -27,6 +26,7 @@ import ciRoutes from "./routes/ci.routes.js";
 import favoriteRoutes from "./routes/favorite.routes.js";
 import contactRoutes from "./routes/contact.routes.js";
 import mobileConfigRoutes from "./routes/internal/mobileConfig.routes.js";
+import errorTrackingRoutes from "./routes/internal/errorTracking.routes.js";
 import adminRoutes from "./routes/admin/index.js";
 
 const allowedOrigins = process.env.CORS_ORIGINS
@@ -364,20 +364,13 @@ export function createApp(): Application {
   app.use("/api/contact", contactRoutes);
   app.use("/ci", ciRoutes);
   app.use("/internal", mobileConfigRoutes);
+  app.use("/internal", errorTrackingRoutes);
   app.use("/api/admin", adminRoutes);
 
   app.get("/metrics", async (_req: Request, res: Response) => {
     const { getMetrics, getMetricsContentType } = await import("./lib/wsMetrics.js");
     res.set("Content-Type", getMetricsContentType());
     res.send(await getMetrics());
-  });
-
-  app.get("/debug-sentry", function mainHandler(_req: Request, _res: Response) {
-    Sentry.logger.info("User triggered test error", {
-      action: "test_error_endpoint",
-    });
-    Sentry.metrics.count("test_counter", 1);
-    throw new Error("My first Sentry error!");
   });
 
   app.use((req: Request, res: Response) => {
@@ -388,8 +381,6 @@ export function createApp(): Application {
       },
     });
   });
-
-  Sentry.setupExpressErrorHandler(app);
 
   app.use(errorMiddleware);
 

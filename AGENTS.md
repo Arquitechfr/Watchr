@@ -120,7 +120,7 @@ watchr/
    - Écriture = CLI (`pnpm --filter backend mobile-config set ...`) ou API admin authentifiée. Jamais d'endpoint public d'écriture.
    - Lecture = endpoint public sans auth (pas de données sensibles).
    - URL backend non hardcodée : `remoteConfigService.getConfig().backend_url` ou `getApiBaseUrl()`.
-   - Build-time vars (Firebase, EAS, Sentry) restent dans `.env`.
+   - Build-time vars (Firebase, EAS) restent dans `.env`.
    - Nouvelle valeur runtime : ajouter à `DEFAULT_REMOTE_CONFIG`, seeder MongoDB, documenter dans le plan.
 
 ## Principes transversaux

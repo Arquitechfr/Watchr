@@ -70,6 +70,7 @@ const en = {
     TOO_MANY_UPLOAD_REQUESTS: "Too many upload requests. Try again later.",
     TOO_MANY_TRAKT_SYNC_REQUESTS: "Too many Trakt sync requests. Try again later.",
     TOO_MANY_AI_REQUESTS: "Too many AI requests. Try again later.",
+    REPLIES_DISABLED: "Replies are not available on imported reviews.",
   },
   notifications: {
     commentReplyTitle: "New reply to your comment",

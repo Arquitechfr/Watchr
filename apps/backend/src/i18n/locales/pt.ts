@@ -70,6 +70,7 @@ const pt = {
     TOO_MANY_UPLOAD_REQUESTS: "Muitas solicitações de upload. Tente novamente mais tarde.",
     TOO_MANY_TRAKT_SYNC_REQUESTS: "Muitas sincronizações do Trakt. Tente novamente mais tarde.",
     TOO_MANY_AI_REQUESTS: "Muitas solicitações de IA. Tente novamente mais tarde.",
+    REPLIES_DISABLED: "As respostas não estão disponíveis em avaliações importadas.",
   },
   notifications: {
     commentReplyTitle: "Nova resposta ao seu comentário",

@@ -82,6 +82,24 @@ export interface TmdbProductionCompany {
   logo_path?: string | null;
 }
 
+export interface TmdbReviewAuthorDetails {
+  rating?: number | null;
+  avatar_path?: string | null;
+}
+
+export interface TmdbReview {
+  id: string;
+  author: string;
+  content: string;
+  author_details?: TmdbReviewAuthorDetails;
+}
+
+export interface TmdbReviewsResponse {
+  results: TmdbReview[];
+  page: number;
+  total_pages: number;
+}
+
 export interface TmdbShowDetails {
   id: number;
   name?: string;
@@ -230,6 +248,30 @@ class TmdbService {
     try {
       const response = await this.client.get<TmdbCredits>(`/movie/${tmdbId}/credits`, {
         params: { language },
+      });
+      return response.data;
+    } catch (err) {
+      throw this.handleError(err);
+    }
+  }
+
+  async getTvReviews(tmdbId: number, page = 1, language = "en-US"): Promise<TmdbReviewsResponse> {
+    await tmdbRateLimiter.consume();
+    try {
+      const response = await this.client.get<TmdbReviewsResponse>(`/tv/${tmdbId}/reviews`, {
+        params: { language, page },
+      });
+      return response.data;
+    } catch (err) {
+      throw this.handleError(err);
+    }
+  }
+
+  async getMovieReviews(tmdbId: number, page = 1, language = "en-US"): Promise<TmdbReviewsResponse> {
+    await tmdbRateLimiter.consume();
+    try {
+      const response = await this.client.get<TmdbReviewsResponse>(`/movie/${tmdbId}/reviews`, {
+        params: { language, page },
       });
       return response.data;
     } catch (err) {

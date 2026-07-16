@@ -60,6 +60,9 @@ export interface CommentItem {
   aiSpoilerDetected?: boolean;
   translatedContent?: string;
   isTranslated?: boolean;
+  source?: 'user' | 'rating' | 'tmdb';
+  ratingValue?: number;
+  repliesDisabled?: boolean;
 }
 
 export interface ListCommentsResult {
@@ -115,6 +118,9 @@ async function validateParentComment(parentId: string, showId: string) {
   }
   if (parent.showId.toString() !== showId) {
     throw new ApiError(400, "SHOW_MISMATCH", "Parent comment belongs to another show");
+  }
+  if (parent.repliesDisabled) {
+    throw new ApiError(400, "REPLIES_DISABLED", "Replies are not available on imported reviews");
   }
 }
 
@@ -215,6 +221,9 @@ function buildCommentItem(
     updatedAt: comment.updatedAt.toISOString(),
     translatedContent: isTranslated ? translatedContent! : undefined,
     isTranslated,
+    source: comment.source,
+    ratingValue: comment.ratingValue,
+    repliesDisabled: comment.repliesDisabled,
   };
 }
 
@@ -530,6 +539,9 @@ export async function listCommentsForShow(
       updatedAt: doc.updatedAt.toISOString(),
       translatedContent: isTranslated ? translatedContent! : undefined,
       isTranslated,
+      source: doc.source,
+      ratingValue: doc.ratingValue,
+      repliesDisabled: doc.repliesDisabled,
     };
   });
 

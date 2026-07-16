@@ -407,6 +407,7 @@ const it = {
       markWatchedAndProceed: "Segna come visto e leggi",
       reactionError: "Impossibile reagire",
       edited: "modificato",
+      tmdbBadge: "TMDB",
       translated: "Tradotto",
       showTranslation: "Mostra traduzione",
       showOriginal: "Mostra originale",

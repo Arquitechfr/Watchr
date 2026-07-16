@@ -2,10 +2,12 @@ import { Types } from "mongoose";
 import { Rating } from "../models/rating.model.js";
 import { Show } from "../models/show.model.js";
 import { User } from "../models/user.model.js";
+import { Comment } from "../models/comment.model.js";
 import { MobileConfig } from "../models/MobileConfig.js";
 import { ApiError } from "../middleware/error.middleware.js";
 import { getRedisValue, setRedisValue, invalidateRedisPattern } from "../lib/redis.js";
 import { getShowTitle } from "../models/show.model.js";
+import { logError } from "../lib/logger.js";
 
 const DEFAULT_RATING_COOLDOWN_DAYS = 7;
 
@@ -161,6 +163,8 @@ export async function upsertRating(userId: string, input: UpsertRatingInput) {
     { new: true, upsert: true },
   );
 
+  await syncRatingComment(userId, input, normalizedValue);
+
   await invalidateRedisPattern(`community-ratings:${input.showId}`);
   const community = await getCommunityRatings(input.showId);
 
@@ -233,5 +237,54 @@ export async function deleteRating(userId: string, ratingId: string) {
   });
   if (result.deletedCount === 0) {
     throw new ApiError(404, "RATING_NOT_FOUND", "Rating not found");
+  }
+}
+
+async function syncRatingComment(
+  userId: string,
+  input: UpsertRatingInput,
+  normalizedValue: number,
+): Promise<void> {
+  try {
+    const commentFilter: Record<string, unknown> = {
+      userId: new Types.ObjectId(userId),
+      showId: new Types.ObjectId(input.showId),
+      source: "rating",
+    };
+
+    if (input.episodeRef) {
+      commentFilter.episodeRef = input.episodeRef;
+    } else {
+      commentFilter.episodeRef = { $exists: false };
+    }
+
+    const hasReview = input.review && input.review.trim().length > 0;
+
+    if (hasReview) {
+      await Comment.findOneAndUpdate(
+        commentFilter,
+        {
+          $set: {
+            content: input.review,
+            ratingValue: normalizedValue,
+          },
+          $setOnInsert: {
+            userId: new Types.ObjectId(userId),
+            showId: new Types.ObjectId(input.showId),
+            source: "rating",
+            images: [],
+            isSpoiler: false,
+            likesCount: 0,
+            replyCount: 0,
+            ...(input.episodeRef ? { episodeRef: input.episodeRef } : {}),
+          },
+        },
+        { upsert: true, new: true },
+      );
+    } else {
+      await Comment.deleteOne(commentFilter);
+    }
+  } catch (err) {
+    logError("RatingService", "syncRatingComment failed", err, { userId, showId: input.showId });
   }
 }

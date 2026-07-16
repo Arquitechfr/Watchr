@@ -407,6 +407,7 @@ const ar = {
       markWatchedAndProceed: "تحديد كمشاهد وقراءة",
       reactionError: "تعذر التفاعل",
       edited: "مُعدّل",
+      tmdbBadge: "TMDB",
       translated: "مُترجم",
       showTranslation: "عرض الترجمة",
       showOriginal: "عرض النص الأصلي",

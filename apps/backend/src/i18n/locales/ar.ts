@@ -70,6 +70,7 @@ const ar = {
     TOO_MANY_UPLOAD_REQUESTS: "طلبات رفع كثيرة جداً. حاول مرة أخرى لاحقاً.",
     TOO_MANY_TRAKT_SYNC_REQUESTS: "مزامنات Trakt كثيرة جداً. حاول مرة أخرى لاحقاً.",
     TOO_MANY_AI_REQUESTS: "طلبات ذكاء اصطناعي كثيرة جداً. حاول مرة أخرى لاحقاً.",
+    REPLIES_DISABLED: "الردود غير متاحة على المراجعات المستوردة.",
   },
   notifications: {
     commentReplyTitle: "رد جديد على تعليقك",

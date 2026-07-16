@@ -407,6 +407,7 @@ const de = {
       markWatchedAndProceed: "Als gesehen markieren und lesen",
       reactionError: "Reaktion nicht möglich",
       edited: "bearbeitet",
+      tmdbBadge: "TMDB",
       translated: "Übersetzt",
       showTranslation: "Übersetzung anzeigen",
       showOriginal: "Original anzeigen",

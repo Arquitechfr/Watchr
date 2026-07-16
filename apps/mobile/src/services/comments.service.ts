@@ -30,6 +30,9 @@ export interface Comment {
   aiSpoilerDetected?: boolean;
   translatedContent?: string;
   isTranslated?: boolean;
+  source?: 'user' | 'rating' | 'tmdb';
+  ratingValue?: number;
+  repliesDisabled?: boolean;
 }
 
 export interface CreateCommentInput {

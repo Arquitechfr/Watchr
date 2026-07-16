@@ -30,6 +30,7 @@ export interface IUser extends Document {
   expoPushToken?: string;
   hasCompletedOnboarding: boolean;
   role: "user" | "admin";
+  isSystemUser: boolean;
   lastLoginAt: Date | null;
   isBanned: boolean;
   bannedAt: Date | null;
@@ -176,6 +177,11 @@ const userSchema = new Schema<IUser>(
       type: String,
       enum: ["ios", "android", "web"],
       required: false,
+      index: true,
+    },
+    isSystemUser: {
+      type: Boolean,
+      default: false,
       index: true,
     },
   },

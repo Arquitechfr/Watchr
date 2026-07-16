@@ -37,6 +37,32 @@ interface CommentItemProps {
   variant?: "default" | "parent" | "reply";
 }
 
+function CommentRatingBadge({ comment, colors, t }: { comment: Comment; colors: ReturnType<typeof useThemeColors>; t: ReturnType<typeof useI18n>["t"] }) {
+  if (!comment.source || comment.source === 'user') return null;
+
+  return (
+    <View className="flex-row items-center ml-2">
+      {comment.source === 'tmdb' && (
+        <View className="flex-row items-center px-1.5 py-0.5 rounded-full bg-primary/15">
+          <Text className="text-primary text-xs font-semibold">{t("screens.comments.tmdbBadge")}</Text>
+        </View>
+      )}
+      {comment.ratingValue != null && (
+        <View className="flex-row items-center ml-1.5">
+          {[1, 2, 3, 4, 5].map((num) => (
+            <Ionicons
+              key={num}
+              name={num <= comment.ratingValue! ? "star" : "star-outline"}
+              size={11}
+              color={num <= comment.ratingValue! ? colors.primary : colors.textMuted}
+            />
+          ))}
+        </View>
+      )}
+    </View>
+  );
+}
+
 export function CommentItem({
   comment,
   showId,
@@ -130,6 +156,7 @@ export function CommentItem({
               <View className="ml-2.5 flex-1">
                 <View className="flex-row items-center">
                   <Text className="text-text font-semibold text-sm">{comment.authorUsername}</Text>
+                  <CommentRatingBadge comment={comment} colors={colors} t={t} />
                   {comment.isSpoiler && (
                     <View className="ml-2 flex-row items-center px-1.5 py-0.5 rounded-full bg-danger/15">
                       <Ionicons name="eye-off-outline" size={10} color={colors.danger} />
@@ -167,6 +194,7 @@ export function CommentItem({
             {!isParent && (
               <View className="flex-row items-center flex-wrap">
                 <Text className="text-text font-semibold text-sm">{comment.authorUsername}</Text>
+                <CommentRatingBadge comment={comment} colors={colors} t={t} />
                 {comment.isSpoiler && (
                   <View className="ml-2 flex-row items-center px-1.5 py-0.5 rounded-full bg-danger/15">
                     <Ionicons name="eye-off-outline" size={10} color={colors.danger} />
@@ -236,7 +264,7 @@ export function CommentItem({
               comment={comment}
               isOwn={isOwn}
               isPending={isPending}
-              showReplyButton={!!onReply && !comment.parentId}
+              showReplyButton={!!onReply && !comment.parentId && !comment.repliesDisabled}
               showRepliesButton={comment.replyCount > 0 && !!showId && !isParent}
               onReply={() => setIsReplying((v) => !v)}
               onViewReplies={handleViewReplies}

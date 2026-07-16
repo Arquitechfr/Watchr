@@ -70,6 +70,7 @@ const fr = {
     TOO_MANY_UPLOAD_REQUESTS: "Trop de demandes d'upload. Réessayez plus tard.",
     TOO_MANY_TRAKT_SYNC_REQUESTS: "Trop de synchronisations Trakt. Réessayez plus tard.",
     TOO_MANY_AI_REQUESTS: "Trop de demandes IA. Réessayez plus tard.",
+    REPLIES_DISABLED: "Les réponses ne sont pas disponibles sur les avis importés.",
   },
   notifications: {
     commentReplyTitle: "Nouvelle réponse à votre commentaire",

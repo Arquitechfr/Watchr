@@ -5,6 +5,8 @@ export interface EpisodeRef {
   episode: number;
 }
 
+export type CommentSource = 'user' | 'rating' | 'tmdb';
+
 export interface IComment extends Document {
   userId: Schema.Types.ObjectId;
   showId: Schema.Types.ObjectId;
@@ -20,6 +22,10 @@ export interface IComment extends Document {
   spoilerReportCount: number;
   translations: Map<string, string>;
   originalLanguage?: string;
+  source: CommentSource;
+  externalId?: string;
+  ratingValue?: number;
+  repliesDisabled?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -97,11 +103,34 @@ const commentSchema = new Schema<IComment>(
       type: String,
       default: null,
     },
+    source: {
+      type: String,
+      enum: ['user', 'rating', 'tmdb'],
+      required: true,
+      default: 'user',
+      index: true,
+    },
+    externalId: {
+      type: String,
+      required: false,
+    },
+    ratingValue: {
+      type: Number,
+      min: 1,
+      max: 5,
+      required: false,
+    },
+    repliesDisabled: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true },
 );
 
 commentSchema.index({ showId: 1, episodeRef: 1, parentId: 1, createdAt: -1 });
 commentSchema.index({ userId: 1, createdAt: -1 });
+commentSchema.index({ source: 1 });
+commentSchema.index({ showId: 1, externalId: 1 }, { unique: true, sparse: true });
 
 export const Comment = model<IComment>("Comment", commentSchema);

@@ -28,6 +28,8 @@ import {
 } from "../services/comment.service.js";
 import { createReport } from "../services/report.service.js";
 import { summarizeThread } from "../services/aiCommentSummary.service.js";
+import { importTmdbReviewsIfNeeded } from "../services/tmdbReviewImport.service.js";
+import { Show } from "../models/show.model.js";
 
 const router: Router = Router();
 
@@ -117,14 +119,30 @@ router.get(
       limit?: string;
       sort?: string;
     };
+    const page = Number(query.page || 1);
+    const episodeRef =
+      query.season !== undefined && query.episode !== undefined
+        ? { season: Number(query.season), episode: Number(query.episode) }
+        : undefined;
     const result = await listCommentsForShow(req.userId!, showId, {
       season: query.season !== undefined ? Number(query.season) : undefined,
       episode: query.episode !== undefined ? Number(query.episode) : undefined,
-      page: Number(query.page || 1),
+      page,
       limit: Number(query.limit || 20),
       sort: (query.sort as "relevant" | "liked" | "replied" | "recent") || "recent",
     }, req.language);
     res.json(result);
+
+    // Intentional write side-effect on a GET: enrich empty comment sections
+    // with TMDB reviews when internal content is scarce (< 3 reviews).
+    // Rate-limited by Redis cache (6h TTL), non-blocking, idempotent via unique index.
+    if (page === 1) {
+      Show.findById(showId).select("tmdbId type").lean().then((show) => {
+        if (show?.tmdbId && show?.type) {
+          importTmdbReviewsIfNeeded(showId, show.tmdbId, show.type, episodeRef).catch(() => {});
+        }
+      }).catch(() => {});
+    }
   }),
 );
 

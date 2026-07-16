@@ -43,7 +43,7 @@ Rules:
     model: "mistral-small-latest",
     temperature: 0.2,
     responseFormat: { type: "json_object" },
-    maxTokens: 2000,
+    maxTokens: 8000,
     feature: "comment_translation",
   });
 

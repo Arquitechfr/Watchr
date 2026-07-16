@@ -158,12 +158,17 @@ export async function listLibrary(
   limit: number,
   type?: "tv" | "movie",
   language = "en",
+  status?: WatchStatus,
 ): Promise<TrackingListResult> {
   const skip = (page - 1) * limit;
 
   const matchStage: any = {
     userId: new Types.ObjectId(userId),
   };
+
+  if (status) {
+    matchStage.status = status;
+  }
 
   const pipeline: any[] = [
     { $match: matchStage },

@@ -30,6 +30,9 @@ import { useErrorMessage } from "../services/api";
 import { useSimilarShows } from "../hooks/useSimilarShows";
 import { useEnrichedTags } from "../hooks/useEnrichedTags";
 import { Seo } from "../components/Seo";
+import { HeroImage } from "../components/HeroImage";
+import { SegmentedControl } from "../components/SegmentedControl";
+import { useHeroTransition } from "../hooks/useHeroTransition";
 
 type ShowDetailRouteProp = RouteProp<RootStackParamList, "ShowDetail">;
 type ShowDetailNavigationProp = NativeStackNavigationProp<RootStackParamList, "ShowDetail">;
@@ -56,6 +59,7 @@ function getTmdbStatusLabel(t: ReturnType<typeof useI18n>["t"], status: string):
 
 export function ShowDetailScreen() {
   const route = useRoute<ShowDetailRouteProp>();
+  const { heroAnimatedStyle } = useHeroTransition();
   const navigation = useNavigation<ShowDetailNavigationProp>();
   const { tmdbId, title } = route.params;
   const { showSnackbar, showAlert } = useUIStore();
@@ -87,6 +91,7 @@ export function ShowDetailScreen() {
   useShowDetailsRealtime(show?.id ?? null, tmdbId);
 
   const [trackingModalVisible, setTrackingModalVisible] = useState(false);
+  const [activeDetailTab, setActiveDetailTab] = useState("overview");
 
   useEffect(() => {
     log("ShowDetail", "mount", { tmdbId, title });
@@ -430,23 +435,36 @@ export function ShowDetailScreen() {
         }}
         refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={() => throttledRefresh(handleRefresh)} tintColor={colors.primary} />}
       >
-        <View
-          className="overflow-hidden bg-surface-light"
-          style={isDesktopWeb ? { width: 280, aspectRatio: 2 / 3, borderRadius: 12, marginRight: 24 } : { width: "100%", height: 384 }}
-        >
-          {posterUrl ? (
-            <Image
-              source={{ uri: posterUrl }}
-              className="w-full"
-              style={{ aspectRatio: 2 / 3 }}
-              resizeMode="cover"
-            />
-          ) : (
-            <View className="w-full h-full bg-surface-light items-center justify-center">
-              <Text className="text-text-muted">{t("common.noImage")}</Text>
-            </View>
-          )}
-        </View>
+        {isDesktopWeb ? (
+          <View
+            className="overflow-hidden bg-surface-light"
+            style={{ width: 280, aspectRatio: 2 / 3, borderRadius: 12, marginRight: 24 }}
+          >
+            {posterUrl ? (
+              <Image
+                source={{ uri: posterUrl }}
+                className="w-full"
+                style={{ aspectRatio: 2 / 3 }}
+                resizeMode="cover"
+              />
+            ) : (
+              <View className="w-full h-full bg-surface-light items-center justify-center">
+                <Text className="text-text-muted">{t("common.noImage")}</Text>
+              </View>
+            )}
+          </View>
+        ) : (
+          <HeroImage
+            posterPath={show.posterPath}
+            backdropPath={show.backdropPath}
+            title={show.title}
+            subtitle={[
+              show.type === "tv" ? t("common.tv") : t("common.movie"),
+              show.firstAirDate ? new Date(show.firstAirDate).getFullYear().toString() : null,
+            ].filter(Boolean).join(" · ")}
+            animatedStyle={heroAnimatedStyle}
+          />
+        )}
 
         <View className={isDesktopWeb ? "flex-1 px-4" : "px-4"} style={isDesktopWeb ? { flex: 1 } : undefined}>
           {show.overview && (
@@ -456,20 +474,22 @@ export function ShowDetailScreen() {
             </View>
           )}
 
-          <View className="flex-row items-center mb-6">
-            <View className="bg-surface rounded-full px-3 py-1 mr-2">
-              <Text className="text-text text-xs font-medium">
-                {show.type === "tv" ? t("common.tv") : t("common.movie")}
-              </Text>
-            </View>
-            {show.firstAirDate && (
-              <View className="bg-surface rounded-full px-3 py-1">
+          {isDesktopWeb && (
+            <View className="flex-row items-center mb-6">
+              <View className="bg-surface rounded-full px-3 py-1 mr-2">
                 <Text className="text-text text-xs font-medium">
-                  {new Date(show.firstAirDate).getFullYear().toString()}
+                  {show.type === "tv" ? t("common.tv") : t("common.movie")}
                 </Text>
               </View>
-            )}
-          </View>
+              {show.firstAirDate && (
+                <View className="bg-surface rounded-full px-3 py-1">
+                  <Text className="text-text text-xs font-medium">
+                    {new Date(show.firstAirDate).getFullYear().toString()}
+                  </Text>
+                </View>
+              )}
+            </View>
+          )}
 
           <View className="flex-row flex-wrap mb-6 gap-2">
             <RatingCard
@@ -559,66 +579,171 @@ export function ShowDetailScreen() {
             </View>
           </View>
 
-          {show.cast && show.cast.length > 0 && (
-            <View className="mb-6">
-              <Text className="text-lg font-semibold text-text mb-2">{t("screens.showDetail.cast")}</Text>
-              <View className="relative">
-              <ScrollView ref={castScrollRef} horizontal showsHorizontalScrollIndicator={false} className="-mx-4 px-4">
-                {show.cast.slice(0, 15).map((member: CastMember, index: number) => (
-                  <CastMemberCard key={`${member.id}-${index}`} member={member} />
-                ))}
-              </ScrollView>
-              <ScrollArrows scrollRef={castScrollRef} />
-              </View>
+          {/* Mobile: tabbed sections. Desktop: all visible */}
+          {!isDesktopWeb && show.type === "tv" && show.seasons.length > 0 && (
+            <View className="mb-4">
+              <SegmentedControl
+                options={[
+                  { key: "overview", label: t("screens.showDetail.tabOverview") },
+                  { key: "episodes", label: t("screens.showDetail.tabEpisodes") },
+                  { key: "cast", label: t("screens.showDetail.tabCast") },
+                  { key: "comments", label: t("screens.showDetail.tabComments") },
+                ]}
+                active={activeDetailTab}
+                onChange={setActiveDetailTab}
+              />
             </View>
           )}
 
-          {show.crew && show.crew.length > 0 && (
+          {/* Overview tab — always visible on desktop or when tab is "overview" */}
+          {(isDesktopWeb || activeDetailTab === "overview" || (show.type !== "tv" || show.seasons.length === 0)) && (
+            <>
+              {show.cast && show.cast.length > 0 && (
+                <View className="mb-6">
+                  <Text className="text-lg font-semibold text-text mb-2">{t("screens.showDetail.cast")}</Text>
+                  <View className="relative">
+                  <ScrollView ref={castScrollRef} horizontal showsHorizontalScrollIndicator={false} className="-mx-4 px-4">
+                    {show.cast.slice(0, 15).map((member: CastMember, index: number) => (
+                      <CastMemberCard key={`${member.id}-${index}`} member={member} />
+                    ))}
+                  </ScrollView>
+                  <ScrollArrows scrollRef={castScrollRef} />
+                  </View>
+                </View>
+              )}
+
+              {show.crew && show.crew.length > 0 && (
+                <View className="mb-6">
+                  <Text className="text-lg font-semibold text-text mb-2">
+                    {show.type === "tv" ? t("screens.showDetail.creators") : t("screens.showDetail.directors")}
+                  </Text>
+                  <View className="relative">
+                  <ScrollView ref={crewScrollRef} horizontal showsHorizontalScrollIndicator={false} className="-mx-4 px-4">
+                    {show.crew.slice(0, 10).map((member: CrewMember, index: number) => (
+                      <CrewMemberCard key={`${member.id}-${member.job ?? index}`} member={member} />
+                    ))}
+                  </ScrollView>
+                  <ScrollArrows scrollRef={crewScrollRef} />
+                  </View>
+                </View>
+              )}
+
+              {commentCountData && commentCountData.total > 0 ? (
+                <TouchableOpacity
+                  onPress={handleOpenComments}
+                  className="flex-row items-center justify-between bg-surface rounded-xl p-4 mb-6"
+                  activeOpacity={0.7}
+                >
+                  <View className="flex-row items-center">
+                    <View className="w-10 h-10 rounded-full bg-primary/15 items-center justify-center mr-3">
+                      <Ionicons name="chatbubbles-outline" size={20} color={colors.primary} />
+                    </View>
+                    <Text className="text-text font-semibold">{t("screens.showDetail.comments")}</Text>
+                    <View className="ml-2 bg-primary/20 rounded-full px-2 py-0.5">
+                      <Text className="text-primary text-xs font-semibold">{commentCountData.total}</Text>
+                    </View>
+                  </View>
+                  <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  onPress={handleOpenComments}
+                  className="py-12 items-center justify-center bg-surface rounded-xl mb-6"
+                  activeOpacity={0.7}
+                >
+                  <Ionicons name="chatbubbles-outline" size={40} color={colors.textMuted} />
+                  <Text className="text-text-muted mt-2 text-center">{t("screens.comments.empty")}</Text>
+                  <Text className="text-text-muted text-sm text-center">{t("screens.comments.beFirst")}</Text>
+                </TouchableOpacity>
+              )}
+            </>
+          )}
+
+          {/* Episodes tab */}
+          {!isDesktopWeb && activeDetailTab === "episodes" && show.type === "tv" && show.seasons.length > 0 && (
             <View className="mb-6">
-              <Text className="text-lg font-semibold text-text mb-2">
-                {show.type === "tv" ? t("screens.showDetail.creators") : t("screens.showDetail.directors")}
-              </Text>
-              <View className="relative">
-              <ScrollView ref={crewScrollRef} horizontal showsHorizontalScrollIndicator={false} className="-mx-4 px-4">
-                {show.crew.slice(0, 10).map((member: CrewMember, index: number) => (
-                  <CrewMemberCard key={`${member.id}-${member.job ?? index}`} member={member} />
-                ))}
-              </ScrollView>
-              <ScrollArrows scrollRef={crewScrollRef} />
-              </View>
+              <LazyEpisodeGrid
+                tmdbId={tmdbId}
+                seasons={show.seasons}
+                watchedEpisodes={trackingEntry?.watchedEpisodes ?? []}
+                onToggleEpisode={handleToggleEpisode}
+                onPressEpisode={handleOpenEpisodeDetail}
+                onMarkSeasonAired={handleMarkSeasonAired}
+                isPending={toggleEpisode.isPending || markAllAired.isPending}
+              />
             </View>
           )}
 
-          {commentCountData && commentCountData.total > 0 ? (
-            <TouchableOpacity
-              onPress={handleOpenComments}
-              className="flex-row items-center justify-between bg-surface rounded-xl p-4 mb-6"
-              activeOpacity={0.7}
-            >
-              <View className="flex-row items-center">
-                <View className="w-10 h-10 rounded-full bg-primary/15 items-center justify-center mr-3">
-                  <Ionicons name="chatbubbles-outline" size={20} color={colors.primary} />
+          {/* Cast tab (mobile only, when explicitly selected) */}
+          {!isDesktopWeb && activeDetailTab === "cast" && (
+            <>
+              {show.cast && show.cast.length > 0 && (
+                <View className="mb-6">
+                  <Text className="text-lg font-semibold text-text mb-2">{t("screens.showDetail.cast")}</Text>
+                  <View className="relative">
+                  <ScrollView ref={castScrollRef} horizontal showsHorizontalScrollIndicator={false} className="-mx-4 px-4">
+                    {show.cast.slice(0, 15).map((member: CastMember, index: number) => (
+                      <CastMemberCard key={`${member.id}-${index}`} member={member} />
+                    ))}
+                  </ScrollView>
+                  <ScrollArrows scrollRef={castScrollRef} />
+                  </View>
                 </View>
-                <Text className="text-text font-semibold">{t("screens.showDetail.comments")}</Text>
-                <View className="ml-2 bg-primary/20 rounded-full px-2 py-0.5">
-                  <Text className="text-primary text-xs font-semibold">{commentCountData.total}</Text>
+              )}
+              {show.crew && show.crew.length > 0 && (
+                <View className="mb-6">
+                  <Text className="text-lg font-semibold text-text mb-2">
+                    {show.type === "tv" ? t("screens.showDetail.creators") : t("screens.showDetail.directors")}
+                  </Text>
+                  <View className="relative">
+                  <ScrollView ref={crewScrollRef} horizontal showsHorizontalScrollIndicator={false} className="-mx-4 px-4">
+                    {show.crew.slice(0, 10).map((member: CrewMember, index: number) => (
+                      <CrewMemberCard key={`${member.id}-${member.job ?? index}`} member={member} />
+                    ))}
+                  </ScrollView>
+                  <ScrollArrows scrollRef={crewScrollRef} />
+                  </View>
                 </View>
-              </View>
-              <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity
-              onPress={handleOpenComments}
-              className="py-12 items-center justify-center bg-surface rounded-xl mb-6"
-              activeOpacity={0.7}
-            >
-              <Ionicons name="chatbubbles-outline" size={40} color={colors.textMuted} />
-              <Text className="text-text-muted mt-2 text-center">{t("screens.comments.empty")}</Text>
-              <Text className="text-text-muted text-sm text-center">{t("screens.comments.beFirst")}</Text>
-            </TouchableOpacity>
+              )}
+            </>
           )}
 
-          {show.type === "tv" && show.seasons.length > 0 && (
+          {/* Comments tab (mobile only) */}
+          {!isDesktopWeb && activeDetailTab === "comments" && (
+            <>
+              {commentCountData && commentCountData.total > 0 ? (
+                <TouchableOpacity
+                  onPress={handleOpenComments}
+                  className="flex-row items-center justify-between bg-surface rounded-xl p-4 mb-6"
+                  activeOpacity={0.7}
+                >
+                  <View className="flex-row items-center">
+                    <View className="w-10 h-10 rounded-full bg-primary/15 items-center justify-center mr-3">
+                      <Ionicons name="chatbubbles-outline" size={20} color={colors.primary} />
+                    </View>
+                    <Text className="text-text font-semibold">{t("screens.showDetail.comments")}</Text>
+                    <View className="ml-2 bg-primary/20 rounded-full px-2 py-0.5">
+                      <Text className="text-primary text-xs font-semibold">{commentCountData.total}</Text>
+                    </View>
+                  </View>
+                  <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  onPress={handleOpenComments}
+                  className="py-12 items-center justify-center bg-surface rounded-xl mb-6"
+                  activeOpacity={0.7}
+                >
+                  <Ionicons name="chatbubbles-outline" size={40} color={colors.textMuted} />
+                  <Text className="text-text-muted mt-2 text-center">{t("screens.comments.empty")}</Text>
+                  <Text className="text-text-muted text-sm text-center">{t("screens.comments.beFirst")}</Text>
+                </TouchableOpacity>
+              )}
+            </>
+          )}
+
+          {/* Desktop: episodes always visible after cast */}
+          {isDesktopWeb && show.type === "tv" && show.seasons.length > 0 && (
             <View className="mb-6">
               <Text className="text-lg font-semibold text-text mb-2">{t("screens.showDetail.episodes")}</Text>
               <LazyEpisodeGrid

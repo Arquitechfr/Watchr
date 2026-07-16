@@ -13,6 +13,8 @@ import { ProfileMenuButton } from "../components/ProfileMenuButton";
 import { Avatar } from "../components/Avatar";
 import { StatCard } from "../components/Profile/StatCard";
 import { StreakBadge } from "../components/Profile/StreakBadge";
+import { StreakHeatmap } from "../components/Profile/StreakHeatmap";
+import { CoverBanner } from "../components/Profile/CoverBanner";
 import { GenreBreakdown } from "../components/Profile/GenreBreakdown";
 import { FavoriteCarousel } from "../components/Profile/FavoriteCarousel";
 import { RecentActivity } from "../components/Profile/RecentActivity";
@@ -96,7 +98,10 @@ export function ProfileScreen() {
       <View style={Platform.OS === "web" ? { maxWidth: 800, alignSelf: "center", width: "100%", flex: 1 } : undefined}>
       <MainHeader rightElement={<ProfileMenuButton />} />
       <ScrollView ref={scrollRef} showsVerticalScrollIndicator={false} contentContainerClassName="pb-24">
-        <View className="items-center mb-6">
+        <View style={{ marginHorizontal: -16 }}>
+          <CoverBanner />
+        </View>
+        <View className="items-center mb-6" style={{ marginTop: -40 }}>
           <TouchableOpacity onPress={pickAvatar} disabled={isAvatarUploading || meLoading} activeOpacity={0.8}>
             <View className="relative">
               <Avatar url={me?.avatarUrl} size={80} />
@@ -204,6 +209,12 @@ export function ProfileScreen() {
         {stats && (
           <View className="mb-6">
             <StreakBadge streak={stats.watchStreak} />
+          </View>
+        )}
+
+        {stats && stats.watchedDates && stats.watchedDates.length > 0 && (
+          <View className="mb-6">
+            <StreakHeatmap watchedDates={stats.watchedDates} />
           </View>
         )}
 

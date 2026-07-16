@@ -1,9 +1,10 @@
-import { View, Text, Image, TouchableOpacity } from "react-native";
+import { View, Text, Image, TouchableOpacity, Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { SearchResultItem, getPosterUrl } from "../services/shows.service";
 import { useThemeColors } from "../theme/useThemeColors";
 import { useI18n } from "../i18n/useI18n";
 import { ProgressBar } from "./ProgressBar";
+import { hapticMedium } from "../utils/haptics";
 
 interface PosterCardProps {
   show: SearchResultItem;
@@ -18,12 +19,13 @@ interface PosterCardProps {
   subtitle?: string;
   statusLabel?: string;
   statusColor?: string;
+  onLongPress?: () => void;
 }
 
 const DEFAULT_CARD_WIDTH = 128;
 const DEFAULT_CARD_HEIGHT = 192;
 
-export function PosterCard({ show, onPress, onAdd, isAdding, isAdded, watched, total, width, genres, subtitle, statusLabel, statusColor }: PosterCardProps) {
+export function PosterCard({ show, onPress, onAdd, isAdding, isAdded, watched, total, width, genres, subtitle, statusLabel, statusColor, onLongPress }: PosterCardProps) {
   const { t } = useI18n();
   const colors = useThemeColors();
   const posterUrl = getPosterUrl(show.posterPath, 200);
@@ -44,6 +46,8 @@ export function PosterCard({ show, onPress, onAdd, isAdding, isAdded, watched, t
         }}
         className="hover:opacity-80"
         onPress={onPress}
+        onLongPress={onLongPress ? () => { hapticMedium(); onLongPress(); } : undefined}
+        delayLongPress={400}
         activeOpacity={0.7}
       >
         {posterUrl ? (

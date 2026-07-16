@@ -1,8 +1,8 @@
-import { View, Text, FlatList, RefreshControl, TouchableOpacity, Image, useWindowDimensions, Platform } from "react-native";
+import { View, Text, FlatList, RefreshControl, TouchableOpacity, Image, useWindowDimensions, Platform, TextInput } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { MainHeader } from "../components/MainHeader";
 import { EmptyState } from "../components/EmptyState";
@@ -10,10 +10,12 @@ import { NetworkError } from "../components/NetworkError";
 import { Skeleton } from "../components/Skeleton";
 import { PosterCard } from "../components/PosterCard";
 import { ProgressBar } from "../components/ProgressBar";
+import { SegmentedControl } from "../components/SegmentedControl";
 import { ViewModeToggle } from "../components/ViewModeToggle";
 import { LibraryItem } from "../services/library.service";
 import { useLibrary } from "../hooks/useLibrary";
 import { getPosterUrl, SearchResultItem } from "../services/shows.service";
+import { WatchStatus } from "../services/tracking.service";
 import { useThemeColors } from "../theme/useThemeColors";
 import { useI18n } from "../i18n/useI18n";
 import { useUIStore } from "../store/uiStore";
@@ -24,34 +26,8 @@ type NavigationProp = NativeStackNavigationProp<RootStackParamList, "ShowDetail"
 type LibraryRoute = RouteProp<RootStackParamList, "Library">;
 
 type LibraryTab = "tv" | "movie";
-
-function LibraryTabs({ active, onChange }: { active: LibraryTab; onChange: (tab: LibraryTab) => void }) {
-  const { t } = useI18n();
-  const tabs = [
-    { key: "tv" as LibraryTab, label: t("navigation.series") },
-    { key: "movie" as LibraryTab, label: t("navigation.movies") },
-  ];
-
-  return (
-    <View className="flex-row bg-muted rounded-lg p-1">
-      {tabs.map((tab) => (
-        <TouchableOpacity
-          key={tab.key}
-          onPress={() => onChange(tab.key)}
-          className={`flex-1 py-2 rounded-md ${active === tab.key ? "bg-primary" : ""}`}
-        >
-          <Text
-            className={`text-center text-sm font-medium ${
-              active === tab.key ? "text-white" : "text-text-muted"
-            }`}
-          >
-            {tab.label}
-          </Text>
-        </TouchableOpacity>
-      ))}
-    </View>
-  );
-}
+type StatusFilter = "all" | WatchStatus;
+type SortMode = "recent" | "title" | "progress";
 
 function LibraryItemCard({ item, onPress }: { item: LibraryItem; onPress: () => void }) {
   const { t } = useI18n();
@@ -116,6 +92,10 @@ export function LibraryScreen() {
   const libraryViewMode = useUIStore((state) => state.libraryViewMode);
   const hydrateLibraryViewMode = useUIStore((state) => state.hydrateLibraryViewMode);
   const [activeTab, setActiveTab] = useState<LibraryTab>(route.params?.tab ?? "tv");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [sortMode, setSortMode] = useState<SortMode>("recent");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
 
   const {
     data: libraryData,
@@ -126,9 +106,35 @@ export function LibraryScreen() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useLibrary(activeTab);
+  } = useLibrary(activeTab, statusFilter === "all" ? undefined : statusFilter);
 
-  const data: LibraryItem[] = libraryData?.pages.flatMap((page) => page.data) ?? [];
+  const rawData: LibraryItem[] = libraryData?.pages.flatMap((page) => page.data) ?? [];
+
+  const data = useMemo(() => {
+    let filtered = rawData;
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      filtered = filtered.filter((item) => item.show.title.toLowerCase().includes(q));
+    }
+    const sorted = [...filtered];
+    switch (sortMode) {
+      case "title":
+        sorted.sort((a, b) => a.show.title.localeCompare(b.show.title));
+        break;
+      case "progress":
+        sorted.sort((a, b) => {
+          const aProgress = a.show.totalEpisodes ? a.watchedEpisodes.length / a.show.totalEpisodes : 0;
+          const bProgress = b.show.totalEpisodes ? b.watchedEpisodes.length / b.show.totalEpisodes : 0;
+          return bProgress - aProgress;
+        });
+        break;
+      case "recent":
+      default:
+        sorted.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+        break;
+    }
+    return sorted;
+  }, [rawData, searchQuery, sortMode]);
 
   const handleRefresh = () => {
     refetch();
@@ -168,14 +174,82 @@ export function LibraryScreen() {
   const gridPadding = 16;
   const gridCardWidth = (windowWidth - gridPadding * 2 - gridGap * (gridNumColumns - 1)) / gridNumColumns;
 
+  const statusOptions: { key: StatusFilter; label: string }[] = [
+    { key: "all", label: t("screens.library.filterAll") },
+    { key: "watching", label: t("screens.showDetail.inProgress") },
+    { key: "completed", label: t("screens.showDetail.completed") },
+    { key: "plan_to_watch", label: t("screens.showDetail.planToWatch") },
+    { key: "dropped", label: t("screens.showDetail.dropped") },
+  ];
+
+  const sortOptions: { key: SortMode; label: string }[] = [
+    { key: "recent", label: t("screens.library.sortRecent") },
+    { key: "title", label: t("screens.library.sortTitle") },
+    { key: "progress", label: t("screens.library.sortProgress") },
+  ];
+
   return (
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
       <Seo title={t("seo.library")} />
       <MainHeader rightElement={<ViewModeToggle />} />
 
-      <LibraryTabs active={activeTab} onChange={handleTabChange} />
+      <SegmentedControl
+        options={[
+          { key: "tv", label: t("navigation.series") },
+          { key: "movie", label: t("navigation.movies") },
+        ]}
+        active={activeTab}
+        onChange={(key) => handleTabChange(key as LibraryTab)}
+      />
 
-      <View className="flex-1 mt-4">
+      {/* Search + Filter toggle row */}
+      <View className="flex-row items-center mt-3 mb-2">
+        <View className="flex-1 flex-row items-center bg-surface rounded-lg px-3 py-2 border border-border mr-2">
+          <Ionicons name="search-outline" size={18} color={colors.textMuted} />
+          <TextInput
+            className="flex-1 text-text ml-2 text-sm"
+            placeholder={t("screens.library.searchPlaceholder")}
+            placeholderTextColor={colors.textMuted}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity onPress={() => setSearchQuery("")} className="ml-1 p-0.5">
+              <Ionicons name="close-circle" size={16} color={colors.textMuted} />
+            </TouchableOpacity>
+          )}
+        </View>
+        <TouchableOpacity
+          className="flex-row items-center bg-surface rounded-lg px-3 py-2 border border-border"
+          onPress={() => setShowFilters(!showFilters)}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="options-outline" size={18} color={showFilters ? colors.primary : colors.text} />
+          <Text className="text-text ml-1.5 text-sm font-medium">{t("screens.library.filters")}</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Expandable filters */}
+      {showFilters && (
+        <View className="mb-3">
+          <Text className="text-text-muted text-xs uppercase tracking-wider mb-2 mt-2">{t("screens.library.filterByStatus")}</Text>
+          <SegmentedControl
+            options={statusOptions}
+            active={statusFilter}
+            onChange={(key) => setStatusFilter(key as StatusFilter)}
+          />
+          <Text className="text-text-muted text-xs uppercase tracking-wider mb-2 mt-3">{t("screens.library.sortBy")}</Text>
+          <SegmentedControl
+            options={sortOptions}
+            active={sortMode}
+            onChange={(key) => setSortMode(key as SortMode)}
+          />
+        </View>
+      )}
+
+      <View className="flex-1 mt-2">
         {isLoading && data.length === 0 ? (
           <View>
             {[...Array(5)].map((_, index) => (
@@ -187,10 +261,10 @@ export function LibraryScreen() {
         ) : !isFetchingNextPage && data.length === 0 ? (
           <EmptyState
             icon="film-outline"
-            title={t("screens.library.emptyTitle")}
-            subtitle={t("screens.library.emptySubtitle")}
-            actionLabel={t("screens.library.addBtn")}
-            onAction={() => navigation.navigate("Main", { screen: "Search" })}
+            title={searchQuery || statusFilter !== "all" ? t("screens.library.noResults") : t("screens.library.emptyTitle")}
+            subtitle={searchQuery || statusFilter !== "all" ? t("screens.library.noResultsSubtitle") : t("screens.library.emptySubtitle")}
+            actionLabel={searchQuery || statusFilter !== "all" ? undefined : t("screens.library.addBtn")}
+            onAction={searchQuery || statusFilter !== "all" ? undefined : () => navigation.navigate("Main", { screen: "Search" })}
           />
         ) : libraryViewMode === "grid" ? (
           <FlatList

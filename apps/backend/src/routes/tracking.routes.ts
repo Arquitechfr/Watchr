@@ -69,12 +69,13 @@ router.get(
   "/library",
   validateRequest(undefined, librarySchema),
   asyncHandler(async (req: Request, res: Response) => {
-    const { page, limit, type } = req.query as unknown as {
+    const { page, limit, type, status } = req.query as unknown as {
       page: number;
       limit: number;
       type?: "tv" | "movie";
+      status?: import("../models/watchEntry.model.js").WatchStatus;
     };
-    const result = await listLibrary(req.userId!, page, limit, type, req.language);
+    const result = await listLibrary(req.userId!, page, limit, type, req.language, status);
     res.json(result);
   }),
 );

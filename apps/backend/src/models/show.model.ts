@@ -71,6 +71,7 @@ export interface IShow extends Document {
   type: "tv" | "movie";
   title: string;
   posterPath?: string;
+  backdropPath?: string;
   overview?: string;
   firstAirDate?: Date;
   seasons: Season[];
@@ -205,6 +206,9 @@ const showSchema = new Schema<IShow>(
       required: true,
     },
     posterPath: {
+      type: String,
+    },
+    backdropPath: {
       type: String,
     },
     overview: {

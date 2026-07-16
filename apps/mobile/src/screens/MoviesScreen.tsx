@@ -24,6 +24,7 @@ import { useThemeColors } from "../theme/useThemeColors";
 import { useI18n } from "../i18n/useI18n";
 import { Seo } from "../components/Seo";
 import { ImportProgressBanner } from "../components/ImportProgressBanner";
+import { SegmentedControl } from "../components/SegmentedControl";
 import { WatchStatus } from "../services/tracking.service";
 
 type NavigationProp = CompositeNavigationProp<
@@ -116,34 +117,6 @@ function MovieCard({ movie, onPress, onMarkWatched, isMarking }: { movie: Unwatc
 }
 
 type MovieCategoryTab = "non-anime" | "anime";
-
-function MovieCategoryTabs({ active, onChange }: { active: MovieCategoryTab; onChange: (tab: MovieCategoryTab) => void }) {
-  const { t } = useI18n();
-  const tabs = [
-    { key: "non-anime" as MovieCategoryTab, label: t("screens.movies.tabFilms") },
-    { key: "anime" as MovieCategoryTab, label: t("screens.movies.tabAnime") },
-  ];
-
-  return (
-    <View className="flex-row bg-muted rounded-lg p-1 mb-3">
-      {tabs.map((tab) => (
-        <TouchableOpacity
-          key={tab.key}
-          onPress={() => onChange(tab.key)}
-          className={`flex-1 py-2 rounded-md ${active === tab.key ? "bg-primary" : ""}`}
-        >
-          <Text
-            className={`text-center text-sm font-medium ${
-              active === tab.key ? "text-white" : "text-text-muted"
-            }`}
-          >
-            {tab.label}
-          </Text>
-        </TouchableOpacity>
-      ))}
-    </View>
-  );
-}
 
 export function MoviesScreen() {
   const navigation = useNavigation<NavigationProp>();
@@ -275,7 +248,15 @@ export function MoviesScreen() {
 
       <ImportProgressBanner />
 
-      <MovieCategoryTabs active={activeCategory} onChange={setActiveCategory} />
+      <SegmentedControl
+        options={[
+          { key: "non-anime", label: t("screens.movies.tabFilms") },
+          { key: "anime", label: t("screens.movies.tabAnime") },
+        ]}
+        active={activeCategory}
+        onChange={(key) => setActiveCategory(key as MovieCategoryTab)}
+        className="mb-3"
+      />
 
       {isSearchVisible && (
         <>

@@ -1,0 +1,26 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["TEAMID.com.watchr.app"],
+        "components": [
+          {
+            "/": "/auth/magic-link"
+          },
+          {
+            "/": "/reset-password"
+          },
+          {
+            "/": "/show"
+          },
+          {
+            "/": "/comments"
+          },
+          {
+            "/": "/episode"
+          }
+        ]
+      }
+    ]
+  }
+}

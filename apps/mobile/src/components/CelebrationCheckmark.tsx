@@ -17,6 +17,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { ConfettiBurst } from "./ConfettiBurst";
 import { useThemeColors } from "../theme/useThemeColors";
+import { hapticSuccess } from "../utils/haptics";
 
 interface CelebrationCheckmarkProps {
   onPress: () => void;
@@ -58,6 +59,7 @@ export function CelebrationCheckmark({
 
   function handlePress(e: GestureResponderEvent) {
     e.stopPropagation();
+    hapticSuccess();
 
     scale.value = withSequence(
       withTiming(0.8, { duration: 100 }),

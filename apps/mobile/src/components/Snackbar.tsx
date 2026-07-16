@@ -1,31 +1,36 @@
 import { useEffect } from "react";
-import { Animated, Text, TouchableOpacity } from "react-native";
+import { Text, TouchableOpacity, Platform } from "react-native";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withSpring,
+  runOnJS,
+  Easing,
+} from "react-native-reanimated";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { useUIStore } from "../store/uiStore";
 
 export function Snackbar() {
   const { snackbar, hideSnackbar } = useUIStore();
-  const opacity = new Animated.Value(0);
+  const translateY = useSharedValue(100);
+  const opacity = useSharedValue(0);
 
   useEffect(() => {
     if (!snackbar) return;
 
-    opacity.setValue(0);
-    Animated.timing(opacity, {
-      toValue: 1,
-      duration: 200,
-      useNativeDriver: true,
-    }).start();
+    opacity.value = withTiming(1, { duration: 200, easing: Easing.out(Easing.ease) });
+    translateY.value = withSpring(0, { damping: 20, stiffness: 300, mass: 0.8 });
 
     const timer = setTimeout(() => {
-      Animated.timing(opacity, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }).start(() => hideSnackbar());
-    }, 3000);
+      opacity.value = withTiming(0, { duration: 200 });
+      translateY.value = withTiming(100, { duration: 200 }, () => {
+        runOnJS(hideSnackbar)();
+      });
+    }, 4000);
 
     return () => clearTimeout(timer);
-  }, [snackbar]);
+  }, [snackbar, hideSnackbar, opacity, translateY]);
 
   if (!snackbar) return null;
 
@@ -36,15 +41,70 @@ export function Snackbar() {
         ? "bg-success"
         : "bg-primary";
 
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: translateY.value }],
+    opacity: opacity.value,
+  }));
+
+  const dismiss = () => {
+    opacity.value = withTiming(0, { duration: 150 });
+    translateY.value = withTiming(100, { duration: 150 }, () => {
+      runOnJS(hideSnackbar)();
+    });
+  };
+
+  const panGesture = Gesture.Pan()
+    .onEnd((e) => {
+      if (e.translationY > 40 || e.translationX > 100 || e.translationX < -100) {
+        runOnJS(dismiss)();
+      } else {
+        translateY.value = withSpring(0, { damping: 20, stiffness: 300 });
+      }
+    });
+
+  if (Platform.OS === "web") {
+    return (
+      <Animated.View
+        style={[animatedStyle, { elevation: 60 }]}
+        className={`absolute bottom-16 left-4 right-4 ${bgClass} px-4 py-3 rounded-lg shadow-lg z-50 flex-row items-center justify-between`}
+      >
+        <Text className="text-white flex-1 font-medium">{snackbar.message}</Text>
+        {snackbar.actionLabel && snackbar.onAction && (
+          <TouchableOpacity
+            onPress={() => { snackbar.onAction!(); hideSnackbar(); }}
+            className="ml-3"
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <Text className="text-white font-bold underline">{snackbar.actionLabel}</Text>
+          </TouchableOpacity>
+        )}
+        <TouchableOpacity onPress={hideSnackbar} className="ml-3 p-1" hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+          <Text className="text-white/80 text-lg">✕</Text>
+        </TouchableOpacity>
+      </Animated.View>
+    );
+  }
+
   return (
-    <Animated.View
-      style={{ opacity, elevation: 60 }}
-      className={`absolute bottom-12 left-4 right-4 ${bgClass} px-4 py-3 rounded-lg shadow-lg z-50`}
-      pointerEvents="box-none"
-    >
-      <TouchableOpacity onPress={hideSnackbar} activeOpacity={0.8}>
-        <Text className="text-white text-center font-medium">{snackbar.message}</Text>
-      </TouchableOpacity>
-    </Animated.View>
+    <GestureDetector gesture={panGesture}>
+      <Animated.View
+        style={[animatedStyle, { elevation: 60 }]}
+        className={`absolute bottom-16 left-4 right-4 ${bgClass} px-4 py-3 rounded-lg shadow-lg z-50 flex-row items-center justify-between`}
+      >
+        <Text className="text-white flex-1 font-medium">{snackbar.message}</Text>
+        {snackbar.actionLabel && snackbar.onAction && (
+          <TouchableOpacity
+            onPress={() => { snackbar.onAction!(); hideSnackbar(); }}
+            className="ml-3"
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <Text className="text-white font-bold">{snackbar.actionLabel}</Text>
+          </TouchableOpacity>
+        )}
+        <TouchableOpacity onPress={hideSnackbar} className="ml-3 p-1" hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+          <Text className="text-white/80 text-lg">✕</Text>
+        </TouchableOpacity>
+      </Animated.View>
+    </GestureDetector>
   );
 }

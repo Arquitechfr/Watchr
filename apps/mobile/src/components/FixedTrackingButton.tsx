@@ -5,6 +5,7 @@ import { ShowDetails } from "../services/shows.service";
 import { WatchEntry } from "../services/tracking.service";
 import { useThemeColors } from "../theme/useThemeColors";
 import { useI18n } from "../i18n/useI18n";
+import { hapticMedium } from "../utils/haptics";
 
 interface FixedTrackingButtonProps {
   show: ShowDetails;
@@ -41,7 +42,7 @@ export function FixedTrackingButton({
       >
         <TouchableOpacity
           className="flex-row items-center justify-center py-3 rounded-lg bg-primary"
-          onPress={onToggleWatched}
+          onPress={() => { hapticMedium(); onToggleWatched(); }}
           disabled={disabled}
         >
           <Ionicons
@@ -100,7 +101,7 @@ export function FixedTrackingButton({
     >
       <TouchableOpacity
         className={`flex-row items-center justify-center py-3 rounded-lg ${buttonClassName}`}
-        onPress={handlePress}
+        onPress={() => { hapticMedium(); handlePress(); }}
         disabled={disabled}
       >
         <Ionicons

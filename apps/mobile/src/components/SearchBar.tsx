@@ -10,9 +10,10 @@ interface SearchBarProps {
   placeholder: string;
   onClose: () => void;
   minChars?: number;
+  autoFocus?: boolean;
 }
 
-export function SearchBar({ value, onChangeText, placeholder, onClose, minChars = 3 }: SearchBarProps) {
+export function SearchBar({ value, onChangeText, placeholder, onClose, minChars = 3, autoFocus = true }: SearchBarProps) {
   const colors = useThemeColors();
   const { t } = useI18n();
   const [localValue, setLocalValue] = useState(value);
@@ -42,7 +43,7 @@ export function SearchBar({ value, onChangeText, placeholder, onClose, minChars 
           onChangeText={setLocalValue}
           autoCapitalize="none"
           autoCorrect={false}
-          autoFocus
+          autoFocus={autoFocus}
         />
         <TouchableOpacity onPress={onClose} className="ml-2 p-1">
           <Ionicons name="close-circle" size={20} color={colors.textMuted} />

@@ -106,6 +106,7 @@ export interface TmdbShowDetails {
   name?: string;
   title?: string;
   poster_path?: string | null;
+  backdrop_path?: string | null;
   overview?: string;
   first_air_date?: string;
   release_date?: string;

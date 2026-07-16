@@ -167,6 +167,7 @@ export async function upsertShowFromTmdb(
   const baseUpdate: Partial<IShow> = {
     type,
     posterPath: tmdbDetails.poster_path || undefined,
+    backdropPath: tmdbDetails.backdrop_path || undefined,
     firstAirDate: parseDate(tmdbDetails.first_air_date || tmdbDetails.release_date),
     nextEpisodeToAir,
     voteAverage: tmdbDetails.vote_average,

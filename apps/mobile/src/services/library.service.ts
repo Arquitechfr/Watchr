@@ -1,10 +1,11 @@
 import { api } from "./api";
+import { WatchStatus } from "./tracking.service";
 
 export interface LibraryItem {
   id: string;
   showId: string;
   userId: string;
-  status: "watching" | "completed" | "plan_to_watch" | "dropped";
+  status: WatchStatus;
   watchedEpisodes: Array<{ season: number; episode: number }>;
   currentSeason?: number;
   currentEpisode?: number;
@@ -33,13 +34,17 @@ export async function getLibrary(
   type: "tv" | "movie" | undefined,
   page = 1,
   limit = 20,
+  status?: WatchStatus,
 ): Promise<LibraryResponse> {
-  const params: { type?: "tv" | "movie"; page: number; limit: number } = {
+  const params: { type?: "tv" | "movie"; page: number; limit: number; status?: WatchStatus } = {
     page,
     limit,
   };
   if (type) {
     params.type = type;
+  }
+  if (status) {
+    params.status = status;
   }
   const response = await api.get<LibraryResponse>("/tracking/library", { params });
   return response.data;

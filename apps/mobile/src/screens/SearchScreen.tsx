@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import {
   View,
-  TextInput,
   FlatList,
   Text,
   Keyboard,
@@ -25,6 +24,7 @@ import { NetworkError } from "../components/NetworkError";
 import { ShowCardSkeleton, Skeleton } from "../components/Skeleton";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { MainHeader } from "../components/MainHeader";
+import { SearchBar } from "../components/SearchBar";
 import { useThemeColors } from "../theme/useThemeColors";
 import { RootStackParamList } from "../navigation/RootNavigator";
 import { SearchResultItem, DiscoverSection, MoodRecommendation } from "../services/shows.service";
@@ -35,6 +35,8 @@ import { useMoodRecommendations } from "../hooks/useMoodRecommendations";
 import { useRecommendations } from "../hooks/useAIShows";
 import { useSemanticSearch } from "../hooks/useSemanticSearch";
 import { Seo } from "../components/Seo";
+import { RecentSearches } from "../components/RecentSearches";
+import { useSearchHistory } from "../hooks/useSearchHistory";
 import { Ionicons } from "@expo/vector-icons";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "ShowDetail">;
@@ -66,6 +68,7 @@ export function SearchScreen() {
   const { data: recommendationsData } = useRecommendations();
   const [useSemantic, setUseSemantic] = useState(false);
   const semanticSearch = useSemanticSearch(useSemantic ? debouncedQuery : "");
+  const { history: searchHistory, addEntry: addSearchEntry, clearHistory: clearSearchHistory, removeEntry: removeSearchEntry } = useSearchHistory();
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -77,6 +80,16 @@ export function SearchScreen() {
     }, 300);
     return () => clearTimeout(timer);
   }, [query]);
+
+  useEffect(() => {
+    if (debouncedQuery && debouncedQuery.length >= 2) {
+      addSearchEntry(debouncedQuery);
+    }
+  }, [debouncedQuery, addSearchEntry]);
+
+  function handleHistorySelect(entry: string) {
+    setQuery(entry);
+  }
 
   const allResults = data ? data.results : [];
   const hasResults = allResults.length > 0;
@@ -122,14 +135,23 @@ export function SearchScreen() {
       <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
         <Seo title={t("seo.search")} />
         <MainHeader />
-        <TextInput
-          className="bg-surface text-text px-4 py-3 rounded-lg mb-4 border border-border"
-          placeholder={t("screens.search.placeholder")}
-          placeholderTextColor={colors.textMuted}
+        <SearchBar
           value={query}
           onChangeText={setQuery}
-          autoCapitalize="none"
+          placeholder={t("screens.search.placeholder")}
+          onClose={() => setQuery("")}
+          minChars={1}
+          autoFocus={false}
         />
+
+        {!isSearching && searchHistory.length > 0 && (
+          <RecentSearches
+            history={searchHistory}
+            onSelect={handleHistorySelect}
+            onRemove={removeSearchEntry}
+            onClear={clearSearchHistory}
+          />
+        )}
 
         {!isSearching && isDiscoverError && (
           <NetworkError

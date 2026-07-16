@@ -5,7 +5,7 @@ import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useMemo, useState, useEffect, useRef } from "react";
 import { ScreenContainer } from "../components/ScreenContainer";
-import { TopTabs, TopTab } from "../components/TopTabs";
+import { SegmentedControl } from "../components/SegmentedControl";
 import { UpcomingEpisodeRow } from "../components/UpcomingEpisodeRow";
 import { UnwatchedEpisodeRow } from "../components/UnwatchedEpisodeRow";
 import { WeekSectionHeader } from "../components/WeekSectionHeader";
@@ -31,6 +31,8 @@ import { useI18n } from "../i18n/useI18n";
 import { Seo } from "../components/Seo";
 import { ImportProgressBanner } from "../components/ImportProgressBanner";
 import { log } from "../utils/logger";
+
+type TopTab = "unwatched" | "upcoming";
 
 type NavigationProp = CompositeNavigationProp<
   BottomTabNavigationProp<{ Search: undefined }>,
@@ -494,9 +496,9 @@ export function SeriesScreen() {
         />
       )}
 
-      <TopTabs tabs={tabs} active={activeTab} onChange={(tab) => {
+      <SegmentedControl options={tabs} active={activeTab} onChange={(tab) => {
         log("SeriesScreen", "tab changed", tab);
-        setActiveTab(tab);
+        setActiveTab(tab as TopTab);
         if (tab === "unwatched") {
           throttledRefreshUnwatched(refetchUnwatched);
         } else if (tab === "upcoming") {

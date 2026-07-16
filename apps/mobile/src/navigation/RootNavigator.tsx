@@ -216,7 +216,14 @@ export function RootNavigator() {
             ) : (
               <Stack.Screen name="Main" component={MainTabs} />
             )}
-            <Stack.Screen name="ShowDetail" component={ShowDetailScreen} />
+            <Stack.Screen
+              name="ShowDetail"
+              component={ShowDetailScreen}
+              options={{
+                animation: "fade",
+                presentation: "card",
+              }}
+            />
             <Stack.Screen name="ShowComments" component={ShowCommentsScreen} />
             <Stack.Screen name="CommentThread" component={CommentThreadScreen} />
             <Stack.Screen name="EpisodeDetail" component={EpisodeDetailScreen} />
@@ -286,7 +293,11 @@ export function RootNavigator() {
     >
       {showSidebar ? (
         <View className="flex-1 flex-row bg-background">
-          <DesktopSidebar activeTab={activeTab} onTabPress={handleTabPress} />
+          <DesktopSidebar
+            activeTab={activeTab}
+            onTabPress={handleTabPress}
+            onNavigate={(route) => navigationRef.current?.navigate(route)}
+          />
           <View className="flex-1 bg-background md:pl-2">{stackContent}</View>
         </View>
       ) : stackContent}

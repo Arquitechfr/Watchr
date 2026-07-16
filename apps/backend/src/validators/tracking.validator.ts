@@ -60,6 +60,7 @@ export const librarySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(20),
   type: z.enum(["tv", "movie"]).optional(),
+  status: watchStatusSchema.optional(),
 });
 
 export const unwatchedSchema = z.object({

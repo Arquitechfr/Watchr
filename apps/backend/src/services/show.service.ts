@@ -282,6 +282,7 @@ export function showToResponse(show: ShowDocument, locale = "en") {
     type: show.type,
     title: localized.title,
     posterPath: show.posterPath,
+    backdropPath: show.backdropPath,
     overview: localized.overview,
     firstAirDate: show.firstAirDate?.toISOString(),
     seasons: localized.seasons?.map((season) => ({

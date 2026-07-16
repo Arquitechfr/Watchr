@@ -8,6 +8,8 @@ type LibraryViewMode = "grid" | "list";
 interface SnackbarMessage {
   message: string;
   type: "info" | "success" | "error";
+  actionLabel?: string;
+  onAction?: () => void;
 }
 
 export interface AlertButton {
@@ -24,7 +26,7 @@ export interface AlertConfig {
 
 interface UIState {
   snackbar: SnackbarMessage | null;
-  showSnackbar: (message: string, type?: SnackbarMessage["type"]) => void;
+  showSnackbar: (message: string, type?: SnackbarMessage["type"], action?: { label: string; onPress: () => void }) => void;
   hideSnackbar: () => void;
   alert: AlertConfig | null;
   showAlert: (config: AlertConfig) => void;
@@ -36,8 +38,8 @@ interface UIState {
 
 export const useUIStore = create<UIState>((set, get) => ({
   snackbar: null,
-  showSnackbar: (message, type = "info") => {
-    set({ snackbar: { message, type } });
+  showSnackbar: (message, type = "info", action) => {
+    set({ snackbar: { message, type, actionLabel: action?.label, onAction: action?.onPress } });
   },
   hideSnackbar: () => {
     set({ snackbar: null });

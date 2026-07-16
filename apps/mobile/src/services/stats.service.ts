@@ -33,6 +33,7 @@ export interface UserStats {
   memberSince: string;
   genreBreakdown: GenreStat[];
   recentActivity: RecentActivityItem[];
+  watchedDates: string[];
   aiInsights?: AiInsight[];
 }
 

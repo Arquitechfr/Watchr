@@ -1,6 +1,6 @@
-import { View, Text, Image, TouchableOpacity } from "react-native";
-import { SearchResultItem, getPosterUrl } from "../services/shows.service";
+import { SearchResultItem } from "../services/shows.service";
 import { useI18n } from "../i18n/useI18n";
+import { MediaRow } from "./MediaRow";
 
 interface ShowCardProps {
   show: SearchResultItem;
@@ -9,34 +9,20 @@ interface ShowCardProps {
 
 export function ShowCard({ show, onPress }: ShowCardProps) {
   const { t } = useI18n();
-  const posterUrl = getPosterUrl(show.posterPath, 200);
+
+  const subtitle = [
+    show.firstAirDate ? new Date(show.firstAirDate).getFullYear().toString() : "—",
+    show.type === "tv" ? t("common.tv") : t("common.movie"),
+  ].join(" · ");
 
   return (
-    <TouchableOpacity
-      className="flex-row items-center bg-surface rounded-lg p-3 mb-3 active:opacity-70 hover:opacity-80"
+    <MediaRow
+      posterPath={show.posterPath}
+      title={show.title}
+      subtitle={subtitle}
       onPress={onPress}
-    >
-      {posterUrl ? (
-        <Image
-          source={{ uri: posterUrl }}
-          className="w-20 h-28 rounded-lg bg-surface-light"
-          resizeMode="cover"
-        />
-      ) : (
-        <View className="w-20 h-28 rounded-lg bg-surface-light items-center justify-center">
-          <Text className="text-text-muted text-xs">{t("common.noImage")}</Text>
-        </View>
-      )}
-      <View className="flex-1 ml-3">
-        <Text className="text-text font-semibold text-base mb-1" numberOfLines={2}>
-          {show.title}
-        </Text>
-        <Text className="text-text-muted text-sm">
-          {show.firstAirDate ? new Date(show.firstAirDate).getFullYear() : "—"}
-          {" · "}
-          {show.type === "tv" ? t("common.tv") : t("common.movie")}
-        </Text>
-      </View>
-    </TouchableOpacity>
+      posterWidth={80}
+      posterHeight={112}
+    />
   );
 }

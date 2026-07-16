@@ -1,0 +1,13 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.watchr.app",
+      "sha256_cert_fingerprints": [
+        "C7:62:0F:BC:FB:91:58:6A:2C:CF:C3:FC:92:27:A5:19:61:8A:A6:83:59:F3:CF:F9:52:28:5E:64:7D:3B:41:BD",
+        "0D:43:2B:F8:6F:E2:FB:32:2D:88:75:CB:66:46:87:9D:EC:2E:F2:96:E5:E5:36:FD:89:B6:08:DF:73:0E:EA:44"
+      ]
+    }
+  }
+]

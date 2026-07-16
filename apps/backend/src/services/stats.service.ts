@@ -34,6 +34,7 @@ export interface UserStats {
   memberSince: string;
   genreBreakdown: GenreStat[];
   recentActivity: RecentActivityItem[];
+  watchedDates: string[];
   aiInsights?: AiInsight[];
 }
 
@@ -150,6 +151,7 @@ export async function getUserStats(userId: string, language = "en"): Promise<Use
     memberSince: user?.createdAt.toISOString() ?? new Date().toISOString(),
     genreBreakdown,
     recentActivity,
+    watchedDates: Array.from(watchedDates).sort(),
   };
 
   const aiInsights = await generateInsights(userId, baseStats, language);

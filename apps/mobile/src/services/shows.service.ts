@@ -32,6 +32,7 @@ export interface ShowDetails {
   type: "tv" | "movie";
   title: string;
   posterPath?: string;
+  backdropPath?: string;
   overview?: string;
   firstAirDate?: string;
   seasons: Season[];
@@ -138,6 +139,11 @@ export function getPosterUrl(path?: string, size: number = 200): string | undefi
 export function getStillUrl(path?: string, size: number = 300): string | undefined {
   if (!path) return undefined;
   return `${getApiBaseUrl()}/images/still/w${size}${path}`;
+}
+
+export function getBackdropUrl(path?: string, size: number = 780): string | undefined {
+  if (!path) return undefined;
+  return `${getApiBaseUrl()}/images/backdrop/w${size}${path}`;
 }
 
 export function getProfileUrl(path?: string, size: number = 200): string | undefined {

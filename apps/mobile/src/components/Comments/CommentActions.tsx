@@ -190,7 +190,7 @@ export function CommentActions({
         <View className="flex-row gap-4 mt-2 bg-surface-light rounded-lg px-3 py-2">
           <TouchableOpacity onPress={() => { setShowMenu(false); onReport?.(); }} activeOpacity={0.7} className="flex-row items-center">
             <Ionicons name="flag-outline" size={16} color={colors.danger} />
-            <Text className="text-danger text-sm ml-1">{t("comments.report.button")}</Text>
+            <Text className="text-danger text-sm ml-1">{t("screens.comments.report.button")}</Text>
           </TouchableOpacity>
         </View>
       )}

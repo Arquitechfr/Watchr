@@ -8,6 +8,7 @@ import { ApiError } from "../middleware/error.middleware.js";
 import { getRedisValue, setRedisValue, invalidateRedisPattern } from "../lib/redis.js";
 import { getShowTitle } from "../models/show.model.js";
 import { logError } from "../lib/logger.js";
+import { translateCommentAsync } from "./aiCommentTranslation.service.js";
 
 const DEFAULT_RATING_COOLDOWN_DAYS = 7;
 
@@ -261,7 +262,7 @@ async function syncRatingComment(
     const hasReview = input.review && input.review.trim().length > 0;
 
     if (hasReview) {
-      await Comment.findOneAndUpdate(
+      const upserted = await Comment.findOneAndUpdate(
         commentFilter,
         {
           $set: {
@@ -280,6 +281,10 @@ async function syncRatingComment(
           },
         },
         { upsert: true, new: true },
+      );
+
+      translateCommentAsync(upserted._id.toString(), input.review!).catch((err) =>
+        logError("RatingService", "translation failed", err, { commentId: upserted._id.toString() }),
       );
     } else {
       await Comment.deleteOne(commentFilter);

@@ -56,6 +56,26 @@ export function TrackingActionModal({
     [currentSeason, selectedEpisode],
   );
 
+  const previousUnwatchedCount = useMemo(() => {
+    if (!isTv) return 0;
+    const watchedKeys = new Set(
+      (trackingEntry?.watchedEpisodes ?? []).map((we) => `${we.season}-${we.episode}`),
+    );
+    return show.seasons
+      .flatMap((s) => {
+        const count = s.episodeCount ?? s.episodes?.length ?? 0;
+        const numbers = Array.from({ length: count }, (_, i) => i + 1);
+        return numbers
+          .filter((ep) => {
+            if (s.seasonNumber < selectedSeason) return true;
+            if (s.seasonNumber > selectedSeason) return false;
+            return ep < selectedEpisode;
+          })
+          .map((ep) => ({ season: s.seasonNumber, episode: ep }));
+      })
+      .filter((ep) => !watchedKeys.has(`${ep.season}-${ep.episode}`)).length;
+  }, [show.seasons, selectedSeason, selectedEpisode, trackingEntry?.watchedEpisodes, isTv]);
+
   const handleSave = () => {
     const payload: Parameters<typeof onSave>[0] = {
       includePrevious,
@@ -81,98 +101,151 @@ export function TrackingActionModal({
 
   const handleEpisodeChange = (delta: number) => {
     const next = selectedEpisode + delta;
-    if (next < 1 || next > maxEpisode) return;
-    setSelectedEpisode(next);
+    if (next < 1) {
+      setSelectedEpisode(maxEpisode);
+    } else if (next > maxEpisode) {
+      setSelectedEpisode(1);
+    } else {
+      setSelectedEpisode(next);
+    }
   };
 
   return (
     <Modal visible={visible} animationType={isDesktopWeb ? "fade" : "slide"} transparent onRequestClose={onClose}>
       <View className={isDesktopWeb ? "flex-1 justify-center items-center bg-black/70 px-6" : "flex-1 justify-end bg-black/70"}>
-        <View className={isDesktopWeb ? "bg-background rounded-2xl w-full max-w-md max-h-[85%]" : "bg-background rounded-t-2xl max-h-[85%] flex-1"}>
-          <View className="flex-row items-center justify-between px-4 py-3 border-b border-border">
-            <TouchableOpacity onPress={onClose} disabled={isPending}>
-              <Text className="text-text-muted">{t("common.cancel")}</Text>
+        <View
+          className={
+            isDesktopWeb
+              ? "bg-background rounded-2xl w-full max-w-md max-h-[85%] overflow-hidden"
+              : "bg-background rounded-t-3xl max-h-[85%] flex-1 overflow-hidden"
+          }
+        >
+          {/* Header */}
+          <View className="flex-row items-center justify-between px-5 py-4 border-b border-border">
+            <TouchableOpacity
+              onPress={onClose}
+              disabled={isPending}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              className="w-9 h-9 items-center justify-center rounded-full bg-surface"
+            >
+              <Ionicons name="close" size={18} color={colors.textMuted} />
             </TouchableOpacity>
-            <Text className="text-text font-semibold">
-              {trackingEntry ? t("common.edit") : t("screens.showDetail.addToList")}
-            </Text>
-            <TouchableOpacity onPress={handleSave} disabled={isPending}>
-              <Text className={`font-semibold ${isPending ? "text-text-muted" : "text-primary"}`}>
+
+            <View className="flex-row items-center gap-2">
+              <Ionicons name="bookmark-outline" size={18} color={colors.primary} />
+              <Text className="text-text font-bold text-base">
+                {trackingEntry ? t("common.edit") : t("screens.showDetail.addToList")}
+              </Text>
+            </View>
+
+            <TouchableOpacity
+              onPress={handleSave}
+              disabled={isPending}
+              className={`px-4 py-2 rounded-full ${isPending ? "bg-surface" : "bg-primary"}`}
+            >
+              <Text className={`font-semibold text-sm ${isPending ? "text-text-muted" : "text-white"}`}>
                 {t("common.save")}
               </Text>
             </TouchableOpacity>
           </View>
 
-          <ScrollView className="p-4 flex-1">
+          <ScrollView className="px-5 pt-5 flex-1" showsVerticalScrollIndicator={false}>
             {isTv && (
-              <>
-                <Text className="text-lg font-semibold text-text mb-3">
-                  {t("screens.showDetail.inProgress")}
-                </Text>
-                <View className="flex-row gap-4 mb-4">
+              <View className="rounded-2xl bg-surface p-4 mb-4">
+                <View className="flex-row items-center gap-2 mb-4">
+                  <Ionicons name="play-circle-outline" size={18} color={colors.primary} />
+                  <Text className="text-text font-bold text-base">
+                    {t("screens.showDetail.inProgress")}
+                  </Text>
+                </View>
+
+                {/* Season & Episode steppers */}
+                <View className="flex-row gap-3 mb-4">
                   <View className="flex-1">
-                    <Text className="text-text-muted text-sm mb-2">{t("screens.showDetail.season")}</Text>
-                    <View className="flex-row items-center bg-surface rounded-lg px-3 py-2">
+                    <Text className="text-text-muted text-xs font-medium mb-2 uppercase tracking-wide">
+                      {t("screens.showDetail.season")}
+                    </Text>
+                    <View className="flex-row items-center bg-background rounded-xl border border-border px-2 py-2.5">
                       <TouchableOpacity
-                        className="p-2"
+                        className="w-8 h-8 items-center justify-center rounded-lg active:bg-surfaceLight"
                         onPress={() => {
-                          const previous = show.seasons
-                            .map((s) => s.seasonNumber)
+                          const seasonNumbers = show.seasons.map((s) => s.seasonNumber);
+                          const previous = seasonNumbers
                             .filter((n) => n < selectedSeason)
                             .pop();
-                          if (previous !== undefined) handleSeasonChange(previous);
+                          if (previous !== undefined) {
+                            handleSeasonChange(previous);
+                          } else {
+                            const last = seasonNumbers[seasonNumbers.length - 1];
+                            if (last !== undefined) handleSeasonChange(last);
+                          }
                         }}
                         disabled={isPending}
                       >
-                        <Ionicons name="chevron-back" size={20} color={colors.text} />
+                        <Ionicons name="chevron-back" size={18} color={colors.primary} />
                       </TouchableOpacity>
-                      <Text className="flex-1 text-center text-text font-semibold">
-                        {t("screens.showDetail.season")} {selectedSeason}
+                      <Text className="flex-1 text-center text-text font-bold text-sm">
+                        {selectedSeason}
                       </Text>
                       <TouchableOpacity
-                        className="p-2"
+                        className="w-8 h-8 items-center justify-center rounded-lg active:bg-surfaceLight"
                         onPress={() => {
-                          const next = show.seasons
-                            .map((s) => s.seasonNumber)
-                            .find((n) => n > selectedSeason);
-                          if (next !== undefined) handleSeasonChange(next);
+                          const seasonNumbers = show.seasons.map((s) => s.seasonNumber);
+                          const next = seasonNumbers.find((n) => n > selectedSeason);
+                          if (next !== undefined) {
+                            handleSeasonChange(next);
+                          } else {
+                            const first = seasonNumbers[0];
+                            if (first !== undefined) handleSeasonChange(first);
+                          }
                         }}
                         disabled={isPending}
                       >
-                        <Ionicons name="chevron-forward" size={20} color={colors.text} />
+                        <Ionicons name="chevron-forward" size={18} color={colors.primary} />
                       </TouchableOpacity>
                     </View>
                   </View>
 
                   <View className="flex-1">
-                    <Text className="text-text-muted text-sm mb-2">{t("screens.showDetail.episode")}</Text>
-                    <View className="flex-row items-center bg-surface rounded-lg px-3 py-2">
+                    <Text className="text-text-muted text-xs font-medium mb-2 uppercase tracking-wide">
+                      {t("screens.showDetail.episode")}
+                    </Text>
+                    <View className="flex-row items-center bg-background rounded-xl border border-border px-2 py-2.5">
                       <TouchableOpacity
-                        className="p-2"
+                        className="w-8 h-8 items-center justify-center rounded-lg active:bg-surfaceLight"
                         onPress={() => handleEpisodeChange(-1)}
-                        disabled={isPending || selectedEpisode <= 1}
+                        disabled={isPending}
                       >
-                        <Ionicons name="chevron-back" size={20} color={colors.text} />
+                        <Ionicons name="chevron-back" size={18} color={colors.primary} />
                       </TouchableOpacity>
-                      <Text className="flex-1 text-center text-text font-semibold">
-                        {t("screens.showDetail.episode")} {selectedEpisode}
-                        {selectedEpisodeData?.name ? ` · ${selectedEpisodeData.name}` : ""}
+                      <Text className="flex-1 text-center text-text font-bold text-sm">
+                        {selectedEpisode}
                       </Text>
                       <TouchableOpacity
-                        className="p-2"
+                        className="w-8 h-8 items-center justify-center rounded-lg active:bg-surfaceLight"
                         onPress={() => handleEpisodeChange(1)}
-                        disabled={isPending || selectedEpisode >= maxEpisode}
+                        disabled={isPending}
                       >
-                        <Ionicons name="chevron-forward" size={20} color={colors.text} />
+                        <Ionicons name="chevron-forward" size={18} color={colors.primary} />
                       </TouchableOpacity>
                     </View>
                   </View>
                 </View>
 
-                <View className="flex-row items-center justify-between bg-surface rounded-lg px-3 py-3 mb-6">
-                  <Text className="text-text flex-1">
-                    {t("screens.episode.markPreviousMessage")}
+                {/* Episode name */}
+                {selectedEpisodeData?.name ? (
+                  <Text className="text-text-muted text-xs text-center mb-3" numberOfLines={1}>
+                    {selectedEpisodeData.name}
                   </Text>
+                ) : null}
+
+                {/* Include previous toggle */}
+                <View className="flex-row items-center justify-between bg-background rounded-xl border border-border px-3 py-3">
+                  <View className="flex-1 pr-3">
+                    <Text className="text-text text-sm">
+                      {t("screens.episode.markPreviousMessage", { count: previousUnwatchedCount })}
+                    </Text>
+                  </View>
                   <Switch
                     value={includePrevious}
                     onValueChange={setIncludePrevious}
@@ -181,12 +254,20 @@ export function TrackingActionModal({
                     disabled={isPending}
                   />
                 </View>
-              </>
+              </View>
             )}
 
-            <Text className="text-lg font-semibold text-text mb-2">{t("screens.showDetail.yourRating")}</Text>
-            <View className="mb-6">
-              <RatingStars value={selectedRating} onChange={setSelectedRating} />
+            {/* Rating section */}
+            <View className="rounded-2xl bg-surface p-4 mb-6">
+              <View className="flex-row items-center gap-2 mb-3">
+                <Ionicons name="star-outline" size={18} color={colors.primary} />
+                <Text className="text-text font-bold text-base">
+                  {t("screens.showDetail.yourRating")}
+                </Text>
+              </View>
+              <View className="items-center py-1">
+                <RatingStars value={selectedRating} onChange={setSelectedRating} size={32} />
+              </View>
             </View>
           </ScrollView>
         </View>

@@ -66,7 +66,7 @@ export function ReportModal({ visible, commentId, onClose, onReported }: ReportM
             <View className="flex-row items-center gap-2">
               <Ionicons name="flag-outline" size={20} color={colors.primary} />
               <Text className="text-[#F5F0EB] text-lg font-bold">
-                {t("comments.report.title")}
+                {t("screens.comments.report.title")}
               </Text>
             </View>
             <TouchableOpacity onPress={handleClose} hitSlop={8}>
@@ -76,12 +76,12 @@ export function ReportModal({ visible, commentId, onClose, onReported }: ReportM
 
           {success ? (
             <Text className="text-[#F5F0EB] text-center py-6">
-              {t("comments.report.success")}
+              {t("screens.comments.report.success")}
             </Text>
           ) : (
             <>
               <Text className="text-[#888] text-sm mb-4">
-                {t("comments.report.subtitle")}
+                {t("screens.comments.report.subtitle")}
               </Text>
 
               <View className="gap-2 mb-4">
@@ -100,7 +100,7 @@ export function ReportModal({ visible, commentId, onClose, onReported }: ReportM
                         selectedReason === reason ? "text-[#C65D3A]" : "text-[#F5F0EB]"
                       }`}
                     >
-                      {t(`comments.report.reasons.${reason}`)}
+                      {t(`screens.comments.report.reasons.${reason}`)}
                     </Text>
                   </TouchableOpacity>
                 ))}
@@ -118,7 +118,7 @@ export function ReportModal({ visible, commentId, onClose, onReported }: ReportM
                 }`}
               >
                 <Text className="text-[#F5F0EB] font-semibold">
-                  {submitting ? t("comments.report.submitting") : t("comments.report.submit")}
+                  {submitting ? t("screens.comments.report.submitting") : t("screens.comments.report.submit")}
                 </Text>
               </TouchableOpacity>
             </>

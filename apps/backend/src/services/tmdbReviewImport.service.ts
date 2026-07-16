@@ -5,6 +5,7 @@ import { tmdbService } from "./tmdb.service.js";
 import { getTmdbSystemUserId } from "./tmdbSystemUser.js";
 import { getRedisValue, setRedisValue } from "../lib/redis.js";
 import { log, logError } from "../lib/logger.js";
+import { translateCommentAsync } from "./aiCommentTranslation.service.js";
 
 const IMPORT_CACHE_TTL = 6 * 60 * 60;
 const REVIEWS_CACHE_TTL = 300;
@@ -88,7 +89,7 @@ export async function importTmdbReviewsIfNeeded(
         filter.episodeRef = { $exists: false };
       }
 
-      await Comment.findOneAndUpdate(
+      const upserted = await Comment.findOneAndUpdate(
         filter,
         {
           $set: {
@@ -108,6 +109,10 @@ export async function importTmdbReviewsIfNeeded(
           },
         },
         { upsert: true, new: true },
+      );
+
+      translateCommentAsync(upserted._id.toString(), content).catch((err) =>
+        logError("TmdbReviewImport", "translation failed", err, { commentId: upserted._id.toString() }),
       );
     }
 

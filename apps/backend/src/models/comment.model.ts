@@ -108,7 +108,6 @@ const commentSchema = new Schema<IComment>(
       enum: ['user', 'rating', 'tmdb'],
       required: true,
       default: 'user',
-      index: true,
     },
     externalId: {
       type: String,

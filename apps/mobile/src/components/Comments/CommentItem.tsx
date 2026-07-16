@@ -18,6 +18,7 @@ import { formatDistanceToNow } from "date-fns";
 
 type RootStackParamList = {
   CommentThread: { commentId: string; showId: string; title: string; season?: number; episode?: number };
+  PublicProfile: { username: string };
 };
 
 interface CommentItemProps {
@@ -155,7 +156,17 @@ export function CommentItem({
               <Avatar url={comment.authorAvatarUrl} size={36} />
               <View className="ml-2.5 flex-1">
                 <View className="flex-row items-center">
-                  <Text className="text-text font-semibold text-sm">{comment.authorUsername}</Text>
+                  <TouchableOpacity
+                    onPress={() => {
+                      if (comment.source !== "tmdb" && comment.authorUsername) {
+                        (navigation as any).navigate("PublicProfile", { username: comment.authorUsername });
+                      }
+                    }}
+                    disabled={comment.source === "tmdb"}
+                    activeOpacity={0.7}
+                  >
+                    <Text className="text-text font-semibold text-sm">{comment.authorUsername}</Text>
+                  </TouchableOpacity>
                   <CommentRatingBadge comment={comment} colors={colors} t={t} />
                   {comment.isSpoiler && (
                     <View className="ml-2 flex-row items-center px-1.5 py-0.5 rounded-full bg-danger/15">
@@ -193,7 +204,17 @@ export function CommentItem({
           <View className="flex-1">
             {!isParent && (
               <View className="flex-row items-center flex-wrap">
-                <Text className="text-text font-semibold text-sm">{comment.authorUsername}</Text>
+                <TouchableOpacity
+                  onPress={() => {
+                    if (comment.source !== "tmdb" && comment.authorUsername) {
+                      (navigation as any).navigate("PublicProfile", { username: comment.authorUsername });
+                    }
+                  }}
+                  disabled={comment.source === "tmdb"}
+                  activeOpacity={0.7}
+                >
+                  <Text className="text-text font-semibold text-sm">{comment.authorUsername}</Text>
+                </TouchableOpacity>
                 <CommentRatingBadge comment={comment} colors={colors} t={t} />
                 {comment.isSpoiler && (
                   <View className="ml-2 flex-row items-center px-1.5 py-0.5 rounded-full bg-danger/15">

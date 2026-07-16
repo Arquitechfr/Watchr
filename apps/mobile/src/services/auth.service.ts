@@ -70,6 +70,7 @@ export interface Me {
   isBanned?: boolean;
   suspendedUntil?: string | null;
   banReason?: string | null;
+  activityVisibility?: "private" | "public";
 }
 
 export async function getMe(): Promise<Me> {

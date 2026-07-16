@@ -17,6 +17,8 @@ interface MenuItem {
 
 const MENU_ITEMS: MenuItem[] = [
   { icon: "person-circle-outline", labelKey: "screens.profile.editProfile", target: "EditProfile" },
+  { icon: "people-outline", labelKey: "screens.social.friendsActivity", target: "FriendsActivity" },
+  { icon: "search-outline", labelKey: "screens.social.findFriends", target: "UserSearch" },
   { icon: "language-outline", labelKey: "screens.profile.language", target: "ProfileLanguage" },
   { icon: "color-palette-outline", labelKey: "screens.profile.appearance", target: "ProfileAppearance" },
   { icon: "library-outline", labelKey: "screens.profile.library", target: "Library" },

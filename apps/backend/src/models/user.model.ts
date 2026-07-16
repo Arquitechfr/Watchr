@@ -39,6 +39,7 @@ export interface IUser extends Document {
   signupPlatform?: "ios" | "android" | "web";
   lastUsersVisitAt: Date | null;
   activationNudgeSentAt: Date | null;
+  activityVisibility: "private" | "public";
   createdAt: Date;
   updatedAt: Date;
 }
@@ -183,6 +184,11 @@ const userSchema = new Schema<IUser>(
       type: Boolean,
       default: false,
       index: true,
+    },
+    activityVisibility: {
+      type: String,
+      enum: ["private", "public"],
+      default: "private",
     },
   },
   { timestamps: true },

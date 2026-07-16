@@ -28,6 +28,9 @@ import { ProfileAboutScreen } from "../screens/profile/ProfileAboutScreen";
 import { ProfileAppearanceScreen } from "../screens/profile/ProfileAppearanceScreen";
 import { ProfileDataScreen } from "../screens/profile/ProfileDataScreen";
 import { ProfileContactScreen } from "../screens/profile/ProfileContactScreen";
+import { PublicProfileScreen } from "../screens/PublicProfileScreen";
+import { FriendsActivityScreen } from "../screens/FriendsActivityScreen";
+import { UserSearchScreen } from "../screens/UserSearchScreen";
 import { usePushNotifications } from "../hooks/usePushNotifications";
 import { useThemeSync } from "../hooks/useThemeSync";
 import { log } from "../utils/logger";
@@ -56,6 +59,9 @@ export type RootStackParamList = {
   ProfileSettings: undefined;
   ProfileData: undefined;
   ProfileContact: undefined;
+  PublicProfile: { username: string };
+  FriendsActivity: undefined;
+  UserSearch: undefined;
   ResetPassword: { token: string };
   MagicLink: { token: string };
   NewsArticleDetail: { link: string; title: string };
@@ -225,6 +231,9 @@ export function RootNavigator() {
             <Stack.Screen name="ProfileAppearance" component={ProfileAppearanceScreen} />
             <Stack.Screen name="ProfileData" component={ProfileDataScreen} />
             <Stack.Screen name="ProfileContact" component={ProfileContactScreen} />
+            <Stack.Screen name="PublicProfile" component={PublicProfileScreen} />
+            <Stack.Screen name="FriendsActivity" component={FriendsActivityScreen} />
+            <Stack.Screen name="UserSearch" component={UserSearchScreen} />
             <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
             <Stack.Screen name="MagicLink" component={MagicLinkScreen} />
             <Stack.Screen name="NewsArticleDetail" component={NewsArticleDetailScreen} />

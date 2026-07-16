@@ -291,7 +291,7 @@ export function verifyAccessToken(token: string): { sub: string; lang?: string }
 }
 
 export async function getMe(userId: string) {
-  const user = await User.findById(userId).select("email username usernameChanged avatarUrl preferredLanguage themePreference hasCompletedOnboarding firebaseUid createdAt lastLoginAt role isBanned suspendedUntil banReason").lean();
+  const user = await User.findById(userId).select("email username usernameChanged avatarUrl preferredLanguage themePreference hasCompletedOnboarding firebaseUid createdAt lastLoginAt role isBanned suspendedUntil banReason activityVisibility").lean();
   if (!user) {
     throw new ApiError(404, "USER_NOT_FOUND", "User not found");
   }
@@ -311,6 +311,7 @@ export async function getMe(userId: string) {
     isBanned: user.isBanned,
     suspendedUntil: user.suspendedUntil?.toISOString() ?? null,
     banReason: user.banReason,
+    activityVisibility: user.activityVisibility ?? "private",
   };
 }
 

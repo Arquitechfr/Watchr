@@ -301,7 +301,7 @@ describe("Social", () => {
       await Rating.create({
         userId: userB._id,
         showId: show._id,
-        value: 8,
+        value: 4,
       });
 
       await request(app)
@@ -327,7 +327,7 @@ describe("Social", () => {
       await Rating.create({
         userId: userB._id,
         showId: show._id,
-        value: 9,
+        value: 5,
       });
 
       await request(app)
@@ -341,7 +341,7 @@ describe("Social", () => {
       expect(res.status).toBe(200);
       expect(res.body.data).toHaveLength(1);
       expect(res.body.data[0].type).toBe("rating");
-      expect(res.body.data[0].rating.value).toBe(9);
+      expect(res.body.data[0].rating.value).toBe(5);
       expect(res.body.data[0].user.username).toBe("UserB");
       expect(res.body.data[0].show.title).toBe("Rated Show");
     });

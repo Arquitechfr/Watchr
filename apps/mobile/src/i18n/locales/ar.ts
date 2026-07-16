@@ -168,6 +168,8 @@ const ar = {
       filterAll: "الكل",
       noResults: "لا نتائج",
       minCharsTip: "اكتب 3 أحرف على الأقل للبحث",
+      tabFilms: "أفلام",
+      tabAnime: "أنمي",
     },
     library: {
       emptyTitle: "لا مسلسلات أو أفلام",

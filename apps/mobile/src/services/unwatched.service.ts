@@ -31,6 +31,7 @@ export interface UnwatchedMovie {
   type: "movie";
   genres?: Array<{ id: number; name?: string }>;
   year?: number;
+  originalLanguage?: string;
 }
 
 export interface UnwatchedTvResponse {
@@ -58,9 +59,13 @@ export async function getUnwatchedShows(): Promise<UnwatchedTvResponse> {
   return response.data;
 }
 
-export async function getUnwatchedMovies(): Promise<UnwatchedMovieResponse> {
-  log("UnwatchedService", "fetch movies");
-  const response = await api.get<UnwatchedMovieResponse>("/tracking/unwatched", { params: { type: "movie" } });
+export type MovieCategory = "all" | "anime" | "non-anime";
+
+export async function getUnwatchedMovies(category?: MovieCategory): Promise<UnwatchedMovieResponse> {
+  log("UnwatchedService", "fetch movies", { category });
+  const response = await api.get<UnwatchedMovieResponse>("/tracking/unwatched", {
+    params: { type: "movie", category },
+  });
   log("UnwatchedService", "movies response", { count: response.data.movies.length });
   return response.data;
 }

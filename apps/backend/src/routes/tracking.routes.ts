@@ -59,8 +59,8 @@ router.get(
   "/unwatched",
   validateRequest(undefined, unwatchedSchema),
   asyncHandler(async (req: Request, res: Response) => {
-    const { type } = req.query as { type?: "tv" | "movie" };
-    const result = await getUnwatched(req.userId!, type, req.language);
+    const { type, category } = req.query as { type?: "tv" | "movie"; category?: "all" | "anime" | "non-anime" };
+    const result = await getUnwatched(req.userId!, type, req.language, category);
     res.json(result);
   }),
 );

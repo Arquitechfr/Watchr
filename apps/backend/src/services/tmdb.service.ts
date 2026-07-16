@@ -15,6 +15,7 @@ export interface TmdbSearchResult {
   release_date?: string;
   media_type?: string;
   vote_average?: number;
+  original_language?: string;
 }
 
 export interface TmdbPaginatedResult {
@@ -126,6 +127,7 @@ export interface TmdbShowDetails {
   credits?: TmdbCredits;
   number_of_seasons?: number;
   number_of_episodes?: number;
+  original_language?: string;
 }
 
 class TmdbService {
@@ -273,6 +275,25 @@ class TmdbService {
       const response = await this.client.get<TmdbReviewsResponse>(`/movie/${tmdbId}/reviews`, {
         params: { language, page },
       });
+      return response.data;
+    } catch (err) {
+      throw this.handleError(err);
+    }
+  }
+
+  async getEpisodeReviews(
+    tmdbId: number,
+    season: number,
+    episode: number,
+    page = 1,
+    language = "en-US",
+  ): Promise<TmdbReviewsResponse> {
+    await tmdbRateLimiter.consume();
+    try {
+      const response = await this.client.get<TmdbReviewsResponse>(
+        `/tv/${tmdbId}/season/${season}/episode/${episode}/reviews`,
+        { params: { language, page } },
+      );
       return response.data;
     } catch (err) {
       throw this.handleError(err);

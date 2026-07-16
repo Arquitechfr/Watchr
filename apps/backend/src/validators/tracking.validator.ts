@@ -64,6 +64,7 @@ export const librarySchema = z.object({
 
 export const unwatchedSchema = z.object({
   type: z.enum(["tv", "movie"]).optional(),
+  category: z.enum(["all", "anime", "non-anime"]).optional(),
 });
 
 export const addToWatchlistByTmdbSchema = z.object({

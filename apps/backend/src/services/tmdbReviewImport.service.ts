@@ -2,6 +2,7 @@ import { Types } from "mongoose";
 import { Comment } from "../models/comment.model.js";
 import type { EpisodeRef } from "../models/comment.model.js";
 import { tmdbService } from "./tmdb.service.js";
+import type { TmdbReviewsResponse } from "./tmdb.service.js";
 import { getTmdbSystemUserId } from "./tmdbSystemUser.js";
 import { getRedisValue, setRedisValue } from "../lib/redis.js";
 import { log, logError } from "../lib/logger.js";
@@ -12,18 +13,29 @@ const REVIEWS_CACHE_TTL = 300;
 const INTERNAL_REVIEW_THRESHOLD = 3;
 const MAX_CONTENT_LENGTH = 2000;
 
+function buildEpisodeSuffix(episodeRef?: EpisodeRef): string {
+  if (!episodeRef) return "show";
+  return `s${episodeRef.season}e${episodeRef.episode}`;
+}
+
 export async function importTmdbReviewsIfNeeded(
   showId: string,
   tmdbId: number,
   mediaType: "tv" | "movie",
   episodeRef?: EpisodeRef,
 ): Promise<void> {
+  const epSuffix = buildEpisodeSuffix(episodeRef);
   try {
-    const importCacheKey = `tmdb-reviews-imported:${showId}`;
+    const importCacheKey = `tmdb-reviews-imported:${showId}:${epSuffix}`;
 
     const cached = await getRedisValue(importCacheKey);
     if (cached) {
-      log("TmdbReviewImport", "skip — cache hit", { showId });
+      log("TmdbReviewImport", "skip — cache hit", { showId, epSuffix });
+      return;
+    }
+
+    if (episodeRef && mediaType === "movie") {
+      log("TmdbReviewImport", "skip — movies have no episodes", { showId });
       return;
     }
 
@@ -42,19 +54,23 @@ export async function importTmdbReviewsIfNeeded(
 
     const internalCount = await Comment.countDocuments(internalCountFilter);
     if (internalCount >= INTERNAL_REVIEW_THRESHOLD) {
-      log("TmdbReviewImport", "skip — enough internal reviews", { showId, internalCount });
+      log("TmdbReviewImport", "skip — enough internal reviews", { showId, internalCount, epSuffix });
       await setRedisValue(importCacheKey, "1", IMPORT_CACHE_TTL);
       return;
     }
 
-    const reviewsCacheKey = `tmdb-reviews:${mediaType}:${tmdbId}:1`;
+    const reviewsCacheKey = `tmdb-reviews:${mediaType}:${tmdbId}:${epSuffix}:1`;
     let reviewsResponse = await getRedisValue(reviewsCacheKey);
 
     if (!reviewsResponse) {
-      const raw =
-        mediaType === "tv"
-          ? await tmdbService.getTvReviews(tmdbId)
-          : await tmdbService.getMovieReviews(tmdbId);
+      let raw: TmdbReviewsResponse;
+      if (episodeRef && mediaType === "tv") {
+        raw = await tmdbService.getEpisodeReviews(tmdbId, episodeRef.season, episodeRef.episode);
+      } else if (mediaType === "tv") {
+        raw = await tmdbService.getTvReviews(tmdbId);
+      } else {
+        raw = await tmdbService.getMovieReviews(tmdbId);
+      }
       reviewsResponse = JSON.stringify(raw);
       await setRedisValue(reviewsCacheKey, reviewsResponse, REVIEWS_CACHE_TTL);
     }
@@ -117,8 +133,8 @@ export async function importTmdbReviewsIfNeeded(
     }
 
     await setRedisValue(importCacheKey, "1", IMPORT_CACHE_TTL);
-    log("TmdbReviewImport", "import done", { showId, count: parsed.results.length });
+    log("TmdbReviewImport", "import done", { showId, epSuffix, count: parsed.results.length });
   } catch (err) {
-    logError("TmdbReviewImport", "import failed", err, { showId, tmdbId });
+    logError("TmdbReviewImport", "import failed", err, { showId, tmdbId, epSuffix });
   }
 }

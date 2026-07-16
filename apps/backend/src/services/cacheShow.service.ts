@@ -174,6 +174,7 @@ export async function upsertShowFromTmdb(
     runtime: type === "tv" ? tmdbDetails.episode_run_time?.[0] : tmdbDetails.runtime,
     numberOfSeasons: tmdbDetails.number_of_seasons,
     numberOfEpisodes: tmdbDetails.number_of_episodes,
+    originalLanguage: tmdbDetails.original_language,
     lastSyncedAt: new Date(),
   };
 

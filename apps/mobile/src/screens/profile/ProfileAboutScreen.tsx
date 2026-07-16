@@ -78,7 +78,7 @@ export function ProfileAboutScreen() {
         <Text className="text-text text-lg font-bold mb-3 mt-2">
           {t("screens.profile.aboutLegalHost")}
         </Text>
-        <View className="rounded-lg p-4 mb-4" style={{ backgroundColor: colors.surface }}>
+        <View className="rounded-lg p-4 mb-10" style={{ backgroundColor: colors.surface }}>
           <View>
             <Text className="text-text-muted text-xs mb-1">
               {t("screens.profile.aboutLegalCompanyName")}

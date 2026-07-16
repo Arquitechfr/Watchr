@@ -86,6 +86,7 @@ export interface IShow extends Document {
   productionCompanies?: ProductionCompany[];
   numberOfSeasons?: number;
   numberOfEpisodes?: number;
+  originalLanguage?: string;
   translations?: Map<string, ShowTranslation>;
   lastSyncedAt?: Date;
   lastEpisodesSyncedAt?: Date;
@@ -256,6 +257,9 @@ const showSchema = new Schema<IShow>(
     },
     numberOfEpisodes: {
       type: Number,
+    },
+    originalLanguage: {
+      type: String,
     },
     translations: {
       type: Map,

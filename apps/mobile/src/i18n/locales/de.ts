@@ -168,6 +168,8 @@ const de = {
       filterAll: "Alle",
       noResults: "Keine Treffer",
       minCharsTip: "Mind. 3 Zeichen eingeben",
+      tabFilms: "Filme",
+      tabAnime: "Anime",
     },
     library: {
       emptyTitle: "Keine Serien oder Filme",

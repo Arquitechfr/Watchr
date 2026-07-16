@@ -115,6 +115,36 @@ function MovieCard({ movie, onPress, onMarkWatched, isMarking }: { movie: Unwatc
   );
 }
 
+type MovieCategoryTab = "non-anime" | "anime";
+
+function MovieCategoryTabs({ active, onChange }: { active: MovieCategoryTab; onChange: (tab: MovieCategoryTab) => void }) {
+  const { t } = useI18n();
+  const tabs = [
+    { key: "non-anime" as MovieCategoryTab, label: t("screens.movies.tabFilms") },
+    { key: "anime" as MovieCategoryTab, label: t("screens.movies.tabAnime") },
+  ];
+
+  return (
+    <View className="flex-row bg-muted rounded-lg p-1 mb-3">
+      {tabs.map((tab) => (
+        <TouchableOpacity
+          key={tab.key}
+          onPress={() => onChange(tab.key)}
+          className={`flex-1 py-2 rounded-md ${active === tab.key ? "bg-primary" : ""}`}
+        >
+          <Text
+            className={`text-center text-sm font-medium ${
+              active === tab.key ? "text-white" : "text-text-muted"
+            }`}
+          >
+            {tab.label}
+          </Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
+}
+
 export function MoviesScreen() {
   const navigation = useNavigation<NavigationProp>();
   const { t } = useI18n();
@@ -125,7 +155,8 @@ export function MoviesScreen() {
   const { width: windowWidth } = useWindowDimensions();
   const flatListRef = useRef<FlatList>(null);
   useScrollToTop(flatListRef);
-  const { data, isLoading, isError, error, refetch } = useUnwatchedMovies();
+  const [activeCategory, setActiveCategory] = useState<MovieCategoryTab>("non-anime");
+  const { data, isLoading, isError, error, refetch } = useUnwatchedMovies(activeCategory);
   const quickMarkMovie = useQuickMarkMovieWatched();
   const throttledRefresh = useRefreshRateLimit();
   const movies: UnwatchedMovie[] = data?.movies ?? [];
@@ -243,6 +274,8 @@ export function MoviesScreen() {
       />
 
       <ImportProgressBanner />
+
+      <MovieCategoryTabs active={activeCategory} onChange={setActiveCategory} />
 
       {isSearchVisible && (
         <>

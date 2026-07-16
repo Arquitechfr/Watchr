@@ -819,6 +819,7 @@ export interface UnwatchedMovie {
   type: "movie";
   genres?: Array<{ id: number; name?: string }>;
   year?: number;
+  originalLanguage?: string;
 }
 
 export type UnwatchedResult = { shows: UnwatchedShow[] } | { movies: UnwatchedMovie[] };
@@ -831,6 +832,16 @@ async function invalidateUnwatchedCache(userId: string): Promise<void> {
     `unwatched:${userId}:tv:fr`,
     `unwatched:${userId}:movie:en`,
     `unwatched:${userId}:movie:fr`,
+    `unwatched:${userId}:all:en:all`,
+    `unwatched:${userId}:all:fr:all`,
+    `unwatched:${userId}:tv:en:all`,
+    `unwatched:${userId}:tv:fr:all`,
+    `unwatched:${userId}:movie:en:all`,
+    `unwatched:${userId}:movie:fr:all`,
+    `unwatched:${userId}:movie:en:anime`,
+    `unwatched:${userId}:movie:fr:anime`,
+    `unwatched:${userId}:movie:en:non-anime`,
+    `unwatched:${userId}:movie:fr:non-anime`,
   ];
   await Promise.all(patterns.map((key) => deleteRedisKey(key)));
   await invalidateUpcomingCache(userId);
@@ -840,8 +851,9 @@ export async function getUnwatched(
   userId: string,
   type?: "tv" | "movie",
   language = "en",
+  category?: "all" | "anime" | "non-anime",
 ): Promise<UnwatchedResult> {
-  const cacheKey = `unwatched:${userId}:${type ?? "all"}:${language}`;
+  const cacheKey = `unwatched:${userId}:${type ?? "all"}:${language}:${category ?? "all"}`;
   const cached = await getRedisValue(cacheKey);
   if (cached) {
     try {
@@ -855,10 +867,10 @@ export async function getUnwatched(
     userId: new Types.ObjectId(userId),
   };
 
-  log("TrackingService", "getUnwatched filter", { userId, type, language, filter });
+  log("TrackingService", "getUnwatched filter", { userId, type, language, category, filter });
 
   const entries = await WatchEntry.find(filter)
-    .populate("showId", "tmdbId title type posterPath status seasons translations genres firstAirDate networks")
+    .populate("showId", "tmdbId title type posterPath status seasons translations genres firstAirDate networks originalLanguage")
     .lean();
 
   log("TrackingService", "getUnwatched entries", { count: entries.length, type });
@@ -866,12 +878,28 @@ export async function getUnwatched(
   const now = new Date();
 
   if (type === "movie") {
+    const ANIMATION_GENRE_ID = 16;
     const movies = entries
       .filter((entry) => {
         const populatedShow = entry.showId as unknown as {
           type?: "tv" | "movie";
+          genres?: Array<{ id: number }>;
+          originalLanguage?: string;
         };
-        return populatedShow.type === "movie";
+        if (populatedShow.type !== "movie") return false;
+        if (category === "anime") {
+          return (
+            populatedShow.genres?.some((g) => g.id === ANIMATION_GENRE_ID) === true &&
+            populatedShow.originalLanguage === "ja"
+          );
+        }
+        if (category === "non-anime") {
+          return !(
+            populatedShow.genres?.some((g) => g.id === ANIMATION_GENRE_ID) === true &&
+            populatedShow.originalLanguage === "ja"
+          );
+        }
+        return true;
       })
       .map((entry) => {
         const populatedShow = entry.showId as unknown as {
@@ -883,6 +911,7 @@ export async function getUnwatched(
           translations?: Map<string, ShowTranslation> | Record<string, ShowTranslation>;
           genres?: Array<{ id: number; name?: string }>;
           firstAirDate?: Date;
+          originalLanguage?: string;
         };
         const translation = getTranslationValue(populatedShow.translations, language);
         const title = translation?.title ?? populatedShow.title ?? "Unknown";
@@ -897,6 +926,7 @@ export async function getUnwatched(
           type: "movie" as const,
           genres: localizedGenres,
           year,
+          originalLanguage: populatedShow.originalLanguage,
         };
       });
     log("TrackingService", "getUnwatched movies", { count: movies.length });

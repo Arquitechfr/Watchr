@@ -55,7 +55,6 @@ export async function captureError(input: CaptureErrorInput): Promise<{ issueId:
           platform: input.platform,
           stackTrace: input.stackTrace ?? "",
           firstSeen: new Date(),
-          severity,
         },
         $set: {
           lastSeen: new Date(),

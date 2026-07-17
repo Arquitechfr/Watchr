@@ -12,6 +12,7 @@ import {
   SUPPORTED_LANGUAGES,
   LANGUAGE_LABELS,
   LANGUAGE_COUNTRY_CODES,
+  loadLocale,
   type SupportedLanguage,
 } from "@/i18n/config";
 import { cn } from "@/lib/utils";
@@ -47,7 +48,8 @@ export function LanguageSwitcher({ className }: LanguageSwitcherProps) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const changeLanguage = (lang: SupportedLanguage) => {
+  const changeLanguage = async (lang: SupportedLanguage) => {
+    await loadLocale(lang);
     i18n.changeLanguage(lang);
     setIsOpen(false);
   };

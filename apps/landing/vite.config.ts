@@ -61,10 +61,12 @@ export default defineConfig({
     },
   },
   build: {
+    target: "es2020",
+    sourcemap: false,
     rollupOptions: {
       output: {
         manualChunks: {
-          "react-vendor": ["react", "react-dom", "react-helmet-async"],
+          "react-vendor": ["react", "react-dom", "react-router-dom", "react-helmet-async"],
           i18n: ["i18next", "react-i18next", "i18next-browser-languagedetector"],
           motion: ["framer-motion"],
           icons: ["lucide-react"],

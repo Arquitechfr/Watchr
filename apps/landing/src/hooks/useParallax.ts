@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 interface ParallaxOptions {
   speed?: number;
@@ -6,15 +6,7 @@ interface ParallaxOptions {
   offset?: number;
 }
 
-interface ParallaxStyle {
-  transform: string;
-  willChange: string;
-}
-
-const IDLE_STYLE: ParallaxStyle = {
-  transform: "translate3d(0, 0, 0)",
-  willChange: "transform",
-};
+const STATIC_STYLE = { willChange: "transform" } as const;
 
 export function useParallax<T extends HTMLElement = HTMLDivElement>({
   speed = 0.3,
@@ -22,12 +14,10 @@ export function useParallax<T extends HTMLElement = HTMLDivElement>({
   offset = 0,
 }: ParallaxOptions = {}) {
   const ref = useRef<T>(null);
-  const [style, setStyle] = useState<ParallaxStyle>(IDLE_STYLE);
 
   useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const node = el;
+    const node = ref.current;
+    if (!node) return;
 
     if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       return;
@@ -51,7 +41,7 @@ export function useParallax<T extends HTMLElement = HTMLDivElement>({
 
     observer.observe(node);
 
-    function update() {
+    const update = () => {
       if (!isVisible) return;
 
       const rect = node.getBoundingClientRect();
@@ -63,13 +53,10 @@ export function useParallax<T extends HTMLElement = HTMLDivElement>({
       const translateY = axis === "y" || axis === "both" ? distance * speed + offset : 0;
       const translateX = axis === "x" || axis === "both" ? distance * speed + offset : 0;
 
-      setStyle({
-        transform: `translate3d(${translateX}px, ${translateY}px, 0)`,
-        willChange: "transform",
-      });
+      node.style.transform = `translate3d(${translateX}px, ${translateY}px, 0)`;
 
       rafId = requestAnimationFrame(update);
-    }
+    };
 
     return () => {
       observer.disconnect();
@@ -77,5 +64,5 @@ export function useParallax<T extends HTMLElement = HTMLDivElement>({
     };
   }, [speed, axis, offset]);
 
-  return { ref, style };
+  return { ref, style: STATIC_STYLE };
 }

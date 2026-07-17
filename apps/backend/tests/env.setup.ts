@@ -20,3 +20,12 @@ process.env.FIREBASE_SERVICE_ACCOUNT_KEY = JSON.stringify({
   client_x509_cert_url: "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk%40test.watchr.iam.gserviceaccount.com",
   universe_domain: "googleapis.com",
 });
+process.env.GOOGLE_WEB_CLIENT_ID = "test-google-client-id";
+process.env.GOOGLE_WEB_CLIENT_SECRET = "test-google-client-secret";
+process.env.PUBLIC_URL = "http://localhost:4500";
+process.env.MINIO_S3_BUCKET = "test-bucket";
+process.env.MINIO_S3_ENDPOINT = "http://localhost:9000";
+process.env.MINIO_S3_REGION = "us-east-1";
+process.env.MINIO_S3_ACCESS_KEY = "test-access-key";
+process.env.MINIO_S3_SECRET_KEY = "test-secret-key";
+process.env.POSTHOG_API_KEY = "test-posthog-key";

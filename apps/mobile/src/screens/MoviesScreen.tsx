@@ -237,7 +237,7 @@ export function MoviesScreen() {
               );
             }}
             refreshControl={<RefreshControl refreshing={isLoading} onRefresh={() => throttledRefresh(refetch)} tintColor={colors.primary} />}
-            contentContainerStyle={{ paddingBottom: 24 }}
+            contentContainerStyle={filteredMovies.length === 0 ? { flexGrow: 1, justifyContent: "center", alignItems: "center", paddingBottom: 24 } : { paddingBottom: 24 }}
             ListEmptyComponent={
               isFiltering ? (
                 <EmptyState
@@ -247,9 +247,9 @@ export function MoviesScreen() {
               ) : (
                 <EmptyState
                   icon="film-outline"
-                  title={t("screens.movies.empty")}
-                  subtitle={t("screens.movies.addFromSearch")}
-                  actionLabel={t("screens.movies.addBtn")}
+                  title={activeCategory === "anime" ? t("screens.movies.emptyAnime") : t("screens.movies.empty")}
+                  subtitle={activeCategory === "anime" ? t("screens.movies.addFromSearchAnime") : t("screens.movies.addFromSearch")}
+                  actionLabel={activeCategory === "anime" ? t("screens.movies.addBtnAnime") : t("screens.movies.addBtn")}
                   onAction={() => navigation.navigate("Search")}
                 />
               )
@@ -273,7 +273,7 @@ export function MoviesScreen() {
               />
             )}
             refreshControl={<RefreshControl refreshing={isLoading} onRefresh={() => throttledRefresh(refetch)} tintColor={colors.primary} />}
-            contentContainerStyle={{ paddingBottom: 24 }}
+            contentContainerStyle={filteredMovies.length === 0 ? { flexGrow: 1, justifyContent: "center", alignItems: "center", paddingBottom: 24 } : { paddingBottom: 24 }}
             ListEmptyComponent={
               isFiltering ? (
                 <EmptyState
@@ -283,9 +283,9 @@ export function MoviesScreen() {
               ) : (
                 <EmptyState
                   icon="film-outline"
-                  title={t("screens.movies.empty")}
-                  subtitle={t("screens.movies.addFromSearch")}
-                  actionLabel={t("screens.movies.addBtn")}
+                  title={activeCategory === "anime" ? t("screens.movies.emptyAnime") : t("screens.movies.empty")}
+                  subtitle={activeCategory === "anime" ? t("screens.movies.addFromSearchAnime") : t("screens.movies.addFromSearch")}
+                  actionLabel={activeCategory === "anime" ? t("screens.movies.addBtnAnime") : t("screens.movies.addBtn")}
                   onAction={() => navigation.navigate("Search")}
                 />
               )

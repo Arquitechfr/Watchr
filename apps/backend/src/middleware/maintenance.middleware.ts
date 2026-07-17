@@ -26,7 +26,7 @@ export function invalidateMaintenanceCache(): void {
 }
 
 export async function checkMaintenance(req: Request, _res: Response, next: NextFunction): Promise<void> {
-  if (!req.path.startsWith("/api/") || req.path.startsWith("/api/admin")) {
+  if (!req.path.startsWith("/api/") || req.path.startsWith("/api/admin") || req.path.startsWith("/api/auth")) {
     next();
     return;
   }

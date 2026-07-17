@@ -61,7 +61,7 @@ export function FixedTrackingButton({
     );
   }
 
-  // Pour les séries TV suivies, afficher Abandonner/Reprendre
+  // Pour les séries TV suivies, afficher Arrêter/Reprendre
   const isTvTracked = show.type === "tv" && trackingEntry && onToggleDropped;
   const isDropped = trackingEntry?.status === "dropped";
 

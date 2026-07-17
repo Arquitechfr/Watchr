@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity, Platform } from "react-native";
 import Animated, { useAnimatedStyle, withSpring, useSharedValue } from "react-native-reanimated";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "../utils/cn";
 import { hapticSelection } from "../utils/haptics";
 
@@ -16,20 +16,29 @@ interface SegmentedControlProps {
   className?: string;
 }
 
+const PADDING = 4;
+
 export function SegmentedControl({ options, active, onChange, className }: SegmentedControlProps) {
   const activeIndex = Math.max(0, options.findIndex((opt) => opt.key === active));
   const translateX = useSharedValue(0);
+  const [containerWidth, setContainerWidth] = useState(0);
+
+  const segmentWidth = containerWidth > 0
+    ? (containerWidth - PADDING * 2) / options.length
+    : 0;
 
   useEffect(() => {
-    translateX.value = withSpring(activeIndex, {
-      damping: 26,
-      stiffness: 280,
-      mass: 0.6,
-    });
-  }, [activeIndex, translateX]);
+    if (segmentWidth > 0) {
+      translateX.value = withSpring(activeIndex * segmentWidth, {
+        damping: 26,
+        stiffness: 280,
+        mass: 0.6,
+      });
+    }
+  }, [activeIndex, segmentWidth, translateX]);
 
   const indicatorStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: translateX.value * 100 }],
+    transform: [{ translateX: translateX.value }],
   }));
 
   if (Platform.OS === "web") {
@@ -50,7 +59,7 @@ export function SegmentedControl({ options, active, onChange, className }: Segme
               <Text
                 className={cn(
                   "font-semibold text-sm",
-                  isActive ? "text-background" : "text-text-muted",
+                  isActive ? "text-white" : "text-text-muted",
                 )}
               >
                 {opt.label}
@@ -63,17 +72,19 @@ export function SegmentedControl({ options, active, onChange, className }: Segme
   }
 
   return (
-    <View className={cn("flex-row bg-surface rounded-lg p-1 relative", className)}>
+    <View
+      className={cn("flex-row bg-surface rounded-lg p-1 relative", className)}
+      onLayout={(e) => setContainerWidth(e.nativeEvent.layout.width)}
+    >
       <Animated.View
         style={[
           {
             position: "absolute",
-            top: 4,
-            bottom: 4,
-            left: 4,
-            width: `${100 / options.length}%`,
+            top: PADDING,
+            bottom: PADDING,
+            left: PADDING,
+            width: segmentWidth > 0 ? segmentWidth : `${100 / options.length}%`,
             borderRadius: 6,
-            backgroundColor: "transparent",
           },
           indicatorStyle,
         ]}
@@ -91,7 +102,7 @@ export function SegmentedControl({ options, active, onChange, className }: Segme
             <Text
               className={cn(
                 "font-semibold text-sm",
-                isActive ? "text-background" : "text-text-muted",
+                isActive ? "text-white" : "text-text-muted",
               )}
             >
               {opt.label}

@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ScreenContainer } from "../../components/ScreenContainer";
 import { SubScreenHeader } from "../../components/SubScreenHeader";
 import { Avatar } from "../../components/Avatar";
+import { CoverBanner } from "../../components/Profile/CoverBanner";
 import { getMe, updateUsername, updateProfile, unlinkGoogleAccount } from "../../services/auth.service";
 import { useGoogleLink } from "../../services/googleAuth.service";
 import { useI18n } from "../../i18n/useI18n";
@@ -12,6 +13,7 @@ import { useUIStore } from "../../store/uiStore";
 import { useErrorMessage } from "../../services/api";
 import { useThemeColors } from "../../theme/useThemeColors";
 import { useAvatarUpload } from "../../hooks/useAvatarUpload";
+import { useBannerUpload } from "../../hooks/useBannerUpload";
 import { useFadeIn } from "../../hooks/useFadeIn";
 import Animated from "react-native-reanimated";
 import { Seo } from "../../components/Seo";
@@ -71,6 +73,7 @@ export function EditProfileScreen() {
   }
 
   const { pickAvatar, isUploading: isAvatarUploading } = useAvatarUpload();
+  const { pickBanner, isUploading: isBannerUploading } = useBannerUpload();
 
   const usernameMutation = useMutation({
     mutationFn: (username: string) => updateUsername(username),
@@ -132,6 +135,9 @@ export function EditProfileScreen() {
       <Seo title={t("seo.editProfile")} />
       <SubScreenHeader title={t("screens.profile.editProfile")} />
       <Animated.View className="md:max-w-lg md:mx-auto w-full" style={containerAnimatedStyle}>
+      <View style={{ marginHorizontal: -16, marginBottom: 8 }}>
+        <CoverBanner url={me?.bannerUrl} onPress={pickBanner} isUploading={isBannerUploading} />
+      </View>
       <View className="items-center mb-8">
         <TouchableOpacity onPress={pickAvatar} disabled={isAvatarUploading} activeOpacity={0.8}>
           <View className="relative">

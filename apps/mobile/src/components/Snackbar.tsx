@@ -32,6 +32,11 @@ export function Snackbar() {
     return () => clearTimeout(timer);
   }, [snackbar, hideSnackbar, opacity, translateY]);
 
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: translateY.value }],
+    opacity: opacity.value,
+  }));
+
   if (!snackbar) return null;
 
   const bgClass =
@@ -40,11 +45,6 @@ export function Snackbar() {
       : snackbar.type === "success"
         ? "bg-success"
         : "bg-primary";
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: translateY.value }],
-    opacity: opacity.value,
-  }));
 
   const dismiss = () => {
     opacity.value = withTiming(0, { duration: 150 });

@@ -30,7 +30,17 @@ export async function getEpisodeSummary(
   const cached = await getRedisValue(cacheKey);
   if (cached) {
     try {
-      return JSON.parse(cached) as EpisodeSummaryResult;
+      const parsed = JSON.parse(cached) as EpisodeSummaryResult;
+      if (parsed.source === "ai") {
+        const enabled = await isFeatureEnabled();
+        if (!enabled) {
+          // Feature disabled — discard stale AI cache, fall through to TMDB flow
+        } else {
+          return parsed;
+        }
+      } else {
+        return parsed;
+      }
     } catch {
       // Cache corrupt, proceed
     }

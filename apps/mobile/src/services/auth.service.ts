@@ -60,6 +60,7 @@ export interface Me {
   username: string;
   usernameChanged: boolean;
   avatarUrl?: string;
+  bannerUrl?: string;
   preferredLanguage?: string;
   themePreference: "system" | "light" | "dark";
   hasCompletedOnboarding: boolean;
@@ -89,6 +90,15 @@ export async function uploadAvatar(file: { uri: string; type: string; name: stri
   const formData = new FormData();
   formData.append("avatar", file as unknown as Blob);
   const response = await api.post<{ avatarUrl: string }>("/auth/me/avatar", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return response.data;
+}
+
+export async function uploadBanner(file: { uri: string; type: string; name: string }): Promise<{ bannerUrl: string }> {
+  const formData = new FormData();
+  formData.append("banner", file as unknown as Blob);
+  const response = await api.post<{ bannerUrl: string }>("/auth/me/banner", formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
   return response.data;

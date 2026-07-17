@@ -109,21 +109,25 @@ export async function getYearInReview(userId: string, year?: number): Promise<Ye
 
   const cacheKey = `ai:year-in-review:${userId}:${reviewYear}:${locale}`;
 
+  const enabled = await isFeatureEnabled();
+  if (!enabled || !mistralService.isConfigured()) {
+    const data = await gatherYearData(userId, reviewYear, locale);
+    return { data, aiSummary: "", highlights: [], source: "fallback" };
+  }
+
   const cached = await getRedisValue(cacheKey);
   if (cached) {
     try {
-      return JSON.parse(cached) as YearInReviewResult;
+      const parsed = JSON.parse(cached) as YearInReviewResult;
+      if (parsed.source === "ai") {
+        return parsed;
+      }
     } catch {
       // Cache corrupt, proceed
     }
   }
 
   const data = await gatherYearData(userId, reviewYear, locale);
-
-  const enabled = await isFeatureEnabled();
-  if (!enabled || !mistralService.isConfigured()) {
-    return { data, aiSummary: "", highlights: [], source: "fallback" };
-  }
 
   const languageName = languageNameForLocale(locale);
 

@@ -5,6 +5,7 @@ import { Rating } from "../models/rating.model.js";
 import { WatchEntry } from "../models/watchEntry.model.js";
 import { Comment } from "../models/comment.model.js";
 import { ApiError } from "../middleware/error.middleware.js";
+import { SupportedLocale } from "../i18n/translations.js";
 
 function escapeRegex(str: string): string {
   return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -39,12 +40,15 @@ export interface PublicProfileResult {
   id: string;
   username: string;
   avatarUrl?: string;
+  bannerUrl?: string;
   createdAt: string;
   activityVisibility: "private" | "public";
   isFollowing: boolean;
   followers: number;
   following: number;
   bio?: string;
+  translatedBio?: string;
+  isBioTranslated?: boolean;
   favoriteGenres?: string[];
 }
 
@@ -224,9 +228,10 @@ export async function updateActivityVisibility(
 export async function getPublicProfile(
   username: string,
   requestingUserId: string,
+  locale: SupportedLocale = "en",
 ): Promise<PublicProfileResult> {
   const user = await User.findOne({ username })
-    .select("username avatarUrl createdAt activityVisibility isBanned bio favoriteGenres")
+    .select("username avatarUrl bannerUrl createdAt activityVisibility isBanned bio bioTranslations bioOriginalLanguage favoriteGenres")
     .lean();
 
   if (!user || user.isBanned) {
@@ -243,16 +248,24 @@ export async function getPublicProfile(
     getFollowCounts(user._id.toString()),
   ]);
 
+  const bio = user.bio ?? "";
+  const bioTranslations = user.bioTranslations as Record<string, string> | undefined;
+  const translatedBio = bioTranslations?.[locale] ?? null;
+  const isBioTranslated = translatedBio !== null && translatedBio !== bio;
+
   return {
     id: user._id.toString(),
     username: user.username,
     avatarUrl: user.avatarUrl,
+    bannerUrl: user.bannerUrl,
     createdAt: user.createdAt.toISOString(),
     activityVisibility: user.activityVisibility ?? "private",
     isFollowing: !!isFollowingDoc,
     followers: counts.followers,
     following: counts.following,
-    bio: user.bio ?? "",
+    bio,
+    translatedBio: isBioTranslated ? translatedBio! : undefined,
+    isBioTranslated,
     favoriteGenres: user.favoriteGenres ?? [],
   };
 }

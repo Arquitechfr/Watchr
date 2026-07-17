@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import Animated, { FadeIn, ZoomIn } from "react-native-reanimated";
+import Animated, { FadeIn } from "react-native-reanimated";
 import { useThemeColors } from "../theme/useThemeColors";
 import { useI18n } from "../i18n/useI18n";
 import { CommunityRating } from "../services/ratings.service";
@@ -41,9 +41,7 @@ function StarRow({
               className="mr-1"
               activeOpacity={0.6}
             >
-              <Animated.View entering={ZoomIn.duration(150).delay((n - 1) * 30)}>
-                <Ionicons name={icon} size={STAR_SIZE} color={color} />
-              </Animated.View>
+              <Ionicons name={icon} size={STAR_SIZE} color={color} />
             </TouchableOpacity>
           );
         }

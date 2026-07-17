@@ -36,18 +36,21 @@ async function isFeatureEnabled(): Promise<boolean> {
 
 export async function getRecommendations(userId: string, language = "en"): Promise<RecommendationResult> {
   const cacheKey = `ai:recs:${userId}:${language}`;
-  const cached = await getRedisValue(cacheKey);
-  if (cached) {
-    try {
-      return JSON.parse(cached) as RecommendationResult;
-    } catch {
-      // Cache corrupt, proceed
-    }
-  }
-
   const enabled = await isFeatureEnabled();
   if (!enabled || !mistralService.isConfigured()) {
     return getFallbackRecommendations(language);
+  }
+
+  const cached = await getRedisValue(cacheKey);
+  if (cached) {
+    try {
+      const parsed = JSON.parse(cached) as RecommendationResult;
+      if (parsed.source === "ai") {
+        return parsed;
+      }
+    } catch {
+      // Cache corrupt, proceed
+    }
   }
 
   const [watchEntries, ratings, favorites] = await Promise.all([

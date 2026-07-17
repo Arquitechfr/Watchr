@@ -122,7 +122,7 @@ export function UpcomingList({
           );
         }}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={() => refetch()} tintColor={colors.primary} />}
-        contentContainerStyle={{ paddingBottom: 24 }}
+        contentContainerStyle={{ paddingTop: 12, paddingBottom: 24 }}
       />
     );
   }
@@ -186,7 +186,7 @@ export function UpcomingList({
         );
       }}
       refreshControl={<RefreshControl refreshing={isLoading} onRefresh={() => refetch()} tintColor={colors.primary} />}
-      contentContainerStyle={{ paddingBottom: 24 }}
+      contentContainerStyle={{ paddingTop: 12, paddingBottom: 24 }}
     />
   );
 }

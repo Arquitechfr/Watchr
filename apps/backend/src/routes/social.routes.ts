@@ -103,7 +103,7 @@ router.get(
   "/users/:username",
   asyncHandler(async (req: Request, res: Response) => {
     const { username } = req.params;
-    const result = await getPublicProfile(username, req.userId!);
+    const result = await getPublicProfile(username, req.userId!, req.language);
     res.json(result);
   }),
 );

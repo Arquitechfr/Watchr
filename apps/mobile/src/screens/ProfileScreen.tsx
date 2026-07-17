@@ -34,6 +34,7 @@ import { useUserStats } from "../hooks/useStats";
 import { useYearInReview } from "../hooks/useYearInReview";
 import { useFavorites } from "../hooks/useFavorites";
 import { useAvatarUpload } from "../hooks/useAvatarUpload";
+import { useBannerUpload } from "../hooks/useBannerUpload";
 import { useFadeIn } from "../hooks/useFadeIn";
 import Animated from "react-native-reanimated";
 
@@ -53,6 +54,7 @@ export function ProfileScreen() {
   const { width } = useWindowDimensions();
   const isDesktopWeb = Platform.OS === "web" && width >= 768;
   const { pickAvatar, isUploading: isAvatarUploading } = useAvatarUpload();
+  const { pickBanner, isUploading: isBannerUploading } = useBannerUpload();
 
   const { data: me, isLoading: meLoading } = useQuery({ queryKey: ["me"], queryFn: getMe });
   const { data: stats, isLoading: statsLoading } = useUserStats();
@@ -106,7 +108,7 @@ export function ProfileScreen() {
       <ScrollView ref={scrollRef} showsVerticalScrollIndicator={false} contentContainerClassName="pb-24">
         <Animated.View style={containerAnimatedStyle}>
         <View style={{ marginHorizontal: -16 }}>
-          <CoverBanner />
+          <CoverBanner url={me?.bannerUrl} onPress={pickBanner} isUploading={isBannerUploading} />
         </View>
         <View className="items-center mb-6" style={{ marginTop: -40 }}>
           <TouchableOpacity onPress={pickAvatar} disabled={isAvatarUploading || meLoading} activeOpacity={0.8}>

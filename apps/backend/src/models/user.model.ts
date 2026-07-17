@@ -21,6 +21,7 @@ export interface IUser extends Document {
   username: string;
   usernameChanged: boolean;
   avatarUrl?: string;
+  bannerUrl?: string;
   passwordHash?: string;
   firebaseUid?: string;
   refreshTokens: RefreshTokenEntry[];
@@ -41,6 +42,8 @@ export interface IUser extends Document {
   activationNudgeSentAt: Date | null;
   activityVisibility: "private" | "public";
   bio?: string;
+  bioTranslations?: Map<string, string>;
+  bioOriginalLanguage?: string;
   favoriteGenres?: string[];
   createdAt: Date;
   updatedAt: Date;
@@ -108,6 +111,10 @@ const userSchema = new Schema<IUser>(
       default: false,
     },
     avatarUrl: {
+      type: String,
+      required: false,
+    },
+    bannerUrl: {
       type: String,
       required: false,
     },
@@ -197,6 +204,15 @@ const userSchema = new Schema<IUser>(
       required: false,
       maxlength: 500,
       default: "",
+    },
+    bioTranslations: {
+      type: Map,
+      of: String,
+      default: new Map(),
+    },
+    bioOriginalLanguage: {
+      type: String,
+      default: null,
     },
     favoriteGenres: {
       type: [String],

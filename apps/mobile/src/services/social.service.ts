@@ -29,11 +29,16 @@ export interface PublicProfile {
   id: string;
   username: string;
   avatarUrl?: string;
+  bannerUrl?: string;
   createdAt: string;
   activityVisibility: "private" | "public";
   isFollowing: boolean;
   followers: number;
   following: number;
+  bio?: string;
+  translatedBio?: string;
+  isBioTranslated?: boolean;
+  favoriteGenres?: string[];
 }
 
 export type ActivityFeedItemType = "rating" | "watchlist_add" | "comment";

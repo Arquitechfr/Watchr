@@ -49,6 +49,17 @@ export async function uploadAvatar(
   return uploadFile(buffer, mimeType, key);
 }
 
+export async function uploadBanner(
+  userId: string,
+  buffer: Buffer,
+  mimeType: string,
+): Promise<string> {
+  validateFile(mimeType, buffer.length);
+  const ext = EXT_BY_MIME[mimeType] ?? "jpg";
+  const key = `banners/${userId}.${ext}`;
+  return uploadFile(buffer, mimeType, key);
+}
+
 export async function uploadCommentImage(
   userId: string,
   buffer: Buffer,

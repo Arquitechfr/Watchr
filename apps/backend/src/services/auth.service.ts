@@ -8,11 +8,13 @@ import { User, NotificationPreferences, IUser } from "../models/user.model.js";
 import { AuthCode } from "../models/authCode.model.js";
 import { generateRefreshToken, hashToken } from "../lib/hashToken.js";
 import { generateUniqueUsername } from "../lib/usernameGenerator.js";
-import { uploadAvatar as uploadAvatarToS3 } from "../services/upload.service.js";
+import { uploadAvatar as uploadAvatarToS3, uploadBanner as uploadBannerToS3 } from "../services/upload.service.js";
 import { EmailService } from "../services/email.service.js";
 import { sendSignupToMake } from "../services/webhook.service.js";
 import { ApiError } from "../middleware/error.middleware.js";
 import { posthogClient } from "../lib/posthog.js";
+import { translateBioAsync } from "../services/aiBioTranslation.service.js";
+import { logError } from "../lib/logger.js";
 import { normalizeLocale } from "../i18n/index.js";
 
 const ACCESS_TOKEN_TTL_SECONDS = 15 * 60;
@@ -291,7 +293,7 @@ export function verifyAccessToken(token: string): { sub: string; lang?: string }
 }
 
 export async function getMe(userId: string) {
-  const user = await User.findById(userId).select("email username usernameChanged avatarUrl preferredLanguage themePreference hasCompletedOnboarding firebaseUid createdAt lastLoginAt role isBanned suspendedUntil banReason activityVisibility bio favoriteGenres").lean();
+  const user = await User.findById(userId).select("email username usernameChanged avatarUrl bannerUrl preferredLanguage themePreference hasCompletedOnboarding firebaseUid createdAt lastLoginAt role isBanned suspendedUntil banReason activityVisibility bio favoriteGenres").lean();
   if (!user) {
     throw new ApiError(404, "USER_NOT_FOUND", "User not found");
   }
@@ -301,6 +303,7 @@ export async function getMe(userId: string) {
     username: user.username,
     usernameChanged: user.usernameChanged,
     avatarUrl: user.avatarUrl,
+    bannerUrl: user.bannerUrl,
     preferredLanguage: user.preferredLanguage,
     themePreference: user.themePreference ?? "system",
     hasCompletedOnboarding: user.hasCompletedOnboarding ?? false,
@@ -334,8 +337,11 @@ export async function updateProfile(
   updates: { bio?: string; favoriteGenres?: string[] },
 ): Promise<{ bio: string; favoriteGenres: string[] }> {
   const setFields: Record<string, unknown> = {};
-  if (updates.bio !== undefined) {
+  const bioChanged = updates.bio !== undefined;
+  if (bioChanged) {
     setFields.bio = updates.bio;
+    setFields.bioTranslations = new Map();
+    setFields.bioOriginalLanguage = null;
   }
   if (updates.favoriteGenres !== undefined) {
     setFields.favoriteGenres = updates.favoriteGenres;
@@ -349,6 +355,13 @@ export async function updateProfile(
   if (!user) {
     throw new ApiError(404, "USER_NOT_FOUND", "User not found");
   }
+
+  if (bioChanged && updates.bio && updates.bio.trim().length >= 3) {
+    translateBioAsync(userId, updates.bio).catch((err) =>
+      logError("AuthService", "bio translation failed", err),
+    );
+  }
+
   return {
     bio: user.bio ?? "",
     favoriteGenres: user.favoriteGenres ?? [],
@@ -381,6 +394,19 @@ export async function updateAvatar(userId: string, buffer: Buffer, mimeType: str
     throw new ApiError(404, "USER_NOT_FOUND", "User not found");
   }
   return user.avatarUrl!;
+}
+
+export async function updateBanner(userId: string, buffer: Buffer, mimeType: string): Promise<string> {
+  const url = await uploadBannerToS3(userId, buffer, mimeType);
+  const user = await User.findByIdAndUpdate(
+    userId,
+    { bannerUrl: url },
+    { new: true },
+  ).select("bannerUrl").lean();
+  if (!user) {
+    throw new ApiError(404, "USER_NOT_FOUND", "User not found");
+  }
+  return user.bannerUrl!;
 }
 
 export async function updateUsername(userId: string, newUsername: string): Promise<{ username: string; usernameChanged: boolean }> {

@@ -10,6 +10,7 @@ import {
   getMe,
   updateLanguage,
   updateAvatar,
+  updateBanner,
   updateUsername,
   updateProfile,
   requestPasswordReset,
@@ -326,6 +327,19 @@ router.post(
     }
     const url = await updateAvatar(req.userId!, req.file.buffer, req.file.mimetype);
     res.json({ avatarUrl: url });
+  }),
+);
+
+router.post(
+  "/me/banner",
+  avatarUpload.single("banner"),
+  asyncHandler(async (req: Request, res: Response) => {
+    if (!req.file) {
+      res.status(400).json({ error: { code: "NO_FILE", message: "No file uploaded" } });
+      return;
+    }
+    const url = await updateBanner(req.userId!, req.file.buffer, req.file.mimetype);
+    res.json({ bannerUrl: url });
   }),
 );
 

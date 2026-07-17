@@ -1,18 +1,29 @@
 import { useTranslation } from "react-i18next";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { useParallax } from "@/hooks/useParallax";
 
 export function CTA() {
   const { t } = useTranslation();
+  const blurLeftParallax = useParallax<HTMLDivElement>({ speed: 0.12 });
+  const blurRightParallax = useParallax<HTMLDivElement>({ speed: -0.15 });
 
   return (
     <section className="py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-primary-dark px-6 py-16 text-center sm:px-12 sm:py-24">
-          {/* Decorative blurs */}
+          {/* Decorative blurs with parallax */}
           <div className="absolute inset-0 opacity-20">
-            <div className="absolute left-1/4 top-0 h-64 w-64 rounded-full bg-white/30 blur-3xl" />
-            <div className="absolute right-1/4 bottom-0 h-64 w-64 rounded-full bg-white/20 blur-3xl" />
+            <div
+              ref={blurLeftParallax.ref}
+              style={blurLeftParallax.style}
+              className="absolute left-1/4 top-0 h-64 w-64 rounded-full bg-white/30 blur-3xl"
+            />
+            <div
+              ref={blurRightParallax.ref}
+              style={blurRightParallax.style}
+              className="absolute right-1/4 bottom-0 h-64 w-64 rounded-full bg-white/20 blur-3xl"
+            />
           </div>
 
           <div className="relative">

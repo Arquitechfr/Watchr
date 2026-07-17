@@ -1,18 +1,29 @@
 import { useTranslation } from "react-i18next";
 import { Play, Download, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { useParallax } from "@/hooks/useParallax";
 import splashIcon from "@/assets/splash-icon.webp";
 
 export function Hero() {
   const { t } = useTranslation();
+  const blobParallax = useParallax<HTMLDivElement>({ speed: 0.15 });
+  const glowParallax = useParallax<HTMLDivElement>({ speed: -0.1 });
+  const imageParallax = useParallax<HTMLDivElement>({ speed: 0.08 });
 
   return (
     <section id="top" className="relative overflow-hidden pt-32 pb-20 sm:pt-40 sm:pb-28">
       {/* Background gradient */}
       <div className="absolute inset-0 bg-gradient-to-b from-background via-surface to-background" />
-      <div className="absolute inset-0 opacity-30">
+      <div ref={blobParallax.ref} style={blobParallax.style} className="absolute inset-0 opacity-30">
         <div className="absolute left-1/2 top-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/20 blur-[120px]" />
       </div>
+
+      {/* Secondary glow — moves opposite direction for depth */}
+      <div
+        ref={glowParallax.ref}
+        style={glowParallax.style}
+        className="absolute left-[10%] top-[20%] h-[300px] w-[300px] rounded-full bg-accent/10 blur-[100px] opacity-40 hidden sm:block"
+      />
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col items-center text-center">
@@ -50,7 +61,7 @@ export function Hero() {
 
           {/* Hero image / mockup */}
           <div className="mt-16 w-full max-w-md">
-            <div className="relative mx-auto">
+            <div ref={imageParallax.ref} style={imageParallax.style} className="relative mx-auto">
               <div className="absolute inset-0 rounded-3xl bg-primary/10 blur-3xl" />
               <img
                 src={splashIcon}

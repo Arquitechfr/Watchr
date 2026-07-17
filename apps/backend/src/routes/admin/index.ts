@@ -792,11 +792,21 @@ router.post(
     const { MobileConfig } = await import("../../models/MobileConfig.js");
     const flag = await MobileConfig.findOne({ key: "ai_reengagement_enabled" }).lean();
     if (flag?.value !== "true") {
-      res.json({ message: "Re-engagement is disabled. Enable the 'Re-engagement' AI flag first." });
+      res.status(403).json({
+        error: {
+          code: "FEATURE_DISABLED",
+          message: "Re-engagement is disabled. Enable the 'Re-engagement' AI flag first.",
+        },
+      });
       return;
     }
-    sendReengagementBatch().catch((err) => logError("AdminReengagement", "batch failed", err));
-    res.json({ message: "Re-engagement batch started" });
+    const result = await sendReengagementBatch();
+    res.json({
+      message: "Re-engagement batch complete",
+      sent: result.sent,
+      failed: result.failed,
+      skipped: result.skipped,
+    });
   }),
 );
 
@@ -806,11 +816,21 @@ router.post(
     const { MobileConfig } = await import("../../models/MobileConfig.js");
     const flag = await MobileConfig.findOne({ key: "activation_nudge_enabled" }).lean();
     if (flag?.value !== "true") {
-      res.json({ message: "Activation nudge is disabled. Enable the 'activation_nudge_enabled' flag first." });
+      res.status(403).json({
+        error: {
+          code: "FEATURE_DISABLED",
+          message: "Activation nudge is disabled. Enable the 'activation_nudge_enabled' flag first.",
+        },
+      });
       return;
     }
-    sendActivationNudgeBatch().catch((err) => logError("AdminActivationNudge", "batch failed", err));
-    res.json({ message: "Activation nudge batch started" });
+    const result = await sendActivationNudgeBatch();
+    res.json({
+      message: "Activation nudge batch complete",
+      sent: result.sent,
+      failed: result.failed,
+      skipped: result.skipped,
+    });
   }),
 );
 

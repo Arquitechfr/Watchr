@@ -71,9 +71,11 @@ async function sendPush(
   title: string,
   body: string,
   data?: Record<string, unknown>,
-): Promise<void> {
+): Promise<boolean> {
   const tickets = await sendPushBatch([{ to: token, title, body, data, sound: "default" }]);
+  if (tickets.length === 0) return false;
   await cleanupInvalidTokens(tickets, [token]);
+  return tickets[0]?.status === "ok";
 }
 
 async function sendToUser(
@@ -81,12 +83,23 @@ async function sendToUser(
   title: string,
   body: string,
   data?: Record<string, unknown>,
-): Promise<void> {
+  triggeredBy?: string,
+): Promise<boolean> {
   const user = await User.findById(userId).select("expoPushToken notificationPreferences preferredLanguage").lean();
-  if (!user?.expoPushToken) return;
-  if (!user.notificationPreferences?.pushEnabled) return;
+  if (!user?.expoPushToken) return false;
+  if (!user.notificationPreferences?.pushEnabled) return false;
 
-  await sendPush(user.expoPushToken, title, body, data);
+  const locale = getUserLocale(user.preferredLanguage);
+  await logAutomatedNotification(
+    userId,
+    user.expoPushToken,
+    title,
+    body,
+    data,
+    triggeredBy ?? "reengagement",
+    locale,
+  );
+  return true;
 }
 
 async function logAutomatedNotification(

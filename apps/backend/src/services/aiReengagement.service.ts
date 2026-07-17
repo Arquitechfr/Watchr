@@ -134,14 +134,19 @@ export async function sendReengagementBatch(): Promise<{ sent: number; failed: n
         skipped++;
       }
 
-      await PushNotificationService.sendToUser(
+      const delivered = await PushNotificationService.sendToUser(
         user.userId,
         message.title,
         message.body,
         { screen: "home" },
+        "reengagement",
       );
 
-      sent++;
+      if (delivered) {
+        sent++;
+      } else {
+        failed++;
+      }
     } catch (err) {
       logError("AIReengagement", "failed to send to user", err, { userId: user.userId });
       failed++;

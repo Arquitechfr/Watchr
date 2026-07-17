@@ -212,10 +212,13 @@ export function Dashboard() {
                 setReengagementSending(true);
                 setReengagementResult("");
                 try {
-                  await api.post("/admin/ai/reengagement");
-                  setReengagementResult("Re-engagement batch started successfully");
-                } catch (err) {
-                  setReengagementResult("Failed to start re-engagement batch");
+                  const { data } = await api.post("/admin/ai/reengagement");
+                  setReengagementResult(
+                    `${data.message} — Sent: ${data.sent ?? 0}, Failed: ${data.failed ?? 0}, Skipped: ${data.skipped ?? 0}`
+                  );
+                } catch (err: any) {
+                  const errMsg = err?.response?.data?.error?.message || "Failed to run re-engagement batch";
+                  setReengagementResult(errMsg);
                   console.error("Re-engagement failed:", err);
                 } finally {
                   setReengagementSending(false);
@@ -248,10 +251,13 @@ export function Dashboard() {
                 setNudgeSending(true);
                 setNudgeResult("");
                 try {
-                  await api.post("/admin/ai/activation-nudge");
-                  setNudgeResult("Activation nudge batch started successfully");
-                } catch (err) {
-                  setNudgeResult("Failed to start activation nudge batch");
+                  const { data } = await api.post("/admin/ai/activation-nudge");
+                  setNudgeResult(
+                    `${data.message} — Sent: ${data.sent ?? 0}, Failed: ${data.failed ?? 0}, Skipped: ${data.skipped ?? 0}`
+                  );
+                } catch (err: any) {
+                  const errMsg = err?.response?.data?.error?.message || "Failed to run activation nudge batch";
+                  setNudgeResult(errMsg);
                   console.error("Activation nudge failed:", err);
                 } finally {
                   setNudgeSending(false);

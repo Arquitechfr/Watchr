@@ -63,8 +63,19 @@ export async function sendActivationNudgeBatch(): Promise<{ sent: number; skippe
         const title = translateNotification("activationNudgeTitle", candidate.locale);
         const body = translateNotification("activationNudgeBody", candidate.locale);
 
-        await PushNotificationService.sendToUser(candidate.userId, title, body, { screen: "home" });
-        sent++;
+        const delivered = await PushNotificationService.sendToUser(
+          candidate.userId,
+          title,
+          body,
+          { screen: "home" },
+          "activation_nudge",
+        );
+
+        if (delivered) {
+          sent++;
+        } else {
+          failed++;
+        }
       } else {
         skipped++;
       }

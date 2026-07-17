@@ -107,7 +107,7 @@ export function ProfileScreen() {
       <MainHeader rightElement={<ProfileMenuButton />} />
       <ScrollView ref={scrollRef} showsVerticalScrollIndicator={false} contentContainerClassName="pb-24">
         <Animated.View style={containerAnimatedStyle}>
-        <View style={{ marginHorizontal: -16 }}>
+        <View style={isDesktopWeb ? undefined : { marginHorizontal: -16 }}>
           <CoverBanner url={me?.bannerUrl} onPress={pickBanner} isUploading={isBannerUploading} />
         </View>
         <View className="items-center mb-6" style={{ marginTop: -40 }}>
@@ -115,8 +115,8 @@ export function ProfileScreen() {
             <View className="relative">
               <Avatar url={me?.avatarUrl} size={80} />
               <View
-                className="absolute bottom-0 right-0 items-center justify-center rounded-full"
-                style={{ width: 28, height: 28, backgroundColor: colors.primary }}
+                className="absolute bottom-0 items-center justify-center rounded-full"
+                style={{ width: 28, height: 28, backgroundColor: colors.primary, right: 4 }}
               >
                 {isAvatarUploading ? (
                   <ActivityIndicator size="small" color={colors.background} />

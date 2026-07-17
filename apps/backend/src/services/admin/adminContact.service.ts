@@ -38,23 +38,8 @@ export interface ContactMessageDoc {
   updatedAt: string;
 }
 
-interface LeanContactMessage {
-  _id: { toString(): string };
-  userId: { toString(): string };
-  email: string;
-  username: string;
-  category: ContactCategory;
-  subject: string;
-  message: string;
-  status: ContactStatus;
-  repliedAt?: Date;
-  replyBody?: string;
-  repliedBy?: { toString(): string };
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-function toDoc(doc: LeanContactMessage): ContactMessageDoc {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function toDoc(doc: any): ContactMessageDoc {
   return {
     id: doc._id.toString(),
     userId: doc.userId.toString(),
@@ -67,8 +52,8 @@ function toDoc(doc: LeanContactMessage): ContactMessageDoc {
     repliedAt: doc.repliedAt?.toISOString(),
     replyBody: doc.replyBody,
     repliedBy: doc.repliedBy?.toString(),
-    createdAt: doc.createdAt?.toISOString(),
-    updatedAt: doc.updatedAt?.toISOString(),
+    createdAt: doc.createdAt?.toISOString() ?? "",
+    updatedAt: doc.updatedAt?.toISOString() ?? "",
   };
 }
 

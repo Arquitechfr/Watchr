@@ -80,7 +80,10 @@ export async function getRecommendations(userId: string, language = "en"): Promi
     const show = entry.showId as unknown as PopulatedShow;
     if (!show?._id) continue;
     const id = show._id.toString();
-    const translation = getTranslationValue(show.translations, language);
+    const translation = getTranslationValue(
+      show.translations as Map<string, ShowTranslation> | Record<string, ShowTranslation> | undefined,
+      language,
+    );
     showMap.set(id, {
       title: translation?.title ?? show.title ?? "Unknown",
       type: show.type ?? "tv",
@@ -97,7 +100,10 @@ export async function getRecommendations(userId: string, language = "en"): Promi
     if (existing) {
       existing.rating = rating.value;
     } else {
-      const translation = getTranslationValue(show.translations, language);
+      const translation = getTranslationValue(
+        show.translations as Map<string, ShowTranslation> | Record<string, ShowTranslation> | undefined,
+        language,
+      );
       showMap.set(id, {
         title: translation?.title ?? show.title ?? "Unknown",
         type: show.type ?? "tv",
@@ -112,7 +118,10 @@ export async function getRecommendations(userId: string, language = "en"): Promi
     if (!show?._id) continue;
     const id = show._id.toString();
     if (!showMap.has(id)) {
-      const translation = getTranslationValue(show.translations, language);
+      const translation = getTranslationValue(
+        show.translations as Map<string, ShowTranslation> | Record<string, ShowTranslation> | undefined,
+        language,
+      );
       showMap.set(id, {
         title: translation?.title ?? show.title ?? "Unknown",
         type: show.type ?? "tv",

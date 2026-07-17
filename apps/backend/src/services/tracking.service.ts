@@ -171,7 +171,7 @@ export async function listLibrary(
   }
 
   const pipeline: PipelineStage[] = [
-    { $match: matchStage },
+    { $match: matchStage as PipelineStage.Match["$match"] },
     {
       $lookup: {
         from: "shows",
@@ -196,7 +196,7 @@ export async function listLibrary(
   const [entries, totalResult] = await Promise.all([
     WatchEntry.aggregate(pipeline),
     WatchEntry.aggregate([
-      { $match: matchStage },
+      { $match: matchStage as PipelineStage.Match["$match"] },
       {
         $lookup: {
           from: "shows",
@@ -243,7 +243,7 @@ export async function listLibrary(
         type: show.type ?? "tv",
         totalEpisodes: getAiredEpisodeCount(show.seasons ?? []),
       },
-    } as TrackingListItem;
+    } as unknown as TrackingListItem;
   });
 
   return {

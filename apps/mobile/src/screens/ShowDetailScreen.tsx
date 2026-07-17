@@ -25,7 +25,7 @@ import { WatchStatus } from "../services/tracking.service";
 import { useUIStore } from "../store/uiStore";
 import { log } from "../utils/logger";
 import { useI18n } from "../i18n/useI18n";
-import { useErrorMessage } from "../services/api";
+import { useErrorMessage, getNetworkErrorVariant } from "../services/api";
 import { useSimilarShows } from "../hooks/useSimilarShows";
 import { useEnrichedTags } from "../hooks/useEnrichedTags";
 import { Seo } from "../components/Seo";
@@ -57,7 +57,7 @@ export function ShowDetailScreen() {
   const isDesktopWeb = Platform.OS === "web" && width >= 768;
   const isWideWeb = Platform.OS === "web" && width >= 1280;
 
-  const { data: show, isLoading, isRefetching, isError, refetch } = useShowDetails(tmdbId);
+  const { data: show, isLoading, isRefetching, isError, error, refetch } = useShowDetails(tmdbId);
   const { data: enrichedTagsData } = useEnrichedTags(isValidTmdbId ? tmdbId : 0, show?.type);
   const { data: trackingEntry, refetch: refetchTrackingEntry } = useTrackingEntry(show?.id ?? "");
   const { data: ratings, refetch: refetchRatings } = useRatingsForShow(show?.id ?? "");
@@ -361,7 +361,7 @@ export function ShowDetailScreen() {
     return (
       <ScreenContainer edges={["top", "left", "right"]} fullWidth>
         <DetailHeader title={title} onBack={() => navigation.goBack()} />
-        <NetworkError onRetry={() => refetch()} />
+        <NetworkError variant={getNetworkErrorVariant(error)} onRetry={() => refetch()} />
       </ScreenContainer>
     );
   }

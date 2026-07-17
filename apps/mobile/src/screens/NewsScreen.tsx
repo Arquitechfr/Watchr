@@ -12,6 +12,7 @@ import { useNews, useFilteredNews } from "../hooks/useNews";
 import { useNewsRealtime } from "../hooks/useNewsRealtime";
 import { useRefreshRateLimit } from "../hooks/useRefreshRateLimit";
 import { useThemeColors } from "../theme/useThemeColors";
+import { getNetworkErrorVariant } from "../services/api";
 import { useRef, useState } from "react";
 import { useI18n } from "../i18n/useI18n";
 import { Seo } from "../components/Seo";
@@ -77,7 +78,7 @@ export function NewsScreen() {
       )}
 
       {displayError && (
-        <NetworkError isOffline={!error || !("response" in error)} onRetry={() => displayRefetch()} />
+        <NetworkError variant={getNetworkErrorVariant(error)} onRetry={() => displayRefetch()} />
       )}
 
       {!displayLoading && !displayError && (

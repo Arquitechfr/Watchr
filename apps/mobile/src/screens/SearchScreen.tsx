@@ -28,6 +28,7 @@ import { SearchBar } from "../components/SearchBar";
 import { useThemeColors } from "../theme/useThemeColors";
 import { RootStackParamList } from "../navigation/RootNavigator";
 import { SearchResultItem, DiscoverSection, MoodRecommendation } from "../services/shows.service";
+import { getNetworkErrorVariant } from "../services/api";
 import { useUIStore } from "../store/uiStore";
 import { log } from "../utils/logger";
 import { useI18n } from "../i18n/useI18n";
@@ -155,7 +156,7 @@ export function SearchScreen() {
 
         {!isSearching && isDiscoverError && (
           <NetworkError
-            isOffline={!discoverError || !("response" in discoverError)}
+            variant={getNetworkErrorVariant(discoverError)}
             onRetry={() => throttledRefreshDiscover(refetchDiscover)}
           />
         )}
@@ -251,7 +252,7 @@ export function SearchScreen() {
 
         {isSearching && isError && (
           <NetworkError
-            isOffline={!error || !("response" in error)}
+            variant={getNetworkErrorVariant(error)}
             onRetry={() => refetch()}
           />
         )}

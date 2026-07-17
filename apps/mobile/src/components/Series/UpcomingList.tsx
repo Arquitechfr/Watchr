@@ -7,7 +7,7 @@ import { UpcomingEpisodeRow } from "../UpcomingEpisodeRow";
 import { WeekSectionHeader } from "../WeekSectionHeader";
 import { useI18n } from "../../i18n/useI18n";
 import { useThemeColors } from "../../theme/useThemeColors";
-import { isNetworkError } from "../../services/api";
+import { getNetworkErrorVariant } from "../../services/api";
 import type { UpcomingEpisode } from "../../services/upcoming.service";
 
 interface UpcomingListProps {
@@ -65,7 +65,7 @@ export function UpcomingList({
   }
 
   if (error) {
-    return <NetworkError isOffline={isNetworkError(error)} onRetry={() => refetch()} />;
+    return <NetworkError variant={getNetworkErrorVariant(error)} onRetry={() => refetch()} />;
   }
 
   if (viewMode === "grid") {

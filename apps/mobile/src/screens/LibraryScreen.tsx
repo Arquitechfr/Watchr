@@ -13,6 +13,7 @@ import { ProgressBar } from "../components/ProgressBar";
 import { SegmentedControl } from "../components/SegmentedControl";
 import { ViewModeToggle } from "../components/ViewModeToggle";
 import { LibraryItem } from "../services/library.service";
+import { getNetworkErrorVariant } from "../services/api";
 import { useLibrary } from "../hooks/useLibrary";
 import { getPosterUrl, SearchResultItem } from "../services/shows.service";
 import { WatchStatus } from "../services/tracking.service";
@@ -259,7 +260,7 @@ export function LibraryScreen() {
             ))}
           </View>
         ) : isError ? (
-          <NetworkError isOffline={!error || !("response" in error)} onRetry={handleRefresh} />
+          <NetworkError variant={getNetworkErrorVariant(error)} onRetry={handleRefresh} />
         ) : !isFetchingNextPage && data.length === 0 ? (
           <EmptyState
             icon="film-outline"

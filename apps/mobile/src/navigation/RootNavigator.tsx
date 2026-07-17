@@ -5,7 +5,7 @@ import { usePostHog } from "posthog-react-native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { NetworkError } from "../components/NetworkError";
-import { isNetworkError } from "../services/api";
+import { getNetworkErrorVariant } from "../services/api";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { DesktopSidebar } from "../components/DesktopSidebar";
 import { useAuthStore } from "../store/authStore";
@@ -183,18 +183,14 @@ export function RootNavigator() {
   };
 
   if (isAuthenticated && isMeError && !me) {
-    const isSessionError = !isNetworkError(meQuery.error) &&
-      meQuery.error instanceof Error &&
-      "response" in meQuery.error &&
-      (meQuery.error as { response?: { status?: number } }).response?.status === 401;
+    const variant = getNetworkErrorVariant(meQuery.error);
 
     return (
       <ScreenContainer>
         <NetworkError
-          variant={isSessionError ? "session" : undefined}
-          isOffline={isNetworkError(meQuery.error)}
+          variant={variant}
           onRetry={() => {
-            if (isSessionError) {
+            if (variant === "session") {
               useAuthStore.getState().logout();
             } else {
               meQuery.refetch();

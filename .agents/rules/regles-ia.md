@@ -80,6 +80,18 @@ Ces règles s'appliquent à tout agent travaillant sur ce repo.
 - Interface en anglais.
 - Test admin : `pnpm --filter admin dev` sans crash.
 
+## 7b. Landing Page
+
+- App ViteJS séparée (`apps/landing/`), statique, pas d'API backend.
+- Stack : React 19 + TailwindCSS + shadcn/ui + react-i18next + react-helmet-async.
+- Thème aligné mobile : `#1A1614` dark bg, `#C65D3A` primary, `#F5F0EB` text. Toggle dark/light avec localStorage + `prefers-color-scheme`.
+- i18n : 7 langues (en, fr, ar, de, es, it, pt). RTL pour l'arabe. Traductions dans `apps/landing/src/i18n/locales/<lang>.ts`. Parité parfaite entre tous les fichiers de locale.
+- SEO dynamique : react-helmet-async, JSON-LD (WebSite, SoftwareApplication, FAQPage), hreflang, OG/Twitter Cards, robots.txt, sitemap.xml.
+- Performance : code splitting (manualChunks), lazy loading sections, font preload, PWA (vite-plugin-pwa).
+- Assets réutilisés depuis mobile (favicon, icon, og-image, splash backgrounds).
+- Pas de régression sur les autres apps.
+- Test landing : `pnpm --filter landing dev` sans crash.
+
 ## 8. Definition of Done
 
 Une tâche n'est terminée que si :
@@ -89,8 +101,9 @@ Une tâche n'est terminée que si :
 - [ ] Remote Config : nouvelle valeur runtime ajoutée à `DEFAULT_REMOTE_CONFIG`, seedée, aucune URL backend hardcodée.
 - [ ] Web : `pnpm --filter mobile web` sans crash, guards `Platform.OS`, layout responsive.
 - [ ] Admin : si touché, `pnpm --filter admin dev` sans crash, routes Zod, pas de régression backend.
+- [ ] Landing : si touché, `pnpm --filter landing dev` sans crash, i18n parité 7 langues, SEO meta à jour.
 - [ ] Pas de régression mobile iOS/Android.
-- [ ] i18n : parfaite parité entre toutes les locales mobile et backend.
+- [ ] i18n : parfaite parité entre toutes les locales mobile, backend et landing.
 - [ ] Mobile = source of truth.
 - [ ] MCP pertinents utilisés.
 - [ ] Logiques optimistic UI/UX mises en place.

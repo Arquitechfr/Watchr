@@ -163,6 +163,12 @@ export function isNetworkError(error: unknown): boolean {
   return false;
 }
 
+export function getNetworkErrorVariant(error: unknown): "network" | "session" | "server" {
+  if (isNetworkError(error)) return "network";
+  if (error instanceof AxiosError && error.response?.status === 401) return "session";
+  return "server";
+}
+
 const errorMessageKeys: Record<string, string> = {
   INVALID_CREDENTIALS: "auth.invalidCredentials",
   EMAIL_IN_USE: "auth.emailAlreadyUsed",

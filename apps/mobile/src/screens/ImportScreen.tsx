@@ -375,7 +375,7 @@ export function ImportScreen() {
             <ImportProgressBar progress={job.progress} />
             {isFailed && (
               <NetworkError
-                isOffline={false}
+                variant="server"
                 onRetry={() => {
                   clearActiveJob();
                   setErrors([]);

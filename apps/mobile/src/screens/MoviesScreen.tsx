@@ -13,6 +13,7 @@ import { PosterCard } from "../components/PosterCard";
 import { SearchBar } from "../components/SearchBar";
 import { MainHeader } from "../components/MainHeader";
 import { FilterChips, FilterChipOption } from "../components/FilterChips";
+import { getNetworkErrorVariant } from "../services/api";
 import { MovieCard, getMovieStatusLabel, statusColorMap } from "../components/Movies/MovieCard";
 import { useUnwatchedMovies } from "../hooks/useUnwatched";
 import { useQuickMarkMovieWatched } from "../hooks/useTracking";
@@ -137,7 +138,7 @@ export function MoviesScreen() {
     return (
       <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
         <MainHeader />
-        <NetworkError isOffline={!error || !("response" in error)} onRetry={() => refetch()} />
+        <NetworkError variant={getNetworkErrorVariant(error)} onRetry={() => refetch()} />
       </ScreenContainer>
     );
   }

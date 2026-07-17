@@ -28,6 +28,10 @@ MVP : tracking watch-status + notes/ratings + commentaires publics sur shows/ép
 | Admin UI | TailwindCSS + shadcn/ui |
 | Admin state | Zustand |
 | Admin routing | React Router v6 |
+| Landing | ViteJS + React 19 + TypeScript |
+| Landing UI | TailwindCSS + shadcn/ui |
+| Landing i18n | react-i18next (7 langues) |
+| Landing SEO | react-helmet-async + JSON-LD |
 
 ## Structure du repo
 
@@ -54,17 +58,33 @@ watchr/
 │   │   │   └── navigation/
 │   │   ├── App.tsx              # Entry point — mobile + web
 │   │   └── package.json
-│   └── admin/
+│   ├── admin/
+│   │   ├── src/
+│   │   │   ├── pages/
+│   │   │   ├── components/
+│   │   │   │   ├── ui/                # shadcn/ui
+│   │   │   │   ├── layout/
+│   │   │   │   └── shared/
+│   │   │   ├── hooks/
+│   │   │   ├── lib/                   # api client, utils
+│   │   │   ├── store/                 # Zustand
+│   │   │   └── types/
+│   │   ├── package.json
+│   │   └── vite.config.ts
+│   └── landing/
 │       ├── src/
-│       │   ├── pages/
 │       │   ├── components/
 │       │   │   ├── ui/                # shadcn/ui
-│       │   │   ├── layout/
-│       │   │   └── shared/
-│       │   ├── hooks/
-│       │   ├── lib/                   # api client, utils
-│       │   ├── store/                 # Zustand
-│       │   └── types/
+│       │   │   ├── layout/            # Header, Footer
+│       │   │   ├── sections/          # Hero, Features, Import, Showcase, Stats, Testimonials, FAQ, CTA
+│       │   │   └── shared/            # Logo, ThemeToggle, LanguageSwitcher, Seo
+│       │   ├── hooks/                 # useTheme, useScrollReveal
+│       │   ├── i18n/                  # config + locales/ (7 langues)
+│       │   ├── lib/                   # utils
+│       │   ├── assets/                # splash backgrounds, images
+│       │   ├── App.tsx
+│       │   └── main.tsx
+│       ├── public/                    # favicon, icons, og-image, robots.txt, sitemap.xml
 │       ├── package.json
 │       └── vite.config.ts
 ├── pnpm-workspace.yaml
@@ -83,6 +103,9 @@ watchr/
 - `pnpm --filter backend mobile-config:seed` : seed remote config
 - `pnpm --filter admin dev` : admin dev (port 5173)
 - `pnpm --filter admin build` : admin build
+- `pnpm --filter landing dev` : landing dev (port 5174)
+- `pnpm --filter landing build` : landing build
+- `pnpm --filter landing preview` : landing preview
 - `pnpm --filter backend promote-admin <email>` : promouvoir un user admin
 
 ## URLs de production
@@ -114,8 +137,17 @@ watchr/
    - Routes admin additives, pas de régression backend.
    - Interface admin en anglais.
    - Test admin : `pnpm --filter admin dev` lance sans crash.
-8. **Recommandations explicites** : tout conseil technique, architectural, librairie ou pattern doit être préfixé par **`(RECOMMANDATION)`**.
-9. **Remote Config** : valeurs runtime (`backend_url`, flags, etc.) dans MongoDB `mobile_config`, endpoint public `GET /internal/mobile-config` (cache 30s côté backend).
+8. **Landing Page** : app ViteJS séparée (`apps/landing/`), statique, pas d'API backend.
+   - Stack : React 19 + TailwindCSS + shadcn/ui + react-i18next + react-helmet-async.
+   - Thème aligné mobile : dark bg `#1A1614`, primary `#C65D3A`, text `#F5F0EB`. Toggle dark/light avec localStorage + `prefers-color-scheme`.
+   - i18n : 7 langues (en, fr, ar, de, es, it, pt). RTL pour l'arabe. Traductions dans `apps/landing/src/i18n/locales/<lang>.ts`. Parité parfaite entre tous les fichiers de locale.
+   - SEO dynamique : react-helmet-async, JSON-LD (WebSite, SoftwareApplication, FAQPage), hreflang, OG/Twitter Cards, robots.txt, sitemap.xml.
+   - Performance : code splitting (manualChunks), lazy loading sections, font preload, PWA (vite-plugin-pwa).
+   - Assets réutilisés depuis mobile (favicon, icon, og-image, splash backgrounds).
+   - Pas de régression sur les autres apps.
+   - Test landing : `pnpm --filter landing dev` lance sans crash.
+9. **Recommandations explicites** : tout conseil technique, architectural, librairie ou pattern doit être préfixé par **`(RECOMMANDATION)`**.
+10. **Remote Config** : valeurs runtime (`backend_url`, flags, etc.) dans MongoDB `mobile_config`, endpoint public `GET /internal/mobile-config` (cache 30s côté backend).
    - Mobile : `remoteConfigService` init bloquant, cache AsyncStorage, refresh 5 min + foreground.
    - Écriture = CLI (`pnpm --filter backend mobile-config set ...`) ou API admin authentifiée. Jamais d'endpoint public d'écriture.
    - Lecture = endpoint public sans auth (pas de données sensibles).
@@ -138,5 +170,6 @@ watchr/
 - [ ] Remote Config : nouvelle valeur runtime ajoutée à `DEFAULT_REMOTE_CONFIG`, seedée, aucune URL backend hardcodée.
 - [ ] Web : `pnpm --filter mobile web` sans crash, guards `Platform.OS`, layout responsive.
 - [ ] Admin : si touché, `pnpm --filter admin dev` sans crash, routes validées Zod, pas de régression backend.
+- [ ] Landing : si touché, `pnpm --filter landing dev` sans crash, i18n parité 7 langues, SEO meta à jour.
 - [ ] Mobile : pas de régression iOS/Android.
-- [ ] Translations : tous les fichiers de locale mobile et backend restent en parité.
+- [ ] Translations : tous les fichiers de locale mobile, backend et landing restent en parité.

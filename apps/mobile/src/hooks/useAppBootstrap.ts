@@ -20,7 +20,7 @@ import { remoteConfigService } from "../services/remoteConfig";
 import { prefetchSeriesData } from "../utils/prefetch";
 import { log } from "../utils/logger";
 
-const BOOTSTRAP_TIMEOUT_MS = 2500;
+const BOOTSTRAP_TIMEOUT_MS = 6000;
 
 export function useAppBootstrap(queryClient: QueryClient) {
   const [fontsLoaded] = useFonts({

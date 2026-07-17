@@ -22,7 +22,7 @@ import { useWidgetSync } from "../hooks/useWidgetSync";
 import { useUIStore } from "../store/uiStore";
 import { RootStackParamList } from "../navigation/RootNavigator";
 import { UpcomingEpisode } from "../services/upcoming.service";
-import { isNetworkError } from "../services/api";
+import { getNetworkErrorVariant } from "../services/api";
 import { useThemeColors } from "../theme/useThemeColors";
 import { useI18n } from "../i18n/useI18n";
 import { Seo } from "../components/Seo";
@@ -189,7 +189,7 @@ export function SeriesScreen() {
               ))}
             </View>
           ) : isUnwatchedError ? (
-            <NetworkError isOffline={isNetworkError(unwatchedError)} onRetry={() => refetchUnwatched()} />
+            <NetworkError variant={getNetworkErrorVariant(unwatchedError)} onRetry={() => refetchUnwatched()} />
           ) : (
             <UnwatchedList
               shows={unwatchedData?.shows ?? []}

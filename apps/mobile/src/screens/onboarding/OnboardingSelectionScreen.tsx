@@ -14,6 +14,7 @@ import { useOnboardingStore } from "../../store/onboardingStore";
 import { useOnboardingSuggestions } from "../../hooks/useOnboardingSuggestions";
 import { useAddToWatchlistBatch } from "../../hooks/useTracking";
 import { SearchResultItem, OnboardingSuggestion } from "../../services/shows.service";
+import { getNetworkErrorVariant } from "../../services/api";
 import { usePostHog } from "posthog-react-native";
 
 interface OnboardingSelectionScreenProps {
@@ -35,6 +36,7 @@ export function OnboardingSelectionScreen({ onComplete, onSkip }: OnboardingSele
     data: discoverData,
     isLoading: discoverLoading,
     isError: discoverError,
+    error: discoverErrorObj,
     refetch: refetchDiscover,
     fetchNextPage,
     hasNextPage,
@@ -89,6 +91,7 @@ export function OnboardingSelectionScreen({ onComplete, onSkip }: OnboardingSele
 
   const isLoading = isSearching ? searchResult.isLoading : discoverLoading;
   const isError = isSearching ? searchResult.isError : discoverError;
+  const error = isSearching ? searchResult.error : discoverErrorObj;
   const refetch = isSearching ? () => searchResult.refetch() : refetchDiscover;
 
   const handleToggle = useCallback(
@@ -123,6 +126,7 @@ export function OnboardingSelectionScreen({ onComplete, onSkip }: OnboardingSele
     return (
       <ScreenContainer>
         <NetworkError
+          variant={getNetworkErrorVariant(batchMutation.error)}
           message={t("screens.onboarding.batchError")}
           onRetry={handleRetry}
         />
@@ -144,7 +148,7 @@ export function OnboardingSelectionScreen({ onComplete, onSkip }: OnboardingSele
   if (isError) {
     return (
       <ScreenContainer>
-        <NetworkError onRetry={refetch} />
+        <NetworkError variant={getNetworkErrorVariant(error)} onRetry={refetch} />
       </ScreenContainer>
     );
   }

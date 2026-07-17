@@ -42,7 +42,7 @@ import { Comment } from "../services/comments.service";
 import { useThemeColors } from "../theme/useThemeColors";
 import { log } from "../utils/logger";
 import { useI18n } from "../i18n/useI18n";
-import { useErrorMessage } from "../services/api";
+import { useErrorMessage, getNetworkErrorVariant } from "../services/api";
 import { Seo } from "../components/Seo";
 import { CastMemberCard } from "../components/ShowDetail/PersonCards";
 import { EpisodeHeader } from "../components/EpisodeDetail/EpisodeHeader";
@@ -71,11 +71,12 @@ export function EpisodeDetailScreen() {
   const { width } = useWindowDimensions();
   const isDesktopWeb = Platform.OS === "web" && width >= 768;
 
-  const { data: show, isLoading: isLoadingShow, isError: isErrorShow, refetch: refetchShow } = useShowDetails(tmdbId);
+  const { data: show, isLoading: isLoadingShow, isError: isErrorShow, error: showError, refetch: refetchShow } = useShowDetails(tmdbId);
   const {
     data: seasonDetails,
     isLoading: isLoadingSeason,
     isError: isErrorSeason,
+    error: seasonError,
     refetch: refetchSeason,
   } = useSeasonDetails(tmdbId, season);
   const { data: trackingEntry, refetch: refetchTrackingEntry } = useTrackingEntry(showId);
@@ -289,7 +290,7 @@ export function EpisodeDetailScreen() {
     return (
       <ScreenContainer edges={["top", "left", "right"]} fullWidth>
         <DetailHeader title={headerTitle} onBack={() => navigation.goBack()} />
-        <NetworkError onRetry={() => refetch()} />
+        <NetworkError variant={getNetworkErrorVariant(showError ?? seasonError)} onRetry={() => refetch()} />
       </ScreenContainer>
     );
   }

@@ -23,10 +23,12 @@ export async function prefetchSeriesData(queryClient: QueryClient): Promise<void
     log("Prefetch", "unwatched tv prefetched");
   } else {
     log("Prefetch", "unwatched tv prefetch failed — will retry in SeriesScreen");
+    queryClient.removeQueries({ queryKey: ["unwatched", "tv", locale] });
   }
   if (results[1].status === "fulfilled") {
     log("Prefetch", "upcoming prefetched");
   } else {
     log("Prefetch", "upcoming prefetch failed — will retry in SeriesScreen");
+    queryClient.removeQueries({ queryKey: ["upcoming", locale] });
   }
 }

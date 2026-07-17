@@ -291,7 +291,7 @@ export function verifyAccessToken(token: string): { sub: string; lang?: string }
 }
 
 export async function getMe(userId: string) {
-  const user = await User.findById(userId).select("email username usernameChanged avatarUrl preferredLanguage themePreference hasCompletedOnboarding firebaseUid createdAt lastLoginAt role isBanned suspendedUntil banReason activityVisibility").lean();
+  const user = await User.findById(userId).select("email username usernameChanged avatarUrl preferredLanguage themePreference hasCompletedOnboarding firebaseUid createdAt lastLoginAt role isBanned suspendedUntil banReason activityVisibility bio favoriteGenres").lean();
   if (!user) {
     throw new ApiError(404, "USER_NOT_FOUND", "User not found");
   }
@@ -312,6 +312,8 @@ export async function getMe(userId: string) {
     suspendedUntil: user.suspendedUntil?.toISOString() ?? null,
     banReason: user.banReason,
     activityVisibility: user.activityVisibility ?? "private",
+    bio: user.bio ?? "",
+    favoriteGenres: user.favoriteGenres ?? [],
   };
 }
 
@@ -325,6 +327,32 @@ export async function updateLanguage(userId: string, language: string) {
     throw new ApiError(404, "USER_NOT_FOUND", "User not found");
   }
   return { preferredLanguage: user.preferredLanguage };
+}
+
+export async function updateProfile(
+  userId: string,
+  updates: { bio?: string; favoriteGenres?: string[] },
+): Promise<{ bio: string; favoriteGenres: string[] }> {
+  const setFields: Record<string, unknown> = {};
+  if (updates.bio !== undefined) {
+    setFields.bio = updates.bio;
+  }
+  if (updates.favoriteGenres !== undefined) {
+    setFields.favoriteGenres = updates.favoriteGenres;
+  }
+
+  const user = await User.findByIdAndUpdate(
+    userId,
+    { $set: setFields },
+    { new: true },
+  ).select("bio favoriteGenres").lean();
+  if (!user) {
+    throw new ApiError(404, "USER_NOT_FOUND", "User not found");
+  }
+  return {
+    bio: user.bio ?? "",
+    favoriteGenres: user.favoriteGenres ?? [],
+  };
 }
 
 export async function updateThemePreference(

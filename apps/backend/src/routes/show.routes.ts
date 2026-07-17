@@ -10,6 +10,7 @@ import { getOnboardingSuggestions } from "../services/aiOnboarding.service.js";
 import { semanticSearchShows } from "../services/aiSemanticSearch.service.js";
 import { getEpisodeSummary } from "../services/aiEpisodeSummary.service.js";
 import { getEnrichedTags } from "../services/aiEnrichedTags.service.js";
+import { getEpisodeCommunity } from "../services/episodeCommunity.service.js";
 import { searchSchema, tmdbIdParamSchema, seasonParamSchema, episodeParamSchema, discoverSectionParamSchema, discoverSectionQuerySchema } from "../validators/show.validator.js";
 import { validateRequest } from "../validators/validateRequest.js";
 import { asyncHandler } from "../lib/asyncHandler.js";
@@ -143,6 +144,28 @@ router.get(
       req.language,
     );
     res.json(summary);
+  }),
+);
+
+router.get(
+  "/:tmdbId/seasons/:seasonNumber/episodes/:episodeNumber/community",
+  validateRequest(undefined, undefined, episodeParamSchema),
+  cacheResponse(300),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { tmdbId, seasonNumber, episodeNumber } = req.params;
+    const show = await Show.findOne({ tmdbId: Number(tmdbId) }).select("_id").lean();
+    if (!show) {
+      res.json({ stats: { watchedCount: 0, ratingAverage: null, ratingCount: 0 }, trivia: null });
+      return;
+    }
+    const result = await getEpisodeCommunity(
+      show._id.toString(),
+      Number(tmdbId),
+      Number(seasonNumber),
+      Number(episodeNumber),
+      req.language,
+    );
+    res.json(result);
   }),
 );
 

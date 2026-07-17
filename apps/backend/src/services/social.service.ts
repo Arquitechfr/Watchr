@@ -44,6 +44,8 @@ export interface PublicProfileResult {
   isFollowing: boolean;
   followers: number;
   following: number;
+  bio?: string;
+  favoriteGenres?: string[];
 }
 
 export type ActivityFeedItemType = "rating" | "watchlist_add" | "comment";
@@ -224,7 +226,7 @@ export async function getPublicProfile(
   requestingUserId: string,
 ): Promise<PublicProfileResult> {
   const user = await User.findOne({ username })
-    .select("username avatarUrl createdAt activityVisibility isBanned")
+    .select("username avatarUrl createdAt activityVisibility isBanned bio favoriteGenres")
     .lean();
 
   if (!user || user.isBanned) {
@@ -250,6 +252,8 @@ export async function getPublicProfile(
     isFollowing: !!isFollowingDoc,
     followers: counts.followers,
     following: counts.following,
+    bio: user.bio ?? "",
+    favoriteGenres: user.favoriteGenres ?? [],
   };
 }
 

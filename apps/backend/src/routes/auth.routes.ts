@@ -11,6 +11,7 @@ import {
   updateLanguage,
   updateAvatar,
   updateUsername,
+  updateProfile,
   requestPasswordReset,
   resetPassword,
   requestEmailCode,
@@ -61,6 +62,11 @@ const updateLanguageSchema = z.object({
 
 const updateUsernameSchema = z.object({
   username: z.string().min(3).max(20).regex(/^[a-zA-Z0-9_]+$/),
+});
+
+const updateProfileSchema = z.object({
+  bio: z.string().max(500).optional(),
+  favoriteGenres: z.array(z.string().max(30)).max(10).optional(),
 });
 
 const avatarUpload = multer({
@@ -296,6 +302,16 @@ router.patch(
   asyncHandler(async (req: Request, res: Response) => {
     const { username } = req.body as { username: string };
     const result = await updateUsername(req.userId!, username);
+    res.json(result);
+  }),
+);
+
+router.patch(
+  "/me/profile",
+  validateRequest(updateProfileSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { bio, favoriteGenres } = req.body as { bio?: string; favoriteGenres?: string[] };
+    const result = await updateProfile(req.userId!, { bio, favoriteGenres });
     res.json(result);
   }),
 );

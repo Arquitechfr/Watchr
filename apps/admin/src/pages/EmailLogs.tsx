@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef, type FormEvent } from "react";
-import { Mail, Search, ChevronLeft, ChevronRight, Eye, Send, Loader2 } from "lucide-react";
+import { Mail, Search, ChevronLeft, ChevronRight, Eye, Send, Loader2, Globe } from "lucide-react";
 import api from "../lib/api";
 import { AiImproveButton } from "../components/ui/AiImproveButton";
 import { Card, CardHeader, CardTitle, CardContent } from "../components/ui/Card";
@@ -11,6 +11,7 @@ import { EmptyState } from "../components/ui/EmptyState";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "../components/ui/Table";
 import { Dialog } from "../components/ui/Dialog";
 import { RichTextEditor } from "../components/ui/RichTextEditor";
+import { TranslatePreviewDialog } from "../components/ui/TranslatePreviewDialog";
 import { TranslationProgress } from "../components/ui/TranslationProgress";
 import { useJobPolling } from "../hooks/useJobPolling";
 import { formatDate } from "../lib/utils";
@@ -96,6 +97,7 @@ export function EmailLogs() {
   });
   const [sending, setSending] = useState(false);
   const [result, setResult] = useState<string>("");
+  const [showPreview, setShowPreview] = useState(false);
 
   const { job, isPolling, start: startPolling } = useJobPolling();
 
@@ -340,6 +342,9 @@ export function EmailLogs() {
               <Button type="submit" disabled={sending || isPolling}>
                 {sending ? <Loader2 size={16} className="mr-2 animate-spin" /> : <Send size={16} className="mr-2" />}
                 Send Broadcast
+              </Button>
+              <Button type="button" variant="outline" size="sm" onClick={() => setShowPreview(true)} disabled={!broadcastForm.subject && !broadcastForm.htmlContent}>
+                <Globe size={14} className="mr-2" /> Preview Translations
               </Button>
             </form>
           </CardContent>
@@ -703,6 +708,13 @@ export function EmailLogs() {
           </div>
         )}
       </Dialog>
+
+      <TranslatePreviewDialog
+        open={showPreview}
+        onClose={() => setShowPreview(false)}
+        subject={broadcastForm.subject}
+        htmlContent={broadcastForm.htmlContent}
+      />
     </div>
   );
 }

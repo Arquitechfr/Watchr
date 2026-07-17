@@ -3,6 +3,7 @@ import { Outlet } from "react-router-dom";
 import { Sidebar } from "./Sidebar";
 import { TopBar } from "./TopBar";
 import { InstallPrompt } from "../InstallPrompt";
+import { ToastContainer } from "../ui/Toast";
 import { useAdminNotificationPolling } from "../../hooks/useAdminNotificationPolling";
 
 export function AdminLayout() {
@@ -20,6 +21,7 @@ export function AdminLayout() {
         </div>
       </main>
       <InstallPrompt />
+      <ToastContainer />
     </div>
   );
 }

@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
-  Alert,
   Image,
   Platform,
 } from "react-native";
@@ -20,6 +19,7 @@ import type { DropdownOption } from "../../components/DropdownPicker";
 import { useI18n } from "../../i18n/useI18n";
 import { useThemeColors } from "../../theme/useThemeColors";
 import { api, useErrorMessage } from "../../services/api";
+import { useUIStore } from "../../store/uiStore";
 import type { RootStackParamList } from "../../navigation/RootNavigator";
 
 type Category = "bug" | "suggestion" | "question" | "other";
@@ -64,6 +64,7 @@ export function ProfileContactScreen() {
   const { t } = useI18n();
   const colors = useThemeColors();
   const getErrorMessage = useErrorMessage();
+  const { showAlert } = useUIStore();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const [category, setCategory] = useState<Category>("bug");
@@ -109,7 +110,11 @@ export function ProfileContactScreen() {
       setSubject(null);
       setMessage("");
       setCategory("bug");
-      Alert.alert(t("screens.profile.contactSuccessTitle"), t("screens.profile.contactSuccess"));
+      showAlert({
+        title: t("screens.profile.contactSuccessTitle"),
+        message: t("screens.profile.contactSuccess"),
+        buttons: [{ text: t("common.ok"), style: "default" }],
+      });
     } catch (err: any) {
       setError(getErrorMessage(err) ?? t("screens.profile.contactError"));
     } finally {

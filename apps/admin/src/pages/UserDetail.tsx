@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, MessageSquare, Tv, Heart, Star, Download, Trash2, MessageCircleX } from "lucide-react";
+import { ArrowLeft, MessageSquare, Tv, Heart, Star, Download, Trash2, MessageCircleX, ChevronLeft, ChevronRight } from "lucide-react";
 import api from "../lib/api";
+import { useUserNavigationStore } from "../store/userNavigationStore";
 import { Card, CardHeader, CardTitle, CardContent } from "../components/ui/Card";
 import { Badge } from "../components/ui/Badge";
 import { Button } from "../components/ui/Button";
@@ -68,6 +69,17 @@ interface BanHistoryEntry {
 export function UserDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { canGoNext, canGoPrev, nextUser, prevUser } = useUserNavigationStore();
+
+  function handlePrevUser() {
+    const prevId = prevUser();
+    if (prevId) navigate(`/users/${prevId}`);
+  }
+
+  function handleNextUser() {
+    const nextId = nextUser();
+    if (nextId) navigate(`/users/${nextId}`);
+  }
   const [user, setUser] = useState<UserDetail | null>(null);
   const [banHistory, setBanHistory] = useState<BanHistoryEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -155,9 +167,31 @@ export function UserDetail() {
 
   return (
     <div>
-      <Button variant="ghost" onClick={() => navigate("/users")} className="mb-4">
-        <ArrowLeft size={16} className="mr-2" /> Back to Users
-      </Button>
+      <div className="flex items-center justify-between mb-4">
+        <Button variant="ghost" onClick={() => navigate("/users")}>
+          <ArrowLeft size={16} className="mr-2" /> Back to Users
+        </Button>
+        <div className="flex gap-1">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handlePrevUser}
+            disabled={!canGoPrev()}
+            title="Previous user"
+          >
+            <ChevronLeft size={18} />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleNextUser}
+            disabled={!canGoNext()}
+            title="Next user"
+          >
+            <ChevronRight size={18} />
+          </Button>
+        </div>
+      </div>
 
       <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-6">
         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary text-2xl font-bold text-background">

@@ -1,4 +1,4 @@
-import { Text, FlatList, RefreshControl, TouchableOpacity, View, Image, ActivityIndicator, useWindowDimensions, Platform } from "react-native";
+import { Text, FlatList, RefreshControl, TouchableOpacity, View, useWindowDimensions, Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useScrollToTop, CompositeNavigationProp } from "@react-navigation/native";
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
@@ -13,108 +13,26 @@ import { PosterCard } from "../components/PosterCard";
 import { SearchBar } from "../components/SearchBar";
 import { MainHeader } from "../components/MainHeader";
 import { FilterChips, FilterChipOption } from "../components/FilterChips";
+import { MovieCard, getMovieStatusLabel, statusColorMap } from "../components/Movies/MovieCard";
 import { useUnwatchedMovies } from "../hooks/useUnwatched";
 import { useQuickMarkMovieWatched } from "../hooks/useTracking";
 import { useRefreshRateLimit } from "../hooks/useRefreshRateLimit";
 import { useUIStore } from "../store/uiStore";
 import { RootStackParamList } from "../navigation/RootNavigator";
 import { UnwatchedMovie } from "../services/unwatched.service";
-import { getPosterUrl, SearchResultItem } from "../services/shows.service";
+import { SearchResultItem } from "../services/shows.service";
 import { useThemeColors } from "../theme/useThemeColors";
 import { useI18n } from "../i18n/useI18n";
 import { Seo } from "../components/Seo";
 import { ImportProgressBanner } from "../components/ImportProgressBanner";
 import { SegmentedControl } from "../components/SegmentedControl";
 import { WatchStatus } from "../services/tracking.service";
+import { useBreakpoint } from "../hooks/useBreakpoint";
 
 type NavigationProp = CompositeNavigationProp<
   BottomTabNavigationProp<{ Search: undefined }>,
   NativeStackNavigationProp<RootStackParamList, "ShowDetail">
 >;
-
-function getStatusLabel(t: ReturnType<typeof useI18n>["t"], status: WatchStatus): string {
-  switch (status) {
-    case "watching":
-      return t("screens.showDetail.inProgress");
-    case "completed":
-      return t("screens.showDetail.completed");
-    case "plan_to_watch":
-      return t("screens.showDetail.planToWatch");
-    case "dropped":
-      return t("screens.showDetail.dropped");
-  }
-}
-
-function MovieCard({ movie, onPress, onMarkWatched, isMarking }: { movie: UnwatchedMovie; onPress: () => void; onMarkWatched?: () => void; isMarking?: boolean }) {
-  const { t } = useI18n();
-  const colors = useThemeColors();
-  const posterUrl = movie.posterPath ? getPosterUrl(movie.posterPath, 200) : null;
-
-  const genreNames = (movie.genres ?? []).filter((g) => g.name).slice(0, 2).map((g) => g.name!);
-
-  const statusColor: Record<WatchStatus, string> = {
-    watching: "text-primary",
-    completed: "text-success",
-    plan_to_watch: "text-text-muted",
-    dropped: "text-error",
-  };
-
-  return (
-    <TouchableOpacity
-      onPress={onPress}
-      className="flex-row items-center bg-card rounded-lg p-3 mb-3"
-      style={{ gap: 12 }}
-    >
-      {posterUrl ? (
-        <Image
-          source={{ uri: posterUrl }}
-          className="w-16 h-24 rounded"
-          resizeMode="cover"
-        />
-      ) : (
-        <View className="w-16 h-24 rounded bg-muted items-center justify-center">
-          <Text className="text-text-muted text-xs">{t("common.noImage")}</Text>
-        </View>
-      )}
-      <View className="flex-1 justify-center">
-        <Text className="text-text font-semibold text-base mb-1" numberOfLines={2}>
-          {movie.title}
-        </Text>
-        {movie.year ? (
-          <Text className="text-text-muted text-xs mb-1">
-            {movie.year} · {t("common.movie")}
-          </Text>
-        ) : (
-          <Text className="text-text-muted text-xs mb-1">{t("common.movie")}</Text>
-        )}
-        {genreNames.length > 0 && (
-          <Text className="text-text-muted text-xs mb-1" numberOfLines={1}>
-            {genreNames.join(" · ")}
-          </Text>
-        )}
-        <Text className={`text-xs font-semibold ${statusColor[movie.status]}`}>
-          {getStatusLabel(t, movie.status)}
-        </Text>
-      </View>
-      {onMarkWatched && (
-        <TouchableOpacity
-          onPress={(e) => {
-            e.stopPropagation();
-            onMarkWatched();
-          }}
-          className="ml-2 p-1"
-          disabled={isMarking}
-        >
-          {isMarking ? (
-            <ActivityIndicator size="small" color={colors.primary} />
-          ) : (
-            <Ionicons name="checkmark-circle-outline" size={28} color={colors.primary} />
-          )}
-        </TouchableOpacity>
-      )}
-    </TouchableOpacity>
-  );
-}
 
 type MovieCategoryTab = "non-anime" | "anime";
 
@@ -179,8 +97,9 @@ export function MoviesScreen() {
 
   const isFiltering = searchQuery.trim().length >= 3 || selectedGenre !== undefined || selectedYear !== undefined;
 
-  const isDesktopWeb = Platform.OS === "web" && windowWidth >= 768;
-  const gridNumColumns = isDesktopWeb ? 5 : 3;
+  const breakpoint = useBreakpoint();
+  const isDesktopWeb = Platform.OS === "web" && breakpoint !== "mobile";
+  const gridNumColumns = breakpoint === "wide" ? 7 : breakpoint === "desktop" ? 6 : isDesktopWeb ? 5 : 3;
   const gridGap = 12;
   const gridPadding = 16;
   const gridCardWidth = (windowWidth - gridPadding * 2 - gridGap * (gridNumColumns - 1)) / gridNumColumns;
@@ -301,12 +220,6 @@ export function MoviesScreen() {
             columnWrapperStyle={{ gap: gridGap }}
             renderItem={({ item }) => {
               const genreNames = (item.genres ?? []).filter((g: { id: number; name?: string }) => g.name).slice(0, 2).map((g: { id: number; name?: string }) => g.name!);
-              const statusColorMap: Record<WatchStatus, string> = {
-                watching: "text-primary",
-                completed: "text-success",
-                plan_to_watch: "text-text-muted",
-                dropped: "text-error",
-              };
               return (
               <View style={{ width: gridCardWidth, marginBottom: gridGap }}>
                 <PosterCard
@@ -317,7 +230,7 @@ export function MoviesScreen() {
                   }}
                   width={gridCardWidth}
                   genres={genreNames}
-                  statusLabel={getStatusLabel(t, item.status)}
+                  statusLabel={getMovieStatusLabel(t, item.status)}
                   statusColor={statusColorMap[item.status as WatchStatus]}
                 />
               </View>

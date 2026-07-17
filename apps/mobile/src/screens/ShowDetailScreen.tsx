@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useRef } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { View, Text, Image, ScrollView, TouchableOpacity, RefreshControl, Platform, useWindowDimensions } from "react-native";
 import { useRoute, useNavigation, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -12,14 +12,13 @@ import { useRefreshRateLimit } from "../hooks/useRefreshRateLimit";
 import { LazyEpisodeGrid } from "../components/LazyEpisodeGrid";
 import { RatingCard } from "../components/RatingCard";
 import { NetworkError } from "../components/NetworkError";
-import { ScrollArrows } from "../components/ScrollArrows";
 import { Skeleton } from "../components/Skeleton";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { DetailHeader } from "../components/DetailHeader";
 import { FixedTrackingButton } from "../components/FixedTrackingButton";
 import { TrackingActionModal } from "../components/TrackingActionModal";
 import { RootStackParamList } from "../navigation/RootNavigator";
-import { getPosterUrl, getProfileUrl, Episode, CastMember, CrewMember, Genre, Network, SimilarShow } from "../services/shows.service";
+import { getPosterUrl, Episode } from "../services/shows.service";
 import { Ionicons } from "@expo/vector-icons";
 import { useThemeColors } from "../theme/useThemeColors";
 import { WatchStatus } from "../services/tracking.service";
@@ -33,29 +32,15 @@ import { Seo } from "../components/Seo";
 import { HeroImage } from "../components/HeroImage";
 import { SegmentedControl } from "../components/SegmentedControl";
 import { useHeroTransition } from "../hooks/useHeroTransition";
+import { InfoCard } from "../components/ShowDetail/InfoCard";
+import { GenresSection } from "../components/ShowDetail/GenresSection";
+import { CastCrewSection } from "../components/ShowDetail/CastCrewSection";
+import { CommentsSection } from "../components/ShowDetail/CommentsSection";
+import { SimilarShowsSection } from "../components/ShowDetail/SimilarShowsSection";
+import { NextEpisodeCard } from "../components/ShowDetail/NextEpisodeCard";
 
 type ShowDetailRouteProp = RouteProp<RootStackParamList, "ShowDetail">;
 type ShowDetailNavigationProp = NativeStackNavigationProp<RootStackParamList, "ShowDetail">;
-
-function getStatusLabel(t: ReturnType<typeof useI18n>["t"], status: WatchStatus): string {
-  switch (status) {
-    case "watching":
-      return t("screens.showDetail.inProgress");
-    case "completed":
-      return t("screens.showDetail.completed");
-    case "plan_to_watch":
-      return t("screens.showDetail.planToWatch");
-    case "dropped":
-      return t("screens.showDetail.dropped");
-  }
-}
-
-function getTmdbStatusLabel(t: ReturnType<typeof useI18n>["t"], status: string): string {
-  const key = status.replace(/\s+/g, "").replace(/-/g, "");
-  const lowerKey = key.charAt(0).toLowerCase() + key.slice(1);
-  const translation = t(`tmdbStatus.${lowerKey}`);
-  return translation !== `tmdbStatus.${lowerKey}` ? translation : status;
-}
 
 export function ShowDetailScreen() {
   const route = useRoute<ShowDetailRouteProp>();
@@ -70,9 +55,7 @@ export function ShowDetailScreen() {
   const { data: similarData, isLoading: similarLoading } = useSimilarShows(isValidTmdbId ? tmdbId : undefined);
   const { width } = useWindowDimensions();
   const isDesktopWeb = Platform.OS === "web" && width >= 768;
-  const castScrollRef = useRef<ScrollView>(null);
-  const crewScrollRef = useRef<ScrollView>(null);
-  const similarScrollRef = useRef<ScrollView>(null);
+  const isWideWeb = Platform.OS === "web" && width >= 1280;
 
   const { data: show, isLoading, isRefetching, isError, refetch } = useShowDetails(tmdbId);
   const { data: enrichedTagsData } = useEnrichedTags(isValidTmdbId ? tmdbId : 0, show?.type);
@@ -438,7 +421,7 @@ export function ShowDetailScreen() {
         {isDesktopWeb ? (
           <View
             className="overflow-hidden bg-surface-light"
-            style={{ width: 280, aspectRatio: 2 / 3, borderRadius: 12, marginRight: 24 }}
+            style={{ width: isWideWeb ? 320 : 280, aspectRatio: 2 / 3, borderRadius: 12, marginRight: 24 }}
           >
             {posterUrl ? (
               <Image
@@ -466,7 +449,7 @@ export function ShowDetailScreen() {
           />
         )}
 
-        <View className={isDesktopWeb ? "flex-1 px-4" : "px-4"} style={isDesktopWeb ? { flex: 1 } : undefined}>
+        <View className={isDesktopWeb ? "flex-1 px-4" : "px-4"} style={isDesktopWeb ? { flex: 1, maxWidth: isWideWeb ? 900 : undefined } : undefined}>
           {show.overview && (
             <View className="mb-4">
               <Text className="text-lg font-semibold text-text mb-2">{t("screens.showDetail.synopsis")}</Text>
@@ -507,77 +490,41 @@ export function ShowDetailScreen() {
             />
           </View>
 
-          {show.genres && show.genres.length > 0 && (
-            <View className="flex-row flex-wrap mb-4">
-              {show.genres.map((genre: Genre) => (
-                <View key={genre.id} className="bg-surface rounded-full px-3 py-1 mr-2 mb-2">
-                  <Text className="text-text text-xs">{genre.name}</Text>
-                </View>
-              ))}
-            </View>
-          )}
+          <GenresSection
+            genres={show.genres ?? []}
+            aiTags={enrichedTagsData?.source === "ai" ? enrichedTagsData.tags : undefined}
+          />
 
-          {enrichedTagsData && enrichedTagsData.source === "ai" && enrichedTagsData.tags.length > (show.genres?.length ?? 0) && (
-            <View className="flex-row flex-wrap mb-4">
-              {enrichedTagsData.tags
-                .filter((tag: string) => !(show.genres ?? []).some((g: Genre) => g.name === tag))
-                .map((tag: string) => (
-                  <View key={`ai-tag-${tag}`} className="bg-primary/15 rounded-full px-3 py-1 mr-2 mb-2" style={{ flexDirection: "row", alignItems: "center" }}>
-                    <View className="bg-primary/20 rounded px-1 py-0 mr-1">
-                      <Text className="text-primary text-[9px] font-bold">AI</Text>
-                    </View>
-                    <Text className="text-text text-xs">{tag}</Text>
-                  </View>
-                ))}
-            </View>
-          )}
+          <InfoCard
+            trackingStatus={trackingEntry ? (trackingEntry.status as WatchStatus) : null}
+            tmdbStatus={show.status}
+            type={show.type}
+            numberOfSeasons={show.numberOfSeasons}
+            numberOfEpisodes={show.numberOfEpisodes}
+            runtime={show.runtime}
+            voteAverage={show.voteAverage}
+            voteCount={show.voteCount}
+            networks={show.networks}
+          />
 
-          <View className="bg-surface rounded-lg p-4 mb-6">
-            <View className="flex-row flex-wrap justify-between">
-              {trackingEntry && (
-                <View className="w-1/2 mb-3 pr-2">
-                  <Text className="text-text-muted text-xs uppercase tracking-wider">{t("screens.showDetail.tracking")}</Text>
-                  <Text className="text-text font-medium">{getStatusLabel(t, trackingEntry.status as WatchStatus)}</Text>
-                </View>
-              )}
-              {show.status && (
-                <View className="w-1/2 mb-3 pr-2">
-                  <Text className="text-text-muted text-xs uppercase tracking-wider">{t("screens.showDetail.status")}</Text>
-                  <Text className="text-text font-medium">{getTmdbStatusLabel(t, show.status)}</Text>
-                </View>
-              )}
-              {show.type === "tv" && show.numberOfSeasons !== undefined && (
-                <View className="w-1/2 mb-3 pr-2">
-                  <Text className="text-text-muted text-xs uppercase tracking-wider">{t("screens.showDetail.seasons")}</Text>
-                  <Text className="text-text font-medium">{show.numberOfSeasons}</Text>
-                </View>
-              )}
-              {show.type === "tv" && show.numberOfEpisodes !== undefined && (
-                <View className="w-1/2 mb-3 pr-2">
-                  <Text className="text-text-muted text-xs uppercase tracking-wider">{t("screens.showDetail.episodes")}</Text>
-                  <Text className="text-text font-medium">{show.numberOfEpisodes}</Text>
-                </View>
-              )}
-              {show.runtime && (
-                <View className="w-1/2 mb-3 pr-2">
-                  <Text className="text-text-muted text-xs uppercase tracking-wider">{t("screens.showDetail.duration")}</Text>
-                  <Text className="text-text font-medium">{show.runtime} {t("common.minutesShort")}</Text>
-                </View>
-              )}
-              {show.voteAverage !== undefined && show.voteCount !== undefined && show.voteCount > 0 && (
-                <View className="w-1/2 mb-3 pr-2">
-                  <Text className="text-text-muted text-xs uppercase tracking-wider">{t("screens.showDetail.tmdbRating")}</Text>
-                  <Text className="text-text font-medium">{show.voteAverage.toFixed(1)}/10</Text>
-                </View>
-              )}
-              {show.networks && show.networks.length > 0 && (
-                <View className="w-1/2 mb-3 pr-2">
-                  <Text className="text-text-muted text-xs uppercase tracking-wider">{t("screens.showDetail.network")}</Text>
-                  <Text className="text-text font-medium">{show.networks.map((n: Network) => n.name).join(", ")}</Text>
-                </View>
-              )}
-            </View>
-          </View>
+          {show.type === "tv" && show.nextEpisodeToAir && new Date(show.nextEpisodeToAir.airDate) > new Date() && (
+            <NextEpisodeCard
+              showId={show.id}
+              tmdbId={tmdbId}
+              title={show.title}
+              posterPath={show.posterPath}
+              season={show.nextEpisodeToAir.season}
+              episode={show.nextEpisodeToAir.episode}
+              airDate={show.nextEpisodeToAir.airDate}
+              onPress={() => navigation.navigate("EpisodeDetail", {
+                showId: show.id,
+                tmdbId,
+                season: show.nextEpisodeToAir!.season,
+                episodeNumber: show.nextEpisodeToAir!.episode,
+                title: show.title,
+              })}
+            />
+          )}
 
           {/* Mobile: tabbed sections. Desktop: all visible */}
           {!isDesktopWeb && show.type === "tv" && show.seasons.length > 0 && (
@@ -598,64 +545,12 @@ export function ShowDetailScreen() {
           {/* Overview tab — always visible on desktop or when tab is "overview" */}
           {(isDesktopWeb || activeDetailTab === "overview" || (show.type !== "tv" || show.seasons.length === 0)) && (
             <>
-              {show.cast && show.cast.length > 0 && (
-                <View className="mb-6">
-                  <Text className="text-lg font-semibold text-text mb-2">{t("screens.showDetail.cast")}</Text>
-                  <View className="relative">
-                  <ScrollView ref={castScrollRef} horizontal showsHorizontalScrollIndicator={false} className="-mx-4 px-4">
-                    {show.cast.slice(0, 15).map((member: CastMember, index: number) => (
-                      <CastMemberCard key={`${member.id}-${index}`} member={member} />
-                    ))}
-                  </ScrollView>
-                  <ScrollArrows scrollRef={castScrollRef} />
-                  </View>
-                </View>
-              )}
+              <CastCrewSection cast={show.cast} crew={show.crew} type={show.type} />
 
-              {show.crew && show.crew.length > 0 && (
-                <View className="mb-6">
-                  <Text className="text-lg font-semibold text-text mb-2">
-                    {show.type === "tv" ? t("screens.showDetail.creators") : t("screens.showDetail.directors")}
-                  </Text>
-                  <View className="relative">
-                  <ScrollView ref={crewScrollRef} horizontal showsHorizontalScrollIndicator={false} className="-mx-4 px-4">
-                    {show.crew.slice(0, 10).map((member: CrewMember, index: number) => (
-                      <CrewMemberCard key={`${member.id}-${member.job ?? index}`} member={member} />
-                    ))}
-                  </ScrollView>
-                  <ScrollArrows scrollRef={crewScrollRef} />
-                  </View>
-                </View>
-              )}
-
-              {commentCountData && commentCountData.total > 0 ? (
-                <TouchableOpacity
-                  onPress={handleOpenComments}
-                  className="flex-row items-center justify-between bg-surface rounded-xl p-4 mb-6"
-                  activeOpacity={0.7}
-                >
-                  <View className="flex-row items-center">
-                    <View className="w-10 h-10 rounded-full bg-primary/15 items-center justify-center mr-3">
-                      <Ionicons name="chatbubbles-outline" size={20} color={colors.primary} />
-                    </View>
-                    <Text className="text-text font-semibold">{t("screens.showDetail.comments")}</Text>
-                    <View className="ml-2 bg-primary/20 rounded-full px-2 py-0.5">
-                      <Text className="text-primary text-xs font-semibold">{commentCountData.total}</Text>
-                    </View>
-                  </View>
-                  <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
-                </TouchableOpacity>
-              ) : (
-                <TouchableOpacity
-                  onPress={handleOpenComments}
-                  className="py-12 items-center justify-center bg-surface rounded-xl mb-6"
-                  activeOpacity={0.7}
-                >
-                  <Ionicons name="chatbubbles-outline" size={40} color={colors.textMuted} />
-                  <Text className="text-text-muted mt-2 text-center">{t("screens.comments.empty")}</Text>
-                  <Text className="text-text-muted text-sm text-center">{t("screens.comments.beFirst")}</Text>
-                </TouchableOpacity>
-              )}
+              <CommentsSection
+                commentCount={commentCountData?.total ?? 0}
+                onPress={handleOpenComments}
+              />
             </>
           )}
 
@@ -676,70 +571,15 @@ export function ShowDetailScreen() {
 
           {/* Cast tab (mobile only, when explicitly selected) */}
           {!isDesktopWeb && activeDetailTab === "cast" && (
-            <>
-              {show.cast && show.cast.length > 0 && (
-                <View className="mb-6">
-                  <Text className="text-lg font-semibold text-text mb-2">{t("screens.showDetail.cast")}</Text>
-                  <View className="relative">
-                  <ScrollView ref={castScrollRef} horizontal showsHorizontalScrollIndicator={false} className="-mx-4 px-4">
-                    {show.cast.slice(0, 15).map((member: CastMember, index: number) => (
-                      <CastMemberCard key={`${member.id}-${index}`} member={member} />
-                    ))}
-                  </ScrollView>
-                  <ScrollArrows scrollRef={castScrollRef} />
-                  </View>
-                </View>
-              )}
-              {show.crew && show.crew.length > 0 && (
-                <View className="mb-6">
-                  <Text className="text-lg font-semibold text-text mb-2">
-                    {show.type === "tv" ? t("screens.showDetail.creators") : t("screens.showDetail.directors")}
-                  </Text>
-                  <View className="relative">
-                  <ScrollView ref={crewScrollRef} horizontal showsHorizontalScrollIndicator={false} className="-mx-4 px-4">
-                    {show.crew.slice(0, 10).map((member: CrewMember, index: number) => (
-                      <CrewMemberCard key={`${member.id}-${member.job ?? index}`} member={member} />
-                    ))}
-                  </ScrollView>
-                  <ScrollArrows scrollRef={crewScrollRef} />
-                  </View>
-                </View>
-              )}
-            </>
+            <CastCrewSection cast={show.cast} crew={show.crew} type={show.type} />
           )}
 
           {/* Comments tab (mobile only) */}
           {!isDesktopWeb && activeDetailTab === "comments" && (
-            <>
-              {commentCountData && commentCountData.total > 0 ? (
-                <TouchableOpacity
-                  onPress={handleOpenComments}
-                  className="flex-row items-center justify-between bg-surface rounded-xl p-4 mb-6"
-                  activeOpacity={0.7}
-                >
-                  <View className="flex-row items-center">
-                    <View className="w-10 h-10 rounded-full bg-primary/15 items-center justify-center mr-3">
-                      <Ionicons name="chatbubbles-outline" size={20} color={colors.primary} />
-                    </View>
-                    <Text className="text-text font-semibold">{t("screens.showDetail.comments")}</Text>
-                    <View className="ml-2 bg-primary/20 rounded-full px-2 py-0.5">
-                      <Text className="text-primary text-xs font-semibold">{commentCountData.total}</Text>
-                    </View>
-                  </View>
-                  <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
-                </TouchableOpacity>
-              ) : (
-                <TouchableOpacity
-                  onPress={handleOpenComments}
-                  className="py-12 items-center justify-center bg-surface rounded-xl mb-6"
-                  activeOpacity={0.7}
-                >
-                  <Ionicons name="chatbubbles-outline" size={40} color={colors.textMuted} />
-                  <Text className="text-text-muted mt-2 text-center">{t("screens.comments.empty")}</Text>
-                  <Text className="text-text-muted text-sm text-center">{t("screens.comments.beFirst")}</Text>
-                </TouchableOpacity>
-              )}
-            </>
+            <CommentsSection
+              commentCount={commentCountData?.total ?? 0}
+              onPress={handleOpenComments}
+            />
           )}
 
           {/* Desktop: episodes always visible after cast */}
@@ -758,58 +598,12 @@ export function ShowDetailScreen() {
             </View>
           )}
 
-          {similarData && similarData.shows.length > 0 && (
-            <View className="mb-6">
-              <View className="flex-row items-center mb-3">
-                <Text className="text-lg font-semibold text-text">{t("screens.showDetail.similarShows")}</Text>
-                {similarData.source === "ai" && (
-                  <View className="bg-primary/20 rounded px-1.5 py-0.5 ml-2">
-                    <Text className="text-primary text-[10px] font-bold">AI</Text>
-                  </View>
-                )}
-              </View>
-              <View className="relative">
-              <ScrollView ref={similarScrollRef} horizontal showsHorizontalScrollIndicator={false} contentContainerClassName="gap-3">
-                {similarData.shows.map((item: SimilarShow) => (
-                  <TouchableOpacity
-                    key={`${item.tmdbId}-${item.type}`}
-                    onPress={() => navigation.navigate("ShowDetail", { tmdbId: item.tmdbId, title: item.title })}
-                    activeOpacity={0.7}
-                    style={{ width: 140 }}
-                  >
-                    {item.posterPath ? (
-                      <Image
-                        source={{ uri: getPosterUrl(item.posterPath, 200) }}
-                        className="w-full h-[210px] rounded-lg mb-2"
-                        resizeMode="cover"
-                      />
-                    ) : (
-                      <View className="w-full h-[210px] rounded-lg bg-surface-light items-center justify-center mb-2">
-                        <Ionicons name="film-outline" size={28} color={colors.textMuted} />
-                      </View>
-                    )}
-                    <Text className="text-text text-sm font-medium" numberOfLines={2}>{item.title}</Text>
-                    {similarData.source === "ai" && item.reason && (
-                      <Text className="text-text-muted text-xs mt-0.5" numberOfLines={2}>{item.reason}</Text>
-                    )}
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-              <ScrollArrows scrollRef={similarScrollRef} />
-              </View>
-            </View>
-          )}
-
-          {similarLoading && (
-            <View className="mb-6">
-              <Skeleton width="40%" height={24} className="mb-3" />
-              <View className="flex-row">
-                {[...Array(3)].map((_, i) => (
-                  <Skeleton key={i} width={140} height={210} borderRadius={8} className="mr-3" />
-                ))}
-              </View>
-            </View>
-          )}
+          <SimilarShowsSection
+            shows={similarData?.shows ?? []}
+            source={similarData?.source}
+            isLoading={similarLoading}
+            navigation={navigation}
+          />
         </View>
       </ScrollView>
 
@@ -833,63 +627,5 @@ export function ShowDetailScreen() {
         isPending={upsertTracking.isPending || markUpTo.isPending}
       />
     </ScreenContainer>
-  );
-}
-
-function CastMemberCard({ member }: { member: CastMember }) {
-  const { t } = useI18n();
-  const colors = useThemeColors();
-  const profileUrl = getProfileUrl(member.profilePath, 200);
-  return (
-    <View className="mr-3 items-center" style={{ width: 80 }}>
-      {profileUrl ? (
-        <Image
-          source={{ uri: profileUrl }}
-          className="w-20 h-20 rounded-full bg-surface-light mb-2"
-          resizeMode="cover"
-        />
-      ) : (
-        <View className="w-20 h-20 rounded-full bg-surface-light items-center justify-center mb-2">
-          <Ionicons name="person-outline" size={28} color={colors.textMuted} />
-        </View>
-      )}
-      <Text className="text-text text-xs font-medium text-center" numberOfLines={2}>
-        {member.name ?? t("common.unknown")}
-      </Text>
-      {member.character && (
-        <Text className="text-text-muted text-xs text-center mt-0.5" numberOfLines={1}>
-          {member.character}
-        </Text>
-      )}
-    </View>
-  );
-}
-
-function CrewMemberCard({ member }: { member: CrewMember }) {
-  const { t } = useI18n();
-  const colors = useThemeColors();
-  const profileUrl = getProfileUrl(member.profilePath, 200);
-  return (
-    <View className="mr-3 items-center" style={{ width: 80 }}>
-      {profileUrl ? (
-        <Image
-          source={{ uri: profileUrl }}
-          className="w-20 h-20 rounded-full bg-surface-light mb-2"
-          resizeMode="cover"
-        />
-      ) : (
-        <View className="w-20 h-20 rounded-full bg-surface-light items-center justify-center mb-2">
-          <Ionicons name="person-outline" size={28} color={colors.textMuted} />
-        </View>
-      )}
-      <Text className="text-text text-xs font-medium text-center" numberOfLines={2}>
-        {member.name ?? t("common.unknown")}
-      </Text>
-      {member.job && (
-        <Text className="text-text-muted text-xs text-center mt-0.5" numberOfLines={1}>
-          {member.job}
-        </Text>
-      )}
-    </View>
   );
 }

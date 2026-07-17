@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Search, ChevronLeft, ChevronRight, Shield, ShieldOff, Ban, Trash2, Users as UsersIcon, CheckCheck, Loader2 } from "lucide-react";
 import api from "../lib/api";
 import { useNewUsersStore } from "../store/newUsersStore";
+import { useUserNavigationStore } from "../store/userNavigationStore";
 import { Card, CardContent } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
@@ -94,6 +95,7 @@ interface BanDialogState {
 export function Users() {
   const navigate = useNavigate();
   const { markSeen } = useNewUsersStore();
+  const { setUserList } = useUserNavigationStore();
   const [data, setData] = useState<UsersResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -302,7 +304,11 @@ export function Users() {
                     <TableRow
                       key={user.id}
                       className="cursor-pointer"
-                      onClick={() => navigate(`/users/${user.id}`)}
+                      onClick={() => {
+                        const ids = data.users.map((u) => u.id);
+                        setUserList(ids, user.id);
+                        navigate(`/users/${user.id}`);
+                      }}
                     >
                       <TableCell className="font-medium">
                         <div className="flex items-center gap-2">

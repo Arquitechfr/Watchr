@@ -13,6 +13,9 @@
   --color-danger: #D63B3B;
   --color-success: #3D8B4E;
   --color-border: #D4C9BE;
+  --color-accent: #5B7B85;
+  --color-warning: #D4A030;
+  --color-info: #3B7DB8;
 }
 
 .light {
@@ -26,6 +29,9 @@
   --color-danger: #D63B3B;
   --color-success: #3D8B4E;
   --color-border: #D4C9BE;
+  --color-accent: #5B7B85;
+  --color-warning: #D4A030;
+  --color-info: #3B7DB8;
 }
 
 .dark {
@@ -39,6 +45,9 @@
   --color-danger: #E54D4D;
   --color-success: #5BAE6A;
   --color-border: #3D352D;
+  --color-accent: #7B9EA8;
+  --color-warning: #E8B84A;
+  --color-info: #5B9BD1;
 }
 
 body {

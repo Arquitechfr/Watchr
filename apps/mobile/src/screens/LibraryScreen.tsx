@@ -21,6 +21,7 @@ import { useI18n } from "../i18n/useI18n";
 import { useUIStore } from "../store/uiStore";
 import { RootStackParamList } from "../navigation/RootNavigator";
 import { Seo } from "../components/Seo";
+import { useBreakpoint } from "../hooks/useBreakpoint";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "ShowDetail">;
 type LibraryRoute = RouteProp<RootStackParamList, "Library">;
@@ -168,8 +169,9 @@ export function LibraryScreen() {
     source: "tmdb",
   }), []);
 
-  const isDesktopWeb = Platform.OS === "web" && windowWidth >= 768;
-  const gridNumColumns = isDesktopWeb ? 5 : 3;
+  const breakpoint = useBreakpoint();
+  const isDesktopWeb = Platform.OS === "web" && breakpoint !== "mobile";
+  const gridNumColumns = breakpoint === "wide" ? 7 : breakpoint === "desktop" ? 6 : isDesktopWeb ? 5 : 3;
   const gridGap = 12;
   const gridPadding = 16;
   const gridCardWidth = (windowWidth - gridPadding * 2 - gridGap * (gridNumColumns - 1)) / gridNumColumns;

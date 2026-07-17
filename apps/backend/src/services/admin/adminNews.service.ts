@@ -15,8 +15,17 @@ export interface UpdateNewsSourceInput {
   isActive?: boolean;
 }
 
-export async function listAllNewsSources() {
-  const sources = await NewsSource.find().sort({ createdAt: 1 }).lean();
+export async function listAllNewsSources(filters?: { locale?: string; isActive?: boolean; search?: string }) {
+  const query: Record<string, unknown> = {};
+  if (filters?.locale) query.locale = filters.locale;
+  if (filters?.isActive !== undefined) query.isActive = filters.isActive;
+  if (filters?.search) {
+    query.$or = [
+      { name: { $regex: filters.search, $options: "i" } },
+      { id: { $regex: filters.search, $options: "i" } },
+    ];
+  }
+  const sources = await NewsSource.find(query).sort({ locale: 1, createdAt: 1 }).lean();
   return sources.map((s) => ({
     id: s.id,
     name: s.name,

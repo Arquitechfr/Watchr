@@ -33,6 +33,38 @@ export interface TmdbEpisode {
   runtime?: number;
 }
 
+export interface TmdbGuestStar {
+  id: number;
+  name?: string;
+  character?: string;
+  profile_path?: string | null;
+  order?: number;
+}
+
+export interface TmdbEpisodeCrew {
+  id: number;
+  name?: string;
+  job?: string;
+  department?: string;
+  profile_path?: string | null;
+}
+
+export interface TmdbEpisodeCredits {
+  guest_stars?: TmdbGuestStar[];
+  crew?: TmdbEpisodeCrew[];
+}
+
+export interface TmdbEpisodeDetails {
+  episode_number: number;
+  name?: string;
+  overview?: string;
+  still_path?: string | null;
+  air_date?: string;
+  runtime?: number;
+  guest_stars?: TmdbGuestStar[];
+  crew?: TmdbEpisodeCrew[];
+}
+
 export interface TmdbSeason {
   season_number: number;
   episode_count?: number;
@@ -215,6 +247,19 @@ class TmdbService {
       const response = await this.client.get<TmdbSeason>(
         `/tv/${tmdbId}/season/${seasonNumber}`,
         { params: { language } },
+      );
+      return response.data;
+    } catch (err) {
+      throw this.handleError(err);
+    }
+  }
+
+  async getEpisodeDetails(tmdbId: number, season: number, episode: number, language = "en-US"): Promise<TmdbEpisodeDetails> {
+    await tmdbRateLimiter.consume();
+    try {
+      const response = await this.client.get<TmdbEpisodeDetails>(
+        `/tv/${tmdbId}/season/${season}/episode/${episode}`,
+        { params: { append_to_response: "credits", language } },
       );
       return response.data;
     } catch (err) {

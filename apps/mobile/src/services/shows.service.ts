@@ -321,3 +321,42 @@ export async function getEnrichedTags(tmdbId: number, type?: "tv" | "movie"): Pr
   });
   return response.data;
 }
+
+export interface EpisodeCommunityStats {
+  watchedCount: number;
+  ratingAverage: number | null;
+  ratingCount: number;
+}
+
+export interface EpisodeTrivia {
+  guestStars: Array<{
+    id: number;
+    name: string;
+    character: string;
+    profilePath: string | null;
+  }>;
+  crew: Array<{
+    id: number;
+    name: string;
+    job: string;
+    department: string;
+    profilePath: string | null;
+  }>;
+  runtime: number | null;
+}
+
+export interface EpisodeCommunityResult {
+  stats: EpisodeCommunityStats;
+  trivia: EpisodeTrivia | null;
+}
+
+export async function getEpisodeCommunity(
+  tmdbId: number,
+  seasonNumber: number,
+  episodeNumber: number,
+): Promise<EpisodeCommunityResult> {
+  const response = await api.get<EpisodeCommunityResult>(
+    `/shows/${tmdbId}/seasons/${seasonNumber}/episodes/${episodeNumber}/community`,
+  );
+  return response.data;
+}

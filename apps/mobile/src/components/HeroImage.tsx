@@ -4,6 +4,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { getBackdropUrl, getPosterUrl } from "../services/shows.service";
 import { useThemeColors } from "../theme/useThemeColors";
 import { useI18n } from "../i18n/useI18n";
+import { useBreakpoint } from "../hooks/useBreakpoint";
 
 interface HeroImageProps {
   posterPath?: string;
@@ -18,9 +19,10 @@ export function HeroImage({ posterPath, backdropPath, title, subtitle, children,
   const colors = useThemeColors();
   const { t } = useI18n();
   const { width } = useWindowDimensions();
+  const breakpoint = useBreakpoint();
   const heroUrl = getBackdropUrl(backdropPath, 780) ?? getPosterUrl(posterPath, 500);
-  const isDesktopWeb = Platform.OS === "web" && width >= 768;
-  const heroHeight = isDesktopWeb ? 360 : 280;
+  const isDesktopWeb = Platform.OS === "web" && breakpoint !== "mobile";
+  const heroHeight = breakpoint === "wide" ? 440 : breakpoint === "desktop" ? 400 : isDesktopWeb ? 360 : 280;
 
   return (
     <Animated.View style={[{ width: "100%", height: heroHeight, position: "relative" }, animatedStyle]}>

@@ -40,6 +40,8 @@ export interface IUser extends Document {
   lastUsersVisitAt: Date | null;
   activationNudgeSentAt: Date | null;
   activityVisibility: "private" | "public";
+  bio?: string;
+  favoriteGenres?: string[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -189,6 +191,17 @@ const userSchema = new Schema<IUser>(
       type: String,
       enum: ["private", "public"],
       default: "private",
+    },
+    bio: {
+      type: String,
+      required: false,
+      maxlength: 500,
+      default: "",
+    },
+    favoriteGenres: {
+      type: [String],
+      required: false,
+      default: [],
     },
   },
   { timestamps: true },

@@ -11,11 +11,11 @@ import { emailHistoryQuerySchema, emailIdParamSchema, emailBroadcastSchema, emai
 import { jobIdParamSchema } from "../../validators/admin/adminJob.validator.js";
 import { listShowsQuerySchema, syncShowSchema, showIdParamSchema, tmdbIdParamSchema, aiShowIdParamSchema } from "../../validators/admin/adminShow.validator.js";
 import { configKeyParamSchema, setConfigSchema } from "../../validators/admin/adminConfig.validator.js";
-import { listImportsQuerySchema } from "../../validators/admin/adminImport.validator.js";
-import { improveTextSchema } from "../../validators/admin/adminAi.validator.js";
+import { listImportsQuerySchema, importIdParamSchema, exportImportQuerySchema } from "../../validators/admin/adminImport.validator.js";
+import { improveTextSchema, translatePreviewSchema } from "../../validators/admin/adminAi.validator.js";
 import { listAiLogsQuerySchema, aiLogIdParamSchema, aiStatsQuerySchema, aiFlagParamSchema, setAiFlagSchema } from "../../validators/admin/adminAiLog.validator.js";
 import { listReportsQuerySchema, reportIdParamSchema, aiReportIdParamSchema } from "../../validators/report.validator.js";
-import { listContactQuerySchema, contactIdParamSchema, updateContactStatusSchema, replyContactSchema } from "../../validators/contact.validator.js";
+import { listContactQuerySchema, contactIdParamSchema, updateContactStatusSchema, replyContactSchema, bulkContactSchema, editReplySchema, exportContactQuerySchema } from "../../validators/contact.validator.js";
 import { listFeedNotificationsQuerySchema, feedNotificationIdParamSchema } from "../../validators/admin/adminFeedNotification.validator.js";
 import { listErrorsQuerySchema, errorIdParamSchema, updateErrorStatusSchema, listErrorEventsQuerySchema } from "../../validators/admin/adminError.validator.js";
 import { listNotifications, getUnreadCount, markAsRead, markAllAsRead, deleteNotification } from "../../services/admin/adminFeedNotification.service.js";
@@ -28,7 +28,7 @@ import { listAllNewsSources, createNewsSource, updateNewsSource, deleteNewsSourc
 import { sendBroadcast, sendTargeted, getNotificationHistory, getNotificationDetail, getNotificationStats } from "../../services/admin/adminNotification.service.js";
 import { listShows, forceSyncShow, deleteShow } from "../../services/admin/adminShow.service.js";
 import { listAllConfig, setConfig, deleteConfig } from "../../services/admin/adminConfig.service.js";
-import { listAllImports, getImportStats } from "../../services/admin/adminImport.service.js";
+import { listAllImports, getImportStats, getImportDetail, deleteImportJob, retryImportJob, exportImportCsv } from "../../services/admin/adminImport.service.js";
 import { getEmailHistory, getEmailStats, getEmailDetail, sendBroadcastEmail, sendTargetedEmail } from "../../services/admin/adminEmail.service.js";
 import { getJobStatus } from "../../services/admin/jobQueue.service.js";
 import { listReports, resolveReport, dismissReport, getReportStats } from "../../services/report.service.js";
@@ -38,7 +38,8 @@ import { analyzeComment, suggestReportAction, suggestShowDescription } from "../
 import { sendReengagementBatch } from "../../services/aiReengagement.service.js";
 import { sendActivationNudgeBatch } from "../../services/activationNudge.service.js";
 import { detectAnomalies } from "../../services/aiAnomalyDetection.service.js";
-import { listContactMessages, getContactStats, getContactDetail, updateContactStatus, replyToContactMessage } from "../../services/admin/adminContact.service.js";
+import { translateMultiLang, type TranslationInput } from "../../services/translation.service.js";
+import { listContactMessages, getContactStats, getContactDetail, updateContactStatus, replyToContactMessage, deleteContactMessage, bulkContactAction, editContactReply, exportContactCsv } from "../../services/admin/adminContact.service.js";
 import { listIssues, getIssueDetail, listIssueEvents, updateIssueStatus, deleteIssue, getErrorStats } from "../../services/errorTracking.service.js";
 
 const router: Router = Router();
@@ -299,8 +300,13 @@ router.patch(
 // News Sources
 router.get(
   "/news-sources",
-  asyncHandler(async (_req: Request, res: Response) => {
-    const sources = await listAllNewsSources();
+  asyncHandler(async (req: Request, res: Response) => {
+    const { locale, isActive, search } = req.query as { locale?: string; isActive?: string; search?: string };
+    const sources = await listAllNewsSources({
+      locale: locale || undefined,
+      isActive: isActive !== undefined ? isActive === "true" : undefined,
+      search: search || undefined,
+    });
     res.json(sources);
   }),
 );
@@ -545,18 +551,32 @@ router.get(
 
 // Imports
 router.get(
+  "/imports/export",
+  validateRequest(undefined, exportImportQuerySchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { status, source, search } = req.query as { status?: string; source?: string; search?: string };
+    const csv = await exportImportCsv({ status: status, source: source, search: search || undefined });
+    res.setHeader("Content-Type", "text/csv");
+    res.setHeader("Content-Disposition", `attachment; filename="import-jobs-${Date.now()}.csv"`);
+    res.send(csv);
+  }),
+);
+
+router.get(
   "/imports",
   validateRequest(undefined, listImportsQuerySchema),
   asyncHandler(async (req: Request, res: Response) => {
     const query = req.query as unknown as {
       status?: string;
       source?: string;
+      search?: string;
       page: number;
       limit: number;
     };
     const result = await listAllImports({
       status: query.status,
       source: query.source,
+      search: query.search,
       page: query.page,
       limit: query.limit,
     });
@@ -569,6 +589,37 @@ router.get(
   asyncHandler(async (_req: Request, res: Response) => {
     const stats = await getImportStats();
     res.json(stats);
+  }),
+);
+
+router.get(
+  "/imports/:id",
+  validateRequest(undefined, undefined, importIdParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const detail = await getImportDetail(req.params.id);
+    if (!detail) {
+      res.status(404).json({ error: { code: "NOT_FOUND", message: "Import job not found" } });
+      return;
+    }
+    res.json(detail);
+  }),
+);
+
+router.post(
+  "/imports/:id/retry",
+  validateRequest(undefined, undefined, importIdParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const result = await retryImportJob(req.params.id);
+    res.json(result);
+  }),
+);
+
+router.delete(
+  "/imports/:id",
+  validateRequest(undefined, undefined, importIdParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    await deleteImportJob(req.params.id);
+    res.status(204).send();
   }),
 );
 
@@ -683,6 +734,34 @@ router.post(
   }),
 );
 
+router.post(
+  "/ai/translate-preview",
+  validateRequest(translatePreviewSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { title, body, subject, htmlContent, targetLangs } = req.body as {
+      title?: string;
+      body?: string;
+      subject?: string;
+      htmlContent?: string;
+      targetLangs: string[];
+    };
+
+    const input: TranslationInput = {};
+    if (title) input.title = title;
+    if (body) input.body = body;
+    if (subject) input.subject = subject;
+    if (htmlContent) input.htmlContent = htmlContent;
+
+    const result = await translateMultiLang(input, targetLangs);
+    const translations: Record<string, TranslationInput> = {};
+    for (const [lang, translation] of result) {
+      translations[lang] = translation;
+    }
+
+    res.json({ translations });
+  }),
+);
+
 // Weekly Digest
 router.post(
   "/digest/weekly",
@@ -773,6 +852,31 @@ router.post(
 
 // Contact Messages
 router.get(
+  "/contact/export",
+  validateRequest(undefined, exportContactQuerySchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { status, category, search } = req.query as { status?: string; category?: string; search?: string };
+    const csv = await exportContactCsv({
+      status: status as any,
+      category: category as any,
+      search: search || undefined,
+    });
+    res.setHeader("Content-Type", "text/csv");
+    res.setHeader("Content-Disposition", `attachment; filename="contact-messages-${Date.now()}.csv"`);
+    res.send(csv);
+  }),
+);
+
+router.post(
+  "/contact/bulk",
+  validateRequest(bulkContactSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const result = await bulkContactAction(req.body.ids, req.body.action);
+    res.json(result);
+  }),
+);
+
+router.get(
   "/contact",
   validateRequest(undefined, listContactQuerySchema),
   asyncHandler(async (req: Request, res: Response) => {
@@ -781,12 +885,14 @@ router.get(
       limit: number;
       status?: "new" | "read" | "resolved" | "archived";
       category?: "bug" | "suggestion" | "question" | "other";
+      search?: string;
     };
     const result = await listContactMessages({
       page: query.page,
       limit: query.limit,
       status: query.status,
       category: query.category,
+      search: query.search,
     });
     res.json(result);
   }),
@@ -828,6 +934,24 @@ router.post(
   asyncHandler(async (req: Request, res: Response) => {
     const result = await replyToContactMessage(req.params.id, req.body.replyMessage, req.userId!);
     res.json(result);
+  }),
+);
+
+router.patch(
+  "/contact/:id/reply",
+  validateRequest(editReplySchema, undefined, contactIdParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const result = await editContactReply(req.params.id, req.body.replyMessage, req.userId!);
+    res.json(result);
+  }),
+);
+
+router.delete(
+  "/contact/:id",
+  validateRequest(undefined, undefined, contactIdParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    await deleteContactMessage(req.params.id);
+    res.status(204).send();
   }),
 );
 

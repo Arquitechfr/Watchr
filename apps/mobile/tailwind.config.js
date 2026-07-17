@@ -16,6 +16,18 @@ module.exports = {
         danger: "var(--color-danger)",
         success: "var(--color-success)",
         border: "var(--color-border)",
+        accent: "var(--color-accent)",
+        warning: "var(--color-warning)",
+        info: "var(--color-info)",
+      },
+      spacing: {
+        xs: "4px",
+        sm: "8px",
+        md: "12px",
+        lg: "16px",
+        xl: "24px",
+        "2xl": "32px",
+        "3xl": "48px",
       },
       fontFamily: {
         sans: ["Outfit_400Regular"],

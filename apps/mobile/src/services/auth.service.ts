@@ -71,6 +71,8 @@ export interface Me {
   suspendedUntil?: string | null;
   banReason?: string | null;
   activityVisibility?: "private" | "public";
+  bio?: string;
+  favoriteGenres?: string[];
 }
 
 export async function getMe(): Promise<Me> {
@@ -94,6 +96,11 @@ export async function uploadAvatar(file: { uri: string; type: string; name: stri
 
 export async function updateUsername(username: string): Promise<{ username: string; usernameChanged: boolean }> {
   const response = await api.patch<{ username: string; usernameChanged: boolean }>("/auth/me/username", { username });
+  return response.data;
+}
+
+export async function updateProfile(updates: { bio?: string; favoriteGenres?: string[] }): Promise<{ bio: string; favoriteGenres: string[] }> {
+  const response = await api.patch<{ bio: string; favoriteGenres: string[] }>("/auth/me/profile", updates);
   return response.data;
 }
 

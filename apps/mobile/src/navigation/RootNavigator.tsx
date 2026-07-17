@@ -33,6 +33,7 @@ import { FriendsActivityScreen } from "../screens/FriendsActivityScreen";
 import { UserSearchScreen } from "../screens/UserSearchScreen";
 import { usePushNotifications } from "../hooks/usePushNotifications";
 import { useThemeSync } from "../hooks/useThemeSync";
+import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts";
 import { log } from "../utils/logger";
 import { ResetPasswordScreen } from "../screens/auth/ResetPasswordScreen";
 import { MagicLinkScreen } from "../screens/auth/MagicLinkScreen";
@@ -81,6 +82,11 @@ export function RootNavigator() {
   const { width } = useWindowDimensions();
   const isDesktopWeb = Platform.OS === "web" && width >= 768;
   const [activeTab, setActiveTab] = useState<TabName>("Series");
+
+  useKeyboardShortcuts({
+    onTabSelect: (tab) => handleTabPress(tab),
+    enabled: isDesktopWeb && isAuthenticated,
+  });
 
   const meQuery = useQuery<Me>({
     queryKey: ["me"],

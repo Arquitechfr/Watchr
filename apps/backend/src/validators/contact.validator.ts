@@ -11,6 +11,7 @@ export const listContactQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(20),
   status: z.enum(["new", "read", "resolved", "archived"]).optional(),
   category: z.enum(["bug", "suggestion", "question", "other"]).optional(),
+  search: z.string().trim().max(200).optional(),
 });
 
 export const contactIdParamSchema = z.object({
@@ -23,4 +24,19 @@ export const updateContactStatusSchema = z.object({
 
 export const replyContactSchema = z.object({
   replyMessage: z.string().trim().min(10).max(5000),
+});
+
+export const bulkContactSchema = z.object({
+  ids: z.array(z.string().regex(/^[0-9a-fA-F]{24}$/)).min(1).max(100),
+  action: z.enum(["read", "archive", "delete"]),
+});
+
+export const editReplySchema = z.object({
+  replyMessage: z.string().trim().min(10).max(5000),
+});
+
+export const exportContactQuerySchema = z.object({
+  status: z.enum(["new", "read", "resolved", "archived"]).optional(),
+  category: z.enum(["bug", "suggestion", "question", "other"]).optional(),
+  search: z.string().trim().max(200).optional(),
 });

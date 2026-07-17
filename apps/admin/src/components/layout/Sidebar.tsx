@@ -26,21 +26,58 @@ import { NotificationBell } from "../NotificationBell";
 import { cn } from "../../lib/utils";
 import icon from "../../assets/icon.png";
 
-const navItems = [
-  { to: "/", label: "Dashboard", icon: LayoutDashboard, end: true },
-  { to: "/users", label: "Users", icon: Users },
-  { to: "/comments", label: "Comments", icon: MessageSquare },
-  { to: "/contact", label: "Contact", icon: Inbox },
-  { to: "/reports", label: "Reports", icon: Flag },
-  { to: "/news-sources", label: "News Sources", icon: Newspaper },
-  { to: "/shows", label: "Shows", icon: Tv },
-  { to: "/notifications", label: "Notifications", icon: Bell },
-  { to: "/email", label: "Email", icon: Mail },
-  { to: "/config", label: "Remote Config", icon: Settings },
-  { to: "/imports", label: "Import Jobs", icon: Download },
-  { to: "/ai", label: "AI", icon: BrainCircuit },
-  { to: "/admin-feed", label: "Activity Feed", icon: Activity },
-  { to: "/errors", label: "Error Tracking", icon: AlertTriangle },
+interface NavItem {
+  to: string;
+  label: string;
+  icon: typeof LayoutDashboard;
+  end?: boolean;
+}
+
+interface NavGroup {
+  label: string;
+  items: NavItem[];
+}
+
+const navGroups: NavGroup[] = [
+  {
+    label: "Overview",
+    items: [
+      { to: "/", label: "Dashboard", icon: LayoutDashboard, end: true },
+    ],
+  },
+  {
+    label: "Moderation",
+    items: [
+      { to: "/users", label: "Users", icon: Users },
+      { to: "/comments", label: "Comments", icon: MessageSquare },
+      { to: "/contact", label: "Contact", icon: Inbox },
+      { to: "/reports", label: "Reports", icon: Flag },
+    ],
+  },
+  {
+    label: "Content",
+    items: [
+      { to: "/shows", label: "Shows", icon: Tv },
+      { to: "/news-sources", label: "News Sources", icon: Newspaper },
+      { to: "/imports", label: "Import Jobs", icon: Download },
+    ],
+  },
+  {
+    label: "Communication",
+    items: [
+      { to: "/notifications", label: "Notifications", icon: Bell },
+      { to: "/email", label: "Email", icon: Mail },
+    ],
+  },
+  {
+    label: "System",
+    items: [
+      { to: "/config", label: "Remote Config", icon: Settings },
+      { to: "/ai", label: "AI", icon: BrainCircuit },
+      { to: "/admin-feed", label: "Activity Feed", icon: Activity },
+      { to: "/errors", label: "Error Tracking", icon: AlertTriangle },
+    ],
+  },
 ];
 
 interface SidebarProps {
@@ -87,7 +124,9 @@ export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
             <span className="text-xs text-text-muted">Admin</span>
           </div>
           <div className="flex items-center gap-1">
-            <NotificationBell />
+            <div className="hidden md:block">
+              <NotificationBell />
+            </div>
             <button
               onClick={onClose}
               className="md:hidden text-text-muted hover:text-text"
@@ -99,29 +138,36 @@ export function Sidebar({ mobileOpen, onClose }: SidebarProps) {
         </div>
 
         <nav className="flex-1 overflow-y-auto px-3 py-4">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.end}
-              onClick={onClose}
-              className={({ isActive }) =>
-                cn(
-                  "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors mb-1",
-                  isActive
-                    ? "bg-primary text-background"
-                    : "text-text-muted hover:bg-surface-light hover:text-text",
-                )
-              }
-            >
-              <item.icon size={18} />
-              {item.label}
-              {item.to === "/users" && newUsersCount > 0 && (
-                <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-background">
-                  {newUsersCount > 99 ? "99+" : newUsersCount}
-                </span>
-              )}
-            </NavLink>
+          {navGroups.map((group) => (
+            <div key={group.label} className="mb-4">
+              <p className="px-3 mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-text-muted/60">
+                {group.label}
+              </p>
+              {group.items.map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  end={item.end}
+                  onClick={onClose}
+                  className={({ isActive }) =>
+                    cn(
+                      "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors mb-1",
+                      isActive
+                        ? "bg-primary text-background"
+                        : "text-text-muted hover:bg-surface-light hover:text-text",
+                    )
+                  }
+                >
+                  <item.icon size={18} />
+                  {item.label}
+                  {item.to === "/users" && newUsersCount > 0 && (
+                    <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-background">
+                      {newUsersCount > 99 ? "99+" : newUsersCount}
+                    </span>
+                  )}
+                </NavLink>
+              ))}
+            </div>
           ))}
         </nav>
 

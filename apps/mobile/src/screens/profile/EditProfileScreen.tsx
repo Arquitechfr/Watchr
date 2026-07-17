@@ -1,29 +1,34 @@
 import { useState } from "react";
-import { View, Text, TouchableOpacity, TextInput, ActivityIndicator, Alert } from "react-native";
+import { View, Text, TouchableOpacity, TextInput, ActivityIndicator, ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ScreenContainer } from "../../components/ScreenContainer";
 import { SubScreenHeader } from "../../components/SubScreenHeader";
 import { Avatar } from "../../components/Avatar";
-import { getMe, updateUsername, unlinkGoogleAccount } from "../../services/auth.service";
+import { getMe, updateUsername, updateProfile, unlinkGoogleAccount } from "../../services/auth.service";
 import { useGoogleLink } from "../../services/googleAuth.service";
 import { useI18n } from "../../i18n/useI18n";
 import { useUIStore } from "../../store/uiStore";
 import { useErrorMessage } from "../../services/api";
 import { useThemeColors } from "../../theme/useThemeColors";
 import { useAvatarUpload } from "../../hooks/useAvatarUpload";
+import { useFadeIn } from "../../hooks/useFadeIn";
+import Animated from "react-native-reanimated";
 import { Seo } from "../../components/Seo";
 
 export function EditProfileScreen() {
   const { t } = useI18n();
   const colors = useThemeColors();
-  const { showSnackbar } = useUIStore();
+  const { showSnackbar, showAlert } = useUIStore();
   const getErrorMessage = useErrorMessage();
   const queryClient = useQueryClient();
 
   const { data: me } = useQuery({ queryKey: ["me"], queryFn: getMe });
   const [editingUsername, setEditingUsername] = useState(false);
   const [usernameInput, setUsernameInput] = useState("");
+  const [bioInput, setBioInput] = useState("");
+  const [genresInput, setGenresInput] = useState("");
+  const [isEditingBio, setIsEditingBio] = useState(false);
 
   const unlinkGoogleMutation = useMutation({
     mutationFn: () => unlinkGoogleAccount(),
@@ -51,10 +56,10 @@ export function EditProfileScreen() {
   );
 
   function handleUnlinkGoogle() {
-    Alert.alert(
-      t("screens.profile.googleUnlinkConfirmTitle"),
-      t("screens.profile.googleUnlinkConfirmMessage"),
-      [
+    showAlert({
+      title: t("screens.profile.googleUnlinkConfirmTitle"),
+      message: t("screens.profile.googleUnlinkConfirmMessage"),
+      buttons: [
         { text: t("common.cancel"), style: "cancel" },
         {
           text: t("common.confirm"),
@@ -62,7 +67,7 @@ export function EditProfileScreen() {
           onPress: () => unlinkGoogleMutation.mutate(),
         },
       ],
-    );
+    });
   }
 
   const { pickAvatar, isUploading: isAvatarUploading } = useAvatarUpload();
@@ -92,11 +97,41 @@ export function EditProfileScreen() {
     usernameMutation.mutate(trimmed);
   }
 
+  const profileMutation = useMutation({
+    mutationFn: (updates: { bio?: string; favoriteGenres?: string[] }) => updateProfile(updates),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["me"] });
+      setIsEditingBio(false);
+      showSnackbar(t("screens.profile.profileUpdated"), "success");
+    },
+    onError: (error) => {
+      showSnackbar(getErrorMessage(error), "error");
+    },
+  });
+
+  function submitBio() {
+    const trimmedBio = bioInput.trim();
+    const genres = genresInput
+      .split(",")
+      .map((g) => g.trim())
+      .filter((g) => g.length > 0)
+      .slice(0, 10);
+    profileMutation.mutate({ bio: trimmedBio, favoriteGenres: genres });
+  }
+
+  function startEditingBio() {
+    setBioInput(me?.bio ?? "");
+    setGenresInput((me?.favoriteGenres ?? []).join(", "));
+    setIsEditingBio(true);
+  }
+
+  const { containerAnimatedStyle } = useFadeIn();
+
   return (
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
       <Seo title={t("seo.editProfile")} />
       <SubScreenHeader title={t("screens.profile.editProfile")} />
-      <View className="md:max-w-lg md:mx-auto w-full">
+      <Animated.View className="md:max-w-lg md:mx-auto w-full" style={containerAnimatedStyle}>
       <View className="items-center mb-8">
         <TouchableOpacity onPress={pickAvatar} disabled={isAvatarUploading} activeOpacity={0.8}>
           <View className="relative">
@@ -167,6 +202,80 @@ export function EditProfileScreen() {
       </View>
 
       <View className="mb-6">
+        <View className="flex-row items-center justify-between mb-2">
+          <Text className="text-text-muted text-sm">{t("screens.profile.bio")}</Text>
+          {!isEditingBio && (
+            <TouchableOpacity onPress={startEditingBio}>
+              <Text className="text-primary text-sm">{t("screens.profile.editBio")}</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+        {isEditingBio ? (
+          <View>
+            <TextInput
+              value={bioInput}
+              onChangeText={setBioInput}
+              placeholder={t("screens.profile.bioPlaceholder")}
+              placeholderTextColor={colors.textMuted}
+              maxLength={500}
+              multiline
+              className="text-text text-base border border-border rounded-lg p-3 mb-3"
+              style={{ minHeight: 80 }}
+              autoFocus
+            />
+            <Text className="text-text-muted text-xs mb-3">{bioInput.length}/500</Text>
+            <Text className="text-text-muted text-sm mb-2">{t("screens.profile.favoriteGenres")}</Text>
+            <TextInput
+              value={genresInput}
+              onChangeText={setGenresInput}
+              placeholder={t("screens.profile.genresPlaceholder")}
+              placeholderTextColor={colors.textMuted}
+              className="text-text text-base border border-border rounded-lg p-3 mb-3"
+            />
+            <View className="flex-row items-center gap-2">
+              <TouchableOpacity
+                onPress={submitBio}
+                disabled={profileMutation.isPending}
+                className="px-4 py-2 rounded-md"
+                style={{ backgroundColor: colors.primary }}
+              >
+                {profileMutation.isPending ? (
+                  <ActivityIndicator size="small" color={colors.background} />
+                ) : (
+                  <Text className="text-background font-semibold">{t("common.save")}</Text>
+                )}
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setIsEditingBio(false)}>
+                <Text className="text-text-muted">{t("common.cancel")}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        ) : (
+          <View>
+            {me?.bio ? (
+              <Text className="text-text text-base leading-relaxed mb-3">{me.bio}</Text>
+            ) : (
+              <Text className="text-text-muted text-sm mb-3 italic">{t("screens.profile.noBio")}</Text>
+            )}
+            {me?.favoriteGenres && me.favoriteGenres.length > 0 && (
+              <View className="flex-row flex-wrap" style={{ gap: 8 }}>
+                {me.favoriteGenres.map((genre: string) => (
+                  <View
+                    key={genre}
+                    className="flex-row items-center rounded-full px-3 py-1.5"
+                    style={{ backgroundColor: colors.primary + "15" }}
+                  >
+                    <Ionicons name="pricetag" size={12} color={colors.primary} />
+                    <Text className="text-primary text-xs font-medium ml-1.5">{genre}</Text>
+                  </View>
+                ))}
+              </View>
+            )}
+          </View>
+        )}
+      </View>
+
+      <View className="mb-6">
         <Text className="text-text-muted text-sm mb-2">{t("screens.profile.googleAccount")}</Text>
         {me?.googleLinked ? (
           <View className="flex-row items-center gap-2">
@@ -202,7 +311,7 @@ export function EditProfileScreen() {
           </TouchableOpacity>
         )}
       </View>
-      </View>
+      </Animated.View>
     </ScreenContainer>
   );
 }

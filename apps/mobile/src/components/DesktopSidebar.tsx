@@ -1,8 +1,9 @@
-import { Pressable, View, Text, Image } from "react-native";
+import { Pressable, View, Text, Image, Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useThemeColors } from "../theme/useThemeColors";
 import { useI18n } from "../i18n/useI18n";
 import { useNotificationStore } from "../store/notificationStore";
+import { useBreakpoint, type Breakpoint } from "../hooks/useBreakpoint";
 
 type TabName = "Series" | "Movies" | "Search" | "News" | "Profile";
 type QuickActionRoute = "Import" | "Export" | "EditProfile";
@@ -27,13 +28,30 @@ const QUICK_ACTIONS: { route: QuickActionRoute; icon: keyof typeof Ionicons.glyp
   { route: "EditProfile", icon: "settings-outline", labelKey: "screens.profile.editProfile" },
 ];
 
+const SIDEBAR_WIDTH: Record<Breakpoint, number> = {
+  mobile: 0,
+  tablet: 220,
+  desktop: 240,
+  wide: 260,
+};
+
 export function DesktopSidebar({ activeTab, onTabPress, onNavigate }: DesktopSidebarProps) {
   const colors = useThemeColors();
   const { t } = useI18n();
   const unreadCount = useNotificationStore((s) => s.unreadCount);
+  const breakpoint = useBreakpoint();
+  const sidebarWidth = SIDEBAR_WIDTH[breakpoint] ?? 220;
+  const isWeb = Platform.OS === "web";
 
   return (
-    <View style={{ width: 220, backgroundColor: colors.background }} className="h-full border-r border-border py-6">
+    <View
+      style={{
+        width: sidebarWidth,
+        backgroundColor: colors.background,
+        ...(isWeb ? { position: "sticky" as any, top: 0, height: "100vh" as any, overflow: "scroll" as any } : {}),
+      }}
+      className="h-full border-r border-border py-6"
+    >
       <View className="flex-row items-center px-5 mb-8" style={{ gap: 8 }}>
         <Image
           source={require("../../assets/splash-icon.webp")}
@@ -46,7 +64,7 @@ export function DesktopSidebar({ activeTab, onTabPress, onNavigate }: DesktopSid
       </View>
 
       <View className="flex-1 px-3" style={{ gap: 4 }}>
-        {TAB_CONFIG.map(({ name, icon, labelKey }) => {
+        {TAB_CONFIG.map(({ name, icon, labelKey }, index) => {
           const isActive = activeTab === name;
           return (
             <Pressable
@@ -56,6 +74,7 @@ export function DesktopSidebar({ activeTab, onTabPress, onNavigate }: DesktopSid
               style={{
                 backgroundColor: isActive ? colors.primary + "20" : "transparent",
               }}
+              {...(isWeb ? { accessibilityRole: "link" as const } : {})}
             >
               {isActive && (
                 <View
@@ -98,7 +117,7 @@ export function DesktopSidebar({ activeTab, onTabPress, onNavigate }: DesktopSid
                 )}
               </View>
               <Text
-                className="ml-3"
+                className="ml-3 flex-1"
                 style={{
                   color: isActive ? colors.primary : colors.textMuted,
                   fontWeight: isActive ? "600" : "400",
@@ -107,6 +126,18 @@ export function DesktopSidebar({ activeTab, onTabPress, onNavigate }: DesktopSid
               >
                 {t(labelKey)}
               </Text>
+              {isWeb && (
+                <Text
+                  style={{
+                    color: colors.textMuted,
+                    fontSize: 11,
+                    opacity: 0.5,
+                    fontFamily: "Outfit_400Regular",
+                  }}
+                >
+                  {index + 1}
+                </Text>
+              )}
             </Pressable>
           );
         })}

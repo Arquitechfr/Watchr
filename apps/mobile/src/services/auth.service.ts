@@ -1,5 +1,6 @@
 import { log } from "../utils/logger";
 import { api } from "./api";
+import { appendFileToFormData } from "../utils/formDataFile";
 
 export interface AuthTokens {
   accessToken: string;
@@ -88,7 +89,7 @@ export async function updateLanguage(language: string): Promise<{ preferredLangu
 
 export async function uploadAvatar(file: { uri: string; type: string; name: string }): Promise<{ avatarUrl: string }> {
   const formData = new FormData();
-  formData.append("avatar", file as unknown as Blob);
+  await appendFileToFormData(formData, "avatar", file);
   const response = await api.post<{ avatarUrl: string }>("/auth/me/avatar", formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
@@ -97,7 +98,7 @@ export async function uploadAvatar(file: { uri: string; type: string; name: stri
 
 export async function uploadBanner(file: { uri: string; type: string; name: string }): Promise<{ bannerUrl: string }> {
   const formData = new FormData();
-  formData.append("banner", file as unknown as Blob);
+  await appendFileToFormData(formData, "banner", file);
   const response = await api.post<{ bannerUrl: string }>("/auth/me/banner", formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });

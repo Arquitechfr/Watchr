@@ -10,7 +10,6 @@ import { generateRefreshToken, hashToken } from "../lib/hashToken.js";
 import { generateUniqueUsername } from "../lib/usernameGenerator.js";
 import { uploadAvatar as uploadAvatarToS3, uploadBanner as uploadBannerToS3 } from "../services/upload.service.js";
 import { EmailService } from "../services/email.service.js";
-import { sendSignupToMake } from "../services/webhook.service.js";
 import { ApiError } from "../middleware/error.middleware.js";
 import { posthogClient } from "../lib/posthog.js";
 import { translateBioAsync } from "../services/aiBioTranslation.service.js";
@@ -70,10 +69,6 @@ export async function registerUser(
 
   EmailService.sendWelcomeEmail(user.email, user.username, user.preferredLanguage).catch((err) =>
     console.error("Failed to send welcome email:", err),
-  );
-
-  sendSignupToMake(user, "email").catch((err) =>
-    console.error("Failed to send signup webhook:", err),
   );
 
   import("./admin/adminFeedNotification.service.js")
@@ -159,10 +154,6 @@ export async function loginWithFirebase(
       console.error("Failed to send welcome email:", err),
     );
 
-    sendSignupToMake(user, "firebase").catch((err) =>
-      console.error("Failed to send signup webhook:", err),
-    );
-
     posthogClient.capture({
       distinctId: user._id.toString(),
       event: "user_signed_up",
@@ -216,10 +207,6 @@ export async function loginWithGoogleUserInfo(
   if (isNewUser) {
     EmailService.sendWelcomeEmail(user.email, user.username, user.preferredLanguage).catch((err) =>
       console.error("Failed to send welcome email:", err),
-    );
-
-    sendSignupToMake(user, "firebase").catch((err) =>
-      console.error("Failed to send signup webhook:", err),
     );
 
     posthogClient.capture({

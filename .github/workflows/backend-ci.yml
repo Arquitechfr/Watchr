@@ -1,0 +1,46 @@
+name: Backend CI
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Watchr — Backend typecheck, lint & tests
+#
+# Runs on every push (all branches) and on pull requests targeting master/develop.
+# Steps: pnpm install → tsc --noEmit → eslint → vitest run
+# ─────────────────────────────────────────────────────────────────────────────
+
+on:
+  push:
+  pull_request:
+    branches: [master, develop]
+
+jobs:
+  backend-ci:
+    name: Typecheck, Lint & Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.2
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm --filter backend typecheck
+
+      - name: Lint
+        run: pnpm --filter backend lint
+
+      - name: Tests
+        run: pnpm --filter backend test

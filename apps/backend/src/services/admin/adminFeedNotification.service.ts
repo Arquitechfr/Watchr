@@ -5,7 +5,6 @@ import {
 } from "../../models/adminNotification.model.js";
 import { ApiError } from "../../middleware/error.middleware.js";
 import { logError } from "../../lib/logger.js";
-import { pushbulletService } from "../pushbullet.service.js";
 
 export interface CreateNotificationInput {
   type: AdminNotificationType;
@@ -30,8 +29,6 @@ export async function createNotification(input: CreateNotificationInput) {
       severity: input.severity ?? "info",
       metadata: input.metadata ?? {},
     });
-
-    pushbulletService.push(input.title, input.message).catch(() => {});
 
     return notification;
   } catch (err) {

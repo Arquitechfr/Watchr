@@ -2,8 +2,6 @@ packages:
   - "apps/*"
 allowBuilds:
   '@firebase/util': true
-  '@sentry/cli': true
-  '@sentry/node-cpu-profiler': true
   esbuild: true
   mongodb-memory-server: true
   msgpackr-extract: true

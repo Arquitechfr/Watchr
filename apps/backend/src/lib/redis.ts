@@ -2,14 +2,36 @@ import { Redis } from "ioredis";
 import { env } from "../config/env.js";
 import { log, logError } from "./logger.js";
 
-export const redisClient = new Redis({
-  host: env.REDIS_HOST,
-  port: env.REDIS_PORT,
-  password: env.REDIS_PASSWORD,
-  lazyConnect: true,
-  retryStrategy: (times: number) => Math.min(times * 50, 2000),
-  maxRetriesPerRequest: 3,
-});
+const isTestEnv = env.NODE_ENV === "test";
+
+function createRedisStub(): Redis {
+  let pipelineStub: Record<string, () => unknown>;
+  pipelineStub = new Proxy({} as Record<string, () => unknown>, {
+    get(_t, prop: string) {
+      if (prop === "exec") return () => Promise.resolve([]);
+      return () => pipelineStub;
+    },
+  });
+  return new Proxy({} as Redis, {
+    get(_t, prop: string) {
+      if (prop === "on") return () => {};
+      if (prop === "connect") return () => Promise.resolve();
+      if (prop === "multi") return () => pipelineStub;
+      return () => Promise.resolve([] as unknown);
+    },
+  });
+}
+
+export const redisClient: Redis = isTestEnv
+  ? createRedisStub()
+  : new Redis({
+      host: env.REDIS_HOST,
+      port: env.REDIS_PORT,
+      password: env.REDIS_PASSWORD,
+      lazyConnect: true,
+      retryStrategy: (times: number) => Math.min(times * 50, 2000),
+      maxRetriesPerRequest: 3,
+    });
 
 let redisAvailable = false;
 
@@ -19,6 +41,7 @@ export function isRedisAvailable(): boolean {
 
 export async function connectRedis(): Promise<void> {
   if (redisAvailable) return;
+  if (isTestEnv) return;
   try {
     await redisClient.connect();
     redisAvailable = true;
@@ -29,15 +52,17 @@ export async function connectRedis(): Promise<void> {
   }
 }
 
-redisClient.on("error", (err: Error) => {
-  redisAvailable = false;
-  logError("Redis", "error", err);
-});
+if (!isTestEnv) {
+  redisClient.on("error", (err: Error) => {
+    redisAvailable = false;
+    logError("Redis", "error", err);
+  });
 
-redisClient.on("connect", () => {
-  redisAvailable = true;
-  log("Redis", "connected");
-});
+  redisClient.on("connect", () => {
+    redisAvailable = true;
+    log("Redis", "connected");
+  });
+}
 
 export async function getRedisValue(key: string): Promise<string | null> {
   if (!redisAvailable) return null;

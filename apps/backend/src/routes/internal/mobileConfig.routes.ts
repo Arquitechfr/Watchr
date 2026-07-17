@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 import { MobileConfig } from "../../models/MobileConfig.js";
 
-const router = Router();
+const router: Router = Router();
 
 let cache: { data: Record<string, unknown>; descriptions: Record<string, string>; expiresAt: number } | null = null;
 const CACHE_TTL_MS = 30_000;

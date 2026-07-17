@@ -6,7 +6,7 @@ import { captureError } from "../../services/errorTracking.service.js";
 import { verifyAccessToken } from "../../services/auth.service.js";
 import { asyncHandler } from "../../lib/asyncHandler.js";
 
-const router = Router();
+const router: Router = Router();
 
 const errorRateLimit = rateLimit({
   windowMs: 60 * 1000,

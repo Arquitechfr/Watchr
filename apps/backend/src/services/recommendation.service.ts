@@ -8,7 +8,7 @@ import { toTmdbLanguage } from "./show.service.js";
 import { getRedisValue, setRedisValue } from "../lib/redis.js";
 import { log, logError } from "../lib/logger.js";
 import { MobileConfig } from "../models/MobileConfig.js";
-import { getTranslationValue } from "../models/show.model.js";
+import { getTranslationValue, type ShowTranslation } from "../models/show.model.js";
 import { languageNameForLocale } from "./aiLanguageMap.js";
 import { translateRecommendation } from "../i18n/index.js";
 import { type TmdbSearchResult } from "./tmdb.service.js";
@@ -18,7 +18,7 @@ interface PopulatedShow {
   title?: string;
   type?: string;
   genres?: { name: string }[];
-  translations?: unknown;
+  translations?: Map<string, ShowTranslation> | Record<string, ShowTranslation>;
 }
 
 export interface RecommendationItem {

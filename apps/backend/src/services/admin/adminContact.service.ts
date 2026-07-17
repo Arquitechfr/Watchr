@@ -38,7 +38,23 @@ export interface ContactMessageDoc {
   updatedAt: string;
 }
 
-function toDoc(doc: Record<string, unknown> & { _id: { toString(): string }; userId: { toString(): string }; repliedAt?: Date; repliedBy?: { toString(): string }; createdAt?: Date; updatedAt?: Date }): ContactMessageDoc {
+interface LeanContactMessage {
+  _id: { toString(): string };
+  userId: { toString(): string };
+  email: string;
+  username: string;
+  category: ContactCategory;
+  subject: string;
+  message: string;
+  status: ContactStatus;
+  repliedAt?: Date;
+  replyBody?: string;
+  repliedBy?: { toString(): string };
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+function toDoc(doc: LeanContactMessage): ContactMessageDoc {
   return {
     id: doc._id.toString(),
     userId: doc.userId.toString(),

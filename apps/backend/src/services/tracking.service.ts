@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import { Types, PipelineStage } from "mongoose";
 import { WatchEntry } from "../models/watchEntry.model.js";
 import { Show } from "../models/show.model.js";
 import { ApiError } from "../middleware/error.middleware.js";
@@ -170,7 +170,7 @@ export async function listLibrary(
     matchStage.status = status;
   }
 
-  const pipeline: Record<string, unknown>[] = [
+  const pipeline: PipelineStage[] = [
     { $match: matchStage },
     {
       $lookup: {
@@ -213,7 +213,8 @@ export async function listLibrary(
 
   const total = totalResult[0]?.total || 0;
 
-  const data = entries.map((entry: Record<string, unknown> & { _id: { toString(): string }; userId: { toString(): string }; showId: { toString(): string }; status: WatchStatus; show: unknown }): TrackingListItem => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const data = entries.map((entry: any): TrackingListItem => {
     const show = entry.show as {
       _id?: string;
       tmdbId?: number;
@@ -226,7 +227,7 @@ export async function listLibrary(
     };
 
     const showId = show._id?.toString() ?? entry.showId.toString();
-    const status = entry.status;
+    const status = entry.status as WatchStatus;
     const translation = getTranslationValue(show.translations, language);
     const title = translation?.title ?? show.title ?? "Unknown";
     return {

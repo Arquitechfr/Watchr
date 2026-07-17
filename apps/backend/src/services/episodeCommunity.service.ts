@@ -1,10 +1,9 @@
 import { Types } from "mongoose";
 import { WatchEntry } from "../models/watchEntry.model.js";
 import { Rating } from "../models/rating.model.js";
-import { Show } from "../models/show.model.js";
 import { tmdbService, type TmdbEpisodeDetails } from "./tmdb.service.js";
 import { getRedisValue, setRedisValue } from "../lib/redis.js";
-import { log } from "../lib/logger.js";
+import { logError } from "../lib/logger.js";
 
 export interface EpisodeCommunityStats {
   watchedCount: number;
@@ -108,7 +107,7 @@ async function getEpisodeTrivia(
       runtime: details.runtime ?? null,
     };
   } catch (err) {
-    log("EpisodeCommunity", "trivia fetch failed", err);
+    logError("EpisodeCommunity", "trivia fetch failed", err);
     return null;
   }
 }

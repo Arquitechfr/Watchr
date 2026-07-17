@@ -163,7 +163,7 @@ router.get(
       Number(tmdbId),
       Number(seasonNumber),
       Number(episodeNumber),
-      req.language,
+      req.language ?? "en",
     );
     res.json(result);
   }),

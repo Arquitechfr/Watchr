@@ -1,10 +1,11 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
-import { getItem as secureGetItem } from "../utils/secureStorage";
 import { log } from "../utils/logger";
 import { useAuthStore, waitForHydration } from "../store/authStore";
 import { useLocaleStore } from "../store/localeStore";
 import { useI18n } from "../i18n/useI18n";
 import { remoteConfigService } from "./remoteConfig";
+import { errorTracker } from "./errorTracker";
+import { refreshTokens } from "./tokenRefreshManager";
 
 export function getApiBaseUrl(): string {
   return `${remoteConfigService.getConfig().backend_url}/api`;
@@ -20,6 +21,7 @@ export const api = axios.create({
 
 remoteConfigService.subscribe((config) => {
   api.defaults.baseURL = `${config.backend_url}/api`;
+  errorTracker.setBaseUrl(config.backend_url);
 });
 
 const PUBLIC_ENDPOINT_PREFIXES = [
@@ -48,6 +50,9 @@ function onTokenRefreshed(token: string) {
 }
 
 function onTokenRefreshFailed() {
+  for (const callback of refreshSubscribers) {
+    callback("");
+  }
   refreshSubscribers = [];
 }
 
@@ -89,8 +94,12 @@ api.interceptors.response.use(
         return Promise.reject(error);
       }
       if (isRefreshing) {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
           subscribeTokenRefresh((token) => {
+            if (!token) {
+              reject(error);
+              return;
+            }
             originalRequest.headers.set("Authorization", `Bearer ${token}`);
             resolve(api(originalRequest));
           });
@@ -102,18 +111,7 @@ api.interceptors.response.use(
 
       try {
         log("API", "refresh token start");
-        const refreshToken = await secureGetItem("refreshToken");
-        if (!refreshToken) {
-          throw new Error("No refresh token");
-        }
-
-        const response = await axios.post(`${remoteConfigService.getConfig().backend_url}/api/auth/refresh`, {
-          refreshToken,
-        });
-        const { accessToken, refreshToken: newRefreshToken } = response.data as {
-          accessToken: string;
-          refreshToken: string;
-        };
+        const { accessToken, refreshToken: newRefreshToken } = await refreshTokens();
 
         await useAuthStore.getState().setTokens(accessToken, newRefreshToken);
 
@@ -145,6 +143,15 @@ api.interceptors.response.use(
     } else {
       log("API", "error", { message: error.message, url: error.config?.url });
     }
+
+    if (!error.response || error.response.status >= 500) {
+      errorTracker.captureException(error, {
+        url: error.config?.url,
+        method: error.config?.method,
+        status: error.response?.status,
+      });
+    }
+
     return Promise.reject(error);
   },
 );

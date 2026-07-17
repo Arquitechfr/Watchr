@@ -4,6 +4,8 @@ export interface RefreshTokenEntry {
   tokenHash: string;
   expiresAt: Date;
   createdAt: Date;
+  rotatedAt?: Date;
+  replacedByTokenHash?: string;
 }
 
 export interface NotificationPreferences {
@@ -58,6 +60,14 @@ const refreshTokenSchema = new Schema<RefreshTokenEntry>(
     expiresAt: {
       type: Date,
       required: true,
+    },
+    rotatedAt: {
+      type: Date,
+      required: false,
+    },
+    replacedByTokenHash: {
+      type: String,
+      required: false,
     },
   },
   { _id: true, timestamps: { createdAt: true, updatedAt: false } },

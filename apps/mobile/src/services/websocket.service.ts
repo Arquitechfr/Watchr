@@ -1,9 +1,9 @@
 import { io, Socket } from "socket.io-client";
-import { getItem as secureGetItem } from "../utils/secureStorage";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { log } from "../utils/logger";
 import { useAuthStore } from "../store/authStore";
 import { remoteConfigService } from "./remoteConfig";
+import { refreshTokens } from "./tokenRefreshManager";
 
 export type WsConnectionState = "connected" | "reconnecting" | "disconnected";
 
@@ -89,28 +89,7 @@ class WebSocketService {
   private async refreshTokenAndReconnect(): Promise<void> {
     try {
       log("WebSocket", "token refresh on WS auth error");
-      const refreshToken = await secureGetItem("refreshToken");
-      if (!refreshToken) {
-        log("WebSocket", "no refresh token — logging out");
-        await useAuthStore.getState().logout();
-        this.isConnecting = false;
-        return;
-      }
-
-      const response = await fetch(`${remoteConfigService.getConfig().backend_url}/api/auth/refresh`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ refreshToken }),
-      });
-
-      if (!response.ok) {
-        log("WebSocket", "token refresh failed — logging out");
-        await useAuthStore.getState().logout();
-        this.isConnecting = false;
-        return;
-      }
-
-      const data = (await response.json()) as { accessToken: string; refreshToken: string };
+      const data = await refreshTokens();
       await useAuthStore.getState().setTokens(data.accessToken, data.refreshToken);
     } catch (err) {
       log("WebSocket", "token refresh error", err);

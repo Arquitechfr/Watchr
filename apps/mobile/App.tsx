@@ -21,6 +21,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { PostHogProvider } from "posthog-react-native";
 
 import { errorTracker } from "./src/services/errorTracker";
+import { ErrorBoundary } from "./src/components/ErrorBoundary";
 
 if (Platform.OS !== 'web') {
   const { registerWidgetTaskHandler } = require('react-native-android-widget');
@@ -72,8 +73,10 @@ const AppInner = () => {
                     }}
                     autocapture={{ captureScreens: false }}
                   >
-                    <MaintenanceScreen />
-                    <SplashScreen visible={!isReady} />
+                    <ErrorBoundary>
+                      <MaintenanceScreen />
+                      <SplashScreen visible={!isReady} />
+                    </ErrorBoundary>
                   </PostHogProvider>
                 </KeyboardProvider>
               </ThemeProvider>
@@ -106,13 +109,15 @@ const AppInner = () => {
                 }}
                 autocapture={{ captureScreens: false }}
               >
-                <View style={{ flex: 1, position: "relative" }}>
-                  {isReady && <RootNavigator />}
-                  {isReady && <TrafficNoticeBanner />}
-                  <Snackbar />
-                  <CustomAlert />
-                </View>
-                <SplashScreen visible={!isReady} />
+                <ErrorBoundary>
+                  <View style={{ flex: 1, position: "relative" }}>
+                    {isReady && <RootNavigator />}
+                    {isReady && <TrafficNoticeBanner />}
+                    <Snackbar />
+                    <CustomAlert />
+                  </View>
+                  <SplashScreen visible={!isReady} />
+                </ErrorBoundary>
               </PostHogProvider>
             </KeyboardProvider>
           </ThemeProvider>

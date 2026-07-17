@@ -237,6 +237,8 @@ export async function loginWithGoogleUserInfo(
   return await issueTokenPair(user._id.toString(), user.preferredLanguage);
 }
 
+const REFRESH_TOKEN_GRACE_PERIOD_MS = 30_000;
+
 export async function refreshAccessToken(refreshToken: string): Promise<TokenPair> {
   const tokenHash = hashToken(refreshToken);
   const user = await User.findOne({ "refreshTokens.tokenHash": tokenHash });
@@ -249,15 +251,55 @@ export async function refreshAccessToken(refreshToken: string): Promise<TokenPai
     throw new ApiError(401, "INVALID_REFRESH_TOKEN", "Refresh token expired or revoked");
   }
 
+  // Grace period: if the token was already rotated recently, return the replacement token
+  if (stored.rotatedAt && stored.replacedByTokenHash) {
+    const elapsed = Date.now() - stored.rotatedAt.getTime();
+    if (elapsed < REFRESH_TOKEN_GRACE_PERIOD_MS) {
+      const replacement = user.refreshTokens.find((t) => t.tokenHash === stored.replacedByTokenHash);
+      if (replacement && replacement.expiresAt >= new Date()) {
+        checkUserCanLogin(user);
+        await user.save();
+        // Issue a fresh pair and clean up the old rotated token
+        await User.updateOne(
+          { _id: user._id },
+          { $pull: { refreshTokens: { tokenHash } } },
+        );
+        return await issueTokenPair(user._id.toString(), user.preferredLanguage);
+      }
+    }
+  }
+
   checkUserCanLogin(user);
   await user.save();
 
+  // Issue new token pair first
+  const newTokens = await issueTokenPair(user._id.toString(), user.preferredLanguage);
+  const newTokenHash = hashToken(newTokens.refreshToken);
+
+  // Mark old token as rotated (grace period) instead of deleting immediately
   await User.updateOne(
-    { _id: user._id },
-    { $pull: { refreshTokens: { tokenHash } } },
+    { _id: user._id, "refreshTokens.tokenHash": tokenHash },
+    {
+      $set: {
+        "refreshTokens.$.rotatedAt": new Date(),
+        "refreshTokens.$.replacedByTokenHash": newTokenHash,
+      },
+    },
   );
 
-  return await issueTokenPair(user._id.toString(), user.preferredLanguage);
+  // Schedule cleanup of the old rotated token after grace period
+  setTimeout(async () => {
+    try {
+      await User.updateOne(
+        { _id: user._id },
+        { $pull: { refreshTokens: { tokenHash } } },
+      );
+    } catch {
+      // Best-effort cleanup — token will expire naturally anyway
+    }
+  }, REFRESH_TOKEN_GRACE_PERIOD_MS + 1000);
+
+  return newTokens;
 }
 
 export async function revokeRefreshToken(refreshToken: string): Promise<void> {

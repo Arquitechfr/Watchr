@@ -23,7 +23,22 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    if (error.response?.status === 401 && !originalRequest._retry) {
+
+    const isAuthEndpoint = originalRequest.url?.startsWith("/auth/login") ||
+                           originalRequest.url?.startsWith("/auth/refresh") ||
+                           originalRequest.url?.startsWith("/auth/register");
+
+    if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
+      const errData = error.response?.data as { error?: { code?: string } } | undefined;
+      const errCode = errData?.error?.code;
+
+      // If the refresh token itself is invalid, don't retry — logout immediately
+      if (errCode === "INVALID_REFRESH_TOKEN") {
+        useAuthStore.getState().logout();
+        window.location.href = "/login";
+        return Promise.reject(error);
+      }
+
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });

@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { getItem as secureGetItem, setItem as secureSetItem, deleteItem as secureDeleteItem } from "../utils/secureStorage";
 import { log } from "../utils/logger";
-import { remoteConfigService } from "../services/remoteConfig";
+import { refreshTokens } from "../services/tokenRefreshManager";
 
 function decodeJwtPayload(token: string): Record<string, unknown> | null {
   try {
@@ -66,6 +66,8 @@ export const useAuthStore = create<AuthState>((set) => ({
     const userId = decodeJwtUserId(accessToken);
     set({ accessToken, userId, isAuthenticated: true });
     log("AuthStore", "tokens saved");
+    const { errorTracker } = await import("../services/errorTracker");
+    errorTracker.setUserContext({ userId: userId ?? undefined });
     const { websocketService } = await import("../services/websocket.service");
     websocketService.reconnect();
   },
@@ -76,6 +78,8 @@ export const useAuthStore = create<AuthState>((set) => ({
     await secureDeleteItem("accessToken");
     await secureDeleteItem("refreshToken");
     set({ accessToken: null, userId: null, isAuthenticated: false });
+    const { errorTracker } = await import("../services/errorTracker");
+    errorTracker.clearUserContext();
   },
 
   hydrate: async () => {
@@ -96,19 +100,12 @@ export const useAuthStore = create<AuthState>((set) => ({
       if (isTokenExpired(accessToken)) {
         log("AuthStore", "access token expired, refreshing");
         try {
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 5000);
-          const response = await fetch(`${remoteConfigService.getConfig().backend_url}/api/auth/refresh`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ refreshToken }),
-            signal: controller.signal,
-          });
-          clearTimeout(timeoutId);
-          if (!response.ok) {
-            throw new Error(`Refresh failed: ${response.status}`);
-          }
-          const data = (await response.json()) as { accessToken: string; refreshToken: string };
+          const data = await Promise.race([
+            refreshTokens(),
+            new Promise<never>((_, reject) =>
+              setTimeout(() => reject(new Error("Refresh timeout")), 5000),
+            ),
+          ]);
           currentAccessToken = data.accessToken;
           currentRefreshToken = data.refreshToken;
           await secureSetItem("accessToken", currentAccessToken);
@@ -126,6 +123,8 @@ export const useAuthStore = create<AuthState>((set) => ({
       const userId = decodeJwtUserId(currentAccessToken);
       log("AuthStore", "hydrate done", { isAuthenticated: true });
       set({ accessToken: currentAccessToken, userId, isAuthenticated: true, isHydrated: true });
+      const { errorTracker } = await import("../services/errorTracker");
+      errorTracker.setUserContext({ userId: userId ?? undefined });
       const { websocketService } = await import("../services/websocket.service");
       await websocketService.loadLastEventTimestamp();
       websocketService.connect();

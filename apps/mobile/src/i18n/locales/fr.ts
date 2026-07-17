@@ -5,6 +5,7 @@ const fr = {
     changingLanguage: "Changement de langue…",
     changingLanguageHint: "Cela peut prendre quelques secondes.",
     retry: "Réessayer",
+    reconnect: "Se reconnecter",
     cancel: "Annuler",
     confirm: "Confirmer",
     save: "Enregistrer",
@@ -702,6 +703,8 @@ const fr = {
     offlineSubtitle: "Vérifie ta connexion internet et réessaie.",
     serverError: "Oups, un problème est survenu",
     serverErrorSubtitle: "Le serveur a rencontré une erreur. Réessaie dans un moment.",
+    sessionExpired: "Session expirée",
+    sessionExpiredSubtitle: "Ta session a expiré. Reconnecte-toi pour continuer.",
   },
   websocket: {
     reconnecting: "Reconnexion…",

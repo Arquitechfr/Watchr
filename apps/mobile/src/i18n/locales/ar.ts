@@ -5,6 +5,7 @@ const ar = {
     changingLanguage: "تغيير اللغة…",
     changingLanguageHint: "قد يستغرق هذا بضع ثوانٍ.",
     retry: "إعادة",
+    reconnect: "إعادة الاتصال",
     cancel: "إلغاء",
     confirm: "تأكيد",
     save: "حفظ",
@@ -702,6 +703,8 @@ const ar = {
     offlineSubtitle: "تحقق من اتصالك وحاول مجددًا.",
     serverError: "عذرًا، حدث خطأ",
     serverErrorSubtitle: "واجه الخادم خطأً. حاول لاحقًا.",
+    sessionExpired: "انتهت الجلسة",
+    sessionExpiredSubtitle: "انتهت جلستك. يرجى إعادة الاتصال للمتابعة.",
   },
   websocket: {
     reconnecting: "إعادة الاتصال…",

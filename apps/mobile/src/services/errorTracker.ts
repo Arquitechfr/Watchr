@@ -179,11 +179,11 @@ class ErrorTracker {
   private async flush(): Promise<void> {
     if (this.queue.length === 0) return;
 
-    const toSend = this.queue.splice(0, MAX_QUEUE_SIZE);
-    this.persistQueue();
-
     const url = this.baseUrl ?? this.getBaseUrl();
     if (!url) return;
+
+    const toSend = this.queue.splice(0, MAX_QUEUE_SIZE);
+    this.persistQueue();
 
     try {
       for (const payload of toSend) {

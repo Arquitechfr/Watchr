@@ -5,6 +5,7 @@ import { usePostHog } from "posthog-react-native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { NetworkError } from "../components/NetworkError";
+import { isNetworkError } from "../services/api";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { DesktopSidebar } from "../components/DesktopSidebar";
 import { useAuthStore } from "../store/authStore";
@@ -39,6 +40,7 @@ import { ResetPasswordScreen } from "../screens/auth/ResetPasswordScreen";
 import { MagicLinkScreen } from "../screens/auth/MagicLinkScreen";
 import { NewsArticleDetailScreen } from "../screens/NewsArticleDetailScreen";
 import { getMe, Me, completeOnboarding } from "../services/auth.service";
+import { errorTracker } from "../services/errorTracker";
 
 export type RootStackParamList = {
   Auth: undefined;
@@ -181,9 +183,24 @@ export function RootNavigator() {
   };
 
   if (isAuthenticated && isMeError && !me) {
+    const isSessionError = !isNetworkError(meQuery.error) &&
+      meQuery.error instanceof Error &&
+      "response" in meQuery.error &&
+      (meQuery.error as { response?: { status?: number } }).response?.status === 401;
+
     return (
       <ScreenContainer>
-        <NetworkError onRetry={() => meQuery.refetch()} />
+        <NetworkError
+          variant={isSessionError ? "session" : undefined}
+          isOffline={isNetworkError(meQuery.error)}
+          onRetry={() => {
+            if (isSessionError) {
+              useAuthStore.getState().logout();
+            } else {
+              meQuery.refetch();
+            }
+          }}
+        />
       </ScreenContainer>
     );
   }
@@ -279,6 +296,7 @@ export function RootNavigator() {
         const currentRouteName = navigationRef.current?.getCurrentRoute()?.name;
         if (previousRouteName !== currentRouteName && currentRouteName) {
           posthog?.capture("$screen", { $screen_name: currentRouteName });
+          errorTracker.addBreadcrumb("navigation", currentRouteName, { from: previousRouteName });
         }
         routeNameRef.current = currentRouteName;
 

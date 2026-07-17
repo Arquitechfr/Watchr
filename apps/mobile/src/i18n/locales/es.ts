@@ -5,6 +5,7 @@ const es = {
     changingLanguage: "Cambiando idioma…",
     changingLanguageHint: "Esto puede tardar unos segundos.",
     retry: "Reintentar",
+    reconnect: "Reconectar",
     cancel: "Cancelar",
     confirm: "Confirmar",
     save: "Guardar",
@@ -702,6 +703,8 @@ const es = {
     offlineSubtitle: "Revisa tu conexión e inténtalo de nuevo.",
     serverError: "Vaya, algo salió mal",
     serverErrorSubtitle: "El servidor tuvo un error. Inténtalo en un momento.",
+    sessionExpired: "Sesión expirada",
+    sessionExpiredSubtitle: "Tu sesión ha expirado. Vuelve a conectarte para continuar.",
   },
   websocket: {
     reconnecting: "Reconectando…",

@@ -132,6 +132,53 @@ describe("Auth", () => {
     expect(res.body.refreshToken).not.toBe(oldRefresh);
   });
 
+  it("should allow refresh with old token within grace period (concurrent refresh)", async () => {
+    const register = await request(app).post("/api/auth/register").send({
+      email: "grace@test-watchr.dev",
+      password: "password123",
+    });
+    const oldRefresh = register.body.refreshToken;
+
+    // First refresh — rotates the token
+    const res1 = await request(app).post("/api/auth/refresh").send({
+      refreshToken: oldRefresh,
+    });
+    expect(res1.status).toBe(200);
+    expect(res1.body.refreshToken).not.toBe(oldRefresh);
+
+    // Second refresh with the SAME old token — should still succeed within grace period
+    const res2 = await request(app).post("/api/auth/refresh").send({
+      refreshToken: oldRefresh,
+    });
+    expect(res2.status).toBe(200);
+    expect(res2.body.accessToken).toBeDefined();
+    expect(res2.body.refreshToken).toBeDefined();
+  });
+
+  it("should reject refresh with old token after logout (even within grace period)", async () => {
+    const register = await request(app).post("/api/auth/register").send({
+      email: "grace-logout@test-watchr.dev",
+      password: "password123",
+    });
+    const oldRefresh = register.body.refreshToken;
+
+    // First refresh — rotates the token
+    await request(app).post("/api/auth/refresh").send({
+      refreshToken: oldRefresh,
+    });
+
+    // Logout with the old token — should remove it
+    await request(app).post("/api/auth/logout").send({
+      refreshToken: oldRefresh,
+    });
+
+    // Try to refresh with the old token — should fail (logout removes it)
+    const res = await request(app).post("/api/auth/refresh").send({
+      refreshToken: oldRefresh,
+    });
+    expect(res.status).toBe(401);
+  });
+
   it("should revoke refresh token on logout", async () => {
     const register = await request(app).post("/api/auth/register").send({
       email: "logout@test-watchr.dev",

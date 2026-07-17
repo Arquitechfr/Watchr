@@ -5,6 +5,7 @@ const de = {
     changingLanguage: "Sprache wird geändert…",
     changingLanguageHint: "Das kann einige Sekunden dauern.",
     retry: "Erneut",
+    reconnect: "Neu verbinden",
     cancel: "Abbrechen",
     confirm: "Bestätigen",
     save: "Speichern",
@@ -702,6 +703,8 @@ const de = {
     offlineSubtitle: "Prüfe deine Internetverbindung und versuche es erneut.",
     serverError: "Ups, etwas ist schiefgelaufen",
     serverErrorSubtitle: "Der Server hatte einen Fehler. Versuche es später erneut.",
+    sessionExpired: "Sitzung abgelaufen",
+    sessionExpiredSubtitle: "Deine Sitzung ist abgelaufen. Bitte verbinde dich erneut.",
   },
   websocket: {
     reconnecting: "Verbinde neu…",

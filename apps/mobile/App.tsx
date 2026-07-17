@@ -39,7 +39,7 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 1,
-      refetchOnWindowFocus: true,
+      refetchOnWindowFocus: Platform.OS === "web",
       staleTime: 30_000,
     },
   },

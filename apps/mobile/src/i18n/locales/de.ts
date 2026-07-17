@@ -79,6 +79,7 @@ const de = {
     networkError: "Prüfe deine Internetverbindung.",
     accountBanned: "Dieses Konto wurde gesperrt.",
     accountSuspended: "Dieses Konto ist vorübergehend gesperrt.",
+    emailDomainBlocked: "Diese E-Mail-Domain ist nicht erlaubt. Bitte verwende eine gültige E-Mail-Adresse.",
     genericError: "Etwas ist schiefgelaufen. Versuche es erneut.",
     forgotPassword: "Passwort vergessen?",
     forgotPasswordTitle: "Passwort vergessen",

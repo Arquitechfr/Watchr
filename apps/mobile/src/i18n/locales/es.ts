@@ -79,6 +79,7 @@ const es = {
     networkError: "Revisa tu conexión a internet.",
     accountBanned: "Esta cuenta ha sido baneada.",
     accountSuspended: "Esta cuenta está suspendida.",
+    emailDomainBlocked: "Este dominio de correo no está permitido. Usa una dirección de correo válida.",
     genericError: "Algo salió mal. Inténtalo de nuevo.",
     forgotPassword: "¿Olvidaste tu contraseña?",
     forgotPasswordTitle: "Contraseña olvidada",

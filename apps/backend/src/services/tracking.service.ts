@@ -953,7 +953,13 @@ export async function getUnwatched(
       seasons?: Season[];
       translations?: Map<string, ShowTranslation> | Record<string, ShowTranslation>;
       networks?: Array<{ id: number; name?: string }>;
-    };
+    } | null;
+
+    if (!populatedShow) {
+      log("TrackingService", "getUnwatched skipping entry with null showId", { entryId: entry._id.toString() });
+      continue;
+    }
+
     const translation = getTranslationValue(populatedShow.translations, language);
     const localizedTitle = translation?.title ?? populatedShow.title ?? "Unknown";
     const network = translation?.networks?.[0]?.name ?? populatedShow.networks?.[0]?.name;

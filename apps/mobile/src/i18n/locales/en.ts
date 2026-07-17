@@ -79,6 +79,7 @@ const en = {
     networkError: "Check your internet connection.",
     accountBanned: "This account has been banned.",
     accountSuspended: "This account is suspended.",
+    emailDomainBlocked: "This email domain is not allowed. Please use a valid email address.",
     genericError: "Something went wrong. Please try again.",
     forgotPassword: "Forgot password?",
     forgotPasswordTitle: "Forgot password",

@@ -71,6 +71,7 @@ const de = {
     TOO_MANY_TRAKT_SYNC_REQUESTS: "Zu viele Trakt-Sync-Anfragen. Versuche es später erneut.",
     TOO_MANY_AI_REQUESTS: "Zu viele KI-Anfragen. Versuche es später erneut.",
     REPLIES_DISABLED: "Antworten sind bei importierten Bewertungen nicht verfügbar.",
+    EMAIL_DOMAIN_BLOCKED: "Diese E-Mail-Domain ist nicht erlaubt. Bitte verwende eine gültige E-Mail-Adresse.",
   },
   notifications: {
     commentReplyTitle: "Neue Antwort auf deinen Kommentar",

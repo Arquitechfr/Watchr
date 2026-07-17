@@ -79,6 +79,7 @@ const pt = {
     networkError: "Verifique sua internet.",
     accountBanned: "Esta conta foi banida.",
     accountSuspended: "Esta conta está suspensa.",
+    emailDomainBlocked: "Este domínio de email não é permitido. Use um endereço de email válido.",
     genericError: "Algo deu errado. Tente novamente.",
     forgotPassword: "Esqueceu a senha?",
     forgotPasswordTitle: "Esqueceu a senha",

@@ -79,6 +79,7 @@ const fr = {
     networkError: "Vérifie ta connexion internet.",
     accountBanned: "Ce compte a été banni.",
     accountSuspended: "Ce compte est suspendu.",
+    emailDomainBlocked: "Ce domaine d'email n'est pas autorisé. Veuillez utiliser une adresse email valide.",
     genericError: "Une erreur est survenue. Réessaie.",
     forgotPassword: "Mot de passe oublié ?",
     forgotPasswordTitle: "Mot de passe oublié",

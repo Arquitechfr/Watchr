@@ -15,6 +15,7 @@ import { posthogClient } from "../lib/posthog.js";
 import { translateBioAsync } from "../services/aiBioTranslation.service.js";
 import { logError } from "../lib/logger.js";
 import { normalizeLocale } from "../i18n/index.js";
+import { isEmailDomainBlocked } from "../lib/blockedEmailDomains.js";
 
 const ACCESS_TOKEN_TTL_SECONDS = 15 * 60;
 const REFRESH_TOKEN_TTL_DAYS = 30;
@@ -57,6 +58,10 @@ export async function registerUser(
   signupPlatform?: "ios" | "android" | "web",
   language?: string,
 ): Promise<TokenPair> {
+  if (isEmailDomainBlocked(email)) {
+    throw new ApiError(422, "EMAIL_DOMAIN_BLOCKED", "This email domain is not allowed");
+  }
+
   const existing = await User.findOne({ email: email.toLowerCase() });
   if (existing) {
     throw new ApiError(409, "EMAIL_IN_USE", "Email already registered");
@@ -136,6 +141,11 @@ export async function loginWithFirebase(
   }
 
   const email = decoded.email.toLowerCase();
+
+  if (isEmailDomainBlocked(email)) {
+    throw new ApiError(422, "EMAIL_DOMAIN_BLOCKED", "This email domain is not allowed");
+  }
+
   let user = await User.findOne({ email });
   let isNewUser = false;
 
@@ -174,6 +184,10 @@ export async function loginWithGoogleUserInfo(
   language?: string,
 ): Promise<TokenPair> {
   const normalizedEmail = email.toLowerCase();
+
+  if (isEmailDomainBlocked(normalizedEmail)) {
+    throw new ApiError(422, "EMAIL_DOMAIN_BLOCKED", "This email domain is not allowed");
+  }
 
   let firebaseUid: string;
   try {

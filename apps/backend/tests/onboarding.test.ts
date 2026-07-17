@@ -23,7 +23,7 @@ const app = createApp();
 
 async function getAuthUser() {
   const user = await User.create({
-    email: "onboarding@example.com",
+    email: "onboarding@test-watchr.dev",
     username: "OnboardUser",
     passwordHash: await bcrypt.hash("password123", 12),
   });
@@ -43,7 +43,7 @@ describe("Onboarding", () => {
 
   it("should have hasCompletedOnboarding === false after registration", async () => {
     const res = await request(app).post("/api/auth/register").send({
-      email: "newuser@example.com",
+      email: "newuser@test-watchr.dev",
       password: "password123",
     });
     expect(res.status).toBe(201);

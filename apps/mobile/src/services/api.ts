@@ -164,6 +164,7 @@ const errorMessageKeys: Record<string, string> = {
   UNAUTHORIZED: "errors.unauthorized",
   ACCOUNT_BANNED: "auth.accountBanned",
   ACCOUNT_SUSPENDED: "auth.accountSuspended",
+  EMAIL_DOMAIN_BLOCKED: "auth.emailDomainBlocked",
   COMMENT_REJECTED_HATE: "screens.comments.rejectedHate",
   COMMENT_REJECTED_HARASSMENT: "screens.comments.rejectedHarassment",
   COMMENT_REJECTED_SPAM: "screens.comments.rejectedSpam",

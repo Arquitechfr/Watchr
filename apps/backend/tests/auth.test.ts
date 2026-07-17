@@ -13,12 +13,16 @@ vi.mock("../src/config/firebaseAdmin.js", () => ({
   },
 }));
 
+vi.mock("express-rate-limit", () => ({
+  default: () => (_req: unknown, _res: unknown, next: () => void) => next(),
+}));
+
 const app = createApp();
 
 function makeDecodedToken(overrides: Partial<DecodedIdToken> = {}): DecodedIdToken {
   return {
     uid: "google-uid-123",
-    email: "google@example.com",
+    email: "google@test-watchr.dev",
     email_verified: true,
     auth_time: Math.floor(Date.now() / 1000),
     exp: Math.floor(Date.now() / 1000) + 3600,
@@ -41,7 +45,7 @@ describe("Auth", () => {
 
   it("should register a new user and return tokens", async () => {
     const res = await request(app).post("/api/auth/register").send({
-      email: "test@example.com",
+      email: "test@test-watchr.dev",
       password: "password123",
     });
     expect(res.status).toBe(201);
@@ -51,7 +55,7 @@ describe("Auth", () => {
 
   it("should persist the preferred language sent at registration", async () => {
     const register = await request(app).post("/api/auth/register").send({
-      email: "lang@example.com",
+      email: "lang@test-watchr.dev",
       password: "password123",
       language: "fr",
     });
@@ -66,7 +70,7 @@ describe("Auth", () => {
 
   it("should default to english when no language is sent at registration", async () => {
     const register = await request(app).post("/api/auth/register").send({
-      email: "nolang@example.com",
+      email: "nolang@test-watchr.dev",
       password: "password123",
     });
     expect(register.status).toBe(201);
@@ -80,11 +84,11 @@ describe("Auth", () => {
 
   it("should reject duplicate email", async () => {
     await request(app).post("/api/auth/register").send({
-      email: "dup@example.com",
+      email: "dup@test-watchr.dev",
       password: "password123",
     });
     const res = await request(app).post("/api/auth/register").send({
-      email: "dup@example.com",
+      email: "dup@test-watchr.dev",
       password: "password123",
     });
     expect(res.status).toBe(409);
@@ -92,11 +96,11 @@ describe("Auth", () => {
 
   it("should login with valid credentials", async () => {
     await request(app).post("/api/auth/register").send({
-      email: "login@example.com",
+      email: "login@test-watchr.dev",
       password: "password123",
     });
     const res = await request(app).post("/api/auth/login").send({
-      email: "login@example.com",
+      email: "login@test-watchr.dev",
       password: "password123",
     });
     expect(res.status).toBe(200);
@@ -106,7 +110,7 @@ describe("Auth", () => {
 
   it("should reject invalid credentials", async () => {
     const res = await request(app).post("/api/auth/login").send({
-      email: "none@example.com",
+      email: "none@test-watchr.dev",
       password: "password123",
     });
     expect(res.status).toBe(401);
@@ -114,7 +118,7 @@ describe("Auth", () => {
 
   it("should rotate refresh token", async () => {
     const register = await request(app).post("/api/auth/register").send({
-      email: "refresh@example.com",
+      email: "refresh@test-watchr.dev",
       password: "password123",
     });
     const oldRefresh = register.body.refreshToken;
@@ -130,7 +134,7 @@ describe("Auth", () => {
 
   it("should revoke refresh token on logout", async () => {
     const register = await request(app).post("/api/auth/register").send({
-      email: "logout@example.com",
+      email: "logout@test-watchr.dev",
       password: "password123",
     });
     const refreshToken = register.body.refreshToken;
@@ -158,7 +162,7 @@ describe("Auth", () => {
   });
 
   it("should persist the preferred language sent at Firebase signup", async () => {
-    mockVerifyIdToken.mockResolvedValueOnce(makeDecodedToken({ email: "google-lang@example.com" }));
+    mockVerifyIdToken.mockResolvedValueOnce(makeDecodedToken({ email: "google-lang@test-watchr.dev" }));
 
     const res = await request(app).post("/api/auth/firebase").send({
       idToken: "valid-id-token",
@@ -175,7 +179,7 @@ describe("Auth", () => {
 
   it("should link Firebase login to existing email account", async () => {
     await request(app).post("/api/auth/register").send({
-      email: "google@example.com",
+      email: "google@test-watchr.dev",
       password: "password123",
     });
     mockVerifyIdToken.mockResolvedValueOnce(makeDecodedToken());
@@ -204,5 +208,24 @@ describe("Auth", () => {
       idToken: "invalid-id-token",
     });
     expect(res.status).toBe(401);
+  });
+
+  it("should reject registration with blocked email domain", async () => {
+    const res = await request(app).post("/api/auth/register").send({
+      email: "test@example.com",
+      password: "password123",
+    });
+    expect(res.status).toBe(422);
+    expect(res.body.error.code).toBe("EMAIL_DOMAIN_BLOCKED");
+  });
+
+  it("should reject Firebase login with blocked email domain", async () => {
+    mockVerifyIdToken.mockResolvedValueOnce(makeDecodedToken({ email: "test@mailinator.com" }));
+
+    const res = await request(app).post("/api/auth/firebase").send({
+      idToken: "valid-id-token",
+    });
+    expect(res.status).toBe(422);
+    expect(res.body.error.code).toBe("EMAIL_DOMAIN_BLOCKED");
   });
 });

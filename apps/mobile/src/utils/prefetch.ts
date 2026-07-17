@@ -2,16 +2,18 @@ import type { QueryClient } from "@tanstack/react-query";
 import { getUnwatchedShows } from "../services/unwatched.service";
 import { getUpcomingEpisodes } from "../services/upcoming.service";
 import { log } from "./logger";
+import { useLocaleStore } from "../store/localeStore";
 
 export async function prefetchSeriesData(queryClient: QueryClient): Promise<void> {
+  const locale = useLocaleStore.getState().locale;
   const results = await Promise.allSettled([
     queryClient.prefetchQuery({
-      queryKey: ["unwatched", "tv"],
+      queryKey: ["unwatched", "tv", locale],
       queryFn: getUnwatchedShows,
       staleTime: 5 * 60 * 1000,
     }),
     queryClient.prefetchQuery({
-      queryKey: ["upcoming"],
+      queryKey: ["upcoming", locale],
       queryFn: getUpcomingEpisodes,
       staleTime: 5 * 60 * 1000,
     }),

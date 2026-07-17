@@ -71,6 +71,7 @@ const it = {
     TOO_MANY_TRAKT_SYNC_REQUESTS: "Troppe sincronizzazioni Trakt. Riprova più tardi.",
     TOO_MANY_AI_REQUESTS: "Troppe richieste IA. Riprova più tardi.",
     REPLIES_DISABLED: "Le risposte non sono disponibili sulle recensioni importate.",
+    EMAIL_DOMAIN_BLOCKED: "Questo dominio email non è consentito. Usa un indirizzo email valido.",
   },
   notifications: {
     commentReplyTitle: "Nuova risposta al tuo commento",

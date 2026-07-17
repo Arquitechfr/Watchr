@@ -71,6 +71,7 @@ const ar = {
     TOO_MANY_TRAKT_SYNC_REQUESTS: "مزامنات Trakt كثيرة جداً. حاول مرة أخرى لاحقاً.",
     TOO_MANY_AI_REQUESTS: "طلبات ذكاء اصطناعي كثيرة جداً. حاول مرة أخرى لاحقاً.",
     REPLIES_DISABLED: "الردود غير متاحة على المراجعات المستوردة.",
+    EMAIL_DOMAIN_BLOCKED: "هذا النطاق للبريد الإلكتروني غير مسموح. يرجى استخدام عنوان بريد إلكتروني صالح.",
   },
   notifications: {
     commentReplyTitle: "رد جديد على تعليقك",

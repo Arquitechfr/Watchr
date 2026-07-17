@@ -79,6 +79,7 @@ const ar = {
     networkError: "تحقق من اتصالك بالإنترنت.",
     accountBanned: "تم حظر هذا الحساب.",
     accountSuspended: "هذا الحساب موقوف.",
+    emailDomainBlocked: "هذا النطاق للبريد الإلكتروني غير مسموح. يرجى استخدام عنوان بريد إلكتروني صالح.",
     genericError: "حدث خطأ. حاول مجددًا.",
     forgotPassword: "نسيت كلمة المرور؟",
     forgotPasswordTitle: "نسيت كلمة المرور",

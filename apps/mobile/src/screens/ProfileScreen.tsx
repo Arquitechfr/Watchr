@@ -111,7 +111,7 @@ export function ProfileScreen() {
           <CoverBanner url={me?.bannerUrl} onPress={pickBanner} isUploading={isBannerUploading} />
         </View>
         <View className="items-center mb-6" style={{ marginTop: -40 }}>
-          <TouchableOpacity onPress={pickAvatar} disabled={isAvatarUploading || meLoading} activeOpacity={0.8}>
+          <TouchableOpacity onPress={pickAvatar} disabled={isAvatarUploading} activeOpacity={0.8}>
             <View className="relative">
               <Avatar url={me?.avatarUrl} size={80} />
               <View

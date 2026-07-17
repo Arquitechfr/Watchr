@@ -26,6 +26,7 @@ Ces règles s'appliquent à tout agent travaillant sur ce repo.
 - Correction/réécriture de fichier = fichier complet retourné, jamais un diff partiel.
 - Composants fonctionnels, `const` par défaut, composition > héritage.
 - **Fichiers de composants ≤ 300 lignes.** Si dépassement, extraire agressivement (sous-composants, hooks custom).
+- **Screens ≤ 300-400 lignes si possible.** Extraire dès que possible (sous-composants, hooks custom, sections). Si l'extraction n'est pas possible ou pertinente, ne rien faire.
 
 ## 3. Avant d'implémenter
 

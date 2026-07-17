@@ -126,6 +126,7 @@ watchr/
 ## Principes transversaux
 
 - **Mobile = source of truth** par rapport aux autres apps.
+- **Screens ≤ 300-400 lignes si possible.** Extraire dès que possible (sous-composants, hooks custom, sections). Si l'extraction n'est pas possible ou pertinente, ne rien faire.
 - Utiliser tous les **MCP** pertinents pour la demande.
 - Mettre en place des logiques **optimistic** et une UX moderne.
 

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Text, TouchableOpacity, TextInput, ActivityIndicator, ScrollView } from "react-native";
+import { View, Text, TouchableOpacity, TextInput, ActivityIndicator, ScrollView, Platform, useWindowDimensions } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ScreenContainer } from "../../components/ScreenContainer";
@@ -74,6 +74,8 @@ export function EditProfileScreen() {
 
   const { pickAvatar, isUploading: isAvatarUploading } = useAvatarUpload();
   const { pickBanner, isUploading: isBannerUploading } = useBannerUpload();
+  const { width } = useWindowDimensions();
+  const isDesktopWeb = Platform.OS === "web" && width >= 768;
 
   const usernameMutation = useMutation({
     mutationFn: (username: string) => updateUsername(username),
@@ -135,7 +137,7 @@ export function EditProfileScreen() {
       <Seo title={t("seo.editProfile")} />
       <SubScreenHeader title={t("screens.profile.editProfile")} />
       <Animated.View className="md:max-w-lg md:mx-auto w-full" style={containerAnimatedStyle}>
-      <View style={{ marginHorizontal: -16, marginBottom: 8 }}>
+      <View style={isDesktopWeb ? { marginBottom: 8 } : { marginHorizontal: -16, marginBottom: 8 }}>
         <CoverBanner url={me?.bannerUrl} onPress={pickBanner} isUploading={isBannerUploading} />
       </View>
       <View className="items-center mb-8">
@@ -143,8 +145,8 @@ export function EditProfileScreen() {
           <View className="relative">
             <Avatar url={me?.avatarUrl} size={96} />
             <View
-              className="absolute bottom-0 right-0 items-center justify-center rounded-full"
-              style={{ width: 32, height: 32, backgroundColor: colors.primary }}
+              className="absolute bottom-0 items-center justify-center rounded-full"
+              style={{ width: 32, height: 32, backgroundColor: colors.primary, right: 4 }}
             >
               {isAvatarUploading ? (
                 <ActivityIndicator size="small" color={colors.background} />

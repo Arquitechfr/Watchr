@@ -3,6 +3,7 @@ import { User } from "../../models/user.model.js";
 import { ApiError } from "../../middleware/error.middleware.js";
 import { getImportQueue, type ImportJobData } from "../../workers/import.worker.js";
 import { log } from "../../lib/logger.js";
+import type { ImportSource } from "../import/types.js";
 
 export interface ListImportsQuery {
   status?: string;
@@ -136,7 +137,7 @@ export async function retryImportJob(id: string): Promise<{ success: boolean }> 
     userId: job.userId.toString(),
     jobId: job._id.toString(),
     sourceFile: job.sourceFile,
-    source: job.source as any,
+    source: job.source as ImportSource,
   };
   await queue.add(`import-${job._id}`, jobData);
 

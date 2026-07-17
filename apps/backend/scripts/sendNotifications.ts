@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import "dotenv/config";
 import mongoose from "mongoose";
 import { connectDatabase } from "../src/lib/database.js";

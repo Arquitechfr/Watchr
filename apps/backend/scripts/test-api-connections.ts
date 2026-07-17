@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { config } from "dotenv";
 import { tmdbService } from "../src/services/tmdb.service.js";
 

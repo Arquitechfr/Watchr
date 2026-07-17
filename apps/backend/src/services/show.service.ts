@@ -57,7 +57,7 @@ export interface DiscoverSectionItemsResult {
   hasMore: boolean;
 }
 
-const DISCOVER_SECTION_IDS = ["trending-tv", "trending-movie", "popular-tv", "popular-movie"] as const;
+export const DISCOVER_SECTION_IDS = ["trending-tv", "trending-movie", "popular-tv", "popular-movie"] as const;
 export type DiscoverSectionId = (typeof DISCOVER_SECTION_IDS)[number];
 
 export async function searchShows(query: string, locale = "en"): Promise<SearchResultItem[]> {

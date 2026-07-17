@@ -38,7 +38,7 @@ export interface ContactMessageDoc {
   updatedAt: string;
 }
 
-function toDoc(doc: any): ContactMessageDoc {
+function toDoc(doc: Record<string, unknown> & { _id: { toString(): string }; userId: { toString(): string }; repliedAt?: Date; repliedBy?: { toString(): string }; createdAt?: Date; updatedAt?: Date }): ContactMessageDoc {
   return {
     id: doc._id.toString(),
     userId: doc.userId.toString(),

@@ -114,7 +114,7 @@ async function matchSingle(
   const threshold = mediaType === "tv" ? CONFIDENCE_THRESHOLD_TV : CONFIDENCE_THRESHOLD_MOVIE;
   try {
     // First search with original title
-    let results = await searchWithCache(sourceTitle, sourceYear, mediaType);
+    const results = await searchWithCache(sourceTitle, sourceYear, mediaType);
     let candidates = results
       .map((r) => scoreCandidate(sourceTitle, sourceYear, r, threshold))
       .sort((a, b) => b.confidenceScore - a.confidenceScore)

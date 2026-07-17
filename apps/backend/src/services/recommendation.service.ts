@@ -11,6 +11,15 @@ import { MobileConfig } from "../models/MobileConfig.js";
 import { getTranslationValue } from "../models/show.model.js";
 import { languageNameForLocale } from "./aiLanguageMap.js";
 import { translateRecommendation } from "../i18n/index.js";
+import { type TmdbSearchResult } from "./tmdb.service.js";
+
+interface PopulatedShow {
+  _id: { toString(): string };
+  title?: string;
+  type?: string;
+  genres?: { name: string }[];
+  translations?: unknown;
+}
 
 export interface RecommendationItem {
   tmdbId: number;
@@ -68,20 +77,20 @@ export async function getRecommendations(userId: string, language = "en"): Promi
   const showMap = new Map<string, { title: string; type: string; genres: string[]; rating?: number; status?: string }>();
 
   for (const entry of watchEntries) {
-    const show = entry.showId as any;
+    const show = entry.showId as unknown as PopulatedShow;
     if (!show?._id) continue;
     const id = show._id.toString();
     const translation = getTranslationValue(show.translations, language);
     showMap.set(id, {
       title: translation?.title ?? show.title ?? "Unknown",
       type: show.type ?? "tv",
-      genres: (show.genres ?? []).map((g: any) => g.name).filter(Boolean),
+      genres: (show.genres ?? []).map((g: { name: string }) => g.name).filter(Boolean),
       status: entry.status,
     });
   }
 
   for (const rating of ratings) {
-    const show = rating.showId as any;
+    const show = rating.showId as unknown as PopulatedShow;
     if (!show?._id) continue;
     const id = show._id.toString();
     const existing = showMap.get(id);
@@ -92,14 +101,14 @@ export async function getRecommendations(userId: string, language = "en"): Promi
       showMap.set(id, {
         title: translation?.title ?? show.title ?? "Unknown",
         type: show.type ?? "tv",
-        genres: (show.genres ?? []).map((g: any) => g.name).filter(Boolean),
+        genres: (show.genres ?? []).map((g: { name: string }) => g.name).filter(Boolean),
         rating: rating.value,
       });
     }
   }
 
   for (const fav of favorites) {
-    const show = fav.showId as any;
+    const show = fav.showId as unknown as PopulatedShow;
     if (!show?._id) continue;
     const id = show._id.toString();
     if (!showMap.has(id)) {
@@ -107,7 +116,7 @@ export async function getRecommendations(userId: string, language = "en"): Promi
       showMap.set(id, {
         title: translation?.title ?? show.title ?? "Unknown",
         type: show.type ?? "tv",
-        genres: (show.genres ?? []).map((g: any) => g.name).filter(Boolean),
+        genres: (show.genres ?? []).map((g: { name: string }) => g.name).filter(Boolean),
       });
     }
   }
@@ -196,8 +205,8 @@ async function getFallbackRecommendations(language = "en"): Promise<Recommendati
   try {
     const tmdbLanguage = toTmdbLanguage(language);
     const [trendingTv, trendingMovies] = await Promise.all([
-      tmdbService.getTrendingTv(10, tmdbLanguage).catch(() => ({ results: [] as any[] })),
-      tmdbService.getTrendingMovies(10, tmdbLanguage).catch(() => ({ results: [] as any[] })),
+      tmdbService.getTrendingTv(10, tmdbLanguage).catch(() => ({ results: [] as TmdbSearchResult[] })),
+      tmdbService.getTrendingMovies(10, tmdbLanguage).catch(() => ({ results: [] as TmdbSearchResult[] })),
     ]);
 
     const all = [...trendingTv.results, ...trendingMovies.results].slice(0, 10);

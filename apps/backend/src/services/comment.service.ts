@@ -277,7 +277,7 @@ export async function createComment(userId: string, input: CreateCommentInput) {
           showTitle,
           input.showId,
           recipientLocale,
-        ).catch((err) => console.error("Failed to send comment reply notification:", err));
+        ).catch((err) => logError("Comment", "reply notification failed", err));
       }
     }
   }
@@ -658,7 +658,7 @@ export async function likeComment(userId: string, commentId: string) {
         showTitle,
         comment.showId.toString(),
         recipientLocale,
-      ).catch((err) => console.error("Failed to send comment like notification:", err));
+      ).catch((err) => logError("Comment", "like notification failed", err));
     }
   }
 }
@@ -725,7 +725,7 @@ export async function addReaction(userId: string, commentId: string, emoji: stri
         showTitle,
         comment.showId.toString(),
         recipientLocale,
-      ).catch((err) => console.error("Failed to send comment reaction notification:", err));
+      ).catch((err) => logError("Comment", "reaction notification failed", err));
     }
   }
 }

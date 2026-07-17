@@ -76,7 +76,7 @@ export async function moderateComment(content: string, showTitle?: string): Prom
       isSpoiler: Boolean(parsed.is_spoiler) && spoilerEnabled,
       isToxic: Boolean(parsed.is_toxic) && toxicEnabled,
       toxicCategory: parsed.toxic_category ?? undefined,
-      confidence: Number(parsed.confidence) ?? 0,
+      confidence: Number(parsed.confidence) || 0,
     };
     log("AIModeration", "result", { ...moderation });
     return moderation;

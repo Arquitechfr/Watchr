@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { createServer } from "http";
 import { io as ioClient } from "socket.io-client";
 import { createWsServer } from "../src/lib/wsServer.js";

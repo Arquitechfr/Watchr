@@ -162,7 +162,7 @@ export async function listLibrary(
 ): Promise<TrackingListResult> {
   const skip = (page - 1) * limit;
 
-  const matchStage: any = {
+  const matchStage: Record<string, unknown> = {
     userId: new Types.ObjectId(userId),
   };
 
@@ -170,7 +170,7 @@ export async function listLibrary(
     matchStage.status = status;
   }
 
-  const pipeline: any[] = [
+  const pipeline: Record<string, unknown>[] = [
     { $match: matchStage },
     {
       $lookup: {
@@ -213,7 +213,7 @@ export async function listLibrary(
 
   const total = totalResult[0]?.total || 0;
 
-  const data = entries.map((entry: any): TrackingListItem => {
+  const data = entries.map((entry: Record<string, unknown> & { _id: { toString(): string }; userId: { toString(): string }; showId: { toString(): string }; status: WatchStatus; show: unknown }): TrackingListItem => {
     const show = entry.show as {
       _id?: string;
       tmdbId?: number;
@@ -536,13 +536,6 @@ export async function upsertWithProgress(
       }
     }
     watchedEpisodes = [...watchedEpisodes, ...toAdd];
-  }
-
-  if (input.markUpTo && existing?.status !== "dropped") {
-    const newStatus = calculateWatchStatus(show, { watchedEpisodes });
-    if (newStatus !== "plan_to_watch") {
-      watchedEpisodes = watchedEpisodes;
-    }
   }
 
   const finalStatus = input.markUpTo && existing?.status !== "dropped"

@@ -3,6 +3,7 @@ import { tmdbService } from "./tmdb.service.js";
 import { log, logError } from "../lib/logger.js";
 import { MobileConfig } from "../models/MobileConfig.js";
 import { SearchResultItem, toTmdbLanguage } from "./show.service.js";
+import { type TmdbSearchResult } from "./tmdb.service.js";
 
 export interface AISearchResult {
   results: SearchResultItem[];
@@ -113,12 +114,12 @@ Examples:
 
 async function fallbackSearch(query: string, tmdbLanguage: string): Promise<AISearchResult> {
   const [tvResults, movieResults] = await Promise.all([
-    tmdbService.searchShows(query, tmdbLanguage).catch(() => [] as any[]),
-    tmdbService.searchMovies(query, tmdbLanguage).catch(() => [] as any[]),
+    tmdbService.searchShows(query, tmdbLanguage).catch(() => [] as TmdbSearchResult[]),
+    tmdbService.searchMovies(query, tmdbLanguage).catch(() => [] as TmdbSearchResult[]),
   ]);
 
   const results: SearchResultItem[] = [
-    ...tvResults.map((item: any) => ({
+    ...tvResults.map((item: TmdbSearchResult) => ({
       tmdbId: item.id,
       type: "tv" as const,
       title: item.name ?? item.title ?? "Unknown",
@@ -127,7 +128,7 @@ async function fallbackSearch(query: string, tmdbLanguage: string): Promise<AISe
       firstAirDate: item.first_air_date,
       source: "tmdb" as const,
     })),
-    ...movieResults.map((item: any) => ({
+    ...movieResults.map((item: TmdbSearchResult) => ({
       tmdbId: item.id,
       type: "movie" as const,
       title: item.name ?? item.title ?? "Unknown",

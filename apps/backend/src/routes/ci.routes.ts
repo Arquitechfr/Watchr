@@ -4,6 +4,7 @@ import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { s3Client, buildPublicUrl } from "../lib/s3.js";
 import { env } from "../config/env.js";
 import { asyncHandler } from "../lib/asyncHandler.js";
+import { logError } from "../lib/logger.js";
 
 const router: Router = Router();
 
@@ -68,7 +69,7 @@ router.post(
     try {
       await s3Client.send(command);
     } catch (s3Err) {
-      console.error("S3 upload failed for CI upload:", s3Err);
+      logError("CI", "S3 upload failed", s3Err);
       res.status(502).json({
         error: {
           code: "S3_UPLOAD_FAILED",

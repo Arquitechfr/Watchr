@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 import { requireAuth } from "../middleware/requireAuth.middleware.js";
 import { createRateLimiter } from "../middleware/rateLimit.middleware.js";
-import { getShowDetails, getSeasonDetails, searchShows, getDiscoverSections, getDiscoverSectionItems } from "../services/show.service.js";
+import { getShowDetails, getSeasonDetails, searchShows, getDiscoverSections, getDiscoverSectionItems, type DiscoverSectionId } from "../services/show.service.js";
 import { aiSearchShows } from "../services/aiSearch.service.js";
 import { getRecommendations } from "../services/recommendation.service.js";
 import { getMoodRecommendations } from "../services/aiMood.service.js";
@@ -105,7 +105,7 @@ router.get(
   asyncHandler(async (req: Request, res: Response) => {
     const { sectionId } = req.params;
     const page = Number(req.query.page) || 1;
-    const results = await getDiscoverSectionItems(sectionId as any, page, req.language);
+    const results = await getDiscoverSectionItems(sectionId as DiscoverSectionId, page, req.language);
     res.json(results);
   }),
 );

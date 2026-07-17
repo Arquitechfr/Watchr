@@ -1,5 +1,6 @@
 import { Router, Request, Response } from "express";
 import { MobileConfig } from "../../models/MobileConfig.js";
+import { logError } from "../../lib/logger.js";
 
 const router: Router = Router();
 
@@ -44,7 +45,7 @@ router.get("/mobile-config", async (_req: Request, res: Response) => {
     cache = { data: config, descriptions, expiresAt: Date.now() + CACHE_TTL_MS };
     return res.json({ config, descriptions, cached: false });
   } catch (err) {
-    console.error("[mobile-config] fetch error:", err);
+    logError("mobile-config", "fetch error", err);
     return res.status(500).json({ error: "internal_error" });
   }
 });

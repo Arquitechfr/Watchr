@@ -5,8 +5,7 @@ import { log, logError } from "./logger.js";
 const isTestEnv = env.NODE_ENV === "test";
 
 function createRedisStub(): Redis {
-  let pipelineStub: Record<string, () => unknown>;
-  pipelineStub = new Proxy({} as Record<string, () => unknown>, {
+  const pipelineStub: Record<string, () => unknown> = new Proxy({} as Record<string, () => unknown>, {
     get(_t, prop: string) {
       if (prop === "exec") return () => Promise.resolve([]);
       return () => pipelineStub;

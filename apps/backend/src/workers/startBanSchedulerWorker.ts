@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import "dotenv/config";
 import { connectDatabase } from "../lib/database.js";
 import { createBanSchedulerWorker } from "./banScheduler.worker.js";

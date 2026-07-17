@@ -167,7 +167,7 @@ describe("Social", () => {
 
   describe("Follow counts", () => {
     it("should return correct follower and following counts", async () => {
-      const { user: userA, token: tokenA } = await getAuthUser("UserA", "a@example.com");
+      const { token: tokenA } = await getAuthUser("UserA", "a@example.com");
       const { user: userB } = await getAuthUser("UserB", "b@example.com");
 
       await request(app)

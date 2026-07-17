@@ -33,6 +33,21 @@ export default tseslint.config(
     },
   },
   {
+    files: ["scripts/**/*.ts", "scripts/**/*.mjs", "tests/**/*.ts", "test-firebase.ts", "src/scripts/**/*.ts"],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+      },
+      parserOptions: {
+        project: false,
+      },
+    },
+    rules: {
+      "no-console": "off",
+      "@typescript-eslint/no-explicit-any": "off",
+    },
+  },
+  {
     ignores: ["**/dist/**", "**/node_modules/**", "**/coverage/**"],
   }
 );

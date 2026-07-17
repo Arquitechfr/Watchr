@@ -40,6 +40,8 @@ import { sendActivationNudgeBatch } from "../../services/activationNudge.service
 import { detectAnomalies } from "../../services/aiAnomalyDetection.service.js";
 import { translateMultiLang, type TranslationInput } from "../../services/translation.service.js";
 import { listContactMessages, getContactStats, getContactDetail, updateContactStatus, replyToContactMessage, deleteContactMessage, bulkContactAction, editContactReply, exportContactCsv } from "../../services/admin/adminContact.service.js";
+import { type ContactStatus, type ContactCategory } from "../../models/contactMessage.model.js";
+import { type AdminNotificationType } from "../../models/adminNotification.model.js";
 import { listIssues, getIssueDetail, listIssueEvents, updateIssueStatus, deleteIssue, getErrorStats } from "../../services/errorTracking.service.js";
 
 const router: Router = Router();
@@ -857,8 +859,8 @@ router.get(
   asyncHandler(async (req: Request, res: Response) => {
     const { status, category, search } = req.query as { status?: string; category?: string; search?: string };
     const csv = await exportContactCsv({
-      status: status as any,
-      category: category as any,
+      status: status as ContactStatus | undefined,
+      category: category as ContactCategory | undefined,
       search: search || undefined,
     });
     res.setHeader("Content-Type", "text/csv");
@@ -970,7 +972,7 @@ router.get(
       page: query.page,
       limit: query.limit,
       unreadOnly: query.unreadOnly,
-      type: query.type as any,
+      type: query.type as AdminNotificationType | undefined,
     });
     res.json(result);
   }),

@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { Queue, Worker } from "bullmq";
 import { redisConnection } from "../config/env.js";
 import { executeBanAction } from "../services/admin/adminUser.service.js";

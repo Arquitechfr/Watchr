@@ -2,14 +2,21 @@ import { Request, Response } from "express";
 import { z } from "zod";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
-import { searchShows } from "../services/show.service.js";
+import { searchShows, getShowDetails } from "../services/show.service.js";
 import {
   listTracking,
   addToWatchlistByTmdb,
   upsertTracking,
   upsertWithProgress,
   deleteTracking,
+  toggleEpisode,
+  markEpisodesUpTo,
 } from "../services/tracking.service.js";
+import { upsertRating, listRatingsForShow } from "../services/rating.service.js";
+import { createComment, listCommentsForShow } from "../services/comment.service.js";
+import { getUpcomingEpisodes } from "../services/upcoming.service.js";
+import { getUserStats } from "../services/stats.service.js";
+import { getRecommendations } from "../services/recommendation.service.js";
 import { WatchStatus } from "../models/watchEntry.model.js";
 import { Show } from "../models/show.model.js";
 import { logError } from "../lib/logger.js";
@@ -99,18 +106,18 @@ function buildMcpServer(apiUser: ApiUserContext): McpServer {
     {
       description: "Update the watch status of a show in the user's watchlist",
       inputSchema: {
-        itemId: z.string().min(1),
+        showId: z.string().min(1),
         status: z.enum(["watching", "completed", "plan_to_watch", "dropped"]),
       },
     },
-    async ({ itemId, status }) => {
+    async ({ showId, status }) => {
       if (!checkScope(apiUser.scopes, "write")) {
         return scopeError("write");
       }
 
       // When marking as completed, mark all episodes as watched
       if (status === "completed") {
-        const show = await Show.findById(itemId).lean();
+        const show = await Show.findById(showId).lean();
         if (!show) {
           return {
             content: [{ type: "text", text: JSON.stringify({ error: "Show not found" }) }],
@@ -121,7 +128,7 @@ function buildMcpServer(apiUser: ApiUserContext): McpServer {
         if (seasons.length > 0) {
           const lastSeason = seasons[seasons.length - 1];
           const lastEpisode = lastSeason.episodes?.length ?? 0;
-          const entry = await upsertWithProgress(apiUser.userId, itemId, {
+          const entry = await upsertWithProgress(apiUser.userId, showId, {
             status: "completed",
             markUpTo: {
               season: lastSeason.seasonNumber,
@@ -135,7 +142,7 @@ function buildMcpServer(apiUser: ApiUserContext): McpServer {
         }
       }
 
-      const entry = await upsertTracking(apiUser.userId, itemId, { status: status as WatchStatus });
+      const entry = await upsertTracking(apiUser.userId, showId, { status: status as WatchStatus });
       return {
         content: [{ type: "text", text: JSON.stringify(entry) }],
       };
@@ -147,16 +154,235 @@ function buildMcpServer(apiUser: ApiUserContext): McpServer {
     {
       description: "Remove a show from the user's watchlist",
       inputSchema: {
-        itemId: z.string().min(1),
+        showId: z.string().min(1),
       },
     },
-    async ({ itemId }) => {
+    async ({ showId }) => {
       if (!checkScope(apiUser.scopes, "write")) {
         return scopeError("write");
       }
-      await deleteTracking(apiUser.userId, itemId);
+      await deleteTracking(apiUser.userId, showId);
       return {
-        content: [{ type: "text", text: JSON.stringify({ success: true, itemId }) }],
+        content: [{ type: "text", text: JSON.stringify({ success: true, showId }) }],
+      };
+    },
+  );
+
+  // --- Tracking tools ---
+
+  server.registerTool(
+    "toggle_episode",
+    {
+      description: "Mark a specific episode as watched or unwatched",
+      inputSchema: {
+        showId: z.string().min(1),
+        season: z.number().int().min(1),
+        episode: z.number().int().min(1),
+        watched: z.boolean(),
+      },
+    },
+    async ({ showId, season, episode, watched }) => {
+      if (!checkScope(apiUser.scopes, "write")) {
+        return scopeError("write");
+      }
+      const entry = await toggleEpisode(apiUser.userId, showId, season, episode, watched);
+      return {
+        content: [{ type: "text", text: JSON.stringify(entry) }],
+      };
+    },
+  );
+
+  server.registerTool(
+    "mark_episodes_up_to",
+    {
+      description: "Mark all episodes up to a specific season/episode as watched",
+      inputSchema: {
+        showId: z.string().min(1),
+        season: z.number().int().min(1),
+        episode: z.number().int().min(1),
+        includePrevious: z.boolean().default(true),
+      },
+    },
+    async ({ showId, season, episode, includePrevious }) => {
+      if (!checkScope(apiUser.scopes, "write")) {
+        return scopeError("write");
+      }
+      const entry = await markEpisodesUpTo(apiUser.userId, showId, season, episode, includePrevious);
+      return {
+        content: [{ type: "text", text: JSON.stringify(entry) }],
+      };
+    },
+  );
+
+  server.registerTool(
+    "get_show_details",
+    {
+      description: "Get detailed information about a show by TMDB ID",
+      inputSchema: {
+        tmdbId: z.number().int().positive(),
+      },
+    },
+    async ({ tmdbId }) => {
+      if (!checkScope(apiUser.scopes, "read")) {
+        return scopeError("read");
+      }
+      const show = await getShowDetails(tmdbId, apiUser.language);
+      return {
+        content: [{ type: "text", text: JSON.stringify(show) }],
+      };
+    },
+  );
+
+  // --- Rating tools ---
+
+  server.registerTool(
+    "rate_show",
+    {
+      description: "Rate a show or episode (1-5 stars). Optionally include a review text.",
+      inputSchema: {
+        showId: z.string().min(1),
+        value: z.number().int().min(1).max(5),
+        season: z.number().int().min(1).optional(),
+        episode: z.number().int().min(1).optional(),
+        review: z.string().max(2000).optional(),
+      },
+    },
+    async ({ showId, value, season, episode, review }) => {
+      if (!checkScope(apiUser.scopes, "write")) {
+        return scopeError("write");
+      }
+      const episodeRef = season !== undefined && episode !== undefined ? { season, episode } : undefined;
+      const result = await upsertRating(apiUser.userId, { showId, value, episodeRef, review });
+      return {
+        content: [{ type: "text", text: JSON.stringify(result) }],
+      };
+    },
+  );
+
+  server.registerTool(
+    "get_ratings",
+    {
+      description: "Get user ratings and community ratings for a show",
+      inputSchema: {
+        showId: z.string().min(1),
+      },
+    },
+    async ({ showId }) => {
+      if (!checkScope(apiUser.scopes, "read")) {
+        return scopeError("read");
+      }
+      const result = await listRatingsForShow(apiUser.userId, showId);
+      return {
+        content: [{ type: "text", text: JSON.stringify(result) }],
+      };
+    },
+  );
+
+  // --- Social tools ---
+
+  server.registerTool(
+    "list_comments",
+    {
+      description: "List public comments for a show, optionally filtered by episode",
+      inputSchema: {
+        showId: z.string().min(1),
+        season: z.number().int().min(1).optional(),
+        episode: z.number().int().min(1).optional(),
+        page: z.number().int().min(1).default(1),
+        limit: z.number().int().min(1).max(50).default(10),
+        sort: z.enum(["recent", "liked", "replied", "relevant"]).default("recent"),
+      },
+    },
+    async ({ showId, season, episode, page, limit, sort }) => {
+      if (!checkScope(apiUser.scopes, "read")) {
+        return scopeError("read");
+      }
+      const result = await listCommentsForShow(apiUser.userId, showId, {
+        season,
+        episode,
+        page,
+        limit,
+        sort,
+      });
+      return {
+        content: [{ type: "text", text: JSON.stringify(result) }],
+      };
+    },
+  );
+
+  server.registerTool(
+    "add_comment",
+    {
+      description: "Post a public comment on a show or episode",
+      inputSchema: {
+        showId: z.string().min(1),
+        content: z.string().min(1).max(2000),
+        season: z.number().int().min(1).optional(),
+        episode: z.number().int().min(1).optional(),
+        isSpoiler: z.boolean().default(false),
+      },
+    },
+    async ({ showId, content, season, episode, isSpoiler }) => {
+      if (!checkScope(apiUser.scopes, "write")) {
+        return scopeError("write");
+      }
+      const episodeRef = season !== undefined && episode !== undefined ? { season, episode } : undefined;
+      const comment = await createComment(apiUser.userId, { showId, content, episodeRef, isSpoiler });
+      return {
+        content: [{ type: "text", text: JSON.stringify(comment) }],
+      };
+    },
+  );
+
+  // --- Discovery & stats tools ---
+
+  server.registerTool(
+    "get_upcoming",
+    {
+      description: "Get upcoming episodes for shows in the user's watchlist (today, this week, next week, later)",
+      inputSchema: {},
+    },
+    async () => {
+      if (!checkScope(apiUser.scopes, "read")) {
+        return scopeError("read");
+      }
+      const result = await getUpcomingEpisodes(apiUser.userId, apiUser.language);
+      return {
+        content: [{ type: "text", text: JSON.stringify(result) }],
+      };
+    },
+  );
+
+  server.registerTool(
+    "get_stats",
+    {
+      description: "Get the user's watching statistics (episodes watched, hours, streak, genres, recent activity)",
+      inputSchema: {},
+    },
+    async () => {
+      if (!checkScope(apiUser.scopes, "read")) {
+        return scopeError("read");
+      }
+      const result = await getUserStats(apiUser.userId, apiUser.language);
+      return {
+        content: [{ type: "text", text: JSON.stringify(result) }],
+      };
+    },
+  );
+
+  server.registerTool(
+    "get_recommendations",
+    {
+      description: "Get personalized show recommendations based on watch history and ratings",
+      inputSchema: {},
+    },
+    async () => {
+      if (!checkScope(apiUser.scopes, "read")) {
+        return scopeError("read");
+      }
+      const result = await getRecommendations(apiUser.userId, apiUser.language);
+      return {
+        content: [{ type: "text", text: JSON.stringify(result) }],
       };
     },
   );

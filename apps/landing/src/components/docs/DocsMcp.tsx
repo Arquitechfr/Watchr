@@ -65,7 +65,7 @@ const MCP_TOOLS: McpTool[] = [
     scope: "write",
     descKey: "docs.mcp.tools.update_watch_status",
     params: [
-      { name: "itemId", type: "string", required: true, descKey: "docs.mcp.tools.update_watch_status.params.itemId" },
+      { name: "showId", type: "string", required: true, descKey: "docs.mcp.tools.update_watch_status.params.showId" },
       { name: "status", type: "WatchStatus", required: true, descKey: "docs.mcp.tools.update_watch_status.params.status" },
     ],
   },
@@ -74,8 +74,98 @@ const MCP_TOOLS: McpTool[] = [
     scope: "write",
     descKey: "docs.mcp.tools.remove_from_watchlist",
     params: [
-      { name: "itemId", type: "string", required: true, descKey: "docs.mcp.tools.remove_from_watchlist.params.itemId" },
+      { name: "showId", type: "string", required: true, descKey: "docs.mcp.tools.remove_from_watchlist.params.showId" },
     ],
+  },
+  {
+    name: "toggle_episode",
+    scope: "write",
+    descKey: "docs.mcp.tools.toggle_episode",
+    params: [
+      { name: "showId", type: "string", required: true, descKey: "docs.mcp.tools.toggle_episode.params.showId" },
+      { name: "season", type: "number", required: true, descKey: "docs.mcp.tools.toggle_episode.params.season" },
+      { name: "episode", type: "number", required: true, descKey: "docs.mcp.tools.toggle_episode.params.episode" },
+      { name: "watched", type: "boolean", required: true, descKey: "docs.mcp.tools.toggle_episode.params.watched" },
+    ],
+  },
+  {
+    name: "mark_episodes_up_to",
+    scope: "write",
+    descKey: "docs.mcp.tools.mark_episodes_up_to",
+    params: [
+      { name: "showId", type: "string", required: true, descKey: "docs.mcp.tools.mark_episodes_up_to.params.showId" },
+      { name: "season", type: "number", required: true, descKey: "docs.mcp.tools.mark_episodes_up_to.params.season" },
+      { name: "episode", type: "number", required: true, descKey: "docs.mcp.tools.mark_episodes_up_to.params.episode" },
+      { name: "includePrevious", type: "boolean", required: false, descKey: "docs.mcp.tools.mark_episodes_up_to.params.includePrevious" },
+    ],
+  },
+  {
+    name: "get_show_details",
+    scope: "read",
+    descKey: "docs.mcp.tools.get_show_details",
+    params: [
+      { name: "tmdbId", type: "number", required: true, descKey: "docs.mcp.tools.get_show_details.params.tmdbId" },
+    ],
+  },
+  {
+    name: "rate_show",
+    scope: "write",
+    descKey: "docs.mcp.tools.rate_show",
+    params: [
+      { name: "showId", type: "string", required: true, descKey: "docs.mcp.tools.rate_show.params.showId" },
+      { name: "value", type: "number", required: true, descKey: "docs.mcp.tools.rate_show.params.value" },
+      { name: "season", type: "number", required: false, descKey: "docs.mcp.tools.rate_show.params.season" },
+      { name: "episode", type: "number", required: false, descKey: "docs.mcp.tools.rate_show.params.episode" },
+      { name: "review", type: "string", required: false, descKey: "docs.mcp.tools.rate_show.params.review" },
+    ],
+  },
+  {
+    name: "get_ratings",
+    scope: "read",
+    descKey: "docs.mcp.tools.get_ratings",
+    params: [
+      { name: "showId", type: "string", required: true, descKey: "docs.mcp.tools.get_ratings.params.showId" },
+    ],
+  },
+  {
+    name: "list_comments",
+    scope: "read",
+    descKey: "docs.mcp.tools.list_comments",
+    params: [
+      { name: "showId", type: "string", required: true, descKey: "docs.mcp.tools.list_comments.params.showId" },
+      { name: "season", type: "number", required: false, descKey: "docs.mcp.tools.list_comments.params.season" },
+      { name: "episode", type: "number", required: false, descKey: "docs.mcp.tools.list_comments.params.episode" },
+      { name: "page", type: "number", required: false, descKey: "docs.mcp.tools.list_comments.params.page" },
+      { name: "limit", type: "number", required: false, descKey: "docs.mcp.tools.list_comments.params.limit" },
+      { name: "sort", type: "string", required: false, descKey: "docs.mcp.tools.list_comments.params.sort" },
+    ],
+  },
+  {
+    name: "add_comment",
+    scope: "write",
+    descKey: "docs.mcp.tools.add_comment",
+    params: [
+      { name: "showId", type: "string", required: true, descKey: "docs.mcp.tools.add_comment.params.showId" },
+      { name: "content", type: "string", required: true, descKey: "docs.mcp.tools.add_comment.params.content" },
+      { name: "season", type: "number", required: false, descKey: "docs.mcp.tools.add_comment.params.season" },
+      { name: "episode", type: "number", required: false, descKey: "docs.mcp.tools.add_comment.params.episode" },
+      { name: "isSpoiler", type: "boolean", required: false, descKey: "docs.mcp.tools.add_comment.params.isSpoiler" },
+    ],
+  },
+  {
+    name: "get_upcoming",
+    scope: "read",
+    descKey: "docs.mcp.tools.get_upcoming",
+  },
+  {
+    name: "get_stats",
+    scope: "read",
+    descKey: "docs.mcp.tools.get_stats",
+  },
+  {
+    name: "get_recommendations",
+    scope: "read",
+    descKey: "docs.mcp.tools.get_recommendations",
   },
 ];
 

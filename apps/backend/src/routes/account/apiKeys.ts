@@ -4,7 +4,7 @@ import { validateRequest } from "../../validators/validateRequest.js";
 import { asyncHandler } from "../../lib/asyncHandler.js";
 import { ApiError } from "../../middleware/error.middleware.js";
 import { ApiKey, generateApiKey } from "../../models/ApiKey.js";
-import { createApiKeySchema, apiKeyIdParamSchema } from "../../validators/apiKey.validator.js";
+import { createApiKeySchema, updateApiKeySchema, apiKeyIdParamSchema } from "../../validators/apiKey.validator.js";
 
 const MAX_ACTIVE_KEYS = 10;
 
@@ -65,6 +65,37 @@ router.post(
       scopes: key.scopes,
       token,
       createdAt: key.createdAt,
+    });
+  }),
+);
+
+router.patch(
+  "/:id",
+  validateRequest(updateApiKeySchema, undefined, apiKeyIdParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const updates: Record<string, unknown> = {};
+    if (req.body.name) updates.name = req.body.name;
+    if (req.body.scopes) updates.scopes = req.body.scopes;
+
+    const key = await ApiKey.findOneAndUpdate(
+      { _id: id, userId: req.userId },
+      { $set: updates },
+      { new: true },
+    ).select("-keyHash").lean();
+
+    if (!key) {
+      throw new ApiError(404, "API_KEY_NOT_FOUND", "API key not found");
+    }
+
+    res.json({
+      id: key._id.toString(),
+      name: key.name,
+      keyPrefix: key.keyPrefix,
+      scopes: key.scopes,
+      lastUsedAt: key.lastUsedAt,
+      createdAt: key.createdAt,
+      revokedAt: key.revokedAt,
     });
   }),
 );

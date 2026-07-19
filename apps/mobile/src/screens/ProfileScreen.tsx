@@ -9,6 +9,7 @@ import { useAuthStore } from "../store/authStore";
 import { useUIStore } from "../store/uiStore";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { MainHeader } from "../components/MainHeader";
+import { InAppNotificationBanner } from "../components/InAppNotificationBanner";
 import { ProfileMenuButton } from "../components/ProfileMenuButton";
 import { Avatar } from "../components/Avatar";
 import { StatCard } from "../components/Profile/StatCard";
@@ -105,6 +106,7 @@ export function ProfileScreen() {
       <Seo title={t("seo.profile")} />
       <View style={Platform.OS === "web" ? { maxWidth: 900, alignSelf: "center", width: "100%", flex: 1 } : undefined}>
       <MainHeader rightElement={<ProfileMenuButton />} />
+      <InAppNotificationBanner />
       <ScrollView ref={scrollRef} showsVerticalScrollIndicator={false} contentContainerClassName="pb-24">
         <Animated.View style={containerAnimatedStyle}>
         <View style={isDesktopWeb ? undefined : { marginHorizontal: -16 }}>

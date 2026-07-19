@@ -148,7 +148,7 @@ watchr/
    - Assets réutilisés depuis mobile (favicon, icon, og-image, splash backgrounds).
    - Pas de régression sur les autres apps.
    - Test landing : `pnpm --filter landing dev` lance sans crash.
-9. **Recommandations explicites** : tout conseil technique, architectural, librairie ou pattern doit être préfixé par **`(RECOMMANDATION)`**.
+9. **Recommandations explicites** : tout conseil technique, architectural, librairie ou pattern doit être préfixé par **`(RECOMMANDATION)`**. Lors d'une question à choix multiples (outil `ask_user_question`), la recommandation **doit** être incluse directement dans le texte de la question, pas placée à la fin de la réponse ni absente. L'utilisateur doit voir la recommandation **avant** de choisir.
 10. **Remote Config** : valeurs runtime (`backend_url`, flags, etc.) dans MongoDB `mobile_config`, endpoint public `GET /internal/mobile-config` (cache 30s côté backend).
    - Mobile : `remoteConfigService` init bloquant, cache AsyncStorage, refresh 5 min + foreground.
    - Écriture = CLI (`pnpm --filter backend mobile-config set ...`) ou API admin authentifiée. Jamais d'endpoint public d'écriture.

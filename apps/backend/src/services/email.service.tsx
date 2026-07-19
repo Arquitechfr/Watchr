@@ -226,7 +226,24 @@ async function sendEmail(params: SendEmailParams): Promise<boolean> {
 }
 
 function sanitizeHtml(html: string): string {
-  return html.replace(/<script[\s\S]*?<\/script>/gi, "").replace(/<iframe[\s\S]*?<\/iframe>/gi, "").replace(/on\w+\s*=\s*"[^"]*"/gi, "").replace(/on\w+\s*=\s*'[^']*'/gi, "").replace(/javascript:/gi, "");
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/<iframe[\s\S]*?<\/iframe>/gi, "")
+    .replace(/on\w+\s*=\s*"[^"]*"/gi, "")
+    .replace(/on\w+\s*=\s*'[^']*'/gi, "")
+    .replace(/javascript:/gi, "")
+    .replace(/<img([^>]*?)src\s*=\s*"(.*?)"/gi, (_match, attrs: string, src: string) => {
+      if (/^https?:\/\//i.test(src)) {
+        return `<img${attrs}src="${src}"`;
+      }
+      return "";
+    })
+    .replace(/<img([^>]*?)src\s*=\s*'([^']*)'/gi, (_match, attrs: string, src: string) => {
+      if (/^https?:\/\//i.test(src)) {
+        return `<img${attrs}src="${src}"`;
+      }
+      return "";
+    });
 }
 
 export const EmailService = {

@@ -10,15 +10,17 @@ import { SupportedLocale, DEFAULT_LOCALE, normalizeLocale } from "../i18n/transl
 import { wsEvents } from "../lib/wsEvents.js";
 import { logError } from "../lib/logger.js";
 import { personalizePushContent } from "./aiPushPersonalization.service.js";
+import { createAutomatedInAppNotification } from "./inAppNotification.service.js";
 
 const EXPO_PUSH_URL = "https://exp.host/--/api/v2/push/send";
 
-interface ExpoPushMessage {
+export interface ExpoPushMessage {
   to: string;
   title: string;
   body: string;
   data?: Record<string, unknown>;
   sound?: string;
+  richContent?: { image: string };
 }
 
 interface ExpoPushTicket {
@@ -71,8 +73,13 @@ async function sendPush(
   title: string,
   body: string,
   data?: Record<string, unknown>,
+  richContent?: { image: string },
 ): Promise<boolean> {
-  const tickets = await sendPushBatch([{ to: token, title, body, data, sound: "default" }]);
+  const message: ExpoPushMessage = { to: token, title, body, data, sound: "default" };
+  if (richContent?.image) {
+    message.richContent = richContent;
+  }
+  const tickets = await sendPushBatch([message]);
   if (tickets.length === 0) return false;
   await cleanupInvalidTokens(tickets, [token]);
   return tickets[0]?.status === "ok";
@@ -110,9 +117,14 @@ async function logAutomatedNotification(
   data: Record<string, unknown> | undefined,
   triggeredBy: string,
   locale: SupportedLocale,
+  richContent?: { image: string },
 ): Promise<void> {
   try {
-    const tickets = await sendPushBatch([{ to: token, title, body, data, sound: "default" }]);
+    const message: ExpoPushMessage = { to: token, title, body, data, sound: "default" };
+    if (richContent?.image) {
+      message.richContent = richContent;
+    }
+    const tickets = await sendPushBatch([message]);
     const ticket = tickets[0];
     const success = ticket?.status === "ok";
 
@@ -188,6 +200,7 @@ export const PushNotificationService = {
       notification: { type: "commentReply", title, body, data, createdAt: new Date().toISOString() },
     });
 
+    await createAutomatedInAppNotification({ type: "comment_reply", userId: parentUserId, title, body, data });
     await logAutomatedNotification(parentUserId, pushToken, title, body, data, "comment_reply", resolvedLocale);
   },
 
@@ -217,6 +230,7 @@ export const PushNotificationService = {
       notification: { type: "commentReaction", title, body, data, createdAt: new Date().toISOString() },
     });
 
+    await createAutomatedInAppNotification({ type: "comment_reaction", userId: commentOwnerId, title, body, data });
     await logAutomatedNotification(commentOwnerId, pushToken, title, body, data, "comment_reaction", resolvedLocale);
   },
 
@@ -244,6 +258,7 @@ export const PushNotificationService = {
       notification: { type: "commentLike", title, body, data, createdAt: new Date().toISOString() },
     });
 
+    await createAutomatedInAppNotification({ type: "comment_like", userId: commentOwnerId, title, body, data });
     await logAutomatedNotification(commentOwnerId, pushToken, title, body, data, "comment_like", resolvedLocale);
   },
 
@@ -255,6 +270,7 @@ export const PushNotificationService = {
     showId: string,
     tmdbId: number,
     locale: SupportedLocale | string | undefined,
+    posterUrl?: string,
   ): Promise<void> {
     const { allowed, locale: userLocale, pushToken } = await checkPreference(userId, "newReleases");
     if (!allowed || !pushToken) return;
@@ -276,13 +292,15 @@ export const PushNotificationService = {
     );
 
     const data = { screen: "show", tmdbId, showId, season, episode };
+    const richContent = posterUrl ? { image: posterUrl } : undefined;
 
     wsEvents.emit("notification:new", {
       userId,
-      notification: { type: "newEpisode", title: personalized.title, body: personalized.body, data, createdAt: new Date().toISOString() },
+      notification: { type: "newEpisode", title: personalized.title, body: personalized.body, data, imageUrl: posterUrl, createdAt: new Date().toISOString() },
     });
 
-    await logAutomatedNotification(userId, pushToken, personalized.title, personalized.body, data, "new_episode", resolvedLocale);
+    await createAutomatedInAppNotification({ type: "new_episode", userId, title: personalized.title, body: personalized.body, imageUrl: posterUrl, data });
+    await logAutomatedNotification(userId, pushToken, personalized.title, personalized.body, data, "new_episode", resolvedLocale, richContent);
   },
 
   async notifyNewRelease(
@@ -291,6 +309,7 @@ export const PushNotificationService = {
     showId: string,
     tmdbId: number,
     locale: SupportedLocale | string | undefined,
+    posterUrl?: string,
   ): Promise<void> {
     const { allowed, locale: userLocale, pushToken } = await checkPreference(userId, "newReleases");
     if (!allowed || !pushToken) return;
@@ -308,13 +327,15 @@ export const PushNotificationService = {
     );
 
     const data = { screen: "show", tmdbId, showId };
+    const richContent = posterUrl ? { image: posterUrl } : undefined;
 
     wsEvents.emit("notification:new", {
       userId,
-      notification: { type: "newRelease", title: personalized.title, body: personalized.body, data, createdAt: new Date().toISOString() },
+      notification: { type: "newRelease", title: personalized.title, body: personalized.body, data, imageUrl: posterUrl, createdAt: new Date().toISOString() },
     });
 
-    await logAutomatedNotification(userId, pushToken, personalized.title, personalized.body, data, "new_release", resolvedLocale);
+    await createAutomatedInAppNotification({ type: "new_release", userId, title: personalized.title, body: personalized.body, imageUrl: posterUrl, data });
+    await logAutomatedNotification(userId, pushToken, personalized.title, personalized.body, data, "new_release", resolvedLocale, richContent);
   },
 
   async notifyCommentDeleted(
@@ -337,6 +358,7 @@ export const PushNotificationService = {
       notification: { type: "commentDeleted", title, body, data, createdAt: new Date().toISOString() },
     });
 
+    await createAutomatedInAppNotification({ type: "comment_deleted", userId, title, body, data });
     await logAutomatedNotification(userId, pushToken, title, body, data, "comment_deleted", resolvedLocale);
   },
 
@@ -360,6 +382,7 @@ export const PushNotificationService = {
       notification: { type: "commentHidden", title, body, data, createdAt: new Date().toISOString() },
     });
 
+    await createAutomatedInAppNotification({ type: "comment_hidden", userId, title, body, data });
     await logAutomatedNotification(userId, pushToken, title, body, data, "comment_hidden", resolvedLocale);
   },
 
@@ -383,6 +406,7 @@ export const PushNotificationService = {
       notification: { type: "commentAutoSpoiler", title, body, data, createdAt: new Date().toISOString() },
     });
 
+    await createAutomatedInAppNotification({ type: "comment_auto_spoiler", userId, title, body, data });
     await logAutomatedNotification(userId, pushToken, title, body, data, "comment_auto_spoiler", resolvedLocale);
   },
 
@@ -406,6 +430,7 @@ export const PushNotificationService = {
       notification: { type: "commentAdminSpoiler", title, body, data, createdAt: new Date().toISOString() },
     });
 
+    await createAutomatedInAppNotification({ type: "comment_admin_spoiler", userId, title, body, data });
     await logAutomatedNotification(userId, pushToken, title, body, data, "comment_admin_spoiler", resolvedLocale);
   },
 };

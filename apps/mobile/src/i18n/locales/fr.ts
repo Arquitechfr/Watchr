@@ -745,6 +745,8 @@ const fr = {
   notifications: {
     newNotification: "Nouvelle notification",
     newArticlesAvailable: "Nouveaux articles disponibles",
+    dismiss: "Fermer",
+    viewAll: "Voir tout",
   },
   widgets: {
     upNext: {

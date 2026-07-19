@@ -24,6 +24,7 @@ import { NetworkError } from "../components/NetworkError";
 import { ShowCardSkeleton, Skeleton } from "../components/Skeleton";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { MainHeader } from "../components/MainHeader";
+import { InAppNotificationBanner } from "../components/InAppNotificationBanner";
 import { SearchBar } from "../components/SearchBar";
 import { useThemeColors } from "../theme/useThemeColors";
 import { RootStackParamList } from "../navigation/RootNavigator";
@@ -136,6 +137,7 @@ export function SearchScreen() {
       <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
         <Seo title={t("seo.search")} />
         <MainHeader />
+        <InAppNotificationBanner />
         <SearchBar
           value={query}
           onChangeText={setQuery}

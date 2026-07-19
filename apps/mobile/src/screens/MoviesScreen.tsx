@@ -26,6 +26,7 @@ import { useThemeColors } from "../theme/useThemeColors";
 import { useI18n } from "../i18n/useI18n";
 import { Seo } from "../components/Seo";
 import { ImportProgressBanner } from "../components/ImportProgressBanner";
+import { InAppNotificationBanner } from "../components/InAppNotificationBanner";
 import { SegmentedControl } from "../components/SegmentedControl";
 import { WatchStatus } from "../services/tracking.service";
 import { useBreakpoint } from "../hooks/useBreakpoint";
@@ -167,6 +168,8 @@ export function MoviesScreen() {
       />
 
       <ImportProgressBanner />
+
+      <InAppNotificationBanner />
 
       <SegmentedControl
         options={[

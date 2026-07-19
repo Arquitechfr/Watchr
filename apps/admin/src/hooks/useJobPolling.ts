@@ -26,6 +26,7 @@ export interface JobStatus {
   startedAt: string | null;
   completedAt: string | null;
   errorMessage: string | null;
+  imageUrl: string | null;
   translations: Record<string, JobTranslation> | null;
   sourceLanguage: string | null;
   translationStatus: "pending" | "completed" | "failed" | "skipped" | null;

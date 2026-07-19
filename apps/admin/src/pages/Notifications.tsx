@@ -14,8 +14,11 @@ import { TranslatePreviewDialog } from "../components/ui/TranslatePreviewDialog"
 import { TranslationProgress } from "../components/ui/TranslationProgress";
 import { PageSelector } from "../components/ui/PageSelector";
 import { LanguageSelect } from "../components/ui/LanguageSelect";
+import { ImageUpload } from "../components/ui/ImageUpload";
+import { ShowPicker } from "../components/ui/ShowPicker";
 import { useJobPolling } from "../hooks/useJobPolling";
 import { formatDate } from "../lib/utils";
+import { InAppNotificationsTab } from "../components/InAppNotificationsTab";
 
 interface SentByInfo {
   id: string;
@@ -94,6 +97,7 @@ function getStatusBadge(success: number, failure: number, target: number) {
 }
 
 export function Notifications() {
+  const [activeTab, setActiveTab] = useState<"push" | "inapp">("push");
   const [history, setHistory] = useState<HistoryResponse | null>(null);
   const [stats, setStats] = useState<NotificationStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -110,6 +114,7 @@ export function Notifications() {
     scheduledAt: "",
     scheduleEnabled: false,
     deepLink: null as { screen: string; params: Record<string, unknown> } | null,
+    imageUrl: "" as string,
   });
   const [targetedForm, setTargetedForm] = useState({
     userId: "",
@@ -118,6 +123,7 @@ export function Notifications() {
     scheduledAt: "",
     scheduleEnabled: false,
     deepLink: null as { screen: string; params: Record<string, unknown> } | null,
+    imageUrl: "" as string,
   });
   const [sending, setSending] = useState(false);
   const [result, setResult] = useState<string>("");
@@ -189,7 +195,7 @@ export function Notifications() {
   useEffect(() => {
     if (job?.status === "completed") {
       setResult(`Broadcast complete: ${job.successCount} sent, ${job.failureCount} failed out of ${job.targetCount}`);
-      setBroadcastForm({ title: "", body: "", target: "all", locale: "", scheduledAt: "", scheduleEnabled: false, deepLink: null });
+      setBroadcastForm({ title: "", body: "", target: "all", locale: "", scheduledAt: "", scheduleEnabled: false, deepLink: null, imageUrl: "" });
       loadHistory();
     } else if (job?.status === "failed") {
       setResult(`Broadcast failed: ${job.errorMessage ?? "Unknown error"}`);
@@ -229,10 +235,13 @@ export function Notifications() {
         payload.deepLinkScreen = broadcastForm.deepLink.screen;
         payload.deepLinkParams = broadcastForm.deepLink.params;
       }
+      if (broadcastForm.imageUrl) {
+        payload.imageUrl = broadcastForm.imageUrl;
+      }
       const { data } = await api.post("/admin/notifications/broadcast", payload);
       if (data.scheduled) {
         setResult(`Broadcast scheduled for ${new Date(broadcastForm.scheduledAt).toLocaleString()}`);
-        setBroadcastForm({ title: "", body: "", target: "all", locale: "", scheduledAt: "", scheduleEnabled: false, deepLink: null });
+        setBroadcastForm({ title: "", body: "", target: "all", locale: "", scheduledAt: "", scheduleEnabled: false, deepLink: null, imageUrl: "" });
       } else {
         startPolling(data.jobId);
       }
@@ -261,13 +270,16 @@ export function Notifications() {
         payload.deepLinkScreen = targetedForm.deepLink.screen;
         payload.deepLinkParams = targetedForm.deepLink.params;
       }
+      if (targetedForm.imageUrl) {
+        payload.imageUrl = targetedForm.imageUrl;
+      }
       const { data } = await api.post("/admin/notifications/targeted", payload);
       if (data.scheduled) {
         setResult(`Notification scheduled for ${new Date(targetedForm.scheduledAt).toLocaleString()}`);
       } else {
         setResult("Notification sent successfully");
       }
-      setTargetedForm({ userId: "", title: "", body: "", scheduledAt: "", scheduleEnabled: false, deepLink: null });
+      setTargetedForm({ userId: "", title: "", body: "", scheduledAt: "", scheduleEnabled: false, deepLink: null, imageUrl: "" });
       loadHistory();
     } catch (err) {
       setResult("Targeted notification failed");
@@ -304,6 +316,34 @@ export function Notifications() {
   return (
     <div>
       <h1 className="text-2xl font-bold mb-6">Notifications</h1>
+
+      <div className="flex gap-2 mb-6 border-b border-border">
+        <button
+          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+            activeTab === "push"
+              ? "border-primary text-primary"
+              : "border-transparent text-text-muted hover:text-text"
+          }`}
+          onClick={() => setActiveTab("push")}
+        >
+          Push Notifications
+        </button>
+        <button
+          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+            activeTab === "inapp"
+              ? "border-primary text-primary"
+              : "border-transparent text-text-muted hover:text-text"
+          }`}
+          onClick={() => setActiveTab("inapp")}
+        >
+          In-App Notifications
+        </button>
+      </div>
+
+      {activeTab === "inapp" ? (
+        <InAppNotificationsTab />
+      ) : (
+      <>
 
       {result && (
         <div className="mb-4 rounded-md border border-border bg-surface px-4 py-3 text-sm">
@@ -426,6 +466,15 @@ export function Notifications() {
                 value={broadcastForm.deepLink ?? undefined}
                 onChange={(val) => setBroadcastForm({ ...broadcastForm, deepLink: val })}
               />
+              <ImageUpload
+                value={broadcastForm.imageUrl || undefined}
+                onChange={(url) => setBroadcastForm({ ...broadcastForm, imageUrl: url ?? "" })}
+                label="Notification Image"
+                category="notification"
+              />
+              <ShowPicker
+                onSelect={(posterUrl) => setBroadcastForm({ ...broadcastForm, imageUrl: posterUrl })}
+              />
               <Button type="submit" disabled={sending || isPolling}>
                 {sending ? <Loader2 size={16} className="mr-2 animate-spin" /> : <Send size={16} className="mr-2" />} Send Broadcast
               </Button>
@@ -527,6 +576,15 @@ export function Notifications() {
               <PageSelector
                 value={targetedForm.deepLink ?? undefined}
                 onChange={(val) => setTargetedForm({ ...targetedForm, deepLink: val })}
+              />
+              <ImageUpload
+                value={targetedForm.imageUrl || undefined}
+                onChange={(url) => setTargetedForm({ ...targetedForm, imageUrl: url ?? "" })}
+                label="Notification Image"
+                category="notification"
+              />
+              <ShowPicker
+                onSelect={(posterUrl) => setTargetedForm({ ...targetedForm, imageUrl: posterUrl })}
               />
               <Button type="submit" disabled={sending}>
                 <Send size={16} className="mr-2" /> Send to User
@@ -755,6 +813,8 @@ export function Notifications() {
         title={broadcastForm.title}
         body={broadcastForm.body}
       />
+      </>
+      )}
     </div>
   );
 }

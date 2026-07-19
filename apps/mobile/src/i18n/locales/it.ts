@@ -745,6 +745,8 @@ const it = {
   notifications: {
     newNotification: "Nuova notifica",
     newArticlesAvailable: "Nuovi articoli disponibili",
+    dismiss: "Chiudi",
+    viewAll: "Vedi tutto",
   },
   widgets: {
     upNext: {

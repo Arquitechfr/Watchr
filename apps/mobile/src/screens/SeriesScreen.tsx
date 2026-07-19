@@ -27,6 +27,7 @@ import { useThemeColors } from "../theme/useThemeColors";
 import { useI18n } from "../i18n/useI18n";
 import { Seo } from "../components/Seo";
 import { ImportProgressBanner } from "../components/ImportProgressBanner";
+import { InAppNotificationBanner } from "../components/InAppNotificationBanner";
 import { useBreakpoint } from "../hooks/useBreakpoint";
 import { log } from "../utils/logger";
 
@@ -157,6 +158,8 @@ export function SeriesScreen() {
       />
 
       <ImportProgressBanner />
+
+      <InAppNotificationBanner />
 
       {isSearchVisible && (
         <SearchBar

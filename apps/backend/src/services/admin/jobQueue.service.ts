@@ -3,7 +3,7 @@ import { AdminJob, IAdminJob, type JobTranslation } from "../../models/adminJob.
 import { NotificationLog } from "../../models/notificationLog.model.js";
 import { PushTicket } from "../../models/pushTicket.model.js";
 import { EmailService } from "../email.service.js";
-import { PushNotificationService } from "../pushNotification.service.js";
+import { PushNotificationService, type ExpoPushMessage } from "../pushNotification.service.js";
 import { translateMultiLang, detectLanguage, pickLongestText, type TranslationInput } from "../translation.service.js";
 import { buildDeepLinkUrl, buildPushData } from "../deepLinkCatalog.js";
 import { log, logError } from "../../lib/logger.js";
@@ -188,13 +188,19 @@ async function processPushBroadcast(job: IAdminJob): Promise<void> {
     allTokens.push(...batch.map((m) => m.token));
 
     try {
-      const messages = batch.map((m) => ({
-        to: m.token,
-        title: m.title,
-        body: m.body,
-        data: job.data,
-        sound: "default" as const,
-      }));
+      const messages: ExpoPushMessage[] = batch.map((m) => {
+        const msg: ExpoPushMessage = {
+          to: m.token,
+          title: m.title,
+          body: m.body,
+          data: job.data,
+          sound: "default",
+        };
+        if (job.imageUrl) {
+          msg.richContent = { image: job.imageUrl };
+        }
+        return msg;
+      });
 
       const tickets = await PushNotificationService.sendPushBatch(messages);
       for (const ticket of tickets) {
@@ -283,9 +289,11 @@ async function processPushTargetedScheduled(job: IAdminJob): Promise<void> {
   const finalBody = translated.body ?? job.body!;
 
   try {
-    const tickets = await PushNotificationService.sendPushBatch([
-      { to: user.expoPushToken, title: finalTitle, body: finalBody, data: pushData, sound: "default" },
-    ]);
+    const message: ExpoPushMessage = { to: user.expoPushToken, title: finalTitle, body: finalBody, data: pushData, sound: "default" };
+    if (job.imageUrl) {
+      message.richContent = { image: job.imageUrl };
+    }
+    const tickets = await PushNotificationService.sendPushBatch([message]);
 
     const ticket = tickets[0];
     const success = ticket?.status === "ok";
@@ -423,6 +431,7 @@ export async function getJobStatus(jobId: string) {
     deepLinkScreen: job.deepLinkScreen ?? null,
     deepLinkParams: job.deepLinkParams ?? null,
     userId: job.userId ?? null,
+    imageUrl: job.imageUrl ?? null,
     translations: job.translations
       ? Object.fromEntries(
           Object.entries(job.translations as Record<string, JobTranslation>).map(([lang, t]) => [

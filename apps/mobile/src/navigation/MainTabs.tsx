@@ -12,6 +12,7 @@ import { useI18n } from "../i18n/useI18n";
 import { useRealtimeNotifications } from "../hooks/useRealtimeNotifications";
 import { useTrackingRealtime } from "../hooks/useTrackingRealtime";
 import { useUpcomingRealtime } from "../hooks/useUpcomingRealtime";
+import { useInAppNotifications } from "../hooks/useInAppNotifications";
 import { useNotificationStore } from "../store/notificationStore";
 
 export type MainTabsParamList = {
@@ -57,6 +58,7 @@ export function MainTabs() {
   useRealtimeNotifications();
   useTrackingRealtime();
   useUpcomingRealtime();
+  useInAppNotifications();
   const unreadCount = useNotificationStore((s) => s.unreadCount);
 
   function NotificationBadge() {

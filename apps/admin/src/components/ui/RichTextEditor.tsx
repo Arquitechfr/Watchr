@@ -1,6 +1,7 @@
-import { useMemo } from "react";
+import { useMemo, useRef, useCallback } from "react";
 import ReactQuill from "react-quill-new";
-import "react-quill-new/dist/quill.bubble.css";
+import "react-quill-new/dist/quill.snow.css";
+import api from "../../lib/api";
 
 interface RichTextEditorProps {
   value: string;
@@ -9,23 +10,58 @@ interface RichTextEditorProps {
 }
 
 export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorProps) {
+  const quillRef = useRef<ReactQuill>(null);
+
+  const handleImageUpload = useCallback(() => {
+    const input = document.createElement("input");
+    input.setAttribute("type", "file");
+    input.setAttribute("accept", "image/jpeg,image/png,image/webp");
+    input.click();
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (!file) return;
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("category", "email");
+      try {
+        const { data } = await api.post("/admin/upload", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        const quill = quillRef.current?.getEditor();
+        if (quill) {
+          const range = quill.getSelection(true);
+          quill.insertEmbed(range.index, "image", data.url);
+          quill.setSelection(range.index + 1, 0);
+        }
+      } catch (err) {
+        console.error("Image upload failed:", err);
+      }
+    };
+  }, []);
+
   const modules = useMemo(
     () => ({
-      toolbar: [
-        [{ header: [1, 2, 3, false] }],
-        ["bold", "italic", "underline"],
-        [{ list: "ordered" }, { list: "bullet" }],
-        ["link"],
-        ["clean"],
-      ],
+      toolbar: {
+        container: [
+          [{ header: [1, 2, 3, false] }],
+          ["bold", "italic", "underline"],
+          [{ list: "ordered" }, { list: "bullet" }],
+          ["link", "image"],
+          ["clean"],
+        ],
+        handlers: {
+          image: handleImageUpload,
+        },
+      },
     }),
-    [],
+    [handleImageUpload],
   );
 
   return (
     <div className="rich-text-editor-wrapper">
       <ReactQuill
-        theme="bubble"
+        ref={quillRef}
+        theme="snow"
         value={value}
         onChange={onChange}
         modules={modules}

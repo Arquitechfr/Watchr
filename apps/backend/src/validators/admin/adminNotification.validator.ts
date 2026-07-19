@@ -9,6 +9,7 @@ export const broadcastSchema = z.object({
   scheduledAt: z.string().datetime().optional(),
   deepLinkScreen: z.string().optional(),
   deepLinkParams: z.record(z.unknown()).optional(),
+  imageUrl: z.string().url().optional(),
 });
 
 export const targetedSchema = z.object({
@@ -19,6 +20,7 @@ export const targetedSchema = z.object({
   scheduledAt: z.string().datetime().optional(),
   deepLinkScreen: z.string().optional(),
   deepLinkParams: z.record(z.unknown()).optional(),
+  imageUrl: z.string().url().optional(),
 });
 
 export const scheduledJobIdParamSchema = z.object({
@@ -33,6 +35,7 @@ export const updateScheduledJobSchema = z.object({
   scheduledAt: z.string().datetime().optional(),
   deepLinkScreen: z.string().nullable().optional(),
   deepLinkParams: z.record(z.unknown()).nullable().optional(),
+  imageUrl: z.string().url().nullable().optional(),
 });
 
 export const notificationHistoryQuerySchema = z.object({

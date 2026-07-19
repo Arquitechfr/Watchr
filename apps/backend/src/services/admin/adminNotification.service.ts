@@ -2,7 +2,7 @@ import { User } from "../../models/user.model.js";
 import { NotificationLog } from "../../models/notificationLog.model.js";
 import { PushTicket } from "../../models/pushTicket.model.js";
 import { AdminJob, type IAdminJob } from "../../models/adminJob.model.js";
-import { PushNotificationService } from "../pushNotification.service.js";
+import { PushNotificationService, type ExpoPushMessage } from "../pushNotification.service.js";
 import { processJob } from "./jobQueue.service.js";
 import { ApiError } from "../../middleware/error.middleware.js";
 import { logError } from "../../lib/logger.js";
@@ -19,6 +19,7 @@ export interface BroadcastInput {
   scheduledAt?: string;
   deepLinkScreen?: string;
   deepLinkParams?: Record<string, unknown>;
+  imageUrl?: string;
 }
 
 export interface TargetedInput {
@@ -29,6 +30,7 @@ export interface TargetedInput {
   scheduledAt?: string;
   deepLinkScreen?: string;
   deepLinkParams?: Record<string, unknown>;
+  imageUrl?: string;
 }
 
 interface TicketInfo {
@@ -84,6 +86,7 @@ export async function sendBroadcast(
     scheduledStatus: isScheduled ? "scheduled" : "none",
     deepLinkScreen: input.deepLinkScreen,
     deepLinkParams: input.deepLinkParams,
+    imageUrl: input.imageUrl,
   });
 
   if (!isScheduled) {
@@ -124,6 +127,7 @@ export async function sendTargeted(
       deepLinkScreen: input.deepLinkScreen,
       deepLinkParams: input.deepLinkParams,
       userId: input.userId,
+      imageUrl: input.imageUrl,
     });
 
     return { success: false, scheduled: true, jobId: job._id.toString() };
@@ -154,9 +158,11 @@ export async function sendTargeted(
   const finalBody = translated.body ?? input.body;
 
   try {
-    const tickets = await PushNotificationService.sendPushBatch([
-      { to: user.expoPushToken, title: finalTitle, body: finalBody, data: pushData, sound: "default" },
-    ]);
+    const message: ExpoPushMessage = { to: user.expoPushToken, title: finalTitle, body: finalBody, data: pushData, sound: "default" };
+    if (input.imageUrl) {
+      message.richContent = { image: input.imageUrl };
+    }
+    const tickets = await PushNotificationService.sendPushBatch([message]);
 
     const ticket = tickets[0];
     const success = ticket?.status === "ok";
@@ -319,6 +325,7 @@ export async function updateScheduledJob(jobId: string, updates: {
   scheduledAt?: string;
   deepLinkScreen?: string | null;
   deepLinkParams?: Record<string, unknown> | null;
+  imageUrl?: string | null;
 }): Promise<IAdminJob | null> {
   const job = await AdminJob.findById(jobId);
   if (!job) return null;
@@ -331,6 +338,9 @@ export async function updateScheduledJob(jobId: string, updates: {
   if (updates.subject !== undefined) job.subject = updates.subject;
   if (updates.htmlContent !== undefined) job.htmlContent = updates.htmlContent;
   if (updates.scheduledAt !== undefined) job.scheduledAt = new Date(updates.scheduledAt);
+  if (updates.imageUrl !== undefined) {
+    job.imageUrl = updates.imageUrl === null ? undefined : updates.imageUrl;
+  }
   if (updates.deepLinkScreen !== undefined) {
     if (updates.deepLinkScreen === null) {
       job.deepLinkScreen = undefined;
@@ -380,6 +390,7 @@ function formatScheduledJob(j: any) {
     deepLinkScreen: j.deepLinkScreen ?? null,
     deepLinkParams: j.deepLinkParams ?? null,
     userId: j.userId ?? null,
+    imageUrl: j.imageUrl ?? null,
     sentBy: j.sentBy.toString(),
     createdAt: j.createdAt.toISOString(),
     updatedAt: j.updatedAt.toISOString(),

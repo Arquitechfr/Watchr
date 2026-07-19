@@ -745,6 +745,8 @@ const ar = {
   notifications: {
     newNotification: "إشعار جديد",
     newArticlesAvailable: "مقالات جديدة متاحة",
+    dismiss: "إغلاق",
+    viewAll: "عرض الكل",
   },
   widgets: {
     upNext: {

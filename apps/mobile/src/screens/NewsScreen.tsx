@@ -4,6 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useScrollToTop } from "@react-navigation/native";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { MainHeader } from "../components/MainHeader";
+import { InAppNotificationBanner } from "../components/InAppNotificationBanner";
 import { NewsCard } from "../components/NewsCard";
 import { EmptyState } from "../components/EmptyState";
 import { NetworkError } from "../components/NetworkError";
@@ -42,6 +43,7 @@ export function NewsScreen() {
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
       <Seo title={t("seo.news")} />
       <MainHeader />
+      <InAppNotificationBanner />
 
       <TouchableOpacity
         onPress={() => setShowFiltered((prev) => !prev)}

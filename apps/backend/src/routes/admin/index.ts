@@ -1,4 +1,5 @@
 import { Router, Request, Response } from "express";
+import multer from "multer";
 import { requireAdmin } from "../../middleware/requireAdmin.middleware.js";
 import { asyncHandler } from "../../lib/asyncHandler.js";
 import { logError } from "../../lib/logger.js";
@@ -18,6 +19,7 @@ import { listReportsQuerySchema, reportIdParamSchema, aiReportIdParamSchema } fr
 import { listContactQuerySchema, contactIdParamSchema, updateContactStatusSchema, replyContactSchema, bulkContactSchema, editReplySchema, exportContactQuerySchema } from "../../validators/contact.validator.js";
 import { listFeedNotificationsQuerySchema, feedNotificationIdParamSchema } from "../../validators/admin/adminFeedNotification.validator.js";
 import { listErrorsQuerySchema, errorIdParamSchema, updateErrorStatusSchema, listErrorEventsQuerySchema } from "../../validators/admin/adminError.validator.js";
+import { createInAppNotificationSchema, listInAppNotificationsQuerySchema, inAppNotificationIdParamSchema } from "../../validators/inAppNotification.validator.js";
 import { listNotifications, getUnreadCount, markAsRead, markAllAsRead, deleteNotification } from "../../services/admin/adminFeedNotification.service.js";
 import { mistralService } from "../../services/mistral.service.js";
 import { getAdminStats, getUserGrowth, getCommentActivity, getShowTypeBreakdown } from "../../services/admin/adminStats.service.js";
@@ -27,6 +29,7 @@ import { listAllComments, adminDeleteComment, adminBulkDeleteComments, adminMark
 import { listAllNewsSources, createNewsSource, updateNewsSource, deleteNewsSource, toggleNewsSource } from "../../services/admin/adminNews.service.js";
 import { sendBroadcast, sendTargeted, getNotificationHistory, getNotificationDetail, getNotificationStats, listScheduledJobs, updateScheduledJob, cancelScheduledJob } from "../../services/admin/adminNotification.service.js";
 import { listShows, forceSyncShow, deleteShow } from "../../services/admin/adminShow.service.js";
+import { uploadMediaImage } from "../../services/upload.service.js";
 import { listAllConfig, setConfig, deleteConfig } from "../../services/admin/adminConfig.service.js";
 import { listAllImports, getImportStats, getImportDetail, deleteImportJob, retryImportJob, exportImportCsv } from "../../services/admin/adminImport.service.js";
 import { getEmailHistory, getEmailStats, getEmailDetail, sendBroadcastEmail, sendTargetedEmail } from "../../services/admin/adminEmail.service.js";
@@ -43,6 +46,7 @@ import { translateMultiLang, type TranslationInput } from "../../services/transl
 import { listContactMessages, getContactStats, getContactDetail, updateContactStatus, replyToContactMessage, deleteContactMessage, bulkContactAction, editContactReply, exportContactCsv } from "../../services/admin/adminContact.service.js";
 import { type ContactStatus, type ContactCategory } from "../../models/contactMessage.model.js";
 import { type AdminNotificationType } from "../../models/adminNotification.model.js";
+import { createInAppNotification, listAdminInAppNotifications, deleteAdminInAppNotification } from "../../services/inAppNotification.service.js";
 import { listIssues, getIssueDetail, listIssueEvents, updateIssueStatus, deleteIssue, getErrorStats } from "../../services/errorTracking.service.js";
 import apiKeysRouter from "./apiKeys.js";
 
@@ -408,6 +412,26 @@ router.get(
       return;
     }
     res.json(detail);
+  }),
+);
+
+// Upload (admin media)
+const adminImageUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
+});
+
+router.post(
+  "/upload",
+  adminImageUpload.single("file"),
+  asyncHandler(async (req: Request, res: Response) => {
+    if (!req.file) {
+      res.status(400).json({ error: { code: "NO_FILE", message: "No file uploaded" } });
+      return;
+    }
+    const category = (req.body.category as string) || "misc";
+    const result = await uploadMediaImage(req.file.buffer, req.file.mimetype, category);
+    res.json(result);
   }),
 );
 
@@ -1158,5 +1182,52 @@ router.delete(
 );
 
 router.use("/api-keys", apiKeysRouter);
+
+// In-App Notifications
+router.post(
+  "/in-app-notifications",
+  validateRequest(createInAppNotificationSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const input = req.body;
+    const notification = await createInAppNotification({
+      type: input.target === "user" ? "admin_targeted" : "admin_broadcast",
+      title: input.title,
+      body: input.body,
+      imageUrl: input.imageUrl,
+      target: input.target,
+      locale: input.locale,
+      userId: input.userId,
+      createdBy: req.userId!,
+      deepLinkScreen: input.deepLinkScreen,
+      deepLinkParams: input.deepLinkParams,
+      expiresAt: input.expiresAt ? new Date(input.expiresAt) : undefined,
+    });
+    res.status(201).json({ id: notification._id.toString() });
+  }),
+);
+
+router.get(
+  "/in-app-notifications",
+  validateRequest(undefined, listInAppNotificationsQuerySchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const query = req.query as unknown as { page: number; limit: number; type?: string; target?: string };
+    const result = await listAdminInAppNotifications({
+      page: query.page,
+      limit: query.limit,
+      type: query.type,
+      target: query.target,
+    });
+    res.json(result);
+  }),
+);
+
+router.delete(
+  "/in-app-notifications/:id",
+  validateRequest(undefined, undefined, inAppNotificationIdParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    await deleteAdminInAppNotification(req.params.id);
+    res.status(204).send();
+  }),
+);
 
 export default router;

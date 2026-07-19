@@ -18,6 +18,7 @@ Ces règles s'appliquent à tout agent travaillant sur ce repo.
 - Communiquer en français avec l'humain. Code et commentaires en anglais.
 - Ne jamais inventer un comportement technique incertain. Inspecter le code, poser une question, ou documenter un `[?]` explicite — puis le résoudre avant merge.
 - **(RECOMMANDATION)** : préfixer tout conseil technique, architectural, librairie ou pattern avec **`(RECOMMANDATION)`**.
+- **Recommandation dans les questions à choix multiples** : lorsque l'IA pose une question à choix multiples (outil `ask_user_question`), elle **doit** inclure sa recommandation directement dans le texte de la question (ex: « *(RECOMMANDATION) Option A — car plus simple et aligné avec l'existant* »). La recommandation ne doit **jamais** être placée séparément à la fin de la réponse ou absente. L'objectif est que l'utilisateur voie la recommandation **avant** de choisir, intégrée au contexte de la question.
 
 ## 2. Génération de code
 

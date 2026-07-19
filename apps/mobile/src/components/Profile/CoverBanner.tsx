@@ -1,4 +1,4 @@
-import { View, Image, TouchableOpacity, ActivityIndicator } from "react-native";
+import { View, Image, TouchableOpacity, ActivityIndicator, Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useThemeColors } from "../../theme/useThemeColors";
 
@@ -74,7 +74,7 @@ export function CoverBanner({ url, onPress, isUploading }: CoverBannerProps) {
           style={{
             position: "absolute",
             bottom: 8,
-            right: 8,
+            ...(Platform.OS === "web" ? { right: 8 } : { left: 8 }),
             width: 32,
             height: 32,
             borderRadius: 16,

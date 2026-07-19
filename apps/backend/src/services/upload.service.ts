@@ -71,3 +71,17 @@ export async function uploadCommentImage(
   const key = `comments/${userId}/${timestamp}.${ext}`;
   return uploadFile(buffer, mimeType, key);
 }
+
+export async function uploadMediaImage(
+  buffer: Buffer,
+  mimeType: string,
+  category?: string,
+): Promise<{ url: string; key: string }> {
+  validateFile(mimeType, buffer.length);
+  const ext = EXT_BY_MIME[mimeType] ?? "jpg";
+  const timestamp = Date.now();
+  const safeCategory = category?.replace(/[^a-zA-Z0-9-_]/g, "") || "misc";
+  const key = `media/${safeCategory}/${timestamp}.${ext}`;
+  const url = await uploadFile(buffer, mimeType, key);
+  return { url, key };
+}

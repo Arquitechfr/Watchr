@@ -6,6 +6,7 @@ import { WatchEntry } from "../models/watchEntry.model.js";
 import { User } from "../models/user.model.js";
 import { PushNotificationService } from "../services/pushNotification.service.js";
 import { getShowTitle } from "../models/show.model.js";
+import { getImageUrl } from "../services/image.service.js";
 
 export const notificationQueue = new Queue("notifications", { connection: redisConnection });
 
@@ -35,7 +36,7 @@ export async function processEpisodeNotifications(): Promise<void> {
   const shows = await Show.find({
     "nextEpisodeToAir.airDate": { $gte: earliestAirDate, $lte: latestAirDate },
     type: "tv",
-  }).select("title translations nextEpisodeToAir tmdbId");
+  }).select("title translations nextEpisodeToAir tmdbId posterPath");
 
   const redisClient = await notificationQueue.client;
 
@@ -76,6 +77,7 @@ export async function processEpisodeNotifications(): Promise<void> {
 
         const locale = user.preferredLanguage ?? "en";
         const showTitle = getShowTitle(show, locale);
+        const posterUrl = show.posterPath ? getImageUrl("w500", show.posterPath) : undefined;
 
         await PushNotificationService.notifyNewEpisode(
           userId,
@@ -85,6 +87,7 @@ export async function processEpisodeNotifications(): Promise<void> {
           show._id.toString(),
           show.tmdbId,
           locale,
+          posterUrl,
         );
 
         await redisClient.set(notifiedKey, "1", { EX: NOTIFIED_TTL_SECONDS });

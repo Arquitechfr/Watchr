@@ -79,6 +79,7 @@ export function ApiKeys() {
     const next = new URLSearchParams(searchParams);
     next.delete("userId");
     setSearchParams(next, { replace: true });
+    setPage(1);
   }
 
   async function handleRevokeConfirm() {
@@ -307,7 +308,7 @@ export function ApiKeys() {
               Unlike revoking, deleting will permanently remove the key <span className="font-medium text-text">{deleteTarget?.name}</span>
               {deleteTarget?.user ? (
                 <> for <span className="font-medium text-text">{deleteTarget.user.email}</span></>
-              ) : null} and all associated audit records.
+              ) : null}. The key record will no longer be visible in this list.
             </p>
           </div>
           <div className="flex justify-end gap-2 pt-2">

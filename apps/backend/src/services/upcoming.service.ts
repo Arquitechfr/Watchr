@@ -115,6 +115,9 @@ export async function getUpcomingEpisodes(userId: string, language = "en"): Prom
       if (!watchedKeys.has(key)) {
         const nextSeason = seasons.find((s) => s.seasonNumber === show.nextEpisodeToAir!.season);
         const nextSeasonEpisodeCount = nextSeason?.episodes?.length ?? nextSeason?.episodeCount ?? 0;
+        const nextEpisodeName = nextSeason?.episodes?.find(
+          (ep) => ep.episodeNumber === show.nextEpisodeToAir!.episode,
+        )?.name;
         allEpisodes.push({
           showId,
           tmdbId,
@@ -122,6 +125,7 @@ export async function getUpcomingEpisodes(userId: string, language = "en"): Prom
           posterPath,
           season: show.nextEpisodeToAir.season,
           episode: show.nextEpisodeToAir.episode,
+          name: nextEpisodeName,
           airDate: show.nextEpisodeToAir.airDate.toISOString(),
           isSeriesPremiere: show.nextEpisodeToAir.season === 1 && show.nextEpisodeToAir.episode === 1,
           isSeasonPremiere: show.nextEpisodeToAir.season > 1 && show.nextEpisodeToAir.episode === 1,

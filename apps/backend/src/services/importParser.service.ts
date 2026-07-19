@@ -2,6 +2,7 @@ import * as fs from "fs";
 import { Types } from "mongoose";
 import { WatchEntry, WatchStatus } from "../models/watchEntry.model.js";
 import { Rating } from "../models/rating.model.js";
+import { normalizeValue } from "./rating.service.js";
 import { ImportJob } from "../models/importJob.model.js";
 import { sleep } from "../lib/rateLimiter.js";
 import { ApiError } from "../middleware/error.middleware.js";
@@ -109,7 +110,7 @@ export async function processImport(
               showId: match.show._id,
               episodeRef: episodeRef || { $exists: false },
             },
-            { $set: { value: record.rating } },
+            { $set: { value: normalizeValue(record.rating) } },
             { upsert: true, new: true },
           );
         }

@@ -13,6 +13,45 @@ import { languageNameForLocale } from "./aiLanguageMap.js";
 import { translateRecommendation } from "../i18n/index.js";
 import { type TmdbSearchResult } from "./tmdb.service.js";
 
+const TITLE_SIMILARITY_THRESHOLD = 0.5;
+
+function normalizeTitle(title: string): string {
+  return title
+    .toLowerCase()
+    .trim()
+    .replace(/^(the|a|an)\s+/, "")
+    .replace(/[\p{P}\p{S}]/gu, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function titleSimilarity(aiTitle: string, tmdbTitle: string): number {
+  const a = new Set(normalizeTitle(aiTitle).split(" ").filter(Boolean));
+  const b = new Set(normalizeTitle(tmdbTitle).split(" ").filter(Boolean));
+  if (a.size === 0 || b.size === 0) return 0;
+  let intersection = 0;
+  for (const word of a) {
+    if (b.has(word)) intersection++;
+  }
+  const union = a.size + b.size - intersection;
+  return union > 0 ? intersection / union : 0;
+}
+
+function findBestMatch(aiTitle: string, results: TmdbSearchResult[]): TmdbSearchResult | null {
+  let best: TmdbSearchResult | null = null;
+  let bestScore = 0;
+  for (const result of results) {
+    const tmdbTitle = result.name ?? result.title ?? "";
+    if (!tmdbTitle) continue;
+    const score = titleSimilarity(aiTitle, tmdbTitle);
+    if (score > bestScore) {
+      bestScore = score;
+      best = result;
+    }
+  }
+  return bestScore >= TITLE_SIMILARITY_THRESHOLD ? best : null;
+}
+
 interface PopulatedShow {
   _id: { toString(): string };
   title?: string;
@@ -180,8 +219,11 @@ Rules:
           ? await tmdbService.searchShows(item.tmdb_title, tmdbLanguage)
           : await tmdbService.searchMovies(item.tmdb_title, tmdbLanguage);
 
-        const match = tmdbResults[0];
-        if (!match) continue;
+        const match = findBestMatch(item.tmdb_title, tmdbResults);
+        if (!match) {
+          log("RecommendationService", "no title match, skipping", { aiTitle: item.tmdb_title, resultsCount: tmdbResults.length });
+          continue;
+        }
 
         recommendations.push({
           tmdbId: match.id,

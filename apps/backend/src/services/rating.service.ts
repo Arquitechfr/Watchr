@@ -36,7 +36,7 @@ export interface CommunityRatings {
   episodes: Array<{ season: number; episode: number; average: number; count: number }>;
 }
 
-function normalizeValue(value: number): number {
+export function normalizeValue(value: number): number {
   if (value > 5) {
     return Math.round(value / 2);
   }
@@ -219,12 +219,12 @@ export async function listRatingsForShow(userId: string, showId: string) {
     .map((r) => ({
       season: r.episodeRef!.season,
       episode: r.episodeRef!.episode,
-      value: r.value,
+      value: normalizeValue(r.value),
     }));
 
   return {
     user: {
-      show: showRating ? showRating.value : null,
+      show: showRating ? normalizeValue(showRating.value) : null,
       episodes: episodeRatings,
     },
     community,

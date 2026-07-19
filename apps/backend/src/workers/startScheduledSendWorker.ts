@@ -2,17 +2,18 @@ import "dotenv/config";
 import mongoose from "mongoose";
 import { connectDatabase } from "../lib/database.js";
 import { createScheduledSendWorker, scheduleScheduledSendChecker } from "./scheduledSend.worker.js";
+import { log, logError } from "../lib/logger.js";
 
 async function main() {
   await connectDatabase();
-  console.log("Scheduled send worker connected to MongoDB");
+  log("ScheduledSendWorker", "connected to MongoDB");
 
   await scheduleScheduledSendChecker();
   const worker = createScheduledSendWorker();
-  console.log("Scheduled send worker started");
+  log("ScheduledSendWorker", "worker started");
 
   worker.on("failed", (job, err) => {
-    console.error(`Scheduled send job ${job?.id} failed:`, err);
+    logError("ScheduledSendWorker", `job ${job?.id} failed`, err);
   });
 
   process.on("SIGTERM", async () => {
@@ -23,6 +24,6 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.error("Failed to start scheduled send worker:", err);
+  logError("ScheduledSendWorker", "failed to start", err);
   process.exit(1);
 });

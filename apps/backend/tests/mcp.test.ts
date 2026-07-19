@@ -81,7 +81,7 @@ describe("MCP Server", () => {
   });
 
   it("should add show to watchlist and list it", async () => {
-    const { token, user } = await createUserAndKey(["read", "write"]);
+    const { token, user: _user } = await createUserAndKey(["read", "write"]);
     await createShow();
 
     const addRes = await mcpRequest(token, "add_to_watchlist", { tmdbId: 1396, type: "tv" });

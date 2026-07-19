@@ -1,4 +1,5 @@
 import { SupportedLocale } from "../i18n/translations.js";
+import type { AuthInfo } from "@modelcontextprotocol/sdk/server/auth/types.js";
 
 interface ApiUser {
   userId: string;
@@ -13,6 +14,8 @@ declare global {
       language?: SupportedLocale;
       preferredLanguage?: SupportedLocale;
       apiUser?: ApiUser;
+      cookies?: Record<string, string>;
+      auth?: AuthInfo;
     }
   }
 }

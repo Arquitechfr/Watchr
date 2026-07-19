@@ -43,6 +43,10 @@ const envSchema = z.object({
   MISTRAL_API_KEY: z.string().optional(),
   POSTHOG_API_KEY: z.string().min(1, "POSTHOG_API_KEY is required"),
   POSTHOG_HOST: z.string().default("https://eu.i.posthog.com"),
+  MCP_OAUTH_TOKEN_TTL_SECONDS: z.coerce.number().int().positive().default(3600),
+  MCP_OAUTH_REFRESH_TOKEN_TTL_DAYS: z.coerce.number().int().positive().default(30),
+  MCP_OAUTH_CLIENT_SECRET_TTL_DAYS: z.coerce.number().int().positive().default(30),
+  MCP_CONSENT_SESSION_SECRET: z.string().min(1, "MCP_CONSENT_SESSION_SECRET is required"),
 });
 
 const parsed = envSchema.safeParse(process.env);

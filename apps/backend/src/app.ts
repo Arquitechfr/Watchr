@@ -34,6 +34,12 @@ import publicV1Router from "./routes/public/v1/index.js";
 import { apiKeyAuth } from "./middleware/apiKeyAuth.js";
 import { writeLimiter } from "./middleware/apiRateLimiter.js";
 import { mcpHandler } from "./mcp/server.js";
+import { mcpOAuthHandler } from "./mcp/oauthHandler.js";
+import { mcpOAuthProvider } from "./mcp/oauth/provider.js";
+import { consentRouter } from "./mcp/oauth/consentRoutes.js";
+import { cookieParser } from "./middleware/cookieParser.js";
+import { mcpAuthRouter, getOAuthProtectedResourceMetadataUrl } from "@modelcontextprotocol/sdk/server/auth/router.js";
+import { requireBearerAuth } from "@modelcontextprotocol/sdk/server/auth/middleware/bearerAuth.js";
 
 const allowedOrigins = process.env.CORS_ORIGINS
   ? process.env.CORS_ORIGINS.split(",").map((o) => o.trim())
@@ -65,6 +71,7 @@ export function createApp(): Application {
   );
   app.use(express.json({ limit: "10mb" }));
   app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+  app.use(cookieParser);
 
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
@@ -378,6 +385,41 @@ export function createApp(): Application {
   app.use("/api/public/v1", publicV1Router);
 
   app.post("/mcp", apiKeyAuth(), writeLimiter, mcpHandler);
+
+  // MCP OAuth — Authorization Server endpoints (authorize, token, register, revoke, metadata)
+  const mcpOAuthResourceUrl = new URL(`${env.PUBLIC_URL}/mcp/oauth`);
+  app.use(
+    mcpAuthRouter({
+      provider: mcpOAuthProvider,
+      issuerUrl: new URL(env.PUBLIC_URL),
+      baseUrl: new URL(env.PUBLIC_URL),
+      scopesSupported: ["read", "write"],
+      resourceName: "Watchr MCP",
+      resourceServerUrl: mcpOAuthResourceUrl,
+    }),
+  );
+
+  // MCP OAuth — Consent/Login UI routes (relaxed CSP for inline HTML + form redirects to client URIs)
+  app.use("/mcp/auth", (_req: Request, res: Response, next) => {
+    res.setHeader(
+      "Content-Security-Policy",
+      "default-src 'self'; style-src 'unsafe-inline'; form-action *; img-src 'self' data:",
+    );
+    next();
+  });
+  app.use("/mcp/auth", consentRouter);
+
+  // MCP OAuth — Protected MCP endpoint (OAuth bearer token)
+  app.post(
+    "/mcp/oauth",
+    requireBearerAuth({
+      verifier: mcpOAuthProvider,
+      requiredScopes: ["read"],
+      resourceMetadataUrl: getOAuthProtectedResourceMetadataUrl(mcpOAuthResourceUrl),
+    }),
+    writeLimiter,
+    mcpOAuthHandler,
+  );
 
   app.get("/metrics", async (_req: Request, res: Response) => {
     const { getMetrics, getMetricsContentType } = await import("./lib/wsMetrics.js");

@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Wrench, ExternalLink } from "lucide-react";
+import { Wrench, ExternalLink, KeyRound, LogIn } from "lucide-react";
 import { CodeBlock } from "@/components/shared/CodeBlock";
 
 const MCP_CONFIG = `{
@@ -12,6 +13,16 @@ const MCP_CONFIG = `{
     }
   }
 }`;
+
+const MCP_CONFIG_OAUTH = `{
+  "mcpServers": {
+    "watchr": {
+      "url": "https://api.watchr.me/mcp/oauth"
+    }
+  }
+}`;
+
+type AuthTab = "apiKey" | "oauth";
 
 interface McpToolParam {
   name: string;
@@ -171,6 +182,7 @@ const MCP_TOOLS: McpTool[] = [
 
 export function DocsMcp() {
   const { t } = useTranslation();
+  const [authTab, setAuthTab] = useState<AuthTab>("apiKey");
 
   return (
     <section className="mb-16">
@@ -182,53 +194,131 @@ export function DocsMcp() {
       </p>
 
       <div className="mt-8 space-y-6">
-        <div className="rounded-2xl border border-border bg-surface p-6">
-          <h3 className="text-base font-semibold text-text">
-            {t("docs.mcp.setupTitle")}
-          </h3>
-          <ol className="mt-4 space-y-3">
-            <li className="flex gap-3">
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
-                1
-              </span>
-              <span className="text-sm leading-relaxed text-text-muted">
-                {t("docs.mcp.step1")}
-                <a
-                  href="https://app.watchr.me"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="ml-1 inline-flex items-center gap-0.5 font-medium text-primary transition-colors hover:text-primary-dark"
-                >
-                  {t("docs.mcp.step1Link")}
-                  <ExternalLink className="h-3.5 w-3.5" />
-                </a>
-              </span>
-            </li>
-            <li className="flex gap-3">
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
-                2
-              </span>
-              <span className="text-sm leading-relaxed text-text-muted">
-                {t("docs.mcp.step2")}
-              </span>
-            </li>
-            <li className="flex gap-3">
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
-                3
-              </span>
-              <span className="text-sm leading-relaxed text-text-muted">
-                {t("docs.mcp.step3")}
-              </span>
-            </li>
-          </ol>
+        <div className="flex gap-2 rounded-xl border border-border bg-surface p-1.5">
+          <button
+            onClick={() => setAuthTab("apiKey")}
+            className={`flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+              authTab === "apiKey"
+                ? "bg-primary text-white"
+                : "text-text-muted hover:text-text"
+            }`}
+          >
+            <KeyRound className="h-4 w-4" />
+            {t("docs.mcp.tabApiKey")}
+          </button>
+          <button
+            onClick={() => setAuthTab("oauth")}
+            className={`flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+              authTab === "oauth"
+                ? "bg-primary text-white"
+                : "text-text-muted hover:text-text"
+            }`}
+          >
+            <LogIn className="h-4 w-4" />
+            {t("docs.mcp.tabOAuth")}
+          </button>
         </div>
 
-        <div>
-          <h3 className="mb-2 text-sm font-semibold text-text">
-            {t("docs.mcp.configTitle")}
-          </h3>
-          <CodeBlock code={MCP_CONFIG} language="JSON" />
-        </div>
+        {authTab === "apiKey" && (
+          <>
+            <div className="rounded-2xl border border-border bg-surface p-6">
+              <h3 className="text-base font-semibold text-text">
+                {t("docs.mcp.setupTitle")}
+              </h3>
+              <ol className="mt-4 space-y-3">
+                <li className="flex gap-3">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                    1
+                  </span>
+                  <span className="text-sm leading-relaxed text-text-muted">
+                    {t("docs.mcp.step1")}
+                    <a
+                      href="https://app.watchr.me"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="ml-1 inline-flex items-center gap-0.5 font-medium text-primary transition-colors hover:text-primary-dark"
+                    >
+                      {t("docs.mcp.step1Link")}
+                      <ExternalLink className="h-3.5 w-3.5" />
+                    </a>
+                  </span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                    2
+                  </span>
+                  <span className="text-sm leading-relaxed text-text-muted">
+                    {t("docs.mcp.step2")}
+                  </span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                    3
+                  </span>
+                  <span className="text-sm leading-relaxed text-text-muted">
+                    {t("docs.mcp.step3")}
+                  </span>
+                </li>
+              </ol>
+            </div>
+
+            <div>
+              <h3 className="mb-2 text-sm font-semibold text-text">
+                {t("docs.mcp.configTitle")}
+              </h3>
+              <CodeBlock code={MCP_CONFIG} language="JSON" />
+            </div>
+          </>
+        )}
+
+        {authTab === "oauth" && (
+          <>
+            <div className="rounded-2xl border border-border bg-surface p-6">
+              <h3 className="text-base font-semibold text-text">
+                {t("docs.mcp.oauthTitle")}
+              </h3>
+              <p className="mt-3 text-sm leading-relaxed text-text-muted">
+                {t("docs.mcp.oauthDescription")}
+              </p>
+
+              <div className="mt-4 space-y-4">
+                <div className="rounded-xl border border-border bg-surface-light/30 p-4">
+                  <h4 className="text-sm font-semibold text-text">ChatGPT</h4>
+                  <p className="mt-1.5 text-sm leading-relaxed text-text-muted">
+                    {t("docs.mcp.oauthSetupChatGPT")}
+                  </p>
+                </div>
+
+                <div className="rounded-xl border border-border bg-surface-light/30 p-4">
+                  <h4 className="text-sm font-semibold text-text">Claude</h4>
+                  <p className="mt-1.5 text-sm leading-relaxed text-text-muted">
+                    {t("docs.mcp.oauthSetupClaude")}
+                  </p>
+                </div>
+
+                <div className="rounded-xl border border-border bg-surface-light/30 p-4">
+                  <h4 className="text-sm font-semibold text-text">{t("docs.mcp.oauthSetupGenericTitle")}</h4>
+                  <p className="mt-1.5 text-sm leading-relaxed text-text-muted">
+                    {t("docs.mcp.oauthSetupGeneric")}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-4 rounded-xl border border-primary/20 bg-primary/5 p-4">
+                <p className="text-sm leading-relaxed text-text-muted">
+                  {t("docs.mcp.oauthNote")}
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="mb-2 text-sm font-semibold text-text">
+                {t("docs.mcp.oauthConfigTitle")}
+              </h3>
+              <CodeBlock code={MCP_CONFIG_OAUTH} language="JSON" />
+            </div>
+          </>
+        )}
 
         <div className="rounded-2xl border border-border bg-surface p-6">
           <div className="flex items-center gap-3">

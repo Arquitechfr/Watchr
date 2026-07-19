@@ -21,7 +21,7 @@ import { WatchStatus } from "../models/watchEntry.model.js";
 import { Show } from "../models/show.model.js";
 import { logError } from "../lib/logger.js";
 
-interface ApiUserContext {
+export interface ApiUserContext {
   userId: string;
   scopes: string[];
   language: string;
@@ -38,7 +38,7 @@ function scopeError(scope: "read" | "write"): { content: { type: "text"; text: s
   };
 }
 
-function buildMcpServer(apiUser: ApiUserContext): McpServer {
+export function buildMcpServer(apiUser: ApiUserContext): McpServer {
   const server = new McpServer({
     name: "watchr-mcp",
     version: "1.0.0",

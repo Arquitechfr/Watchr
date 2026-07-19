@@ -3,6 +3,7 @@ import { Globe, Loader2, X } from "lucide-react";
 import api from "../../lib/api";
 import { Button } from "./Button";
 import { Dialog } from "./Dialog";
+import { SUPPORTED_LANGUAGES } from "../../lib/languages";
 
 interface TranslatePreviewDialogProps {
   open: boolean;
@@ -20,15 +21,7 @@ interface TranslationEntry {
   htmlContent?: string;
 }
 
-const AVAILABLE_LANGS = [
-  { code: "en", label: "English" },
-  { code: "fr", label: "French" },
-  { code: "es", label: "Spanish" },
-  { code: "pt", label: "Portuguese" },
-  { code: "de", label: "German" },
-  { code: "it", label: "Italian" },
-  { code: "ar", label: "Arabic" },
-];
+const AVAILABLE_LANGS = SUPPORTED_LANGUAGES.map((l) => ({ code: l.code, label: l.label }));
 
 export function TranslatePreviewDialog({
   open,

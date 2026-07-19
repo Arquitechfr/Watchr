@@ -13,6 +13,7 @@ import { Skeleton } from "../components/ui/Skeleton";
 import { EmptyState } from "../components/ui/EmptyState";
 import { Dialog } from "../components/ui/Dialog";
 import { formatDate } from "../lib/utils";
+import { LANGUAGE_FLAGS, LANGUAGE_NAMES } from "../lib/languages";
 
 interface UserRow {
   id: string;
@@ -38,26 +39,6 @@ interface UsersResponse {
   page: number;
   limit: number;
 }
-
-const LANGUAGE_FLAGS: Record<string, string> = {
-  en: "🇬🇧",
-  fr: "🇫🇷",
-  es: "🇪🇸",
-  pt: "🇵🇹",
-  de: "🇩🇪",
-  it: "🇮🇹",
-  ar: "🇸🇦",
-};
-
-const LANGUAGE_NAMES: Record<string, string> = {
-  en: "English",
-  fr: "French",
-  es: "Spanish",
-  pt: "Portuguese",
-  de: "German",
-  it: "Italian",
-  ar: "Arabic",
-};
 
 const PLATFORM_LABELS: Record<string, string> = {
   ios: "iOS",

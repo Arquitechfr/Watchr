@@ -14,6 +14,7 @@ import { RichTextEditor } from "../components/ui/RichTextEditor";
 import { TranslatePreviewDialog } from "../components/ui/TranslatePreviewDialog";
 import { TranslationProgress } from "../components/ui/TranslationProgress";
 import { PageSelector } from "../components/ui/PageSelector";
+import { LanguageSelect } from "../components/ui/LanguageSelect";
 import { useJobPolling } from "../hooks/useJobPolling";
 import { formatDate } from "../lib/utils";
 
@@ -367,10 +368,10 @@ export function EmailLogs() {
               {broadcastForm.target === "locale" && (
                 <div>
                   <label className="mb-1.5 block text-sm text-text-muted">Locale</label>
-                  <Input
+                  <LanguageSelect
                     value={broadcastForm.locale}
-                    onChange={(e) => setBroadcastForm({ ...broadcastForm, locale: e.target.value })}
-                    placeholder="en, fr, es..."
+                    onChange={(val) => setBroadcastForm({ ...broadcastForm, locale: val })}
+                    placeholder="Select language..."
                   />
                 </div>
               )}

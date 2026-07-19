@@ -9,6 +9,8 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from ".
 import { Skeleton } from "../components/ui/Skeleton";
 import { EmptyState } from "../components/ui/EmptyState";
 import { Dialog } from "../components/ui/Dialog";
+import { LanguageSelect } from "../components/ui/LanguageSelect";
+import { LANGUAGE_FLAGS } from "../lib/languages";
 
 interface NewsSource {
   id: string;
@@ -17,16 +19,6 @@ interface NewsSource {
   locale: string;
   isActive: boolean;
 }
-
-const LOCALE_FLAGS: Record<string, string> = {
-  en: "🇬🇧",
-  fr: "🇫🇷",
-  es: "🇪🇸",
-  pt: "🇵🇹",
-  de: "🇩🇪",
-  it: "🇮🇹",
-  ar: "🇸🇦",
-};
 
 export function NewsSources() {
   const [sources, setSources] = useState<NewsSource[]>([]);
@@ -148,7 +140,7 @@ export function NewsSources() {
           <option value="">All locales</option>
           {locales.map((loc) => (
             <option key={loc} value={loc}>
-              {LOCALE_FLAGS[loc] ?? ""} {loc}
+              {LANGUAGE_FLAGS[loc] ?? ""} {loc}
             </option>
           ))}
         </select>
@@ -184,7 +176,12 @@ export function NewsSources() {
               </div>
               <div>
                 <label className="mb-1.5 block text-sm text-text-muted">Locale</label>
-                <Input value={formData.locale} onChange={(e) => setFormData({ ...formData, locale: e.target.value })} required />
+                <LanguageSelect
+                  value={formData.locale}
+                  onChange={(val) => setFormData({ ...formData, locale: val })}
+                  placeholder="Select language..."
+                  required
+                />
               </div>
               <div className="md:col-span-4 flex gap-2">
                 <Button type="submit">Create</Button>
@@ -202,7 +199,7 @@ export function NewsSources() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   {group.locale && (
-                    <span className="text-lg">{LOCALE_FLAGS[group.locale] ?? ""}</span>
+                    <span className="text-lg">{LANGUAGE_FLAGS[group.locale] ?? ""}</span>
                   )}
                   <span>{group.locale || "Other"}</span>
                   <Badge className="bg-surface-light text-text-muted">{group.items.length}</Badge>
@@ -258,9 +255,10 @@ export function NewsSources() {
           </div>
           <div>
             <label className="mb-1.5 block text-sm text-text-muted">Locale</label>
-            <Input
+            <LanguageSelect
               value={editData.locale}
-              onChange={(e) => setEditData({ ...editData, locale: e.target.value })}
+              onChange={(val) => setEditData({ ...editData, locale: val })}
+              placeholder="Select language..."
             />
           </div>
           <div className="flex justify-end gap-2 pt-2">
@@ -344,7 +342,7 @@ function SourceTable({
             <TableCell className="text-text-muted text-xs truncate max-w-xs hidden md:table-cell">{source.url}</TableCell>
             <TableCell className="hidden md:table-cell">
               <span className="flex items-center gap-1">
-                {LOCALE_FLAGS[source.locale] ?? ""} {source.locale}
+                {LANGUAGE_FLAGS[source.locale] ?? ""} {source.locale}
               </span>
             </TableCell>
             <TableCell>

@@ -13,6 +13,7 @@ import { Dialog } from "../components/ui/Dialog";
 import { TranslatePreviewDialog } from "../components/ui/TranslatePreviewDialog";
 import { TranslationProgress } from "../components/ui/TranslationProgress";
 import { PageSelector } from "../components/ui/PageSelector";
+import { LanguageSelect } from "../components/ui/LanguageSelect";
 import { useJobPolling } from "../hooks/useJobPolling";
 import { formatDate } from "../lib/utils";
 
@@ -396,7 +397,11 @@ export function Notifications() {
               {broadcastForm.target === "locale" && (
                 <div>
                   <label className="mb-1.5 block text-sm text-text-muted">Locale</label>
-                  <Input value={broadcastForm.locale} onChange={(e) => setBroadcastForm({ ...broadcastForm, locale: e.target.value })} placeholder="en, fr, es..." />
+                  <LanguageSelect
+                    value={broadcastForm.locale}
+                    onChange={(val) => setBroadcastForm({ ...broadcastForm, locale: val })}
+                    placeholder="Select language..."
+                  />
                 </div>
               )}
               <div>

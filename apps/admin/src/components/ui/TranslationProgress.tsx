@@ -2,26 +2,7 @@ import { useState } from "react";
 import { ChevronDown, ChevronUp, Languages, Loader2 } from "lucide-react";
 import type { JobStatus, JobTranslation } from "../../hooks/useJobPolling";
 import { Badge } from "./Badge";
-
-const LANG_FLAGS: Record<string, string> = {
-  en: "🇬🇧",
-  fr: "🇫🇷",
-  es: "🇪🇸",
-  pt: "🇵🇹",
-  de: "🇩🇪",
-  it: "🇮🇹",
-  ar: "🇸🇦",
-};
-
-const LANG_NAMES: Record<string, string> = {
-  en: "English",
-  fr: "French",
-  es: "Spanish",
-  pt: "Portuguese",
-  de: "German",
-  it: "Italian",
-  ar: "Arabic",
-};
+import { LANGUAGE_FLAGS, LANGUAGE_NAMES } from "../../lib/languages";
 
 const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
   pending: { label: "Translating...", className: "bg-blue-500/20 text-blue-400" },
@@ -51,7 +32,7 @@ export function TranslationProgress({ job }: TranslationProgressProps) {
           <span className="text-sm font-medium text-text">Auto-translation</span>
           {job.sourceLanguage && (
             <span className="text-xs text-text-muted">
-              Source: {LANG_FLAGS[job.sourceLanguage] ?? ""} {LANG_NAMES[job.sourceLanguage] ?? job.sourceLanguage}
+              Source: {LANGUAGE_FLAGS[job.sourceLanguage] ?? ""} {LANGUAGE_NAMES[job.sourceLanguage] ?? job.sourceLanguage}
             </span>
           )}
         </div>
@@ -68,9 +49,9 @@ export function TranslationProgress({ job }: TranslationProgressProps) {
               <span
                 key={lang}
                 className="inline-flex items-center gap-1 rounded-md bg-background px-2 py-1 text-xs text-text"
-                title={LANG_NAMES[lang] ?? lang}
+                title={LANGUAGE_NAMES[lang] ?? lang}
               >
-                {LANG_FLAGS[lang] ?? ""} {lang.toUpperCase()}
+                {LANGUAGE_FLAGS[lang] ?? ""} {lang.toUpperCase()}
               </span>
             ))}
           </div>
@@ -91,7 +72,7 @@ export function TranslationProgress({ job }: TranslationProgressProps) {
                 return (
                   <div key={lang} className="rounded-md bg-background p-3 space-y-1">
                     <div className="text-xs font-medium text-text-muted">
-                      {LANG_FLAGS[lang] ?? ""} {LANG_NAMES[lang] ?? lang}
+                      {LANGUAGE_FLAGS[lang] ?? ""} {LANGUAGE_NAMES[lang] ?? lang}
                     </div>
                     {t.subject && (
                       <div className="text-sm text-text">

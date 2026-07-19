@@ -10,16 +10,7 @@ import { Skeleton } from "../components/ui/Skeleton";
 import { EmptyState } from "../components/ui/EmptyState";
 import { Dialog } from "../components/ui/Dialog";
 import { formatDate } from "../lib/utils";
-
-const LANGUAGE_FLAGS: Record<string, string> = {
-  en: "🇬🇧",
-  fr: "🇫🇷",
-  es: "🇪🇸",
-  pt: "🇵🇹",
-  de: "🇩🇪",
-  it: "🇮🇹",
-  ar: "🇸🇦",
-};
+import { LANGUAGE_FLAGS } from "../lib/languages";
 
 const PLATFORM_LABELS: Record<string, string> = {
   ios: "iOS",

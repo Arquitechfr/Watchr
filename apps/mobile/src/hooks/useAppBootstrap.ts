@@ -62,14 +62,15 @@ export function useAppBootstrap(queryClient: QueryClient) {
         const { isAuthenticated } = useAuthStore.getState();
         if (isAuthenticated) {
           try {
-            await queryClient.prefetchQuery({
+            await queryClient.fetchQuery({
               queryKey: ["me"],
               queryFn: getMe,
               staleTime: Infinity,
             });
             log("Bootstrap", "getMe prefetched");
-          } catch {
-            log("Bootstrap", "getMe prefetch failed — will retry in RootNavigator");
+          } catch (error) {
+            log("Bootstrap", "getMe prefetch failed — will retry in RootNavigator", error);
+            queryClient.removeQueries({ queryKey: ["me"] });
           }
 
           await prefetchSeriesData(queryClient);

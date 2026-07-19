@@ -173,6 +173,7 @@ watchr/
 - **Screens ≤ 300-400 lignes si possible.** Extraire dès que possible (sous-composants, hooks custom, sections). Si l'extraction n'est pas possible ou pertinente, ne rien faire.
 - Utiliser tous les **MCP** pertinents pour la demande.
 - Mettre en place des logiques **optimistic** et une UX moderne.
+- **Prefetch au bootstrap** : toujours `fetchQuery` + cleanup explicite (`removeQueries`) pour tout prefetch au bootstrap, jamais `prefetchQuery` seul si on veut détecter l'échec (`prefetchQuery` ne rejette jamais sa promesse — l'erreur reste en cache sans déclencher le cleanup).
 
 ## Definition of Done
 

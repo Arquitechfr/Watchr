@@ -6,9 +6,8 @@
     "moduleResolution": "bundler",
     "jsx": "react-jsx",
     "jsxImportSource": "nativewind",
-    "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"]
     }
   },
   "include": ["src/**/*", "App.tsx", "nativewind-env.d.ts", "svg.d.ts"]

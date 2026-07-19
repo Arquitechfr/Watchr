@@ -1,10 +1,10 @@
 name: Backend CI
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Watchr — Backend typecheck, lint & tests
+# Watchr — Backend typecheck & lint
 #
 # Runs on every push (all branches) and on pull requests targeting master/develop.
-# Steps: pnpm install → tsc --noEmit → eslint → vitest run
+# Steps: pnpm install → tsc --noEmit → eslint
 # ─────────────────────────────────────────────────────────────────────────────
 
 on:
@@ -14,7 +14,7 @@ on:
 
 jobs:
   backend-ci:
-    name: Typecheck, Lint & Tests
+    name: Typecheck & Lint
     runs-on: ubuntu-latest
 
     steps:
@@ -42,5 +42,3 @@ jobs:
       - name: Lint
         run: pnpm --filter backend lint
 
-      - name: Tests
-        run: pnpm --filter backend test

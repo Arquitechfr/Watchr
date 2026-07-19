@@ -132,7 +132,7 @@ export function ProfileContactScreen() {
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
       <Seo title={t("seo.contact")} />
       <SubScreenHeader title={t("screens.profile.contact")} />
-      <View className="md:max-w-lg md:mx-auto w-full">
+      <View className="flex-1 md:max-w-lg md:mx-auto w-full">
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 40 }}

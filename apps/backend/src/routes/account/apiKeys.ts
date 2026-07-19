@@ -4,7 +4,7 @@ import { validateRequest } from "../../validators/validateRequest.js";
 import { asyncHandler } from "../../lib/asyncHandler.js";
 import { ApiError } from "../../middleware/error.middleware.js";
 import { ApiKey, generateApiKey } from "../../models/ApiKey.js";
-import { createApiKeySchema, updateApiKeySchema, apiKeyIdParamSchema } from "../../validators/apiKey.validator.js";
+import { createApiKeySchema, renameApiKeySchema, apiKeyIdParamSchema } from "../../validators/apiKey.validator.js";
 
 const MAX_ACTIVE_KEYS = 10;
 
@@ -71,16 +71,13 @@ router.post(
 
 router.patch(
   "/:id",
-  validateRequest(updateApiKeySchema, undefined, apiKeyIdParamSchema),
+  validateRequest(renameApiKeySchema, undefined, apiKeyIdParamSchema),
   asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
-    const updates: Record<string, unknown> = {};
-    if (req.body.name) updates.name = req.body.name;
-    if (req.body.scopes) updates.scopes = req.body.scopes;
 
     const key = await ApiKey.findOneAndUpdate(
       { _id: id, userId: req.userId },
-      { $set: updates },
+      { $set: { name: req.body.name } },
       { new: true },
     ).select("-keyHash").lean();
 

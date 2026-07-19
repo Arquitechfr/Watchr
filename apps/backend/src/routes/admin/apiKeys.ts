@@ -5,6 +5,7 @@ import { asyncHandler } from "../../lib/asyncHandler.js";
 import { ApiError } from "../../middleware/error.middleware.js";
 import { ApiKey } from "../../models/ApiKey.js";
 import { generateApiKey } from "../../models/ApiKey.js";
+import { User } from "../../models/user.model.js";
 import { log } from "../../lib/logger.js";
 import {
   createApiKeySchema,
@@ -21,13 +22,28 @@ router.get(
   "/",
   validateRequest(undefined, listApiKeysQuerySchema),
   asyncHandler(async (req: Request, res: Response) => {
-    const { page, limit, userId } = req.query as unknown as {
+    const { page, limit, userId, search } = req.query as unknown as {
       page: number;
       limit: number;
       userId?: string;
+      search?: string;
     };
     const filter: Record<string, unknown> = {};
     if (userId) filter.userId = userId;
+
+    // If search is provided, lookup matching users by email or username (regex case-insensitive,
+    // same pattern as adminUser.service.ts). Combined with userId in AND if both are present.
+    if (search) {
+      const matchedUsers = await User.find({
+        $or: [
+          { email: { $regex: search, $options: "i" } },
+          { username: { $regex: search, $options: "i" } },
+        ],
+      }).select("_id").lean();
+      const matchedIds = matchedUsers.map((u) => u._id);
+      // No users matched → empty result, not a 404
+      filter.userId = { $in: matchedIds.length > 0 ? matchedIds : [null] };
+    }
 
     const skip = (page - 1) * limit;
     const [keys, total] = await Promise.all([

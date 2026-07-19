@@ -2,7 +2,18 @@ import nodemailer from "nodemailer";
 import axios from "axios";
 import { env } from "../config/env.js";
 import { SupportedLocale } from "../i18n/translations.js";
-import { welcomeTemplate, resetPasswordTemplate, banNotificationTemplate, commentDeletedTemplate, commentHiddenTemplate, commentSpoilerTemplate, emailCodeTemplate, baseHtml } from "./emailTemplates.js";
+import { translateEmail } from "../i18n/index.js";
+import {
+  renderEmail,
+  WelcomeEmail,
+  ResetPasswordEmail,
+  BanNotificationEmail,
+  EmailCodeEmail,
+  CommentDeletedEmail,
+  CommentHiddenEmail,
+  CommentSpoilerEmail,
+  CustomEmail,
+} from "../emails/index.js";
 import { log, logError } from "../lib/logger.js";
 import { EmailLog, EmailTemplate, EmailStatus } from "../models/emailLog.model.js";
 
@@ -224,7 +235,8 @@ export const EmailService = {
     username: string,
     locale: SupportedLocale | string | undefined,
   ): Promise<boolean> {
-    const { subject, html } = welcomeTemplate(locale, { username });
+    const subject = translateEmail("welcomeSubject", locale);
+    const html = await renderEmail(<WelcomeEmail locale={locale} username={username} />);
     return sendEmail({ to, subject, html, template: "welcome", locale: locale ?? undefined });
   },
 
@@ -233,7 +245,8 @@ export const EmailService = {
     resetUrl: string,
     locale: SupportedLocale | string | undefined,
   ): Promise<boolean> {
-    const { subject, html } = resetPasswordTemplate(locale, { resetUrl });
+    const subject = translateEmail("resetPasswordSubject", locale);
+    const html = await renderEmail(<ResetPasswordEmail locale={locale} resetUrl={resetUrl} />);
     return sendEmail({ to, subject, html, template: "reset_password", locale: locale ?? undefined });
   },
 
@@ -249,7 +262,17 @@ export const EmailService = {
     },
     triggeredBy?: string,
   ): Promise<boolean> {
-    const { subject, html } = banNotificationTemplate(locale, { username, ...params });
+    const subject = translateEmail("banSubject", locale, { username });
+    const html = await renderEmail(
+      <BanNotificationEmail
+        locale={locale}
+        username={username}
+        action={params.action}
+        reason={params.reason}
+        effectiveDate={params.effectiveDate}
+        suspendedUntil={params.suspendedUntil}
+      />,
+    );
     return sendEmail({ to, subject, html, template: "ban_notification", locale: locale ?? undefined, triggeredBy });
   },
 
@@ -259,7 +282,8 @@ export const EmailService = {
     locale: SupportedLocale | string | undefined,
     params: { showTitle: string },
   ): Promise<boolean> {
-    const { subject, html } = commentDeletedTemplate(locale, { username, showTitle: params.showTitle });
+    const subject = translateEmail("commentDeletedSubject", locale);
+    const html = await renderEmail(<CommentDeletedEmail locale={locale} username={username} showTitle={params.showTitle} />);
     return sendEmail({ to, subject, html, template: "comment_deleted", locale: locale ?? undefined });
   },
 
@@ -269,7 +293,8 @@ export const EmailService = {
     locale: SupportedLocale | string | undefined,
     params: { showTitle: string },
   ): Promise<boolean> {
-    const { subject, html } = commentHiddenTemplate(locale, { username, showTitle: params.showTitle });
+    const subject = translateEmail("commentHiddenSubject", locale);
+    const html = await renderEmail(<CommentHiddenEmail locale={locale} username={username} showTitle={params.showTitle} />);
     return sendEmail({ to, subject, html, template: "comment_hidden", locale: locale ?? undefined });
   },
 
@@ -279,7 +304,8 @@ export const EmailService = {
     locale: SupportedLocale | string | undefined,
     params: { showTitle: string },
   ): Promise<boolean> {
-    const { subject, html } = commentSpoilerTemplate(locale, { username, showTitle: params.showTitle });
+    const subject = translateEmail("commentSpoilerSubject", locale);
+    const html = await renderEmail(<CommentSpoilerEmail locale={locale} username={username} showTitle={params.showTitle} />);
     return sendEmail({ to, subject, html, template: "comment_spoiler", locale: locale ?? undefined });
   },
 
@@ -289,7 +315,8 @@ export const EmailService = {
     url: string,
     locale: SupportedLocale | string | undefined,
   ): Promise<boolean> {
-    const { subject, html } = emailCodeTemplate(locale, { code, url });
+    const subject = translateEmail("emailCodeSubject", locale);
+    const html = await renderEmail(<EmailCodeEmail locale={locale} code={code} url={url} />);
     return sendEmail({ to, subject, html, template: "email_code", locale: locale ?? undefined });
   },
 
@@ -301,7 +328,7 @@ export const EmailService = {
     triggeredBy?: string,
   ): Promise<boolean> {
     const sanitized = sanitizeHtml(htmlContent);
-    const html = baseHtml(sanitized, locale);
+    const html = await renderEmail(<CustomEmail innerHtml={sanitized} locale={locale} previewText={subject} />);
     return sendEmail({ to, subject, html, template: "custom", locale, triggeredBy });
   },
 
@@ -314,7 +341,7 @@ export const EmailService = {
   ): Promise<boolean> {
     const subject = `Re: ${originalSubject}`;
     const sanitized = sanitizeHtml(replyMessage);
-    const html = baseHtml(sanitized, locale);
+    const html = await renderEmail(<CustomEmail innerHtml={sanitized} locale={locale} previewText={subject} />);
     return sendEmail({ to, subject, html, template: "contact_reply", locale, triggeredBy });
   },
 };

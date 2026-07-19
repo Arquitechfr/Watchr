@@ -15,6 +15,7 @@ import { logError } from "../lib/logger.js";
 interface ApiUserContext {
   userId: string;
   scopes: string[];
+  language: string;
 }
 
 function checkScope(scopes: string[], required: "read" | "write"): boolean {
@@ -44,7 +45,7 @@ function buildMcpServer(apiUser: ApiUserContext): McpServer {
       if (!checkScope(apiUser.scopes, "read")) {
         return scopeError("read");
       }
-      const results = await searchShows(query);
+      const results = await searchShows(query, apiUser.language);
       return {
         content: [{ type: "text", text: JSON.stringify(results) }],
       };
@@ -64,7 +65,7 @@ function buildMcpServer(apiUser: ApiUserContext): McpServer {
       if (!checkScope(apiUser.scopes, "read")) {
         return scopeError("read");
       }
-      const result = await listTracking(apiUser.userId, page, limit);
+      const result = await listTracking(apiUser.userId, page, limit, undefined, apiUser.language);
       return {
         content: [{ type: "text", text: JSON.stringify(result) }],
       };
@@ -84,7 +85,7 @@ function buildMcpServer(apiUser: ApiUserContext): McpServer {
       if (!checkScope(apiUser.scopes, "write")) {
         return scopeError("write");
       }
-      const entry = await addToWatchlistByTmdb(apiUser.userId, tmdbId, type);
+      const entry = await addToWatchlistByTmdb(apiUser.userId, tmdbId, type, apiUser.language);
       return {
         content: [{ type: "text", text: JSON.stringify(entry) }],
       };
@@ -135,21 +136,31 @@ function buildMcpServer(apiUser: ApiUserContext): McpServer {
 
 export async function mcpHandler(req: Request, res: Response): Promise<void> {
   const apiUser = req.apiUser!;
+  const language = req.language ?? "en";
 
-  const server = buildMcpServer({ userId: apiUser.userId, scopes: apiUser.scopes });
+  const server = buildMcpServer({ userId: apiUser.userId, scopes: apiUser.scopes, language });
+
+  const transport = new StreamableHTTPServerTransport({
+    sessionIdGenerator: undefined,
+  });
+
+  // Attach cleanup listener BEFORE handleRequest to avoid race condition
+  // where 'close' fires during/just after handleRequest but before listener is attached.
+  let cleanedUp = false;
+  const cleanup = (): void => {
+    if (cleanedUp) return;
+    cleanedUp = true;
+    transport.close();
+    server.close();
+  };
+  res.on("close", cleanup);
 
   try {
-    const transport = new StreamableHTTPServerTransport({
-      sessionIdGenerator: undefined,
-    });
     await server.connect(transport);
     await transport.handleRequest(req, res, req.body);
-    res.on("close", () => {
-      transport.close();
-      server.close();
-    });
   } catch (error) {
     logError("McpServer", "Error handling MCP request", error);
+    cleanup();
     if (!res.headersSent) {
       res.status(500).json({
         jsonrpc: "2.0",

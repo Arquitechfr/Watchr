@@ -43,6 +43,7 @@ import { listContactMessages, getContactStats, getContactDetail, updateContactSt
 import { type ContactStatus, type ContactCategory } from "../../models/contactMessage.model.js";
 import { type AdminNotificationType } from "../../models/adminNotification.model.js";
 import { listIssues, getIssueDetail, listIssueEvents, updateIssueStatus, deleteIssue, getErrorStats } from "../../services/errorTracking.service.js";
+import apiKeysRouter from "./apiKeys.js";
 
 const router: Router = Router();
 
@@ -1108,5 +1109,7 @@ router.delete(
     res.status(204).send();
   }),
 );
+
+router.use("/api-keys", apiKeysRouter);
 
 export default router;

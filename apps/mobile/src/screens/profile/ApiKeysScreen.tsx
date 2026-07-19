@@ -12,6 +12,9 @@ import { useI18n } from "../../i18n/useI18n";
 import { useThemeColors } from "../../theme/useThemeColors";
 import { useErrorMessage } from "../../services/api";
 
+// Mirrors MAX_ACTIVE_KEYS in apps/backend/src/routes/account/apiKeys.ts.
+// The backend remains the source of truth (400 API_KEY_LIMIT_REACHED already handled);
+// this constant only disables the create button preemptively on the UI side.
 const MAX_ACTIVE_KEYS = 10;
 
 export function ApiKeysScreen() {

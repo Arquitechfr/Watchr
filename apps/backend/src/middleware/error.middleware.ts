@@ -1,8 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 import { env } from "../config/env.js";
 import { translate } from "../i18n/index.js";
-import { logError } from "../lib/logger.js";
+import { log, logError } from "../lib/logger.js";
 import { captureBackendError } from "../services/errorTracking.service.js";
+
+const EXPECTED_AUTH_CODES = new Set(["INVALID_TOKEN", "MISSING_TOKEN", "UNAUTHORIZED"]);
 
 function interpolate(template: string, params?: Record<string, string | number>): string {
   if (!params) return template;
@@ -34,7 +36,11 @@ export const errorMiddleware = (
 ): void => {
   const lang = req.language;
   if (err instanceof ApiError) {
-    logError("ErrorMiddleware", `API error ${err.status} ${err.code}`, err, { path: req.path, method: req.method, cause: err.cause });
+    if (EXPECTED_AUTH_CODES.has(err.code)) {
+      log("ErrorMiddleware", `API ${err.status} ${err.code}`, { path: req.path, method: req.method });
+    } else {
+      logError("ErrorMiddleware", `API error ${err.status} ${err.code}`, err, { path: req.path, method: req.method, cause: err.cause });
+    }
     const translated = translate(err.code, lang);
     const message = translated ? interpolate(translated, err.params) : err.message;
     res.status(err.status).json({

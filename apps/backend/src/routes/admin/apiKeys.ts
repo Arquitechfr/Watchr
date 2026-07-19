@@ -5,6 +5,7 @@ import { asyncHandler } from "../../lib/asyncHandler.js";
 import { ApiError } from "../../middleware/error.middleware.js";
 import { ApiKey } from "../../models/ApiKey.js";
 import { generateApiKey } from "../../models/ApiKey.js";
+import { log } from "../../lib/logger.js";
 import {
   createApiKeySchema,
   listApiKeysQuerySchema,
@@ -82,6 +83,12 @@ router.patch(
   validateRequest(updateApiKeySchema, undefined, apiKeyIdParamSchema),
   asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
+    const existing = await ApiKey.findById(id).select("userId").lean();
+    if (!existing) {
+      throw new ApiError(404, "API_KEY_NOT_FOUND", "API key not found");
+    }
+    const targetUserId = existing.userId.toString();
+
     const updates: Record<string, unknown> = {};
     if (req.body.name) updates.name = req.body.name;
     if (req.body.scopes) updates.scopes = req.body.scopes;
@@ -90,6 +97,7 @@ router.patch(
     if (!key) {
       throw new ApiError(404, "API_KEY_NOT_FOUND", "API key not found");
     }
+    log("AdminApiKey", "update", { adminUserId: req.userId, action: "update", targetApiKeyId: id, targetUserId });
     res.json({
       id: key._id.toString(),
       userId: key.userId.toString(),
@@ -108,6 +116,12 @@ router.post(
   validateRequest(undefined, undefined, apiKeyIdParamSchema),
   asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
+    const existing = await ApiKey.findById(id).select("userId").lean();
+    if (!existing) {
+      throw new ApiError(404, "API_KEY_NOT_FOUND", "API key not found");
+    }
+    const targetUserId = existing.userId.toString();
+
     const key = await ApiKey.findByIdAndUpdate(
       id,
       { $set: { revokedAt: new Date() } },
@@ -116,6 +130,7 @@ router.post(
     if (!key) {
       throw new ApiError(404, "API_KEY_NOT_FOUND", "API key not found");
     }
+    log("AdminApiKey", "revoke", { adminUserId: req.userId, action: "revoke", targetApiKeyId: id, targetUserId });
     res.json({
       id: key._id.toString(),
       revokedAt: key.revokedAt,
@@ -128,10 +143,17 @@ router.delete(
   validateRequest(undefined, undefined, apiKeyIdParamSchema),
   asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
+    const existing = await ApiKey.findById(id).select("userId").lean();
+    if (!existing) {
+      throw new ApiError(404, "API_KEY_NOT_FOUND", "API key not found");
+    }
+    const targetUserId = existing.userId.toString();
+
     const result = await ApiKey.deleteOne({ _id: id });
     if (result.deletedCount === 0) {
       throw new ApiError(404, "API_KEY_NOT_FOUND", "API key not found");
     }
+    log("AdminApiKey", "delete", { adminUserId: req.userId, action: "delete", targetApiKeyId: id, targetUserId });
     res.status(204).send();
   }),
 );

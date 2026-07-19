@@ -2,6 +2,13 @@ import { useTranslation } from "react-i18next";
 import { CodeBlock } from "@/components/shared/CodeBlock";
 import { cn } from "@/lib/utils";
 
+interface ParamDef {
+  name: string;
+  type: string;
+  required: boolean;
+  descKey: string;
+}
+
 interface EndpointData {
   method: "GET" | "POST" | "PATCH" | "DELETE";
   path: string;
@@ -11,6 +18,8 @@ interface EndpointData {
   curl: string;
   response: string;
   responseStatus: string;
+  params?: ParamDef[];
+  bodySchema?: { fields: { name: string; type: string; required: boolean; descKey: string }[] };
 }
 
 const ENDPOINTS: EndpointData[] = [
@@ -20,6 +29,9 @@ const ENDPOINTS: EndpointData[] = [
     scope: "read",
     titleKey: "docs.endpoints.search.title",
     descKey: "docs.endpoints.search.description",
+    params: [
+      { name: "q", type: "string", required: true, descKey: "docs.endpoints.params.searchQ" },
+    ],
     curl: `curl -H "Authorization: Bearer wtc_your_key" \\
   "https://api.watchr.me/api/public/v1/search?q=breaking+bad"`,
     response: `{
@@ -52,6 +64,11 @@ const ENDPOINTS: EndpointData[] = [
     scope: "read",
     titleKey: "docs.endpoints.getWatchlist.title",
     descKey: "docs.endpoints.getWatchlist.description",
+    params: [
+      { name: "page", type: "number", required: false, descKey: "docs.endpoints.params.page" },
+      { name: "limit", type: "number", required: false, descKey: "docs.endpoints.params.limit" },
+      { name: "status", type: "string", required: false, descKey: "docs.endpoints.params.status" },
+    ],
     curl: `curl -H "Authorization: Bearer wtc_your_key" \\
   "https://api.watchr.me/api/public/v1/watchlist?page=1&limit=20"`,
     response: `{
@@ -93,15 +110,17 @@ const ENDPOINTS: EndpointData[] = [
     scope: "write",
     titleKey: "docs.endpoints.postWatchlist.title",
     descKey: "docs.endpoints.postWatchlist.description",
+    bodySchema: {
+      fields: [
+        { name: "tmdbId", type: "number", required: true, descKey: "docs.endpoints.body.tmdbId" },
+        { name: "type", type: "\"tv\" | \"movie\"", required: true, descKey: "docs.endpoints.body.type" },
+      ],
+    },
     curl: `curl -X POST \\
   -H "Authorization: Bearer wtc_your_key" \\
   -H "Content-Type: application/json" \\
   -d '{"tmdbId": 1396, "type": "tv"}' \\
   "https://api.watchr.me/api/public/v1/watchlist"`,
-    // TODO: The POST endpoint returns a raw Mongoose WatchEntry document (no populate).
-    // Fields like __v, _id as ObjectId, currentSeason/currentEpisode may be absent
-    // since they are not set during creation. This example is based on the schema
-    // but exact field presence is not 100% verified from runtime.
     response: `{
   "_id": "665a1b2c3d4e5f6a7b8c9d0e",
   "userId": "665a0a0b1c2d3e4f5a6b7c8d",
@@ -120,13 +139,22 @@ const ENDPOINTS: EndpointData[] = [
     scope: "write",
     titleKey: "docs.endpoints.patchWatchlist.title",
     descKey: "docs.endpoints.patchWatchlist.description",
+    params: [
+      { name: ":showId", type: "string", required: true, descKey: "docs.endpoints.params.showId" },
+    ],
+    bodySchema: {
+      fields: [
+        { name: "status", type: "WatchStatus", required: false, descKey: "docs.endpoints.body.status" },
+        { name: "watchedEpisodes", type: "WatchedEpisode[]", required: false, descKey: "docs.endpoints.body.watchedEpisodes" },
+        { name: "currentSeason", type: "number", required: false, descKey: "docs.endpoints.body.currentSeason" },
+        { name: "currentEpisode", type: "number", required: false, descKey: "docs.endpoints.body.currentEpisode" },
+      ],
+    },
     curl: `curl -X PATCH \\
   -H "Authorization: Bearer wtc_your_key" \\
   -H "Content-Type: application/json" \\
   -d '{"status": "completed"}' \\
   "https://api.watchr.me/api/public/v1/watchlist/665a1a1b2c3d4e5f6a7b8c9d"`,
-    // TODO: Same as POST — returns raw Mongoose document from findOneAndUpdate.
-    // Exact field set depends on what was $set in the update.
     response: `{
   "_id": "665a1b2c3d4e5f6a7b8c9d0e",
   "userId": "665a0a0b1c2d3e4f5a6b7c8d",
@@ -149,6 +177,9 @@ const ENDPOINTS: EndpointData[] = [
     scope: "write",
     titleKey: "docs.endpoints.deleteWatchlist.title",
     descKey: "docs.endpoints.deleteWatchlist.description",
+    params: [
+      { name: ":showId", type: "string", required: true, descKey: "docs.endpoints.params.showId" },
+    ],
     curl: `curl -X DELETE \\
   -H "Authorization: Bearer wtc_your_key" \\
   "https://api.watchr.me/api/public/v1/watchlist/665a1a1b2c3d4e5f6a7b8c9d"`,
@@ -190,6 +221,78 @@ function EndpointCard({ endpoint }: { endpoint: EndpointData }) {
       <p className="mt-1 text-sm leading-relaxed text-text-muted">
         {t(endpoint.descKey)}
       </p>
+
+      {endpoint.params && endpoint.params.length > 0 && (
+        <div className="mt-4">
+          <p className="mb-2 text-xs font-medium text-text-muted">
+            {t("docs.endpoints.paramsTitle")}
+          </p>
+          <div className="overflow-x-auto rounded-xl border border-border bg-surface-light/30">
+            <table className="w-full text-left text-xs">
+              <thead className="border-b border-border">
+                <tr>
+                  <th className="px-3 py-2 font-semibold text-text">{t("docs.endpoints.colParam")}</th>
+                  <th className="px-3 py-2 font-semibold text-text">{t("docs.endpoints.colType")}</th>
+                  <th className="px-3 py-2 font-semibold text-text">{t("docs.endpoints.colRequired")}</th>
+                  <th className="px-3 py-2 font-semibold text-text">{t("docs.endpoints.colDescription")}</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {endpoint.params.map((p) => (
+                  <tr key={p.name}>
+                    <td className="px-3 py-2"><code className="font-mono text-primary">{p.name}</code></td>
+                    <td className="px-3 py-2 text-text-muted">{p.type}</td>
+                    <td className="px-3 py-2">
+                      {p.required ? (
+                        <span className="rounded-md bg-danger/15 px-1.5 py-0.5 text-xs font-medium text-danger">required</span>
+                      ) : (
+                        <span className="rounded-md bg-surface px-1.5 py-0.5 text-xs font-medium text-text-muted">optional</span>
+                      )}
+                    </td>
+                    <td className="px-3 py-2 text-text-muted">{t(p.descKey)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {endpoint.bodySchema && endpoint.bodySchema.fields.length > 0 && (
+        <div className="mt-4">
+          <p className="mb-2 text-xs font-medium text-text-muted">
+            {t("docs.endpoints.bodyTitle")}
+          </p>
+          <div className="overflow-x-auto rounded-xl border border-border bg-surface-light/30">
+            <table className="w-full text-left text-xs">
+              <thead className="border-b border-border">
+                <tr>
+                  <th className="px-3 py-2 font-semibold text-text">{t("docs.endpoints.colParam")}</th>
+                  <th className="px-3 py-2 font-semibold text-text">{t("docs.endpoints.colType")}</th>
+                  <th className="px-3 py-2 font-semibold text-text">{t("docs.endpoints.colRequired")}</th>
+                  <th className="px-3 py-2 font-semibold text-text">{t("docs.endpoints.colDescription")}</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {endpoint.bodySchema.fields.map((f) => (
+                  <tr key={f.name}>
+                    <td className="px-3 py-2"><code className="font-mono text-primary">{f.name}</code></td>
+                    <td className="px-3 py-2 text-text-muted">{f.type}</td>
+                    <td className="px-3 py-2">
+                      {f.required ? (
+                        <span className="rounded-md bg-danger/15 px-1.5 py-0.5 text-xs font-medium text-danger">required</span>
+                      ) : (
+                        <span className="rounded-md bg-surface px-1.5 py-0.5 text-xs font-medium text-text-muted">optional</span>
+                      )}
+                    </td>
+                    <td className="px-3 py-2 text-text-muted">{t(f.descKey)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       <div className="mt-4 space-y-3">
         <div>

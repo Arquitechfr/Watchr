@@ -7,6 +7,7 @@ import { getTmdbSystemUserId } from "./tmdbSystemUser.js";
 import { getRedisValue, setRedisValue } from "../lib/redis.js";
 import { log, logError } from "../lib/logger.js";
 import { translateCommentAsync } from "./aiCommentTranslation.service.js";
+import { wsEvents } from "../lib/wsEvents.js";
 
 const IMPORT_CACHE_TTL = 6 * 60 * 60;
 const REVIEWS_CACHE_TTL = 300;
@@ -85,6 +86,8 @@ export async function importTmdbReviewsIfNeeded(
     };
 
     const systemUserId = await getTmdbSystemUserId();
+    const startTime = new Date();
+    let newCount = 0;
 
     for (const review of parsed.results) {
       const content = review.content.length > MAX_CONTENT_LENGTH
@@ -130,6 +133,17 @@ export async function importTmdbReviewsIfNeeded(
       translateCommentAsync(upserted._id.toString(), content).catch((err) =>
         logError("TmdbReviewImport", "translation failed", err, { commentId: upserted._id.toString() }),
       );
+
+      if (upserted.createdAt >= startTime) {
+        newCount++;
+      }
+    }
+
+    if (newCount > 0) {
+      wsEvents.emit("comment:created", {
+        showId,
+        comment: { id: "tmdb-import" },
+      });
     }
 
     await setRedisValue(importCacheKey, "1", IMPORT_CACHE_TTL);

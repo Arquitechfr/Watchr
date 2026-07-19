@@ -13,18 +13,70 @@ const MCP_CONFIG = `{
   }
 }`;
 
+interface McpToolParam {
+  name: string;
+  type: string;
+  required: boolean;
+  descKey: string;
+}
+
 interface McpTool {
   name: string;
   scope: "read" | "write";
   descKey: string;
+  params?: McpToolParam[];
+  responseExample?: string;
 }
 
 const MCP_TOOLS: McpTool[] = [
-  { name: "search_show", scope: "read", descKey: "docs.mcp.tools.search_show" },
-  { name: "list_watchlist", scope: "read", descKey: "docs.mcp.tools.list_watchlist" },
-  { name: "add_to_watchlist", scope: "write", descKey: "docs.mcp.tools.add_to_watchlist" },
-  { name: "update_watch_status", scope: "write", descKey: "docs.mcp.tools.update_watch_status" },
-  { name: "remove_from_watchlist", scope: "write", descKey: "docs.mcp.tools.remove_from_watchlist" },
+  {
+    name: "search_show",
+    scope: "read",
+    descKey: "docs.mcp.tools.search_show",
+    params: [
+      { name: "query", type: "string", required: true, descKey: "docs.mcp.tools.search_show.params.query" },
+    ],
+    responseExample: `{
+  "content": [
+    { "type": "text", "text": "{\"results\":[{\"tmdbId\":1396,\"type\":\"tv\",\"title\":\"Breaking Bad\"}]}" }
+  ]
+}`,
+  },
+  {
+    name: "list_watchlist",
+    scope: "read",
+    descKey: "docs.mcp.tools.list_watchlist",
+    params: [
+      { name: "page", type: "number", required: false, descKey: "docs.mcp.tools.list_watchlist.params.page" },
+      { name: "limit", type: "number", required: false, descKey: "docs.mcp.tools.list_watchlist.params.limit" },
+    ],
+  },
+  {
+    name: "add_to_watchlist",
+    scope: "write",
+    descKey: "docs.mcp.tools.add_to_watchlist",
+    params: [
+      { name: "tmdbId", type: "number", required: true, descKey: "docs.mcp.tools.add_to_watchlist.params.tmdbId" },
+      { name: "type", type: "\"tv\" | \"movie\"", required: true, descKey: "docs.mcp.tools.add_to_watchlist.params.type" },
+    ],
+  },
+  {
+    name: "update_watch_status",
+    scope: "write",
+    descKey: "docs.mcp.tools.update_watch_status",
+    params: [
+      { name: "itemId", type: "string", required: true, descKey: "docs.mcp.tools.update_watch_status.params.itemId" },
+      { name: "status", type: "WatchStatus", required: true, descKey: "docs.mcp.tools.update_watch_status.params.status" },
+    ],
+  },
+  {
+    name: "remove_from_watchlist",
+    scope: "write",
+    descKey: "docs.mcp.tools.remove_from_watchlist",
+    params: [
+      { name: "itemId", type: "string", required: true, descKey: "docs.mcp.tools.remove_from_watchlist.params.itemId" },
+    ],
+  },
 ];
 
 export function DocsMcp() {
@@ -102,23 +154,65 @@ export function DocsMcp() {
             {MCP_TOOLS.map((tool) => (
               <div
                 key={tool.name}
-                className="flex items-start gap-3 rounded-xl border border-border bg-surface-light/30 p-4"
+                className="rounded-xl border border-border bg-surface-light/30 p-4"
               >
-                <code className="shrink-0 font-mono text-sm font-medium text-primary">
-                  {tool.name}
-                </code>
-                <span
-                  className={`mt-0.5 shrink-0 rounded-md px-2 py-0.5 text-xs font-medium ${
-                    tool.scope === "read"
-                      ? "bg-success/15 text-success"
-                      : "bg-warning/15 text-warning"
-                  }`}
-                >
-                  {tool.scope}
-                </span>
-                <p className="text-sm leading-relaxed text-text-muted">
-                  {t(tool.descKey)}
-                </p>
+                <div className="flex items-start gap-3">
+                  <code className="shrink-0 font-mono text-sm font-medium text-primary">
+                    {tool.name}
+                  </code>
+                  <span
+                    className={`mt-0.5 shrink-0 rounded-md px-2 py-0.5 text-xs font-medium ${
+                      tool.scope === "read"
+                        ? "bg-success/15 text-success"
+                        : "bg-warning/15 text-warning"
+                    }`}
+                  >
+                    {tool.scope}
+                  </span>
+                  <p className="text-sm leading-relaxed text-text-muted">
+                    {t(tool.descKey)}
+                  </p>
+                </div>
+
+                {tool.params && tool.params.length > 0 && (
+                  <div className="mt-3 overflow-x-auto rounded-lg border border-border bg-surface-light/20">
+                    <table className="w-full text-left text-xs">
+                      <thead className="border-b border-border">
+                        <tr>
+                          <th className="px-3 py-1.5 font-semibold text-text">{t("docs.endpoints.colParam")}</th>
+                          <th className="px-3 py-1.5 font-semibold text-text">{t("docs.endpoints.colType")}</th>
+                          <th className="px-3 py-1.5 font-semibold text-text">{t("docs.endpoints.colRequired")}</th>
+                          <th className="px-3 py-1.5 font-semibold text-text">{t("docs.endpoints.colDescription")}</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-border">
+                        {tool.params.map((p) => (
+                          <tr key={p.name}>
+                            <td className="px-3 py-1.5"><code className="font-mono text-primary">{p.name}</code></td>
+                            <td className="px-3 py-1.5 text-text-muted">{p.type}</td>
+                            <td className="px-3 py-1.5">
+                              {p.required ? (
+                                <span className="rounded-md bg-danger/15 px-1.5 py-0.5 text-xs font-medium text-danger">required</span>
+                              ) : (
+                                <span className="rounded-md bg-surface px-1.5 py-0.5 text-xs font-medium text-text-muted">optional</span>
+                              )}
+                            </td>
+                            <td className="px-3 py-1.5 text-text-muted">{t(p.descKey)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+
+                {tool.responseExample && (
+                  <div className="mt-3">
+                    <p className="mb-1.5 text-xs font-medium text-text-muted">
+                      {t("docs.endpoints.responseLabel")}
+                    </p>
+                    <CodeBlock code={tool.responseExample} language="JSON" />
+                  </div>
+                )}
               </div>
             ))}
           </div>

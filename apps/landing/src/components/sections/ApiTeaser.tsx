@@ -1,28 +1,16 @@
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { ArrowRight, Terminal, Plug } from "lucide-react";
-import { useScrollReveal } from "@/hooks/useScrollReveal";
-import { CodeBlock } from "@/components/shared/CodeBlock";
+import { ArrowRight, Terminal, Plug, Key } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { cn } from "@/lib/utils";
-
-const SEARCH_CURL = `curl -H "Authorization: Bearer wtc_your_key" \\
-  "https://api.watchr.me/api/public/v1/search?q=breaking+bad"`;
-
-const MCP_CONFIG = `{
-  "mcpServers": {
-    "watchr": {
-      "url": "https://api.watchr.me/mcp",
-      "headers": {
-        "Authorization": "Bearer wtc_your_key"
-      }
-    }
-  }
-}`;
 
 export function ApiTeaser() {
   const { t } = useTranslation();
-  const { ref, isVisible } = useScrollReveal<HTMLDivElement>();
+
+  const features = [
+    { icon: Terminal, titleKey: "apiTeaser.features.rest", descKey: "apiTeaser.features.restDesc" },
+    { icon: Plug, titleKey: "apiTeaser.features.mcp", descKey: "apiTeaser.features.mcpDesc" },
+    { icon: Key, titleKey: "apiTeaser.features.apiKey", descKey: "apiTeaser.features.apiKeyDesc" },
+  ];
 
   return (
     <section id="api" className="py-20 sm:py-28">
@@ -40,42 +28,23 @@ export function ApiTeaser() {
           </p>
         </div>
 
-        <div
-          ref={ref}
-          className={cn(
-            "mt-16 grid grid-cols-1 gap-6 lg:grid-cols-2",
-            isVisible && "animate-fade-in-up",
-          )}
-        >
-          <div className="rounded-2xl border border-border bg-surface p-6">
-            <div className="mb-4 flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
-                <Terminal className="h-5 w-5 text-primary" />
+        <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-3">
+          {features.map((feature) => (
+            <div
+              key={feature.titleKey}
+              className="rounded-2xl border border-border bg-surface p-6 text-center"
+            >
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
+                <feature.icon className="h-6 w-6 text-primary" />
               </div>
-              <div>
-                <h3 className="text-base font-semibold text-text">
-                  {t("apiTeaser.codeSearchTitle")}
-                </h3>
-                <p className="text-xs text-text-muted">{t("apiTeaser.codeSearchDesc")}</p>
-              </div>
+              <h3 className="text-base font-semibold text-text">
+                {t(feature.titleKey)}
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-text-muted">
+                {t(feature.descKey)}
+              </p>
             </div>
-            <CodeBlock code={SEARCH_CURL} language="bash" />
-          </div>
-
-          <div className="rounded-2xl border border-border bg-surface p-6">
-            <div className="mb-4 flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
-                <Plug className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <h3 className="text-base font-semibold text-text">
-                  {t("apiTeaser.codeMcpTitle")}
-                </h3>
-                <p className="text-xs text-text-muted">{t("apiTeaser.codeMcpDesc")}</p>
-              </div>
-            </div>
-            <CodeBlock code={MCP_CONFIG} language="JSON" />
-          </div>
+          ))}
         </div>
 
         <div className="mt-12 text-center">

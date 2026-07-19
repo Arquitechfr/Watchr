@@ -7,9 +7,11 @@ import {
   listTracking,
   addToWatchlistByTmdb,
   upsertTracking,
+  upsertWithProgress,
   deleteTracking,
 } from "../services/tracking.service.js";
 import { WatchStatus } from "../models/watchEntry.model.js";
+import { Show } from "../models/show.model.js";
 import { logError } from "../lib/logger.js";
 
 interface ApiUserContext {
@@ -105,6 +107,34 @@ function buildMcpServer(apiUser: ApiUserContext): McpServer {
       if (!checkScope(apiUser.scopes, "write")) {
         return scopeError("write");
       }
+
+      // When marking as completed, mark all episodes as watched
+      if (status === "completed") {
+        const show = await Show.findById(itemId).lean();
+        if (!show) {
+          return {
+            content: [{ type: "text", text: JSON.stringify({ error: "Show not found" }) }],
+            isError: true,
+          };
+        }
+        const seasons = show.seasons ?? [];
+        if (seasons.length > 0) {
+          const lastSeason = seasons[seasons.length - 1];
+          const lastEpisode = lastSeason.episodes?.length ?? 0;
+          const entry = await upsertWithProgress(apiUser.userId, itemId, {
+            status: "completed",
+            markUpTo: {
+              season: lastSeason.seasonNumber,
+              episode: lastEpisode,
+              includePrevious: true,
+            },
+          });
+          return {
+            content: [{ type: "text", text: JSON.stringify(entry) }],
+          };
+        }
+      }
+
       const entry = await upsertTracking(apiUser.userId, itemId, { status: status as WatchStatus });
       return {
         content: [{ type: "text", text: JSON.stringify(entry) }],

@@ -16,6 +16,8 @@ export function CodeBlock({ code, language, className, showCopy = true }: CodeBl
     navigator.clipboard.writeText(code).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    }).catch(() => {
+      setCopied(false);
     });
   }, [code]);
 

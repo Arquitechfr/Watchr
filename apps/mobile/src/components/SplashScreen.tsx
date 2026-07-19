@@ -8,6 +8,7 @@ import Animated, {
   withDelay,
 } from "react-native-reanimated";
 import { useLocaleStore } from "../store/localeStore";
+import { darkColors } from "../theme/colors";
 import type { SupportedLocale } from "../i18n/translations";
 
 const SPLASH_IMAGES: Record<SupportedLocale, ImageSourcePropType> = {
@@ -51,23 +52,28 @@ export function SplashScreen({ visible }: SplashScreenProps) {
   if (!rendered) return null;
 
   return (
-    <Animated.View
-      style={[StyleSheet.absoluteFill, containerStyle]}
-    >
-      <ImageBackground
-        source={SPLASH_IMAGES[locale] ?? SPLASH_IMAGES.en}
-        style={StyleSheet.absoluteFill}
-        resizeMode="cover"
+    <View style={[StyleSheet.absoluteFill, styles.background]}>
+      <Animated.View
+        style={[StyleSheet.absoluteFill, containerStyle]}
       >
-        <View style={styles.loaderContainer}>
-          <ActivityIndicator size="large" color="#C65D3A" />
-        </View>
-      </ImageBackground>
-    </Animated.View>
+        <ImageBackground
+          source={SPLASH_IMAGES[locale] ?? SPLASH_IMAGES.en}
+          style={StyleSheet.absoluteFill}
+          resizeMode="cover"
+        >
+          <View style={styles.loaderContainer}>
+            <ActivityIndicator size="large" color="#C65D3A" />
+          </View>
+        </ImageBackground>
+      </Animated.View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  background: {
+    backgroundColor: darkColors.background,
+  },
   loaderContainer: {
     position: "absolute",
     bottom: 80,

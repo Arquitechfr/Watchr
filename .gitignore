@@ -58,3 +58,4 @@ apps/backend/src/scripts/promote-admin.ts
 apps/admin/.env.production
 AI-USE-CASES.md
 git_show_output.txt
+docs/MCP-OAUTH.md

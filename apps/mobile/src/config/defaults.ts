@@ -6,6 +6,7 @@ export const DEFAULT_REMOTE_CONFIG = {
   comment_auto_hide_threshold: 5,
   comment_auto_spoiler_threshold: 3,
   rating_cooldown_days: 7,
+  default_admin_user_id: "",
   ai_spoiler_detection_enabled: false,
   ai_toxic_detection_enabled: false,
   ai_recommendations_enabled: false,

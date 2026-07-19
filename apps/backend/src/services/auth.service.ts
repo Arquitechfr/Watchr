@@ -16,6 +16,7 @@ import { translateBioAsync } from "../services/aiBioTranslation.service.js";
 import { logError } from "../lib/logger.js";
 import { normalizeLocale } from "../i18n/index.js";
 import { isEmailDomainBlocked } from "../lib/blockedEmailDomains.js";
+import { autoFollowAdmin } from "../services/autoFollowAdmin.js";
 
 const ACCESS_TOKEN_TTL_SECONDS = 15 * 60;
 const REFRESH_TOKEN_TTL_DAYS = 30;
@@ -102,6 +103,10 @@ export async function registerUser(
     properties: { signupPlatform: signupPlatform ?? "unknown", method: "email" },
   });
 
+  autoFollowAdmin(user._id.toString()).catch((err) =>
+    console.error("Failed to auto-follow admin:", err),
+  );
+
   return await issueTokenPair(user._id.toString(), user.preferredLanguage);
 }
 
@@ -169,6 +174,10 @@ export async function loginWithFirebase(
       event: "user_signed_up",
       properties: { signupPlatform: signupPlatform ?? "unknown", method: "google" },
     });
+
+    autoFollowAdmin(user._id.toString()).catch((err) =>
+      console.error("Failed to auto-follow admin:", err),
+    );
   }
 
   user.lastLoginAt = new Date();
@@ -228,6 +237,10 @@ export async function loginWithGoogleUserInfo(
       event: "user_signed_up",
       properties: { signupPlatform: signupPlatform ?? "unknown", method: "google" },
     });
+
+    autoFollowAdmin(user._id.toString()).catch((err) =>
+      console.error("Failed to auto-follow admin:", err),
+    );
   }
 
   user.lastLoginAt = new Date();

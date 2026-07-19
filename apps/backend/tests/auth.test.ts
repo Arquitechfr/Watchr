@@ -3,6 +3,9 @@ import request from "supertest";
 import { createApp } from "../src/app.js";
 import { setup, teardown } from "./setup.js";
 import { clearDatabase } from "../src/lib/database.js";
+import { User } from "../src/models/user.model.js";
+import { Follow } from "../src/models/follow.model.js";
+import { MobileConfig } from "../src/models/MobileConfig.js";
 import type { DecodedIdToken } from "firebase-admin/auth";
 
 const mockVerifyIdToken = vi.fn();
@@ -274,5 +277,44 @@ describe("Auth", () => {
     });
     expect(res.status).toBe(422);
     expect(res.body.error.code).toBe("EMAIL_DOMAIN_BLOCKED");
+  });
+
+  it("should auto-follow admin bidirectionally on register", async () => {
+    const admin = await User.create({
+      email: "admin@watchr.me",
+      username: "admin",
+      passwordHash: "$2a$12$dummy",
+      role: "admin",
+    });
+
+    await MobileConfig.create({
+      key: "default_admin_user_id",
+      value: admin._id.toString(),
+      type: "string",
+      updatedBy: "test",
+    });
+
+    const res = await request(app).post("/api/auth/register").send({
+      email: "newuser@test-watchr.dev",
+      password: "password123",
+    });
+    expect(res.status).toBe(201);
+
+    const newUser = await User.findOne({ email: "newuser@test-watchr.dev" });
+    expect(newUser).toBeTruthy();
+
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    const userFollowsAdmin = await Follow.findOne({
+      followerId: newUser!._id,
+      followingId: admin._id,
+    });
+    expect(userFollowsAdmin).toBeTruthy();
+
+    const adminFollowsUser = await Follow.findOne({
+      followerId: admin._id,
+      followingId: newUser!._id,
+    });
+    expect(adminFollowsUser).toBeTruthy();
   });
 });

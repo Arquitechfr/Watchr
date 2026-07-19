@@ -345,11 +345,11 @@ const ar = {
       },
       patchWatchlist: {
         title: "تحديث حالة المشاهدة",
-        description: "حدّث حالة المشاهدة لعنصر في قائمة المشاهدات. المعامل :id هو ObjectId للعرض. يمكن أن يتضمن نص الطلب: status، watchedEpisodes، currentSeason، currentEpisode.",
+        description: "حدّث حالة المشاهدة لعنصر في قائمة المشاهدات. المعامل :showId هو ObjectId للعرض. يمكن أن يتضمن نص الطلب: status، watchedEpisodes، currentSeason، currentEpisode.",
       },
       deleteWatchlist: {
         title: "إزالة من قائمة المشاهدات",
-        description: "أزل عنصراً نهائياً من قائمة المشاهدات. المعامل :id هو ObjectId للعرض. يعيد 204 No Content عند النجاح.",
+        description: "أزل عنصراً نهائياً من قائمة المشاهدات. المعامل :showId هو ObjectId للعرض. يعيد 204 No Content عند النجاح.",
       },
     },
     rateLimit: {

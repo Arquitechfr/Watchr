@@ -345,11 +345,11 @@ const en = {
       },
       patchWatchlist: {
         title: "Update watch status",
-        description: "Update the watch status of an item in the watchlist. The :id parameter is the Show ObjectId. Request body can include: status, watchedEpisodes, currentSeason, currentEpisode.",
+        description: "Update the watch status of an item in the watchlist. The :showId parameter is the Show ObjectId. Request body can include: status, watchedEpisodes, currentSeason, currentEpisode.",
       },
       deleteWatchlist: {
         title: "Remove from watchlist",
-        description: "Remove an item from the watchlist permanently. The :id parameter is the Show ObjectId. Returns 204 No Content on success.",
+        description: "Remove an item from the watchlist permanently. The :showId parameter is the Show ObjectId. Returns 204 No Content on success.",
       },
     },
     rateLimit: {

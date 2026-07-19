@@ -116,13 +116,10 @@ const ENDPOINTS: EndpointData[] = [
   },
   {
     method: "PATCH",
-    path: "/api/public/v1/watchlist/:id",
+    path: "/api/public/v1/watchlist/:showId",
     scope: "write",
     titleKey: "docs.endpoints.patchWatchlist.title",
     descKey: "docs.endpoints.patchWatchlist.description",
-    // TODO: The route uses :id but showIdParamSchema validates "showId" key.
-    // This is a backend bug — the param validation will fail with 400.
-    // The :id parameter should be the Show ObjectId (showId).
     curl: `curl -X PATCH \\
   -H "Authorization: Bearer wtc_your_key" \\
   -H "Content-Type: application/json" \\
@@ -148,11 +145,10 @@ const ENDPOINTS: EndpointData[] = [
   },
   {
     method: "DELETE",
-    path: "/api/public/v1/watchlist/:id",
+    path: "/api/public/v1/watchlist/:showId",
     scope: "write",
     titleKey: "docs.endpoints.deleteWatchlist.title",
     descKey: "docs.endpoints.deleteWatchlist.description",
-    // TODO: Same showIdParamSchema/:id mismatch as PATCH.
     curl: `curl -X DELETE \\
   -H "Authorization: Bearer wtc_your_key" \\
   "https://api.watchr.me/api/public/v1/watchlist/665a1a1b2c3d4e5f6a7b8c9d"`,

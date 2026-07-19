@@ -52,25 +52,25 @@ router.post(
 );
 
 router.patch(
-  "/:id",
+  "/:showId",
   apiKeyAuth("write"),
   writeLimiter,
   validateRequest(upsertTrackingSchema, undefined, showIdParamSchema),
   asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
-    const entry = await upsertTracking(req.apiUser!.userId, id, req.body);
+    const { showId } = req.params;
+    const entry = await upsertTracking(req.apiUser!.userId, showId, req.body);
     res.json(entry);
   }),
 );
 
 router.delete(
-  "/:id",
+  "/:showId",
   apiKeyAuth("write"),
   writeLimiter,
   validateRequest(undefined, undefined, showIdParamSchema),
   asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
-    await deleteTracking(req.apiUser!.userId, id);
+    const { showId } = req.params;
+    await deleteTracking(req.apiUser!.userId, showId);
     res.status(204).send();
   }),
 );

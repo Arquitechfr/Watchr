@@ -345,11 +345,11 @@ const fr = {
       },
       patchWatchlist: {
         title: "Mettre à jour le statut",
-        description: "Mettez à jour le statut de visionnage d'un élément de la watchlist. Le paramètre :id est l'ObjectId du Show. Le corps de la requête peut inclure : status, watchedEpisodes, currentSeason, currentEpisode.",
+        description: "Mettez à jour le statut de visionnage d'un élément de la watchlist. Le paramètre :showId est l'ObjectId du Show. Le corps de la requête peut inclure : status, watchedEpisodes, currentSeason, currentEpisode.",
       },
       deleteWatchlist: {
         title: "Retirer de la watchlist",
-        description: "Retirez définitivement un élément de la watchlist. Le paramètre :id est l'ObjectId du Show. Renvoie 204 No Content en cas de succès.",
+        description: "Retirez définitivement un élément de la watchlist. Le paramètre :showId est l'ObjectId du Show. Renvoie 204 No Content en cas de succès.",
       },
     },
     rateLimit: {

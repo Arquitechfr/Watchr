@@ -29,6 +29,7 @@ import contactRoutes from "./routes/contact.routes.js";
 import mobileConfigRoutes from "./routes/internal/mobileConfig.routes.js";
 import errorTrackingRoutes from "./routes/internal/errorTracking.routes.js";
 import adminRoutes from "./routes/admin/index.js";
+import accountApiKeyRoutes from "./routes/account/apiKeys.js";
 import publicV1Router from "./routes/public/v1/index.js";
 import { apiKeyAuth } from "./middleware/apiKeyAuth.js";
 import { writeLimiter } from "./middleware/apiRateLimiter.js";
@@ -371,6 +372,7 @@ export function createApp(): Application {
   app.use("/ci", ciRoutes);
   app.use("/internal", mobileConfigRoutes);
   app.use("/internal", errorTrackingRoutes);
+  app.use("/api/account/api-keys", accountApiKeyRoutes);
   app.use("/api/admin", adminRoutes);
 
   app.use("/api/public/v1", publicV1Router);

@@ -66,9 +66,10 @@ export async function listUsers(query: ListUsersQuery): Promise<ListUsersResult>
     filter.role = role;
   }
   if (search) {
+    const escapedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     filter.$or = [
-      { email: { $regex: search, $options: "i" } },
-      { username: { $regex: search, $options: "i" } },
+      { email: { $regex: escapedSearch, $options: "i" } },
+      { username: { $regex: escapedSearch, $options: "i" } },
     ];
   }
 

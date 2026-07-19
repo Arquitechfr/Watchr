@@ -25,6 +25,8 @@ import uploadRoutes from "./routes/upload.routes.js";
 import ciRoutes from "./routes/ci.routes.js";
 import favoriteRoutes from "./routes/favorite.routes.js";
 import socialRoutes from "./routes/social.routes.js";
+import messageRoutes from "./routes/message.routes.js";
+import userBlockRoutes from "./routes/userBlock.routes.js";
 import contactRoutes from "./routes/contact.routes.js";
 import mobileConfigRoutes from "./routes/internal/mobileConfig.routes.js";
 import errorTrackingRoutes from "./routes/internal/errorTracking.routes.js";
@@ -376,6 +378,8 @@ export function createApp(): Application {
   app.use("/api/uploads", uploadRoutes);
   app.use("/api/favorites", favoriteRoutes);
   app.use("/api/social", socialRoutes);
+  app.use("/api/messages", messageRoutes);
+  app.use("/api/blocks", userBlockRoutes);
   app.use("/api/contact", contactRoutes);
   app.use("/ci", ciRoutes);
   app.use("/internal", mobileConfigRoutes);

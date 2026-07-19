@@ -161,6 +161,9 @@ const en = {
     popularTv: "Popular TV Shows",
     popularMovies: "Popular Movies",
   },
+  welcomeMessage: {
+    content: "Welcome to Watchr! 🎬\n\nTrack your favorite shows, discover new ones, and connect with friends. Here are a few things you can do:\n\n• Add shows to your watchlist\n• Rate and comment on episodes\n• Follow friends to see their activity\n\nIf you have any questions, just reply to this message!",
+  },
   recommendations: {
     fallbackReason: "Currently trending",
   },

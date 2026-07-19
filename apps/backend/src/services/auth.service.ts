@@ -17,6 +17,7 @@ import { logError } from "../lib/logger.js";
 import { normalizeLocale } from "../i18n/index.js";
 import { isEmailDomainBlocked } from "../lib/blockedEmailDomains.js";
 import { autoFollowAdmin } from "../services/autoFollowAdmin.js";
+import { sendWelcomeMessage } from "../services/welcomeMessage.service.js";
 
 const ACCESS_TOKEN_TTL_SECONDS = 15 * 60;
 const REFRESH_TOKEN_TTL_DAYS = 30;
@@ -107,6 +108,10 @@ export async function registerUser(
     console.error("Failed to auto-follow admin:", err),
   );
 
+  sendWelcomeMessage(user._id.toString(), user.preferredLanguage).catch((err) =>
+    console.error("Failed to send welcome message:", err),
+  );
+
   return await issueTokenPair(user._id.toString(), user.preferredLanguage);
 }
 
@@ -178,6 +183,10 @@ export async function loginWithFirebase(
     autoFollowAdmin(user._id.toString()).catch((err) =>
       console.error("Failed to auto-follow admin:", err),
     );
+
+    sendWelcomeMessage(user._id.toString(), user.preferredLanguage).catch((err) =>
+      console.error("Failed to send welcome message:", err),
+    );
   }
 
   user.lastLoginAt = new Date();
@@ -240,6 +249,10 @@ export async function loginWithGoogleUserInfo(
 
     autoFollowAdmin(user._id.toString()).catch((err) =>
       console.error("Failed to auto-follow admin:", err),
+    );
+
+    sendWelcomeMessage(user._id.toString(), user.preferredLanguage).catch((err) =>
+      console.error("Failed to send welcome message:", err),
     );
   }
 
@@ -661,6 +674,7 @@ const DEFAULT_NOTIFICATION_PREFERENCES: NotificationPreferences = {
   commentReplies: true,
   commentReactions: true,
   commentLikes: true,
+  directMessages: true,
   notificationOffsetMinutes: 0,
 };
 

@@ -54,6 +54,7 @@ const navGroups: NavGroup[] = [
       { to: "/comments", label: "Comments", icon: MessageSquare },
       { to: "/contact", label: "Contact", icon: Inbox },
       { to: "/reports", label: "Reports", icon: Flag },
+      { to: "/messages", label: "Messages", icon: MessageSquare },
     ],
   },
   {

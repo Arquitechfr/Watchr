@@ -205,5 +205,37 @@ export function createWsServer(httpServer: HttpServer): IoServer {
     wsMetrics.eventsSentTotal.labels({ event: "remote_config_update" }).inc();
   });
 
+  wsEvents.on("message:new", (data) => {
+    emitToUser(data.recipientId, "message:new", data);
+  });
+
+  wsEvents.on("message:updated", (data) => {
+    emitToUser(data.recipientId, "message:updated", data);
+  });
+
+  wsEvents.on("message:deleted", (data) => {
+    emitToUser(data.recipientId, "message:deleted", data);
+  });
+
+  wsEvents.on("message:read", (data) => {
+    emitToUser(data.recipientId, "message:read", data);
+  });
+
+  wsEvents.on("message:reaction", (data) => {
+    emitToUser(data.recipientId, "message:reaction", data);
+  });
+
+  wsEvents.on("typing:start", (data) => {
+    emitToUser(data.recipientId, "typing:start", data);
+  });
+
+  wsEvents.on("typing:stop", (data) => {
+    emitToUser(data.recipientId, "typing:stop", data);
+  });
+
+  wsEvents.on("presence:update", (data) => {
+    emitToUser(data.userId, "presence:update", data);
+  });
+
   return io;
 }

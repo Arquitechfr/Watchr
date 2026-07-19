@@ -41,6 +41,8 @@ import { navigateToDeepLink } from "../services/deepLinkHandler";
 import { ResetPasswordScreen } from "../screens/auth/ResetPasswordScreen";
 import { MagicLinkScreen } from "../screens/auth/MagicLinkScreen";
 import { NewsArticleDetailScreen } from "../screens/NewsArticleDetailScreen";
+import { ConversationListScreen } from "../screens/ConversationListScreen";
+import { ChatScreen } from "../screens/ChatScreen";
 import { getMe, Me, completeOnboarding } from "../services/auth.service";
 import { errorTracker } from "../services/errorTracker";
 
@@ -71,6 +73,8 @@ export type RootStackParamList = {
   ResetPassword: { token: string };
   MagicLink: { token: string };
   NewsArticleDetail: { link: string; title: string };
+  ConversationList: undefined;
+  Chat: { conversationId: string; otherUsername: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -267,6 +271,8 @@ export function RootNavigator() {
             <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
             <Stack.Screen name="MagicLink" component={MagicLinkScreen} />
             <Stack.Screen name="NewsArticleDetail" component={NewsArticleDetailScreen} />
+            <Stack.Screen name="ConversationList" component={ConversationListScreen} />
+            <Stack.Screen name="Chat" component={ChatScreen} />
           </>
         ) : config.auth_enabled ? (
           <>

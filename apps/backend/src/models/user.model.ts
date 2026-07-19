@@ -15,6 +15,7 @@ export interface NotificationPreferences {
   commentReplies: boolean;
   commentReactions: boolean;
   commentLikes: boolean;
+  directMessages: boolean;
   notificationOffsetMinutes: number;
 }
 
@@ -43,6 +44,7 @@ export interface IUser extends Document {
   lastUsersVisitAt: Date | null;
   activationNudgeSentAt: Date | null;
   activityVisibility: "private" | "public";
+  dmPrivacy: "open" | "friends_only";
   bio?: string;
   bioTranslations?: Map<string, string>;
   bioOriginalLanguage?: string;
@@ -136,6 +138,7 @@ const userSchema = new Schema<IUser>(
         commentReplies: { type: Boolean, default: true },
         commentReactions: { type: Boolean, default: true },
         commentLikes: { type: Boolean, default: true },
+        directMessages: { type: Boolean, default: true },
         notificationOffsetMinutes: { type: Number, default: 0, min: -180, max: 1440 },
       },
       default: () => ({
@@ -145,6 +148,7 @@ const userSchema = new Schema<IUser>(
         commentReplies: true,
         commentReactions: true,
         commentLikes: true,
+        directMessages: true,
         notificationOffsetMinutes: 0,
       }),
     },
@@ -208,6 +212,11 @@ const userSchema = new Schema<IUser>(
       type: String,
       enum: ["private", "public"],
       default: "private",
+    },
+    dmPrivacy: {
+      type: String,
+      enum: ["open", "friends_only"],
+      default: "open",
     },
     bio: {
       type: String,

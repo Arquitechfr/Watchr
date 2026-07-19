@@ -49,6 +49,7 @@ import { type AdminNotificationType } from "../../models/adminNotification.model
 import { createInAppNotification, listAdminInAppNotifications, deleteAdminInAppNotification } from "../../services/inAppNotification.service.js";
 import { listIssues, getIssueDetail, listIssueEvents, updateIssueStatus, deleteIssue, getErrorStats } from "../../services/errorTracking.service.js";
 import apiKeysRouter from "./apiKeys.js";
+import messageAdminRouter from "./messages.routes.js";
 
 const router: Router = Router();
 
@@ -1229,5 +1230,7 @@ router.delete(
     res.status(204).send();
   }),
 );
+router.use("/messages", messageAdminRouter);
+
 
 export default router;

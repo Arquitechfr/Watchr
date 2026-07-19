@@ -161,6 +161,9 @@ const de = {
     popularTv: "Beliebte Serien",
     popularMovies: "Beliebte Filme",
   },
+  welcomeMessage: {
+    content: "Willkommen bei Watchr! 🎬\n\nVerfolge deine Lieblingsserien, entdecke neue und verbinde dich mit Freunden. Hier sind ein paar Dinge, die du tun kannst:\n\n• Füge Serien zu deiner Watchlist hinzu\n• Bewerte und kommentiere Episoden\n• Folge Freunden, um ihre Aktivität zu sehen\n\nWenn du Fragen hast, antworte einfach auf diese Nachricht!",
+  },
   recommendations: {
     fallbackReason: "Aktuell im Trend",
   },

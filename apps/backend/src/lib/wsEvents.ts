@@ -15,6 +15,14 @@ export interface WsEventMap {
   "show:updated": { showId: string; updatedAt: string; changedFields?: string[] };
   "news:new": { articles: unknown[] };
   "remote_config_update": { key: string; value: unknown };
+  "message:new": { recipientId: string; conversationId: string; message: unknown };
+  "message:updated": { recipientId: string; conversationId: string; message: unknown };
+  "message:deleted": { recipientId: string; conversationId: string; messageId: string };
+  "message:read": { recipientId: string; conversationId: string; readByUserId: string; count: number };
+  "message:reaction": { recipientId: string; conversationId: string; messageId: string; reactions: unknown };
+  "typing:start": { recipientId: string; conversationId: string; userId: string };
+  "typing:stop": { recipientId: string; conversationId: string; userId: string };
+  "presence:update": { userId: string; isOnline: boolean };
 }
 
 export type WsEventName = keyof WsEventMap;

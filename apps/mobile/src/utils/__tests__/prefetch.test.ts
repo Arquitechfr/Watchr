@@ -21,6 +21,8 @@ vi.mock("../logger", () => ({
 
 import { getUnwatchedShows } from "../../services/unwatched.service";
 import { getUpcomingEpisodes } from "../../services/upcoming.service";
+import type { UnwatchedTvResponse } from "../../services/unwatched.service";
+import type { UpcomingResponse } from "../../services/upcoming.service";
 import { prefetchSeriesData } from "../prefetch";
 
 const mockedGetUnwatchedShows = vi.mocked(getUnwatchedShows);
@@ -52,8 +54,8 @@ describe("prefetchSeriesData", () => {
   });
 
   it("caches data on success (nominal path)", async () => {
-    const unwatchedData = [{ id: "1", title: "Show A" }];
-    const upcomingData = [{ id: "2", title: "Episode B" }];
+    const unwatchedData: UnwatchedTvResponse = { shows: [] };
+    const upcomingData: UpcomingResponse = { today: [], thisWeek: [], nextWeek: [], later: [] };
 
     mockedGetUnwatchedShows.mockResolvedValue(unwatchedData);
     mockedGetUpcomingEpisodes.mockResolvedValue(upcomingData);

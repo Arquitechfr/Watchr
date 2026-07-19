@@ -29,6 +29,10 @@ import contactRoutes from "./routes/contact.routes.js";
 import mobileConfigRoutes from "./routes/internal/mobileConfig.routes.js";
 import errorTrackingRoutes from "./routes/internal/errorTracking.routes.js";
 import adminRoutes from "./routes/admin/index.js";
+import publicV1Router from "./routes/public/v1/index.js";
+import { apiKeyAuth } from "./middleware/apiKeyAuth.js";
+import { writeLimiter } from "./middleware/apiRateLimiter.js";
+import { mcpHandler } from "./mcp/server.js";
 
 const allowedOrigins = process.env.CORS_ORIGINS
   ? process.env.CORS_ORIGINS.split(",").map((o) => o.trim())
@@ -368,6 +372,10 @@ export function createApp(): Application {
   app.use("/internal", mobileConfigRoutes);
   app.use("/internal", errorTrackingRoutes);
   app.use("/api/admin", adminRoutes);
+
+  app.use("/api/public/v1", publicV1Router);
+
+  app.post("/mcp", apiKeyAuth(), writeLimiter, mcpHandler);
 
   app.get("/metrics", async (_req: Request, res: Response) => {
     const { getMetrics, getMetricsContentType } = await import("./lib/wsMetrics.js");

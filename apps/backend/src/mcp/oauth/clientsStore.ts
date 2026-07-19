@@ -3,7 +3,28 @@ import type { OAuthClientInformationFull } from "@modelcontextprotocol/sdk/share
 import { McpOAuthClient, hashClientSecret, type IMcpOAuthClient } from "../../models/McpOAuthClient.js";
 import { log, logError } from "../../lib/logger.js";
 
-function toFullClientInfo(doc: IMcpOAuthClient): OAuthClientInformationFull {
+type ClientDoc = Pick<
+  IMcpOAuthClient,
+  | "redirectUris"
+  | "tokenEndpointAuthMethod"
+  | "grantTypes"
+  | "responseTypes"
+  | "clientName"
+  | "clientUri"
+  | "logoUri"
+  | "scope"
+  | "contacts"
+  | "tosUri"
+  | "policyUri"
+  | "softwareId"
+  | "softwareVersion"
+  | "clientId"
+  | "clientSecretHash"
+  | "clientSecretExpiresAt"
+  | "createdAt"
+>;
+
+function toFullClientInfo(doc: ClientDoc): OAuthClientInformationFull {
   return {
     redirect_uris: doc.redirectUris,
     token_endpoint_auth_method: doc.tokenEndpointAuthMethod,

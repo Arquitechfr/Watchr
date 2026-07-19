@@ -1,6 +1,5 @@
 import rateLimit, { RateLimitRequestHandler } from "express-rate-limit";
 import { Request, Response } from "express";
-// @ts-expect-error - rate-limit-redis has no type declarations
 import RedisStore from "rate-limit-redis";
 import { redisClient } from "../lib/redis.js";
 import { translate } from "../i18n/index.js";

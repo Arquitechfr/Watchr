@@ -10,6 +10,7 @@ export function Footer() {
   const productLinks = [
     { href: "/#features", label: t("footer.links.features") },
     { href: "/#import", label: t("footer.links.import") },
+    { to: "/docs", label: t("footer.links.docs") },
     { href: "https://app.watchr.me", label: t("footer.links.webApp") },
   ];
 
@@ -39,13 +40,22 @@ export function Footer() {
             </h3>
             <ul className="mt-4 space-y-3">
               {productLinks.map((link) => (
-                <li key={link.href}>
-                  <a
-                    href={link.href}
-                    className="text-sm text-text-muted transition-colors hover:text-primary"
-                  >
-                    {link.label}
-                  </a>
+                <li key={link.href ?? link.to}>
+                  {"to" in link && link.to ? (
+                    <Link
+                      to={link.to}
+                      className="text-sm text-text-muted transition-colors hover:text-primary"
+                    >
+                      {link.label}
+                    </Link>
+                  ) : (
+                    <a
+                      href={link.href}
+                      className="text-sm text-text-muted transition-colors hover:text-primary"
+                    >
+                      {link.label}
+                    </a>
+                  )}
                 </li>
               ))}
             </ul>

@@ -27,6 +27,7 @@ const config: Config = {
       fontFamily: {
         sans: ["Outfit", "system-ui", "sans-serif"],
         outfit: ["Outfit", "sans-serif"],
+        mono: ["ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "monospace"],
       },
       animation: {
         "fade-in": "fadeIn 0.6s ease-out forwards",

@@ -26,6 +26,7 @@ export function Header() {
     { to: "/", hash: "import", label: t("nav.import") },
     { to: "/", hash: "showcase", label: t("nav.showcase") },
     { to: "/", hash: "faq", label: t("nav.faq") },
+    { to: "/docs", hash: "top", label: t("nav.docs") },
   ];
 
   const handleNavClick = (e: React.MouseEvent, to: string, hash: string) => {
@@ -64,7 +65,7 @@ export function Header() {
           {navLinks.map((link) => (
             <a
               key={link.hash}
-              href={`/#${link.hash}`}
+              href={link.to !== "/" ? link.to : `/#${link.hash}`}
               onClick={(e) => handleNavClick(e, link.to, link.hash)}
               className="text-sm font-medium text-text-muted transition-colors hover:text-text"
             >
@@ -96,7 +97,7 @@ export function Header() {
             {navLinks.map((link) => (
               <a
                 key={link.hash}
-                href={`/#${link.hash}`}
+                href={link.to !== "/" ? link.to : `/#${link.hash}`}
                 onClick={(e) => handleNavClick(e, link.to, link.hash)}
                 className="rounded-lg px-4 py-3 text-sm font-medium text-text-muted transition-colors hover:bg-surface hover:text-text"
               >

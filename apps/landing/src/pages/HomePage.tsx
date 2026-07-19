@@ -5,6 +5,7 @@ import { Showcase } from "@/components/sections/Showcase";
 import { Stats } from "@/components/sections/Stats";
 import { Testimonials } from "@/components/sections/Testimonials";
 import { FAQ } from "@/components/sections/FAQ";
+import { ApiTeaser } from "@/components/sections/ApiTeaser";
 import { CTA } from "@/components/sections/CTA";
 
 export function HomePage() {
@@ -17,6 +18,7 @@ export function HomePage() {
       <Stats />
       <Testimonials />
       <FAQ />
+      <ApiTeaser />
       <CTA />
     </>
   );

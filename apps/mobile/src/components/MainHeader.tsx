@@ -10,7 +10,9 @@ export function MainHeader({ rightElement }: MainHeaderProps) {
 
   return (
     <View className="flex-row items-center justify-between mb-4">
-      {!isDesktopWeb && (
+      {isDesktopWeb ? (
+        <View />
+      ) : (
         <View className="flex-row items-center" style={{ gap: 4 }}>
           <Image
             source={require("../../assets/splash-icon.webp")}

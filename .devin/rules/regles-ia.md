@@ -92,6 +92,19 @@ Ces règles s'appliquent à tout agent travaillant sur ce repo.
 - Pas de régression sur les autres apps.
 - Test landing : `pnpm --filter landing dev` sans crash.
 
+## 7c. Emails
+
+- Templates construits avec React Email (`@react-email/components` + `@react-email/render`).
+- Templates en `.tsx` dans `apps/backend/src/emails/templates/`, composants partagés dans `apps/backend/src/emails/components/`.
+- Rendu HTML string via `renderEmail()` (`apps/backend/src/emails/render.ts`), utilisant `@react-email/render`.
+- `EmailService` (`apps/backend/src/services/email.service.tsx`) préserve son API publique — les callers ne changent pas.
+- Sujets via `translateEmail()` (i18n), textes dans `apps/backend/src/i18n/locales/<lang>.ts`.
+- Design tokens alignés sur mobile/landing/admin : `#1A1614` dark bg, `#C65D3A` primary, `#F5F0EB` text, font `Outfit`.
+- Dark mode supporté via CSS dans `<Head>` avec hacks Gmail (`u + .email-body`) + Outlook (`[data-ogsb]`).
+- RTL arabe : `dir="rtl"` sur `<Html>`.
+- Emails custom (admin, AI digest) : HTML arbitraire sanitizé via `sanitizeHtml()` puis wrappé dans `<CustomEmail>` avec `dangerouslySetInnerHTML`.
+- Fichiers clés : `apps/backend/src/emails/components/EmailLayout.tsx`, `apps/backend/src/emails/render.ts`, `apps/backend/src/services/email.service.tsx`.
+
 ## 8. Definition of Done
 
 Une tâche n'est terminée que si :

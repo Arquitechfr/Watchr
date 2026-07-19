@@ -42,7 +42,7 @@ export function EmailLayout({ children, locale, previewText }: EmailLayoutProps)
           @media (prefers-color-scheme: dark) {
             .email-body { background-color: #1A1614 !important; }
             .email-card { background-color: #252019 !important; }
-            .email-header { background-color: #C65D3A !important; }
+            .email-header { background-color: #252019 !important; }
             .email-heading { color: #F5F0EB !important; }
             .email-body-text { color: #A89B91 !important; }
             .email-footer { color: #A89B91 !important; }
@@ -102,7 +102,7 @@ export function EmailLayout({ children, locale, previewText }: EmailLayoutProps)
             wordBreak: "break-word",
           }}>
             <Section className="email-header" style={{
-              backgroundColor: "#C65D3A",
+              backgroundColor: "#252019",
               padding: "20px 40px",
               textAlign: "center",
             }}>

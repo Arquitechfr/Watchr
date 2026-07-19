@@ -32,6 +32,7 @@ MVP : tracking watch-status + notes/ratings + commentaires publics sur shows/ép
 | Landing UI | TailwindCSS + shadcn/ui |
 | Landing i18n | react-i18next (7 langues) |
 | Landing SEO | react-helmet-async + JSON-LD |
+| Emails | React Email (@react-email/components + @react-email/render) |
 
 ## Structure du repo
 
@@ -46,6 +47,7 @@ watchr/
 │   │   │   ├── middleware/
 │   │   │   ├── validators/       # schémas Zod
 │   │   │   ├── config/           # dotenv + validation au démarrage
+│   │   │   ├── emails/           # templates React Email (.tsx) + composants partagés
 │   │   │   └── app.ts
 │   │   └── package.json
 │   ├── mobile/
@@ -154,6 +156,16 @@ watchr/
    - URL backend non hardcodée : `remoteConfigService.getConfig().backend_url` ou `getApiBaseUrl()`.
    - Build-time vars (Firebase, EAS) restent dans `.env`.
    - Nouvelle valeur runtime : ajouter à `DEFAULT_REMOTE_CONFIG`, seeder MongoDB, documenter dans le plan.
+11. **Emails** : templates construits avec React Email (`@react-email/components` + `@react-email/render`).
+   - Templates en `.tsx` dans `apps/backend/src/emails/templates/`, composants partagés dans `apps/backend/src/emails/components/`.
+   - Rendu HTML string via `renderEmail()` (`apps/backend/src/emails/render.ts`), utilisant `@react-email/render`.
+   - `EmailService` (`apps/backend/src/services/email.service.tsx`) préserve son API publique — les callers ne changent pas.
+   - Sujets via `translateEmail()` (i18n), textes dans `apps/backend/src/i18n/locales/<lang>.ts`.
+   - Design tokens alignés sur mobile/landing/admin : `#1A1614` dark bg, `#C65D3A` primary, `#F5F0EB` text, font `Outfit`.
+   - Dark mode supporté via CSS dans `<Head>` avec hacks Gmail (`u + .email-body`) + Outlook (`[data-ogsb]`).
+   - RTL arabe : `dir="rtl"` sur `<Html>`.
+   - Emails custom (admin, AI digest) : HTML arbitraire sanitizé via `sanitizeHtml()` puis wrappé dans `<CustomEmail>` avec `dangerouslySetInnerHTML`.
+   - Fichiers clés : `apps/backend/src/emails/components/EmailLayout.tsx`, `apps/backend/src/emails/render.ts`, `apps/backend/src/services/email.service.tsx`.
 
 ## Principes transversaux
 

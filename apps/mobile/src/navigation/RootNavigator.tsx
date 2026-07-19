@@ -29,6 +29,7 @@ import { ProfileAboutScreen } from "../screens/profile/ProfileAboutScreen";
 import { ProfileAppearanceScreen } from "../screens/profile/ProfileAppearanceScreen";
 import { ProfileDataScreen } from "../screens/profile/ProfileDataScreen";
 import { ProfileContactScreen } from "../screens/profile/ProfileContactScreen";
+import { ApiKeysScreen } from "../screens/profile/ApiKeysScreen";
 import { PublicProfileScreen } from "../screens/PublicProfileScreen";
 import { FriendsActivityScreen } from "../screens/FriendsActivityScreen";
 import { UserSearchScreen } from "../screens/UserSearchScreen";
@@ -62,6 +63,7 @@ export type RootStackParamList = {
   ProfileSettings: undefined;
   ProfileData: undefined;
   ProfileContact: undefined;
+  ProfileApiKeys: undefined;
   PublicProfile: { username: string };
   FriendsActivity: undefined;
   UserSearch: undefined;
@@ -257,6 +259,7 @@ export function RootNavigator() {
             <Stack.Screen name="ProfileAppearance" component={ProfileAppearanceScreen} />
             <Stack.Screen name="ProfileData" component={ProfileDataScreen} />
             <Stack.Screen name="ProfileContact" component={ProfileContactScreen} />
+            <Stack.Screen name="ProfileApiKeys" component={ApiKeysScreen} />
             <Stack.Screen name="PublicProfile" component={PublicProfileScreen} />
             <Stack.Screen name="FriendsActivity" component={FriendsActivityScreen} />
             <Stack.Screen name="UserSearch" component={UserSearchScreen} />

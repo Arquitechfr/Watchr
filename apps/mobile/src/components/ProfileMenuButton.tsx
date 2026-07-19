@@ -25,6 +25,7 @@ const MENU_ITEMS: MenuItem[] = [
   { icon: "server-outline", labelKey: "screens.profile.myData", target: "ProfileData" },
   { icon: "notifications-outline", labelKey: "screens.profile.notifications", target: "ProfileNotifications" },
   { icon: "mail-outline", labelKey: "screens.profile.contact", target: "ProfileContact" },
+  { icon: "key-outline", labelKey: "screens.profile.apiKeys", target: "ProfileApiKeys" },
 ];
 
 export function ProfileMenuButton() {

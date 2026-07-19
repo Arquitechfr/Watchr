@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, MessageSquare, Tv, Heart, Star, Download, Trash2, MessageCircleX, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, MessageSquare, Tv, Heart, Star, Download, Trash2, MessageCircleX, ChevronLeft, ChevronRight, KeyRound } from "lucide-react";
 import api from "../lib/api";
 import { useUserNavigationStore } from "../store/userNavigationStore";
 import { Card, CardHeader, CardTitle, CardContent } from "../components/ui/Card";
@@ -215,6 +215,16 @@ export function UserDetail() {
             )}
           </div>
         </div>
+      </div>
+
+      <div className="flex flex-col sm:flex-row justify-end gap-3 mb-6">
+        <Button
+          variant="outline"
+          onClick={() => navigate(`/api-keys?userId=${user.id}`)}
+        >
+          <KeyRound size={16} className="mr-2" />
+          View API Keys
+        </Button>
       </div>
 
       {user.role !== "admin" && (

@@ -19,6 +19,7 @@ const AI = lazy(() => import("./pages/AI").then((m) => ({ default: m.AI })));
 const ContactMessages = lazy(() => import("./pages/ContactMessages").then((m) => ({ default: m.ContactMessages })));
 const AdminFeed = lazy(() => import("./pages/AdminFeed").then((m) => ({ default: m.AdminFeed })));
 const ErrorTracking = lazy(() => import("./pages/ErrorTracking").then((m) => ({ default: m.ErrorTracking })));
+const ApiKeys = lazy(() => import("./pages/ApiKeys").then((m) => ({ default: m.ApiKeys })));
 
 function PageLoader() {
   return (
@@ -65,6 +66,7 @@ export default function App() {
             <Route path="/contact" element={<ContactMessages />} />
             <Route path="/admin-feed" element={<AdminFeed />} />
             <Route path="/errors" element={<ErrorTracking />} />
+            <Route path="/api-keys" element={<ApiKeys />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>

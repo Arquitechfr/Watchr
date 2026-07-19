@@ -1,4 +1,5 @@
 import { Router, Request, Response } from "express";
+import type { Types } from "mongoose";
 import { requireAdmin } from "../../middleware/requireAdmin.middleware.js";
 import { validateRequest } from "../../validators/validateRequest.js";
 import { asyncHandler } from "../../lib/asyncHandler.js";
@@ -13,6 +14,23 @@ import {
   apiKeyIdParamSchema,
   updateApiKeySchema,
 } from "../../validators/admin/adminApiKey.validator.js";
+
+interface PopulatedUser {
+  _id: Types.ObjectId;
+  email: string;
+  username: string;
+}
+
+interface PopulatedApiKey {
+  _id: Types.ObjectId;
+  userId: PopulatedUser | null;
+  name: string;
+  keyPrefix: string;
+  scopes: string[];
+  lastUsedAt: Date | null;
+  createdAt: Date;
+  revokedAt: Date | null;
+}
 
 const router: Router = Router();
 
@@ -50,14 +68,25 @@ router.get(
 
     const skip = (page - 1) * limit;
     const [keys, total] = await Promise.all([
-      ApiKey.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+      ApiKey.find(filter)
+        .populate("userId", "email username")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean() as unknown as Promise<PopulatedApiKey[]>,
       ApiKey.countDocuments(filter),
     ]);
 
     res.json({
       data: keys.map((k) => ({
         id: k._id.toString(),
-        userId: k.userId.toString(),
+        user: k.userId
+          ? {
+              id: k.userId._id.toString(),
+              email: k.userId.email,
+              username: k.userId.username,
+            }
+          : null,
         name: k.name,
         keyPrefix: k.keyPrefix,
         scopes: k.scopes,

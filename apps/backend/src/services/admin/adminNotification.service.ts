@@ -1,12 +1,13 @@
 import { User } from "../../models/user.model.js";
 import { NotificationLog } from "../../models/notificationLog.model.js";
 import { PushTicket } from "../../models/pushTicket.model.js";
-import { AdminJob } from "../../models/adminJob.model.js";
+import { AdminJob, type IAdminJob } from "../../models/adminJob.model.js";
 import { PushNotificationService } from "../pushNotification.service.js";
 import { processJob } from "./jobQueue.service.js";
 import { ApiError } from "../../middleware/error.middleware.js";
 import { logError } from "../../lib/logger.js";
 import { detectLanguage, translateForUser, pickLongestText, type TranslationInput } from "../translation.service.js";
+import { buildPushData } from "../deepLinkCatalog.js";
 import type { Types } from "mongoose";
 
 export interface BroadcastInput {
@@ -15,6 +16,9 @@ export interface BroadcastInput {
   target: "all" | "locale";
   locale?: string;
   data?: Record<string, unknown>;
+  scheduledAt?: string;
+  deepLinkScreen?: string;
+  deepLinkParams?: Record<string, unknown>;
 }
 
 export interface TargetedInput {
@@ -22,6 +26,9 @@ export interface TargetedInput {
   title: string;
   body: string;
   data?: Record<string, unknown>;
+  scheduledAt?: string;
+  deepLinkScreen?: string;
+  deepLinkParams?: Record<string, unknown>;
 }
 
 interface TicketInfo {
@@ -52,7 +59,14 @@ async function createPushTickets(
 export async function sendBroadcast(
   sentBy: string,
   input: BroadcastInput,
-): Promise<{ jobId: string }> {
+): Promise<{ jobId: string; scheduled: boolean }> {
+  const pushData = input.deepLinkScreen
+    ? buildPushData(input.deepLinkScreen, input.deepLinkParams)
+    : input.data;
+
+  const scheduledAt = input.scheduledAt ? new Date(input.scheduledAt) : undefined;
+  const isScheduled = scheduledAt && scheduledAt.getTime() > Date.now();
+
   const job = await AdminJob.create({
     type: "push_broadcast",
     status: "pending",
@@ -60,25 +74,61 @@ export async function sendBroadcast(
     body: input.body,
     target: input.target,
     locale: input.locale,
-    data: input.data,
+    data: pushData,
     targetCount: 0,
     successCount: 0,
     failureCount: 0,
     skippedCount: 0,
     sentBy: sentBy as unknown as Types.ObjectId,
+    scheduledAt: isScheduled ? scheduledAt : undefined,
+    scheduledStatus: isScheduled ? "scheduled" : "none",
+    deepLinkScreen: input.deepLinkScreen,
+    deepLinkParams: input.deepLinkParams,
   });
 
-  processJob(job._id.toString()).catch((err) => {
-    logError("AdminNotification", "background job failed", err, { jobId: job._id.toString() });
-  });
+  if (!isScheduled) {
+    processJob(job._id.toString()).catch((err) => {
+      logError("AdminNotification", "background job failed", err, { jobId: job._id.toString() });
+    });
+  }
 
-  return { jobId: job._id.toString() };
+  return { jobId: job._id.toString(), scheduled: !!isScheduled };
 }
 
 export async function sendTargeted(
   sentBy: string,
   input: TargetedInput,
-): Promise<{ success: boolean }> {
+): Promise<{ success: boolean; scheduled: boolean; jobId?: string }> {
+  const scheduledAt = input.scheduledAt ? new Date(input.scheduledAt) : undefined;
+  const isScheduled = scheduledAt && scheduledAt.getTime() > Date.now();
+
+  if (isScheduled) {
+    const pushData = input.deepLinkScreen
+      ? buildPushData(input.deepLinkScreen, input.deepLinkParams)
+      : input.data;
+
+    const job = await AdminJob.create({
+      type: "push_targeted_scheduled",
+      status: "pending",
+      title: input.title,
+      body: input.body,
+      target: "all",
+      data: pushData,
+      targetCount: 0,
+      successCount: 0,
+      failureCount: 0,
+      skippedCount: 0,
+      sentBy: sentBy as unknown as Types.ObjectId,
+      scheduledAt,
+      scheduledStatus: "scheduled",
+      deepLinkScreen: input.deepLinkScreen,
+      deepLinkParams: input.deepLinkParams,
+      userId: input.userId,
+    });
+
+    return { success: false, scheduled: true, jobId: job._id.toString() };
+  }
+
   const isEmail = input.userId.includes("@");
   const user = isEmail
     ? await User.findOne({ email: input.userId.toLowerCase() }).select("expoPushToken notificationPreferences preferredLanguage").lean()
@@ -89,6 +139,10 @@ export async function sendTargeted(
   if (!user.expoPushToken) {
     throw new ApiError(400, "NO_PUSH_TOKEN", "User has no push token");
   }
+
+  const pushData = input.deepLinkScreen
+    ? buildPushData(input.deepLinkScreen, input.deepLinkParams)
+    : input.data;
 
   // Auto-translate to user's preferred language
   const sourceText = pickLongestText({ title: input.title, body: input.body });
@@ -101,7 +155,7 @@ export async function sendTargeted(
 
   try {
     const tickets = await PushNotificationService.sendPushBatch([
-      { to: user.expoPushToken, title: finalTitle, body: finalBody, data: input.data, sound: "default" },
+      { to: user.expoPushToken, title: finalTitle, body: finalBody, data: pushData, sound: "default" },
     ]);
 
     const ticket = tickets[0];
@@ -111,7 +165,7 @@ export async function sendTargeted(
       type: "targeted",
       title: finalTitle,
       body: finalBody,
-      data: input.data,
+      data: pushData,
       sentBy: sentBy,
       targetCount: 1,
       successCount: success ? 1 : 0,
@@ -121,13 +175,13 @@ export async function sendTargeted(
     });
 
     await createPushTickets(notificationLog._id, [user.expoPushToken], tickets);
-    return { success };
+    return { success, scheduled: false };
   } catch (err) {
     const notificationLog = await NotificationLog.create({
       type: "targeted",
       title: finalTitle,
       body: finalBody,
-      data: input.data,
+      data: pushData,
       sentBy: sentBy,
       targetCount: 1,
       successCount: 0,
@@ -232,6 +286,103 @@ export async function getNotificationDetail(id: string) {
       errorDetails: t.errorDetails ?? null,
       createdAt: t.createdAt.toISOString(),
     })),
+  };
+}
+
+export async function listScheduledJobs(filters: { page: number; limit: number; type?: string }): Promise<{ jobs: unknown[]; total: number; page: number; limit: number }> {
+  const { page, limit, type } = filters;
+  const query: Record<string, unknown> = { scheduledStatus: "scheduled", status: { $ne: "cancelled" } };
+  if (type) query.type = type;
+
+  const [jobs, total] = await Promise.all([
+    AdminJob.find(query)
+      .sort({ scheduledAt: 1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .lean(),
+    AdminJob.countDocuments(query),
+  ]);
+
+  return {
+    jobs: jobs.map((j) => formatScheduledJob(j)),
+    total,
+    page,
+    limit,
+  };
+}
+
+export async function updateScheduledJob(jobId: string, updates: {
+  title?: string;
+  body?: string;
+  subject?: string;
+  htmlContent?: string;
+  scheduledAt?: string;
+  deepLinkScreen?: string | null;
+  deepLinkParams?: Record<string, unknown> | null;
+}): Promise<IAdminJob | null> {
+  const job = await AdminJob.findById(jobId);
+  if (!job) return null;
+  if (job.scheduledStatus !== "scheduled" || job.status === "cancelled") {
+    throw new ApiError(400, "JOB_NOT_SCHEDULABLE", "Job is not in a schedulable state");
+  }
+
+  if (updates.title !== undefined) job.title = updates.title;
+  if (updates.body !== undefined) job.body = updates.body;
+  if (updates.subject !== undefined) job.subject = updates.subject;
+  if (updates.htmlContent !== undefined) job.htmlContent = updates.htmlContent;
+  if (updates.scheduledAt !== undefined) job.scheduledAt = new Date(updates.scheduledAt);
+  if (updates.deepLinkScreen !== undefined) {
+    if (updates.deepLinkScreen === null) {
+      job.deepLinkScreen = undefined;
+      job.deepLinkParams = undefined;
+    } else {
+      job.deepLinkScreen = updates.deepLinkScreen;
+      if (updates.deepLinkParams !== undefined && updates.deepLinkParams !== null) {
+        job.deepLinkParams = updates.deepLinkParams;
+      }
+    }
+    if (job.deepLinkScreen) {
+      job.data = buildPushData(job.deepLinkScreen, job.deepLinkParams);
+    }
+  }
+
+  await job.save();
+  return job;
+}
+
+export async function cancelScheduledJob(jobId: string): Promise<boolean> {
+  const result = await AdminJob.updateOne(
+    { _id: jobId, scheduledStatus: "scheduled", status: { $ne: "cancelled" } },
+    { $set: { status: "cancelled", scheduledStatus: "cancelled" } },
+  );
+  return result.modifiedCount > 0;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function formatScheduledJob(j: any) {
+  return {
+    id: j._id.toString(),
+    type: j.type,
+    status: j.status,
+    title: j.title ?? null,
+    body: j.body ?? null,
+    subject: j.subject ?? null,
+    htmlContent: j.htmlContent ?? null,
+    target: j.target,
+    locale: j.locale ?? null,
+    data: j.data ?? null,
+    targetCount: j.targetCount,
+    successCount: j.successCount,
+    failureCount: j.failureCount,
+    skippedCount: j.skippedCount,
+    scheduledAt: j.scheduledAt?.toISOString() ?? null,
+    scheduledStatus: j.scheduledStatus ?? "none",
+    deepLinkScreen: j.deepLinkScreen ?? null,
+    deepLinkParams: j.deepLinkParams ?? null,
+    userId: j.userId ?? null,
+    sentBy: j.sentBy.toString(),
+    createdAt: j.createdAt.toISOString(),
+    updatedAt: j.updatedAt.toISOString(),
   };
 }
 

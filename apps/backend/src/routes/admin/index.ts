@@ -6,7 +6,7 @@ import { validateRequest } from "../../validators/validateRequest.js";
 import { listUsersQuerySchema, userIdParamSchema, updateUserStatusSchema, updateUserRoleSchema, cancelBanSchema } from "../../validators/admin/adminUser.validator.js";
 import { listCommentsQuerySchema, commentIdParamSchema, markSpoilerSchema, bulkDeleteSchema, aiCommentIdParamSchema } from "../../validators/admin/adminComment.validator.js";
 import { createNewsSourceSchema, updateNewsSourceSchema, newsSourceIdParamSchema } from "../../validators/admin/adminNews.validator.js";
-import { broadcastSchema, targetedSchema, notificationHistoryQuerySchema, notificationIdParamSchema } from "../../validators/admin/adminNotification.validator.js";
+import { broadcastSchema, targetedSchema, notificationHistoryQuerySchema, notificationIdParamSchema, scheduledJobIdParamSchema, updateScheduledJobSchema } from "../../validators/admin/adminNotification.validator.js";
 import { emailHistoryQuerySchema, emailIdParamSchema, emailBroadcastSchema, emailTargetedSchema } from "../../validators/admin/adminEmail.validator.js";
 import { jobIdParamSchema } from "../../validators/admin/adminJob.validator.js";
 import { listShowsQuerySchema, syncShowSchema, showIdParamSchema, tmdbIdParamSchema, aiShowIdParamSchema } from "../../validators/admin/adminShow.validator.js";
@@ -25,12 +25,13 @@ import { listUsers, getUserDetail, scheduleUserStatusAction, cancelBanAction, ge
 import { User } from "../../models/user.model.js";
 import { listAllComments, adminDeleteComment, adminBulkDeleteComments, adminMarkSpoiler, deleteAllUserComments, deleteAllComments } from "../../services/admin/adminComment.service.js";
 import { listAllNewsSources, createNewsSource, updateNewsSource, deleteNewsSource, toggleNewsSource } from "../../services/admin/adminNews.service.js";
-import { sendBroadcast, sendTargeted, getNotificationHistory, getNotificationDetail, getNotificationStats } from "../../services/admin/adminNotification.service.js";
+import { sendBroadcast, sendTargeted, getNotificationHistory, getNotificationDetail, getNotificationStats, listScheduledJobs, updateScheduledJob, cancelScheduledJob } from "../../services/admin/adminNotification.service.js";
 import { listShows, forceSyncShow, deleteShow } from "../../services/admin/adminShow.service.js";
 import { listAllConfig, setConfig, deleteConfig } from "../../services/admin/adminConfig.service.js";
 import { listAllImports, getImportStats, getImportDetail, deleteImportJob, retryImportJob, exportImportCsv } from "../../services/admin/adminImport.service.js";
 import { getEmailHistory, getEmailStats, getEmailDetail, sendBroadcastEmail, sendTargetedEmail } from "../../services/admin/adminEmail.service.js";
 import { getJobStatus } from "../../services/admin/jobQueue.service.js";
+import { DEEP_LINK_SCREENS } from "../../services/deepLinkCatalog.js";
 import { listReports, resolveReport, dismissReport, getReportStats } from "../../services/report.service.js";
 import { getAiStats, getAiLogs, getAiLogDetail, getAiStatus, getAiFlags, setAiFlag } from "../../services/admin/adminAi.service.js";
 import { sendWeeklyDigestBatch, sendWeeklyDigestToUser } from "../../services/aiWeeklyDigest.service.js";
@@ -549,6 +550,52 @@ router.get(
       return;
     }
     res.json(job);
+  }),
+);
+
+// Scheduled jobs
+router.get(
+  "/scheduled",
+  asyncHandler(async (req: Request, res: Response) => {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 20;
+    const type = req.query.type as string | undefined;
+    const result = await listScheduledJobs({ page, limit, type });
+    res.json(result);
+  }),
+);
+
+router.patch(
+  "/scheduled/:jobId",
+  validateRequest(updateScheduledJobSchema, undefined, scheduledJobIdParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const job = await updateScheduledJob(req.params.jobId, req.body);
+    if (!job) {
+      res.status(404).json({ error: { code: "NOT_FOUND", message: "Scheduled job not found" } });
+      return;
+    }
+    res.json({ success: true });
+  }),
+);
+
+router.delete(
+  "/scheduled/:jobId",
+  validateRequest(undefined, undefined, scheduledJobIdParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const cancelled = await cancelScheduledJob(req.params.jobId);
+    if (!cancelled) {
+      res.status(404).json({ error: { code: "NOT_FOUND", message: "Scheduled job not found or not cancellable" } });
+      return;
+    }
+    res.json({ success: true });
+  }),
+);
+
+// Deep link catalog
+router.get(
+  "/deep-link-catalog",
+  asyncHandler(async (_req: Request, res: Response) => {
+    res.json({ screens: DEEP_LINK_SCREENS });
   }),
 );
 

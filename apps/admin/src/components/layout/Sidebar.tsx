@@ -20,6 +20,7 @@ import {
   Activity,
   AlertTriangle,
   KeyRound,
+  CalendarClock,
 } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
 import { useNewUsersStore } from "../../store/newUsersStore";
@@ -68,6 +69,7 @@ const navGroups: NavGroup[] = [
     items: [
       { to: "/notifications", label: "Notifications", icon: Bell },
       { to: "/email", label: "Email", icon: Mail },
+      { to: "/scheduled", label: "Scheduled", icon: CalendarClock },
     ],
   },
   {

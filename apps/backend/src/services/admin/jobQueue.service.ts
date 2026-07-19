@@ -5,6 +5,7 @@ import { PushTicket } from "../../models/pushTicket.model.js";
 import { EmailService } from "../email.service.js";
 import { PushNotificationService } from "../pushNotification.service.js";
 import { translateMultiLang, detectLanguage, pickLongestText, type TranslationInput } from "../translation.service.js";
+import { buildDeepLinkUrl, buildPushData } from "../deepLinkCatalog.js";
 import { log, logError } from "../../lib/logger.js";
 import type { Types } from "mongoose";
 
@@ -246,6 +247,120 @@ async function processPushBroadcast(job: IAdminJob): Promise<void> {
   });
 }
 
+async function processPushTargetedScheduled(job: IAdminJob): Promise<void> {
+  if (!job.userId) {
+    logError("JobQueue", "push_targeted_scheduled: missing userId", null, { jobId: job._id.toString() });
+    return;
+  }
+
+  const isEmail = job.userId.includes("@");
+  const user = isEmail
+    ? await User.findOne({ email: job.userId.toLowerCase() }).select("expoPushToken notificationPreferences preferredLanguage").lean()
+    : await User.findById(job.userId).select("expoPushToken notificationPreferences preferredLanguage").lean();
+
+  if (!user) {
+    logError("JobQueue", "push_targeted_scheduled: user not found", null, { jobId: job._id.toString(), userId: job.userId });
+    job.failureCount = 1;
+    return;
+  }
+  if (!user.expoPushToken) {
+    log("JobQueue", "push_targeted_scheduled: user has no push token", { userId: job.userId });
+    job.skippedCount = 1;
+    return;
+  }
+
+  const pushData = job.deepLinkScreen
+    ? buildPushData(job.deepLinkScreen, job.deepLinkParams)
+    : job.data;
+
+  const sourceText = pickLongestText({ title: job.title, body: job.body });
+  const sourceLang = sourceText ? await detectLanguage(sourceText) : "en";
+  const translationInput: TranslationInput = { title: job.title!, body: job.body! };
+  const { translateForUser } = await import("../translation.service.js");
+  const translated = await translateForUser(translationInput, user.preferredLanguage, sourceLang);
+
+  const finalTitle = translated.title ?? job.title!;
+  const finalBody = translated.body ?? job.body!;
+
+  try {
+    const tickets = await PushNotificationService.sendPushBatch([
+      { to: user.expoPushToken, title: finalTitle, body: finalBody, data: pushData, sound: "default" },
+    ]);
+
+    const ticket = tickets[0];
+    const success = ticket?.status === "ok";
+    job.targetCount = 1;
+    job.successCount = success ? 1 : 0;
+    job.failureCount = success ? 0 : 1;
+
+    const notificationLog = await NotificationLog.create({
+      type: "targeted",
+      title: finalTitle,
+      body: finalBody,
+      data: pushData,
+      sentBy: job.sentBy,
+      targetCount: 1,
+      successCount: job.successCount,
+      failureCount: job.failureCount,
+      triggeredBy: "admin",
+      locale: user.preferredLanguage,
+    });
+
+    await createPushTickets(notificationLog._id, [user.expoPushToken], tickets);
+  } catch (err) {
+    logError("JobQueue", "push_targeted_scheduled: send failed", err, { jobId: job._id.toString() });
+    job.targetCount = 1;
+    job.failureCount = 1;
+  }
+}
+
+async function processEmailTargetedScheduled(job: IAdminJob): Promise<void> {
+  if (!job.userId) {
+    logError("JobQueue", "email_targeted_scheduled: missing userId", null, { jobId: job._id.toString() });
+    return;
+  }
+
+  const isEmail = job.userId.includes("@");
+  const user = isEmail
+    ? await User.findOne({ email: job.userId.toLowerCase() }).select("email preferredLanguage").lean()
+    : await User.findById(job.userId).select("email preferredLanguage").lean();
+
+  if (!user) {
+    logError("JobQueue", "email_targeted_scheduled: user not found", null, { jobId: job._id.toString(), userId: job.userId });
+    job.failureCount = 1;
+    return;
+  }
+
+  const sourceText = pickLongestText({ subject: job.subject, htmlContent: job.htmlContent });
+  const sourceLang = sourceText ? await detectLanguage(sourceText) : "en";
+  const translationInput: TranslationInput = { subject: job.subject!, htmlContent: job.htmlContent! };
+  const { translateForUser } = await import("../translation.service.js");
+  const translated = await translateForUser(translationInput, user.preferredLanguage, sourceLang);
+
+  const ctaUrl = job.deepLinkScreen
+    ? buildDeepLinkUrl(job.deepLinkScreen, job.deepLinkParams)
+    : undefined;
+
+  try {
+    const success = await EmailService.sendCustomEmail(
+      user.email,
+      translated.subject ?? job.subject!,
+      translated.htmlContent ?? job.htmlContent!,
+      user.preferredLanguage,
+      "admin",
+      ctaUrl,
+    );
+
+    job.targetCount = 1;
+    job.successCount = success ? 1 : 0;
+    job.skippedCount = success ? 0 : 1;
+  } catch (err) {
+    logError("JobQueue", "email_targeted_scheduled: send failed", err, { jobId: job._id.toString() });
+    job.targetCount = 1;
+    job.failureCount = 1;
+  }
+}
+
 export async function processJob(jobId: string): Promise<void> {
   try {
     const job = await AdminJob.findById(jobId);
@@ -262,6 +377,10 @@ export async function processJob(jobId: string): Promise<void> {
       await processEmailBroadcast(job);
     } else if (job.type === "push_broadcast") {
       await processPushBroadcast(job);
+    } else if (job.type === "push_targeted_scheduled") {
+      await processPushTargetedScheduled(job);
+    } else if (job.type === "email_targeted_scheduled") {
+      await processEmailTargetedScheduled(job);
     }
 
     job.status = "completed";
@@ -299,6 +418,11 @@ export async function getJobStatus(jobId: string) {
     startedAt: job.startedAt?.toISOString() ?? null,
     completedAt: job.completedAt?.toISOString() ?? null,
     errorMessage: job.errorMessage ?? null,
+    scheduledAt: job.scheduledAt?.toISOString() ?? null,
+    scheduledStatus: job.scheduledStatus ?? "none",
+    deepLinkScreen: job.deepLinkScreen ?? null,
+    deepLinkParams: job.deepLinkParams ?? null,
+    userId: job.userId ?? null,
     translations: job.translations
       ? Object.fromEntries(
           Object.entries(job.translations as Record<string, JobTranslation>).map(([lang, t]) => [

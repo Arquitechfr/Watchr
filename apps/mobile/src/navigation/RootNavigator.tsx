@@ -37,6 +37,7 @@ import { usePushNotifications } from "../hooks/usePushNotifications";
 import { useThemeSync } from "../hooks/useThemeSync";
 import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts";
 import { log } from "../utils/logger";
+import { navigateToDeepLink } from "../services/deepLinkHandler";
 import { ResetPasswordScreen } from "../screens/auth/ResetPasswordScreen";
 import { MagicLinkScreen } from "../screens/auth/MagicLinkScreen";
 import { NewsArticleDetailScreen } from "../screens/NewsArticleDetailScreen";
@@ -127,30 +128,12 @@ export function RootNavigator() {
     (async () => {
       const Notifications = await import("expo-notifications");
       subscription = Notifications.addNotificationResponseReceivedListener((response) => {
-        const data = response.notification.request.content.data as {
-          screen?: string;
-          showId?: string;
-          tmdbId?: number;
-          season?: number;
-          episode?: number;
-        };
+        const data = response.notification.request.content.data as Record<string, unknown> | undefined;
         log("RootNavigator", "push notification tapped", { data });
 
         if (!data?.screen || !navigationRef.current) return;
 
-        if (data.screen === "comments" && data.showId) {
-          navigationRef.current.navigate("ShowComments", {
-            showId: data.showId,
-            title: "",
-            season: data.season,
-            episode: data.episode,
-          });
-        } else if (data.screen === "show" && data.tmdbId) {
-          navigationRef.current.navigate("ShowDetail", {
-            tmdbId: data.tmdbId,
-            title: "",
-          });
-        }
+        navigateToDeepLink(navigationRef.current, data);
       });
     })();
 
@@ -169,7 +152,25 @@ export function RootNavigator() {
         MagicLink: "auth/magic-link",
         ShowDetail: "show",
         ShowComments: "comments",
+        CommentThread: "comment-thread",
         EpisodeDetail: "episode",
+        Import: "import",
+        ImportReview: "import-review",
+        Export: "export",
+        Library: "library",
+        EditProfile: "edit-profile",
+        ProfileLanguage: "profile/language",
+        ProfileNotifications: "profile/notifications",
+        ProfileAbout: "profile/about",
+        ProfileAppearance: "profile/appearance",
+        ProfileSettings: "profile/settings",
+        ProfileData: "profile/data",
+        ProfileContact: "profile/contact",
+        ProfileApiKeys: "profile/api-keys",
+        PublicProfile: "u/:username",
+        FriendsActivity: "friends",
+        UserSearch: "search-users",
+        NewsArticleDetail: "news-article",
         Main: {
           path: "main",
           screens: {

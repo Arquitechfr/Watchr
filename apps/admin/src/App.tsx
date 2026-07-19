@@ -20,6 +20,7 @@ const ContactMessages = lazy(() => import("./pages/ContactMessages").then((m) =>
 const AdminFeed = lazy(() => import("./pages/AdminFeed").then((m) => ({ default: m.AdminFeed })));
 const ErrorTracking = lazy(() => import("./pages/ErrorTracking").then((m) => ({ default: m.ErrorTracking })));
 const ApiKeys = lazy(() => import("./pages/ApiKeys").then((m) => ({ default: m.ApiKeys })));
+const ScheduledJobs = lazy(() => import("./pages/ScheduledJobs").then((m) => ({ default: m.ScheduledJobs })));
 
 function PageLoader() {
   return (
@@ -60,6 +61,7 @@ export default function App() {
             <Route path="/shows" element={<Shows />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/email" element={<EmailLogs />} />
+            <Route path="/scheduled" element={<ScheduledJobs />} />
             <Route path="/config" element={<RemoteConfig />} />
             <Route path="/imports" element={<ImportJobs />} />
             <Route path="/ai" element={<AI />} />

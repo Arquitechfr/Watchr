@@ -1,8 +1,9 @@
 import { Schema, model, Document, Types } from "mongoose";
 
-export type AdminJobType = "email_broadcast" | "push_broadcast";
-export type AdminJobStatus = "pending" | "processing" | "completed" | "failed";
+export type AdminJobType = "email_broadcast" | "push_broadcast" | "push_targeted_scheduled" | "email_targeted_scheduled";
+export type AdminJobStatus = "pending" | "processing" | "completed" | "failed" | "cancelled";
 export type AdminJobTarget = "all" | "locale";
+export type ScheduledStatus = "none" | "scheduled" | "cancelled";
 export type TranslationStatus = "pending" | "completed" | "failed" | "skipped";
 
 export interface JobTranslation {
@@ -33,6 +34,11 @@ export interface IAdminJob extends Document {
   startedAt?: Date;
   completedAt?: Date;
   errorMessage?: string;
+  scheduledAt?: Date;
+  scheduledStatus?: ScheduledStatus;
+  deepLinkScreen?: string;
+  deepLinkParams?: Record<string, unknown>;
+  userId?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -41,13 +47,13 @@ const adminJobSchema = new Schema<IAdminJob>(
   {
     type: {
       type: String,
-      enum: ["email_broadcast", "push_broadcast"],
+      enum: ["email_broadcast", "push_broadcast", "push_targeted_scheduled", "email_targeted_scheduled"],
       required: true,
       index: true,
     },
     status: {
       type: String,
-      enum: ["pending", "processing", "completed", "failed"],
+      enum: ["pending", "processing", "completed", "failed", "cancelled"],
       required: true,
       default: "pending",
       index: true,
@@ -83,10 +89,22 @@ const adminJobSchema = new Schema<IAdminJob>(
       enum: ["pending", "completed", "failed", "skipped"],
       required: false,
     },
+    scheduledAt: { type: Date, required: false, index: true },
+    scheduledStatus: {
+      type: String,
+      enum: ["none", "scheduled", "cancelled"],
+      required: false,
+      default: "none",
+      index: true,
+    },
+    deepLinkScreen: { type: String, required: false },
+    deepLinkParams: { type: Schema.Types.Mixed, required: false },
+    userId: { type: String, required: false },
   },
   { timestamps: true },
 );
 
 adminJobSchema.index({ createdAt: -1 });
+adminJobSchema.index({ scheduledStatus: 1, scheduledAt: 1 });
 
 export const AdminJob = model<IAdminJob>("AdminJob", adminJobSchema, "admin_jobs");

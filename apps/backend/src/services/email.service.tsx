@@ -326,9 +326,10 @@ export const EmailService = {
     htmlContent: string,
     locale?: string,
     triggeredBy?: string,
+    ctaUrl?: string,
   ): Promise<boolean> {
     const sanitized = sanitizeHtml(htmlContent);
-    const html = await renderEmail(<CustomEmail innerHtml={sanitized} locale={locale} previewText={subject} />);
+    const html = await renderEmail(<CustomEmail innerHtml={sanitized} locale={locale} previewText={subject} ctaUrl={ctaUrl} />);
     return sendEmail({ to, subject, html, template: "custom", locale, triggeredBy });
   },
 

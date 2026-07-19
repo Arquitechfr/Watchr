@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef, type FormEvent } from "react";
-import { Mail, Search, ChevronLeft, ChevronRight, Eye, Send, Loader2, Globe } from "lucide-react";
+import { Mail, Search, ChevronLeft, ChevronRight, Eye, Send, Loader2, Globe, CalendarClock } from "lucide-react";
 import api from "../lib/api";
 import { AiImproveButton } from "../components/ui/AiImproveButton";
 import { Card, CardHeader, CardTitle, CardContent } from "../components/ui/Card";
@@ -13,6 +13,7 @@ import { Dialog } from "../components/ui/Dialog";
 import { RichTextEditor } from "../components/ui/RichTextEditor";
 import { TranslatePreviewDialog } from "../components/ui/TranslatePreviewDialog";
 import { TranslationProgress } from "../components/ui/TranslationProgress";
+import { PageSelector } from "../components/ui/PageSelector";
 import { useJobPolling } from "../hooks/useJobPolling";
 import { formatDate } from "../lib/utils";
 
@@ -89,11 +90,17 @@ export function EmailLogs() {
     htmlContent: "",
     target: "all" as "all" | "locale",
     locale: "",
+    scheduledAt: "",
+    scheduleEnabled: false,
+    deepLink: null as { screen: string; params: Record<string, unknown> } | null,
   });
   const [targetedForm, setTargetedForm] = useState({
     userId: "",
     subject: "",
     htmlContent: "",
+    scheduledAt: "",
+    scheduleEnabled: false,
+    deepLink: null as { screen: string; params: Record<string, unknown> } | null,
   });
   const [sending, setSending] = useState(false);
   const [result, setResult] = useState<string>("");
@@ -168,7 +175,7 @@ export function EmailLogs() {
       setResult(
         `Broadcast complete: ${job.successCount} sent, ${job.failureCount} failed, ${job.skippedCount} skipped out of ${job.targetCount}`,
       );
-      setBroadcastForm({ subject: "", htmlContent: "", target: "all", locale: "" });
+      setBroadcastForm({ subject: "", htmlContent: "", target: "all", locale: "", scheduledAt: "", scheduleEnabled: false, deepLink: null });
       loadData();
     } else if (job?.status === "failed") {
       setResult(`Broadcast failed: ${job.errorMessage ?? "Unknown error"}`);
@@ -188,8 +195,20 @@ export function EmailLogs() {
       if (broadcastForm.target === "locale" && broadcastForm.locale) {
         payload.locale = broadcastForm.locale;
       }
+      if (broadcastForm.scheduleEnabled && broadcastForm.scheduledAt) {
+        payload.scheduledAt = new Date(broadcastForm.scheduledAt).toISOString();
+      }
+      if (broadcastForm.deepLink) {
+        payload.deepLinkScreen = broadcastForm.deepLink.screen;
+        payload.deepLinkParams = broadcastForm.deepLink.params;
+      }
       const { data } = await api.post("/admin/emails/broadcast", payload);
-      startPolling(data.jobId);
+      if (data.scheduled) {
+        setResult(`Email broadcast scheduled for ${new Date(broadcastForm.scheduledAt).toLocaleString()}`);
+        setBroadcastForm({ subject: "", htmlContent: "", target: "all", locale: "", scheduledAt: "", scheduleEnabled: false, deepLink: null });
+      } else {
+        startPolling(data.jobId);
+      }
     } catch (err) {
       setResult("Broadcast failed to start");
       console.error("Broadcast failed:", err);
@@ -203,9 +222,25 @@ export function EmailLogs() {
     setSending(true);
     setResult("");
     try {
-      await api.post("/admin/emails/targeted", targetedForm);
-      setResult("Email sent successfully");
-      setTargetedForm({ userId: "", subject: "", htmlContent: "" });
+      const payload: Record<string, unknown> = {
+        userId: targetedForm.userId,
+        subject: targetedForm.subject,
+        htmlContent: targetedForm.htmlContent,
+      };
+      if (targetedForm.scheduleEnabled && targetedForm.scheduledAt) {
+        payload.scheduledAt = new Date(targetedForm.scheduledAt).toISOString();
+      }
+      if (targetedForm.deepLink) {
+        payload.deepLinkScreen = targetedForm.deepLink.screen;
+        payload.deepLinkParams = targetedForm.deepLink.params;
+      }
+      const { data } = await api.post("/admin/emails/targeted", payload);
+      if (data.scheduled) {
+        setResult(`Email scheduled for ${new Date(targetedForm.scheduledAt).toLocaleString()}`);
+      } else {
+        setResult("Email sent successfully");
+      }
+      setTargetedForm({ userId: "", subject: "", htmlContent: "", scheduledAt: "", scheduleEnabled: false, deepLink: null });
       loadData();
     } catch (err) {
       setResult("Targeted email failed");
@@ -339,6 +374,28 @@ export function EmailLogs() {
                   />
                 </div>
               )}
+              <div>
+                <label className="flex items-center gap-2 text-sm text-text-muted mb-1.5">
+                  <input
+                    type="checkbox"
+                    checked={broadcastForm.scheduleEnabled}
+                    onChange={(e) => setBroadcastForm({ ...broadcastForm, scheduleEnabled: e.target.checked })}
+                    className="rounded border-border"
+                  />
+                  <CalendarClock size={14} /> Schedule for later
+                </label>
+                {broadcastForm.scheduleEnabled && (
+                  <Input
+                    type="datetime-local"
+                    value={broadcastForm.scheduledAt}
+                    onChange={(e) => setBroadcastForm({ ...broadcastForm, scheduledAt: e.target.value })}
+                  />
+                )}
+              </div>
+              <PageSelector
+                value={broadcastForm.deepLink ?? undefined}
+                onChange={(val) => setBroadcastForm({ ...broadcastForm, deepLink: val })}
+              />
               <Button type="submit" disabled={sending || isPolling}>
                 {sending ? <Loader2 size={16} className="mr-2 animate-spin" /> : <Send size={16} className="mr-2" />}
                 Send Broadcast
@@ -429,6 +486,28 @@ export function EmailLogs() {
                   placeholder="Write your email content here..."
                 />
               </div>
+              <div>
+                <label className="flex items-center gap-2 text-sm text-text-muted mb-1.5">
+                  <input
+                    type="checkbox"
+                    checked={targetedForm.scheduleEnabled}
+                    onChange={(e) => setTargetedForm({ ...targetedForm, scheduleEnabled: e.target.checked })}
+                    className="rounded border-border"
+                  />
+                  <CalendarClock size={14} /> Schedule for later
+                </label>
+                {targetedForm.scheduleEnabled && (
+                  <Input
+                    type="datetime-local"
+                    value={targetedForm.scheduledAt}
+                    onChange={(e) => setTargetedForm({ ...targetedForm, scheduledAt: e.target.value })}
+                  />
+                )}
+              </div>
+              <PageSelector
+                value={targetedForm.deepLink ?? undefined}
+                onChange={(val) => setTargetedForm({ ...targetedForm, deepLink: val })}
+              />
               <Button type="submit" disabled={sending || isPolling}>
                 {sending ? <Loader2 size={16} className="mr-2 animate-spin" /> : <Send size={16} className="mr-2" />}
                 Send to User

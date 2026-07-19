@@ -6,6 +6,9 @@ export const broadcastSchema = z.object({
   target: z.enum(["all", "locale"]),
   locale: z.string().optional(),
   data: z.record(z.unknown()).optional(),
+  scheduledAt: z.string().datetime().optional(),
+  deepLinkScreen: z.string().optional(),
+  deepLinkParams: z.record(z.unknown()).optional(),
 });
 
 export const targetedSchema = z.object({
@@ -13,6 +16,23 @@ export const targetedSchema = z.object({
   title: z.string().min(1).max(200),
   body: z.string().min(1).max(500),
   data: z.record(z.unknown()).optional(),
+  scheduledAt: z.string().datetime().optional(),
+  deepLinkScreen: z.string().optional(),
+  deepLinkParams: z.record(z.unknown()).optional(),
+});
+
+export const scheduledJobIdParamSchema = z.object({
+  jobId: z.string().min(1),
+});
+
+export const updateScheduledJobSchema = z.object({
+  title: z.string().min(1).max(200).optional(),
+  body: z.string().min(1).max(500).optional(),
+  subject: z.string().min(1).max(200).optional(),
+  htmlContent: z.string().min(1).optional(),
+  scheduledAt: z.string().datetime().optional(),
+  deepLinkScreen: z.string().nullable().optional(),
+  deepLinkParams: z.record(z.unknown()).nullable().optional(),
 });
 
 export const notificationHistoryQuerySchema = z.object({

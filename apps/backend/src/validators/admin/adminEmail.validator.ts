@@ -17,10 +17,16 @@ export const emailBroadcastSchema = z.object({
   htmlContent: z.string().min(1),
   target: z.enum(["all", "locale"]),
   locale: z.string().optional(),
+  scheduledAt: z.string().datetime().optional(),
+  deepLinkScreen: z.string().optional(),
+  deepLinkParams: z.record(z.unknown()).optional(),
 });
 
 export const emailTargetedSchema = z.object({
   userId: z.string().min(1),
   subject: z.string().min(1).max(200),
   htmlContent: z.string().min(1),
+  scheduledAt: z.string().datetime().optional(),
+  deepLinkScreen: z.string().optional(),
+  deepLinkParams: z.record(z.unknown()).optional(),
 });

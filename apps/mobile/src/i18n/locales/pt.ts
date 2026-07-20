@@ -816,6 +816,7 @@ const pt = {
     profileLanguage: "Idioma",
     profileNotifications: "Notificações",
     apiKeys: "Chaves de API",
+    profileSettings: "Configurações",
     login: "Entrar",
     register: "Registro",
     forgotPassword: "Esqueci a senha",
@@ -878,6 +879,9 @@ const pt = {
     conversationUnarchived: "Conversa desarquivada",
     conversationMuted: "Conversa silenciada",
     conversationUnmuted: "Som ativado",
+    sendMessage: "Enviar mensagem",
+    creatingConversation: "Iniciando conversa…",
+    conversationError: "Não foi possível iniciar a conversa. Tente novamente.",
   },
 };
 

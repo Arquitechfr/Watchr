@@ -44,6 +44,7 @@ export interface PublicProfileResult {
   createdAt: string;
   activityVisibility: "private" | "public";
   isFollowing: boolean;
+  isMutualFriend: boolean;
   followers: number;
   following: number;
   bio?: string;
@@ -238,10 +239,16 @@ export async function getPublicProfile(
     throw new ApiError(404, "USER_NOT_FOUND", "User not found");
   }
 
-  const [isFollowingDoc, counts] = await Promise.all([
+  const [isFollowingDoc, isFollowedByDoc, counts] = await Promise.all([
     Follow.findOne({
       followerId: new Types.ObjectId(requestingUserId),
       followingId: user._id,
+    })
+      .select("_id")
+      .lean(),
+    Follow.findOne({
+      followerId: user._id,
+      followingId: new Types.ObjectId(requestingUserId),
     })
       .select("_id")
       .lean(),
@@ -261,6 +268,7 @@ export async function getPublicProfile(
     createdAt: user.createdAt.toISOString(),
     activityVisibility: user.activityVisibility ?? "private",
     isFollowing: !!isFollowingDoc,
+    isMutualFriend: !!isFollowingDoc && !!isFollowedByDoc,
     followers: counts.followers,
     following: counts.following,
     bio,

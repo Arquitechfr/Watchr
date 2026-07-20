@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { View, Text, ActivityIndicator, ScrollView, TouchableOpacity } from "react-native";
-import { useRoute } from "@react-navigation/native";
+import { useRoute, useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { format } from "date-fns";
 import { Ionicons } from "@expo/vector-icons";
 import { ScreenContainer } from "../components/ScreenContainer";
@@ -12,15 +13,41 @@ import { Seo } from "../components/Seo";
 import { useI18n } from "../i18n/useI18n";
 import { useThemeColors } from "../theme/useThemeColors";
 import { usePublicProfile } from "../hooks/useSocial";
+import { useCreateConversation } from "../hooks/useMessages";
+import { useAuthStore } from "../store/authStore";
+import { useUIStore } from "../store/uiStore";
+import { useErrorMessage } from "../services/api";
+import { RootStackParamList } from "../navigation/RootNavigator";
 
 export function PublicProfileScreen() {
   const { t, dateFnsLocale } = useI18n();
   const colors = useThemeColors();
   const route = useRoute();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const username = (route.params as { username: string })?.username;
   const [showOriginalBio, setShowOriginalBio] = useState(false);
 
+  const currentUserId = useAuthStore((s) => s.userId);
+  const { showSnackbar } = useUIStore();
+  const getErrorMessage = useErrorMessage();
+  const createConversationMutation = useCreateConversation();
+
   const { data: profile, isLoading, isError } = usePublicProfile(username);
+
+  const isOwnProfile = profile?.id === currentUserId;
+
+  async function handleSendMessage() {
+    if (!profile) return;
+    try {
+      const result = await createConversationMutation.mutateAsync(profile.id);
+      navigation.navigate("Chat", {
+        conversationId: result.id,
+        otherUsername: profile.username,
+      });
+    } catch (err) {
+      showSnackbar(getErrorMessage(err), "error");
+    }
+  }
 
   if (isLoading) {
     return (
@@ -74,8 +101,29 @@ export function PublicProfileScreen() {
           </View>
         </View>
 
-        <View className="items-center mb-6">
+        <View className="flex-row items-center justify-center gap-3 mb-6">
           <FollowButton userId={profile.id} />
+          {!isOwnProfile && profile.isMutualFriend && (
+            <TouchableOpacity
+              onPress={handleSendMessage}
+              disabled={createConversationMutation.isPending}
+              activeOpacity={0.7}
+              className="flex-row items-center justify-center rounded-lg px-4 py-2"
+              style={{
+                backgroundColor: colors.surface,
+                borderWidth: 1,
+                borderColor: colors.primary,
+                minWidth: 44,
+                minHeight: 44,
+              }}
+            >
+              {createConversationMutation.isPending ? (
+                <ActivityIndicator size="small" color={colors.primary} />
+              ) : (
+                <Ionicons name="chatbubble-outline" size={20} color={colors.primary} />
+              )}
+            </TouchableOpacity>
+          )}
         </View>
 
         <BioSection

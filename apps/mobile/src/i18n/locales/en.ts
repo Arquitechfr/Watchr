@@ -816,6 +816,7 @@ const en = {
     profileLanguage: "Language",
     profileNotifications: "Notifications",
     apiKeys: "API Keys",
+    profileSettings: "Settings",
     login: "Login",
     register: "Register",
     forgotPassword: "Forgot Password",
@@ -878,6 +879,9 @@ const en = {
     conversationUnarchived: "Conversation unarchived",
     conversationMuted: "Conversation muted",
     conversationUnmuted: "Conversation unmuted",
+    sendMessage: "Send message",
+    creatingConversation: "Starting conversation…",
+    conversationError: "Could not start conversation. Try again.",
   },
 };
 

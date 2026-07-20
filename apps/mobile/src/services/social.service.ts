@@ -33,6 +33,7 @@ export interface PublicProfile {
   createdAt: string;
   activityVisibility: "private" | "public";
   isFollowing: boolean;
+  isMutualFriend: boolean;
   followers: number;
   following: number;
   bio?: string;

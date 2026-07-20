@@ -8,6 +8,8 @@ import { useThemeColors } from "../theme/useThemeColors";
 import { useConversations, useUnreadCount } from "../hooks/useMessages";
 import { useAuthStore } from "../store/authStore";
 import { ScreenContainer } from "../components/ScreenContainer";
+import { SubScreenHeader } from "../components/SubScreenHeader";
+import { Seo } from "../components/Seo";
 import type { ConversationItem } from "../services/message.service";
 import type { RootStackParamList } from "../navigation/RootNavigator";
 
@@ -105,9 +107,11 @@ export function ConversationListScreen() {
   }
 
   return (
-    <ScreenContainer>
-      <View className="flex-row items-center justify-between px-4 py-3" style={{ borderBottomWidth: 0.5, borderBottomColor: colors.border }}>
-        <Text style={{ color: colors.text, fontSize: 24, fontWeight: "700" }}>{t("messages.title")}</Text>
+    <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
+      <Seo title={t("messages.title")} />
+      <SubScreenHeader title={t("messages.title")} />
+      <View className="flex-row items-center justify-between py-3" style={{ borderBottomWidth: 0.5, borderBottomColor: colors.border }}>
+        <Text style={{ color: colors.text, fontSize: 20, fontWeight: "700" }}>{t("messages.title")}</Text>
         {unreadData && unreadData.unreadCount > 0 && (
           <TouchableOpacity onPress={() => {}}>
             <Text style={{ color: colors.primary, fontSize: 14, fontWeight: "600" }}>

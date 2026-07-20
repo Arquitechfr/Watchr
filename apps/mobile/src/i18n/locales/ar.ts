@@ -816,6 +816,7 @@ const ar = {
     profileLanguage: "اللغة",
     profileNotifications: "الإشعارات",
     apiKeys: "مفاتيح API",
+    profileSettings: "الإعدادات",
     login: "تسجيل الدخول",
     register: "التسجيل",
     forgotPassword: "نسيت كلمة المرور",
@@ -878,6 +879,9 @@ const ar = {
     conversationUnarchived: "تم إلغاء أرشفة المحادثة",
     conversationMuted: "تم كتم المحادثة",
     conversationUnmuted: "تم إلغاء كتم المحادثة",
+    sendMessage: "إرسال رسالة",
+    creatingConversation: "جارٍ بدء المحادثة…",
+    conversationError: "تعذر بدء المحادثة. حاول مرة أخرى.",
   },
 };
 

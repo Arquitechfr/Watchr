@@ -224,12 +224,12 @@ export function ChatScreen() {
 
   return (
     <ScreenContainer edges={["top", "left", "right"]} fullWidth>
-      <View className="flex-row items-center px-4 py-3 border-b border-border">
-        <Text className="text-text font-bold text-lg flex-1" numberOfLines={1}>
-          {otherUsername}
-        </Text>
-      </View>
-      <View className="flex-1">
+        <View className="flex-row items-center px-4 py-3 border-b border-border">
+          <Text className="text-text font-bold text-lg flex-1" numberOfLines={1}>
+            {otherUsername}
+          </Text>
+        </View>
+        <View className="flex-1">
         <FlatList
           data={messages}
           keyExtractor={(item) => item.id}

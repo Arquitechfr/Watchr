@@ -293,6 +293,7 @@ const fr = {
       contactSuccess: "Message envoyé ! Nous vous répondrons bientôt.",
       contactError: "Échec de l'envoi du message. Veuillez réessayer.",
       apiKeys: "Clés API",
+      settings: "Réglages",
       apiKeysDescription: "Gérez vos clés API pour accéder à Watchr par programmation.",
       apiKeysCreate: "Créer une clé",
       apiKeysEmpty: "Aucune clé API",
@@ -816,6 +817,7 @@ const fr = {
     profileLanguage: "Langue",
     profileNotifications: "Notifications",
     apiKeys: "Clés API",
+    profileSettings: "Réglages",
     login: "Connexion",
     register: "Inscription",
     forgotPassword: "Mot de passe oublié",
@@ -878,6 +880,9 @@ const fr = {
     conversationUnarchived: "Conversation désarchivée",
     conversationMuted: "Conversation en sourdine",
     conversationUnmuted: "Sourdine retirée",
+    sendMessage: "Envoyer un message",
+    creatingConversation: "Démarrage de la conversation…",
+    conversationError: "Impossible de démarrer la conversation. Réessaie.",
   },
 };
 

@@ -1,12 +1,8 @@
 import { Text, TouchableOpacity, ActivityIndicator, View, ScrollView, Platform, useWindowDimensions } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation, useScrollToTop } from "@react-navigation/native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { getItem as secureGetItem } from "../utils/secureStorage";
+import { useScrollToTop } from "@react-navigation/native";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { useAuthStore } from "../store/authStore";
-import { useUIStore } from "../store/uiStore";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { MainHeader } from "../components/MainHeader";
 import { InAppNotificationBanner } from "../components/InAppNotificationBanner";
@@ -23,10 +19,7 @@ import { AiInsights } from "../components/Profile/AiInsights";
 import { YearInReviewModal } from "../components/Profile/YearInReviewModal";
 import { BioGenresCard } from "../components/Profile/BioGenresCard";
 import { Skeleton } from "../components/Skeleton";
-import { useErrorMessage } from "../services/api";
-import { logout, getMe } from "../services/auth.service";
-import { log } from "../utils/logger";
-import { RootStackParamList } from "../navigation/RootNavigator";
+import { getMe } from "../services/auth.service";
 import { useThemeColors } from "../theme/useThemeColors";
 import { useRef, useState } from "react";
 import { useI18n } from "../i18n/useI18n";
@@ -39,18 +32,11 @@ import { useBannerUpload } from "../hooks/useBannerUpload";
 import { useFadeIn } from "../hooks/useFadeIn";
 import Animated from "react-native-reanimated";
 
-type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
-
 export function ProfileScreen() {
-  const navigation = useNavigation<NavigationProp>();
-  const { logout: clearAuth } = useAuthStore();
-  const { showSnackbar } = useUIStore();
   const { t, dateFnsLocale } = useI18n();
   const colors = useThemeColors();
-  const getErrorMessage = useErrorMessage();
   const scrollRef = useRef<ScrollView>(null);
   useScrollToTop(scrollRef);
-  const [isLoading, setIsLoading] = useState(false);
   const [showYearInReview, setShowYearInReview] = useState(false);
   const { width } = useWindowDimensions();
   const isDesktopWeb = Platform.OS === "web" && width >= 768;
@@ -65,29 +51,6 @@ export function ProfileScreen() {
 
   const tvFavorites = tvFavoritesQuery.data?.pages.flatMap((p) => p.data) ?? [];
   const movieFavorites = movieFavoritesQuery.data?.pages.flatMap((p) => p.data) ?? [];
-
-  async function handleLogout() {
-    log("Logout", "start");
-    setIsLoading(true);
-    try {
-      const refreshToken = await secureGetItem("refreshToken");
-      if (refreshToken) {
-        log("Logout", "calling api");
-        await logout(refreshToken);
-      } else {
-        log("Logout", "no refresh token");
-      }
-    } catch (err) {
-      log("Logout", "api error", err);
-      showSnackbar(getErrorMessage(err), "error");
-    } finally {
-      log("Logout", "clearing auth");
-      await clearAuth();
-      setIsLoading(false);
-      log("Logout", "navigate to auth");
-      navigation.navigate("Auth");
-    }
-  }
 
   const memberSinceDate = me?.createdAt ? new Date(me.createdAt) : null;
   const memberSinceFormatted = memberSinceDate
@@ -252,18 +215,6 @@ export function ProfileScreen() {
           </View>
         )}
 
-        <TouchableOpacity
-          className="py-4 rounded-lg items-center mt-4"
-          style={{ backgroundColor: colors.danger }}
-          onPress={handleLogout}
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <ActivityIndicator color={colors.text} />
-          ) : (
-            <Text className="font-semibold" style={{ color: "#fff" }}>{t("screens.profile.logout")}</Text>
-          )}
-        </TouchableOpacity>
         </Animated.View>
       </ScrollView>
       </View>

@@ -293,6 +293,7 @@ const de = {
       contactSuccess: "Nachricht gesendet! Wir melden uns bald bei dir.",
       contactError: "Nachricht konnte nicht gesendet werden. Bitte erneut versuchen.",
       apiKeys: "API-Schlüssel",
+      settings: "Einstellungen",
       apiKeysDescription: "Verwalte deine API-Schlüssel für den programmatischen Zugriff auf Watchr.",
       apiKeysCreate: "Schlüssel erstellen",
       apiKeysEmpty: "Keine API-Schlüssel",
@@ -815,6 +816,7 @@ const de = {
     profileData: "Datenverwaltung",
     profileLanguage: "Sprache",
     profileNotifications: "Benachrichtigungen",
+    profileSettings: "Einstellungen",
     apiKeys: "API-Schlüssel",
     login: "Anmelden",
     register: "Registrieren",
@@ -878,6 +880,9 @@ const de = {
     conversationUnarchived: "Konversation dearchiviert",
     conversationMuted: "Konversation stummgeschaltet",
     conversationUnmuted: "Stummschaltung aufgehoben",
+    sendMessage: "Nachricht senden",
+    creatingConversation: "Unterhaltung wird gestartet…",
+    conversationError: "Unterhaltung konnte nicht gestartet werden. Erneut versuchen.",
   },
 };
 

@@ -27,6 +27,7 @@ import { ProfileLanguageScreen } from "../screens/profile/ProfileLanguageScreen"
 import { ProfileNotificationsScreen } from "../screens/profile/ProfileNotificationsScreen";
 import { ProfileAboutScreen } from "../screens/profile/ProfileAboutScreen";
 import { ProfileAppearanceScreen } from "../screens/profile/ProfileAppearanceScreen";
+import { SettingsScreen } from "../screens/profile/SettingsScreen";
 import { ProfileDataScreen } from "../screens/profile/ProfileDataScreen";
 import { ProfileContactScreen } from "../screens/profile/ProfileContactScreen";
 import { ApiKeysScreen } from "../screens/profile/ApiKeysScreen";
@@ -274,6 +275,7 @@ export function RootNavigator() {
             <Stack.Screen name="ProfileNotifications" component={ProfileNotificationsScreen} />
             <Stack.Screen name="ProfileAbout" component={ProfileAboutScreen} />
             <Stack.Screen name="ProfileAppearance" component={ProfileAppearanceScreen} />
+            <Stack.Screen name="ProfileSettings" component={SettingsScreen} />
             <Stack.Screen name="ProfileData" component={ProfileDataScreen} />
             <Stack.Screen name="ProfileContact" component={ProfileContactScreen} />
             <Stack.Screen name="ProfileApiKeys" component={ApiKeysScreen} />

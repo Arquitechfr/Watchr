@@ -31,7 +31,7 @@ export async function autoFollowAdmin(userId: string): Promise<void> {
 
     const admin = await User.findById(adminId).select("_id").lean();
     if (!admin) {
-      console.warn(`[autoFollowAdmin] Admin user not found: ${adminId}`);
+      logError("autoFollowAdmin", `Admin user not found: ${adminId}`, null);
       return;
     }
 

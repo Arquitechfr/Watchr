@@ -1,6 +1,6 @@
 import { Types } from "mongoose";
 import { Conversation } from "../models/conversation.model.js";
-import { Message, type MessageAttachment } from "../models/message.model.js";
+import { Message, type MessageAttachment, type IMessage, type MessageReaction } from "../models/message.model.js";
 import { MessageReport, type MessageReportReason } from "../models/messageReport.model.js";
 import { User } from "../models/user.model.js";
 import { Follow } from "../models/follow.model.js";
@@ -69,7 +69,7 @@ export interface MessageItem {
   createdAt: string;
 }
 
-function buildMessageItem(msg: any, userId: string): MessageItem {
+function buildMessageItem(msg: IMessage, userId: string): MessageItem {
   const translations = msg.translations as Map<string, string> | undefined;
   const userLocale = "en";
 
@@ -86,7 +86,7 @@ function buildMessageItem(msg: any, userId: string): MessageItem {
     editedAt: msg.editedAt ? msg.editedAt.toISOString() : null,
     isDeleted: msg.isDeleted,
     isSystemMessage: msg.isSystemMessage,
-    reactions: (msg.reactions ?? []).map((r: any) => ({
+    reactions: (msg.reactions ?? []).map((r: MessageReaction) => ({
       userId: r.userId.toString(),
       emoji: r.emoji,
     })),

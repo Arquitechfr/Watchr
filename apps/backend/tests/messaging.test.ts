@@ -8,7 +8,6 @@ import { Conversation } from "../src/models/conversation.model.js";
 import { Message } from "../src/models/message.model.js";
 import { UserBlock } from "../src/models/userBlock.model.js";
 import { MessageReport } from "../src/models/messageReport.model.js";
-import { MobileConfig } from "../src/models/MobileConfig.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { env } from "../src/config/env.js";
@@ -34,7 +33,7 @@ describe("Messaging System", () => {
 
   describe("Conversation creation", () => {
     it("should create a new conversation between two users", async () => {
-      const { user: userA, token: tokenA } = await getAuthUser("UserA", "a@example.com");
+      const { token: tokenA } = await getAuthUser("UserA", "a@example.com");
       const { user: userB } = await getAuthUser("UserB", "b@example.com");
 
       const res = await request(app)
@@ -51,7 +50,7 @@ describe("Messaging System", () => {
     });
 
     it("should return existing conversation if already exists", async () => {
-      const { user: userA, token: tokenA } = await getAuthUser("UserA", "a@example.com");
+      const { token: tokenA } = await getAuthUser("UserA", "a@example.com");
       const { user: userB } = await getAuthUser("UserB", "b@example.com");
 
       const res1 = await request(app)
@@ -113,9 +112,9 @@ describe("Messaging System", () => {
     });
 
     it("should not send message to a conversation the user is not part of", async () => {
-      const { user: userA, token: tokenA } = await getAuthUser("UserA", "a@example.com");
+      const { token: tokenA } = await getAuthUser("UserA", "a@example.com");
       const { user: userB } = await getAuthUser("UserB", "b@example.com");
-      const { user: userC, token: tokenC } = await getAuthUser("UserC", "c@example.com");
+      const { token: tokenC } = await getAuthUser("UserC", "c@example.com");
 
       const convRes = await request(app)
         .post(`/api/messages/conversations/${userB._id}`)
@@ -130,7 +129,7 @@ describe("Messaging System", () => {
     });
 
     it("should reject empty message content", async () => {
-      const { user: userA, token: tokenA } = await getAuthUser("UserA", "a@example.com");
+      const { token: tokenA } = await getAuthUser("UserA", "a@example.com");
       const { user: userB } = await getAuthUser("UserB", "b@example.com");
 
       const convRes = await request(app)
@@ -148,7 +147,7 @@ describe("Messaging System", () => {
 
   describe("Message edit", () => {
     it("should edit own message", async () => {
-      const { user: userA, token: tokenA } = await getAuthUser("UserA", "a@example.com");
+      const { token: tokenA } = await getAuthUser("UserA", "a@example.com");
       const { user: userB } = await getAuthUser("UserB", "b@example.com");
 
       const convRes = await request(app)
@@ -171,7 +170,7 @@ describe("Messaging System", () => {
     });
 
     it("should not edit another user's message", async () => {
-      const { user: userA, token: tokenA } = await getAuthUser("UserA", "a@example.com");
+      const { token: tokenA } = await getAuthUser("UserA", "a@example.com");
       const { user: userB, token: tokenB } = await getAuthUser("UserB", "b@example.com");
 
       const convRes = await request(app)
@@ -194,7 +193,7 @@ describe("Messaging System", () => {
 
   describe("Message delete", () => {
     it("should delete own message", async () => {
-      const { user: userA, token: tokenA } = await getAuthUser("UserA", "a@example.com");
+      const { token: tokenA } = await getAuthUser("UserA", "a@example.com");
       const { user: userB } = await getAuthUser("UserB", "b@example.com");
 
       const convRes = await request(app)
@@ -221,7 +220,7 @@ describe("Messaging System", () => {
 
   describe("Reactions", () => {
     it("should add and remove a reaction", async () => {
-      const { user: userA, token: tokenA } = await getAuthUser("UserA", "a@example.com");
+      const { token: tokenA } = await getAuthUser("UserA", "a@example.com");
       const { user: userB } = await getAuthUser("UserB", "b@example.com");
 
       const convRes = await request(app)
@@ -254,7 +253,7 @@ describe("Messaging System", () => {
 
   describe("Mark as read", () => {
     it("should mark messages as read", async () => {
-      const { user: userA, token: tokenA } = await getAuthUser("UserA", "a@example.com");
+      const { token: tokenA } = await getAuthUser("UserA", "a@example.com");
       const { user: userB, token: tokenB } = await getAuthUser("UserB", "b@example.com");
 
       const convRes = await request(app)
@@ -277,7 +276,7 @@ describe("Messaging System", () => {
 
   describe("Report message", () => {
     it("should report a message", async () => {
-      const { user: userA, token: tokenA } = await getAuthUser("UserA", "a@example.com");
+      const { token: tokenA } = await getAuthUser("UserA", "a@example.com");
       const { user: userB, token: tokenB } = await getAuthUser("UserB", "b@example.com");
 
       const convRes = await request(app)
@@ -303,7 +302,7 @@ describe("Messaging System", () => {
     });
 
     it("should not allow duplicate reports", async () => {
-      const { user: userA, token: tokenA } = await getAuthUser("UserA", "a@example.com");
+      const { token: tokenA } = await getAuthUser("UserA", "a@example.com");
       const { user: userB, token: tokenB } = await getAuthUser("UserB", "b@example.com");
 
       const convRes = await request(app)
@@ -346,7 +345,7 @@ describe("Messaging System", () => {
     });
 
     it("should not send message to blocked user", async () => {
-      const { user: userA, token: tokenA } = await getAuthUser("UserA", "a@example.com");
+      const { token: tokenA } = await getAuthUser("UserA", "a@example.com");
       const { user: userB } = await getAuthUser("UserB", "b@example.com");
 
       await request(app)
@@ -385,7 +384,7 @@ describe("Messaging System", () => {
     });
 
     it("should list blocked users", async () => {
-      const { user: userA, token: tokenA } = await getAuthUser("UserA", "a@example.com");
+      const { token: tokenA } = await getAuthUser("UserA", "a@example.com");
       const { user: userB } = await getAuthUser("UserB", "b@example.com");
 
       await request(app)
@@ -404,7 +403,7 @@ describe("Messaging System", () => {
 
   describe("Unread count", () => {
     it("should return total unread count", async () => {
-      const { user: userA, token: tokenA } = await getAuthUser("UserA", "a@example.com");
+      const { token: tokenA } = await getAuthUser("UserA", "a@example.com");
       const { user: userB, token: tokenB } = await getAuthUser("UserB", "b@example.com");
 
       const convRes = await request(app)
@@ -432,7 +431,7 @@ describe("Messaging System", () => {
 
   describe("Archive / Mute", () => {
     it("should archive and unarchive a conversation", async () => {
-      const { user: userA, token: tokenA } = await getAuthUser("UserA", "a@example.com");
+      const { token: tokenA } = await getAuthUser("UserA", "a@example.com");
       const { user: userB } = await getAuthUser("UserB", "b@example.com");
 
       const convRes = await request(app)
@@ -457,7 +456,7 @@ describe("Messaging System", () => {
     });
 
     it("should mute and unmute a conversation", async () => {
-      const { user: userA, token: tokenA } = await getAuthUser("UserA", "a@example.com");
+      const { token: tokenA } = await getAuthUser("UserA", "a@example.com");
       const { user: userB } = await getAuthUser("UserB", "b@example.com");
 
       const convRes = await request(app)

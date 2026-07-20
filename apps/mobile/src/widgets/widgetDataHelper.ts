@@ -22,6 +22,7 @@ export interface WidgetData {
 
 const WIDGET_DATA_KEY = "widgetData";
 const WIDGET_TAB_KEY = "widgetActiveTab";
+const WIDGET_AUTH_TOKEN_KEY = "widget_auth_token";
 const MAX_EPISODES = 5;
 
 function getApiBaseUrl(): string {
@@ -72,7 +73,13 @@ export async function saveWidgetData(data: WidgetData): Promise<void> {
 
 async function getAuthToken(): Promise<string | null> {
   try {
-    return await secureGetItem("accessToken");
+    const token = await secureGetItem("accessToken");
+    if (token) return token;
+  } catch {
+    // secure storage may not be available in headless task
+  }
+  try {
+    return await AsyncStorage.getItem(WIDGET_AUTH_TOKEN_KEY);
   } catch {
     return null;
   }

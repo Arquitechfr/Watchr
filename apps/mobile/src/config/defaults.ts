@@ -29,6 +29,11 @@ export const DEFAULT_REMOTE_CONFIG = {
   ai_episode_summary_enabled: false,
   ai_tags_enrichment_enabled: false,
   ai_auto_translate_enabled: true,
+  ai_message_translation_enabled: false,
+  message_auto_hide_threshold: 5,
+  dm_rate_limit_per_minute: 30,
+  message_max_length: 2000,
+  welcome_message_enabled: true,
 } as const;
 
 export type RemoteConfig = typeof DEFAULT_REMOTE_CONFIG;

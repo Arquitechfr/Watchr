@@ -759,6 +759,30 @@ const it = {
       emptyUpcoming: "Nessun episodio in arrivo",
       markWatched: "Visto",
     },
+    stats: {
+      title: "STATISTICHE",
+      episodes: "Episodi",
+      hours: "Ore",
+      streak: "Serie",
+      shows: "Serie TV",
+      movies: "Film",
+      days: "giorni",
+    },
+    today: {
+      title: "OGGI",
+      empty: "Nessun nuovo episodio oggi",
+    },
+    favorites: {
+      title: "PREFERITI",
+      empty: "Nessun preferito ancora",
+    },
+    friends: {
+      title: "AMICI",
+      empty: "Nessuna attività recente",
+      rated: "ha valutato",
+      commented: "ha commentato",
+      added: "ha aggiunto",
+    },
   },
   trafficNotice: {
     message: "I nostri servizi stanno subendo rallentamenti. Stiamo lavorando per risolvere il problema. Grazie per la vostra pazienza.",

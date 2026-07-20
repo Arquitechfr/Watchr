@@ -18,7 +18,6 @@ import { useRemoteConfig } from "./src/hooks/useRemoteConfig";
 import { ThemeProvider } from "./src/theme/ThemeProvider";
 import { useTheme } from "./src/theme/useTheme";
 import { Platform } from 'react-native';
-import { HelmetProvider } from "react-helmet-async";
 import { PostHogProvider } from "posthog-react-native";
 
 import { errorTracker } from "./src/services/errorTracker";
@@ -61,8 +60,7 @@ const AppInner = () => {
 
   if (isReady && config.maintenance_enabled) {
     return (
-      <HelmetProvider>
-        <GestureHandlerRootView style={{ flex: 1 }}>
+      <GestureHandlerRootView style={{ flex: 1 }}>
           <QueryClientProvider client={queryClient}>
             <SafeAreaProvider>
               <ThemeProvider>
@@ -92,12 +90,10 @@ const AppInner = () => {
             </SafeAreaProvider>
           </QueryClientProvider>
         </GestureHandlerRootView>
-      </HelmetProvider>
     );
   }
 
   return (
-    <HelmetProvider>
     <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryClientProvider client={queryClient}>
         <SafeAreaProvider>
@@ -133,7 +129,6 @@ const AppInner = () => {
         </SafeAreaProvider>
       </QueryClientProvider>
     </GestureHandlerRootView>
-    </HelmetProvider>
   );
 };
 

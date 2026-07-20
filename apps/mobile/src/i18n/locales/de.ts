@@ -759,6 +759,30 @@ const de = {
       emptyUpcoming: "Keine kommenden Episoden",
       markWatched: "Gesehen",
     },
+    stats: {
+      title: "STATISTIK",
+      episodes: "Episoden",
+      hours: "Stunden",
+      streak: "Serie",
+      shows: "Serien",
+      movies: "Filme",
+      days: "Tage",
+    },
+    today: {
+      title: "HEUTE",
+      empty: "Keine neuen Episoden heute",
+    },
+    favorites: {
+      title: "FAVORITEN",
+      empty: "Noch keine Favoriten",
+    },
+    friends: {
+      title: "FREUNDE",
+      empty: "Keine aktuelle Aktivität",
+      rated: "bewertete",
+      commented: "kommentierte",
+      added: "fing hinzu",
+    },
   },
   trafficNotice: {
     message: "Unsere Dienste erleben Verlangsamungen. Wir arbeiten an der Lösung des Problems. Vielen Dank für Ihre Geduld.",

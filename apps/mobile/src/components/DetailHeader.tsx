@@ -3,7 +3,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useThemeColors } from "../theme/useThemeColors";
 
 interface DetailHeaderProps {
-  title: string;
+  title?: string;
   onBack: () => void;
   rightElement?: React.ReactNode;
   onTitlePress?: () => void;

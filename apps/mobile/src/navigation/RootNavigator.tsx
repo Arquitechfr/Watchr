@@ -50,7 +50,7 @@ export type RootStackParamList = {
   Auth: undefined;
   Main: { screen?: keyof MainTabsParamList } | undefined;
   Onboarding: undefined;
-  ShowDetail: { tmdbId: number; title: string };
+  ShowDetail: { tmdbId: number; title?: string };
   ShowComments: { showId: string; title: string; season?: number; episode?: number };
   CommentThread: { commentId: string; showId: string; title: string; season?: number; episode?: number };
   EpisodeDetail: { showId: string; tmdbId: number; season: number; episodeNumber: number; title?: string };
@@ -154,10 +154,22 @@ export function RootNavigator() {
         Auth: "",
         ResetPassword: "reset-password",
         MagicLink: "auth/magic-link",
-        ShowDetail: "show",
+        ShowDetail: {
+          path: "show/:tmdbId",
+          parse: {
+            tmdbId: (value: string) => Number(value),
+          },
+        },
         ShowComments: "comments",
         CommentThread: "comment-thread",
-        EpisodeDetail: "episode",
+        EpisodeDetail: {
+          path: "episode",
+          parse: {
+            tmdbId: (value: string) => Number(value),
+            season: (value: string) => Number(value),
+            episodeNumber: (value: string) => Number(value),
+          },
+        },
         Import: "import",
         ImportReview: "import-review",
         Export: "export",

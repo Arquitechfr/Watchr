@@ -79,7 +79,7 @@ function TabButton({
 function EpisodeRow({ episode }: { episode: WidgetEpisode }) {
   const episodeLabel = `S${String(episode.season).padStart(2, '0')}E${String(episode.episode).padStart(2, '0')}`;
   const subtitle = episode.name ? `${episodeLabel} • ${episode.name}` : episodeLabel;
-  const deepLink = `watchr://show/${episode.tmdbId}`;
+  const deepLink = `watchr://episode?showId=${episode.showId}&tmdbId=${episode.tmdbId}&season=${episode.season}&episodeNumber=${episode.episode}`;
 
   let formattedDate: string | null = null;
   if (episode.airDate) {

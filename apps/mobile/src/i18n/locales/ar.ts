@@ -759,6 +759,30 @@ const ar = {
       emptyUpcoming: "لا توجد حلقات قادمة",
       markWatched: "تمت المشاهدة",
     },
+    stats: {
+      title: "الإحصائيات",
+      episodes: "حلقات",
+      hours: "ساعات",
+      streak: "توالي",
+      shows: "مسلسلات",
+      movies: "أفلام",
+      days: "أيام",
+    },
+    today: {
+      title: "اليوم",
+      empty: "لا توجد حلقات جديدة اليوم",
+    },
+    favorites: {
+      title: "المفضلة",
+      empty: "لا توجد مفضلات بعد",
+    },
+    friends: {
+      title: "الأصدقاء",
+      empty: "لا يوجد نشاط حديث",
+      rated: "قيّم",
+      commented: "علّق على",
+      added: "أضاف",
+    },
   },
   trafficNotice: {
     message: "خدماتنا تعاني من بطء. نحن نعمل على حل المشكلة. شكراً لصبركم.",

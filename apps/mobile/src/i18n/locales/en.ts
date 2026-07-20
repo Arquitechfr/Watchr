@@ -759,6 +759,30 @@ const en = {
       emptyUpcoming: "No upcoming episodes",
       markWatched: "Watched",
     },
+    stats: {
+      title: "STATS",
+      episodes: "Episodes",
+      hours: "Hours",
+      streak: "Streak",
+      shows: "Shows",
+      movies: "Movies",
+      days: "days",
+    },
+    today: {
+      title: "TODAY",
+      empty: "No new episodes today",
+    },
+    favorites: {
+      title: "FAVORITES",
+      empty: "No favorites yet",
+    },
+    friends: {
+      title: "FRIENDS",
+      empty: "No recent activity",
+      rated: "rated",
+      commented: "commented on",
+      added: "added",
+    },
   },
   trafficNotice: {
     message: "Our services are experiencing slowdowns. We are working on resolving the issue. Thank you for your patience.",

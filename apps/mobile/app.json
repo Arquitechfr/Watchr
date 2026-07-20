@@ -64,6 +64,50 @@
               "resizeMode": "horizontal|vertical",
               "updatePeriodMillis": 1800000,
               "description": "Episodes to watch & upcoming releases"
+            },
+            {
+              "name": "Stats",
+              "label": "Watchr Stats",
+              "minWidth": "250dp",
+              "minHeight": "180dp",
+              "targetCellWidth": 4,
+              "targetCellHeight": 2,
+              "resizeMode": "horizontal|vertical",
+              "updatePeriodMillis": 1800000,
+              "description": "Your watching statistics at a glance"
+            },
+            {
+              "name": "Today",
+              "label": "Watchr Today",
+              "minWidth": "250dp",
+              "minHeight": "180dp",
+              "targetCellWidth": 4,
+              "targetCellHeight": 2,
+              "resizeMode": "horizontal|vertical",
+              "updatePeriodMillis": 1800000,
+              "description": "Episodes airing today"
+            },
+            {
+              "name": "Favorites",
+              "label": "Watchr Favorites",
+              "minWidth": "250dp",
+              "minHeight": "180dp",
+              "targetCellWidth": 4,
+              "targetCellHeight": 2,
+              "resizeMode": "horizontal|vertical",
+              "updatePeriodMillis": 1800000,
+              "description": "Your favorite shows and movies"
+            },
+            {
+              "name": "FriendsActivity",
+              "label": "Watchr Friends",
+              "minWidth": "250dp",
+              "minHeight": "180dp",
+              "targetCellWidth": 4,
+              "targetCellHeight": 2,
+              "resizeMode": "horizontal|vertical",
+              "updatePeriodMillis": 1800000,
+              "description": "Recent activity from your friends"
             }
           ]
         }

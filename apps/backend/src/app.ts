@@ -8,6 +8,7 @@ import { fileURLToPath } from "url";
 import { env } from "./config/env.js";
 import { errorMiddleware } from "./middleware/error.middleware.js";
 import { detectLanguage } from "./middleware/detectLanguage.middleware.js";
+import { noCache } from "./middleware/noCache.middleware.js";
 import { checkMaintenance } from "./middleware/maintenance.middleware.js";
 import { translate } from "./i18n/index.js";
 import authRoutes from "./routes/auth.routes.js";
@@ -362,6 +363,8 @@ export function createApp(): Application {
   });
 
   app.use(checkMaintenance);
+
+  app.use("/api", noCache);
 
   app.use("/api/auth", authRoutes);
   app.use("/api/shows", showRoutes);

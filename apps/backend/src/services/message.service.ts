@@ -1,6 +1,6 @@
 import { Types } from "mongoose";
 import { Conversation } from "../models/conversation.model.js";
-import { Message, type MessageAttachment, type IMessage, type MessageReaction } from "../models/message.model.js";
+import { Message, type MessageAttachment, type MessageReaction } from "../models/message.model.js";
 import { MessageReport, type MessageReportReason } from "../models/messageReport.model.js";
 import { User } from "../models/user.model.js";
 import { Follow } from "../models/follow.model.js";
@@ -69,8 +69,24 @@ export interface MessageItem {
   createdAt: string;
 }
 
-function buildMessageItem(msg: IMessage, userId: string): MessageItem {
-  const translations = msg.translations as Map<string, string> | undefined;
+interface LeanMessage {
+  _id: Types.ObjectId;
+  conversationId: Types.ObjectId;
+  senderId: Types.ObjectId;
+  content: string;
+  attachments: MessageAttachment[];
+  translations: Record<string, string> | null;
+  originalLanguage?: string;
+  readBy: Types.ObjectId[];
+  editedAt: Date | null;
+  isDeleted: boolean;
+  isSystemMessage: boolean;
+  reactions: MessageReaction[];
+  createdAt: Date;
+}
+
+function buildMessageItem(msg: LeanMessage, userId: string): MessageItem {
+  const translations = msg.translations;
   const userLocale = "en";
 
   return {
@@ -79,8 +95,8 @@ function buildMessageItem(msg: IMessage, userId: string): MessageItem {
     senderId: msg.senderId.toString(),
     content: msg.isDeleted ? "" : msg.content,
     attachments: msg.attachments ?? [],
-    translatedContent: translations?.get(userLocale),
-    isTranslated: translations?.has(userLocale) && msg.originalLanguage !== userLocale,
+    translatedContent: translations?.[userLocale],
+    isTranslated: !!translations && userLocale in translations && msg.originalLanguage !== userLocale,
     originalLanguage: msg.originalLanguage ?? undefined,
     isRead: msg.readBy.some((id: Types.ObjectId) => id.toString() === userId),
     editedAt: msg.editedAt ? msg.editedAt.toISOString() : null,
@@ -209,6 +225,7 @@ export async function sendMessage(
   }
 
   const populatedMsg = await Message.findById(msg._id).lean();
+  if (!populatedMsg) throw new ApiError(500, "INTERNAL_ERROR", "Failed to load message after creation");
   const messageItem = buildMessageItem(populatedMsg, senderId);
 
   wsEvents.emit("message:new", {
@@ -332,7 +349,7 @@ export async function getMessages(
   const sliced = hasMore ? messages.slice(0, limit) : messages;
 
   return {
-    messages: sliced.map((m) => buildMessageItem(m, userId)),
+    messages: sliced.map((m) => buildMessageItem(m as unknown as LeanMessage, userId)),
     hasMore,
     page,
     limit,
@@ -413,6 +430,7 @@ export async function editMessage(
   const recipientId = conv ? getOtherParticipantId(conv, userId).toString() : "";
 
   const updatedMsg = await Message.findById(messageId).lean();
+  if (!updatedMsg) throw new ApiError(500, "INTERNAL_ERROR", "Failed to load message after edit");
   const messageItem = buildMessageItem(updatedMsg, userId);
 
   wsEvents.emit("message:updated", {

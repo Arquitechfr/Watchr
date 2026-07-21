@@ -104,6 +104,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # ── 4b. Build shared packages ────────────────────────────────────────
+      - name: Build shared packages
+        run: pnpm --filter @watchr/i18n-languages build
+
       # ── 5. Restore google-services.json ──────────────────────────────────
       - name: Restore google-services.json
         working-directory: ${{ env.MOBILE_DIR }}

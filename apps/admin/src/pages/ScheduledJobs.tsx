@@ -317,8 +317,8 @@ export function ScheduledJobs() {
                   value={editForm.deepLinkScreen ? { screen: editForm.deepLinkScreen, params: editForm.deepLinkParams } : undefined}
                   onChange={(val) => setEditForm({
                     ...editForm,
-                    deepLinkScreen: val?.screen ?? "",
-                    deepLinkParams: val?.params ?? {},
+                    deepLinkScreen: val && "screen" in val ? val.screen : "",
+                    deepLinkParams: val && "screen" in val ? val.params : {},
                   })}
                 />
               </div>

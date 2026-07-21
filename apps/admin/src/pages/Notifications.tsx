@@ -199,7 +199,7 @@ export function Notifications() {
   useEffect(() => {
     if (job?.status === "completed") {
       setResult(`Broadcast complete: ${job.successCount} sent, ${job.failureCount} failed out of ${job.targetCount}`);
-      setBroadcastForm({ title: "", body: "", target: "all", locale: "", scheduledAt: "", scheduleEnabled: false, deepLink: null, imageUrl: "" });
+      setBroadcastForm({ title: "", body: "", target: "all", locale: "", scheduledAt: "", scheduleEnabled: false, deepLink: null, imageUrl: "", alsoInApp: false });
       loadHistory();
     } else if (job?.status === "failed") {
       setResult(`Broadcast failed: ${job.errorMessage ?? "Unknown error"}`);

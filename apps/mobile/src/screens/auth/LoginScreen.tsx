@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Text, TextInput, TouchableOpacity, ActivityIndicator, Image, View, Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useQueryClient } from "@tanstack/react-query";
@@ -87,9 +88,16 @@ export function LoginScreen() {
   }
 
   return (
-    <ScreenContainer className="px-6 justify-center" fullWidth>
+    <ScreenContainer className="px-6" fullWidth>
       <Seo title={t("seo.login")} />
-      <View style={Platform.OS === "web" ? { maxWidth: 400, width: "100%", alignSelf: "center" } : undefined}>
+      <KeyboardAwareScrollView
+        mode="layout"
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="interactive"
+        contentContainerStyle={Platform.OS === "web" ? { flexGrow: 1, justifyContent: "center", maxWidth: 400, width: "100%", alignSelf: "center" } : { flexGrow: 1, justifyContent: "center" }}
+        showsVerticalScrollIndicator={false}
+      >
+      <View style={Platform.OS === "web" ? undefined : { width: "100%" }}>
       <View style={{ top: insets.top + 8, zIndex: 50 }} className="absolute right-4">
         <AuthSettingsMenu />
       </View>
@@ -193,6 +201,7 @@ export function LoginScreen() {
         <Text className="text-primary text-center">{t("auth.forgotPassword")}</Text>
       </TouchableOpacity>
       </View>
+      </KeyboardAwareScrollView>
     </ScreenContainer>
   );
 }

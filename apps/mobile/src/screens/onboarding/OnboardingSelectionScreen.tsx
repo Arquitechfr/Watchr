@@ -200,6 +200,8 @@ export function OnboardingSelectionScreen({ onComplete, onSkip }: OnboardingSele
           columnWrapperStyle={{ justifyContent: "flex-start", gap: 8, paddingHorizontal: 16 }}
           contentContainerStyle={{ paddingBottom: 80 }}
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="interactive"
           onEndReached={() => {
             if (!isSearching && hasNextPage && !isFetchingNextPage) {
               fetchNextPage();

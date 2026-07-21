@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Text, TextInput, TouchableOpacity, ActivityIndicator, Image, View, Platform } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -121,9 +122,16 @@ export function EmailCodeScreen() {
   }
 
   return (
-    <ScreenContainer className="px-6 justify-center" fullWidth>
+    <ScreenContainer className="px-6" fullWidth>
       <Seo title={t("seo.emailCode")} />
-      <View style={Platform.OS === "web" ? { maxWidth: 400, width: "100%", alignSelf: "center" } : undefined}>
+      <KeyboardAwareScrollView
+        mode="layout"
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="interactive"
+        contentContainerStyle={Platform.OS === "web" ? { flexGrow: 1, justifyContent: "center", maxWidth: 400, width: "100%", alignSelf: "center" } : { flexGrow: 1, justifyContent: "center" }}
+        showsVerticalScrollIndicator={false}
+      >
+      <View style={Platform.OS === "web" ? undefined : { width: "100%" }}>
         <View style={{ top: insets.top + 8, zIndex: 50 }} className="absolute right-4">
           <AuthSettingsMenu />
         </View>
@@ -220,6 +228,7 @@ export function EmailCodeScreen() {
           <Text className="text-primary text-center">{t("auth.backToLogin")}</Text>
         </TouchableOpacity>
       </View>
+      </KeyboardAwareScrollView>
     </ScreenContainer>
   );
 }

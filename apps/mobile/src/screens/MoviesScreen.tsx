@@ -222,6 +222,8 @@ export function MoviesScreen() {
             keyExtractor={(item) => item.showId}
             numColumns={gridNumColumns}
             columnWrapperStyle={{ gap: gridGap }}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="interactive"
             renderItem={({ item }) => {
               const genreNames = (item.genres ?? []).filter((g: { id: number; name?: string }) => g.name).slice(0, 2).map((g: { id: number; name?: string }) => g.name!);
               return (
@@ -265,6 +267,8 @@ export function MoviesScreen() {
             ref={flatListRef}
             data={filteredMovies}
             keyExtractor={(item) => item.showId}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="interactive"
             renderItem={({ item }) => (
               <MovieCard
                 movie={item}

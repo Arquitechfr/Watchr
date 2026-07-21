@@ -1,4 +1,4 @@
-import { View, Text, Switch, ActivityIndicator, Pressable } from "react-native";
+import { View, Text, Switch, ActivityIndicator, Pressable, ScrollView } from "react-native";
 import { ScreenContainer } from "../../components/ScreenContainer";
 import { SubScreenHeader } from "../../components/SubScreenHeader";
 import { useI18n } from "../../i18n/useI18n";
@@ -76,8 +76,7 @@ export function ProfileNotificationsScreen() {
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
       <Seo title={t("seo.profileNotifications")} />
       <SubScreenHeader title={t("screens.profile.notifications")} />
-      <View className="md:max-w-lg md:mx-auto w-full">
-      <View className="gap-3">
+      <ScrollView className="md:max-w-lg md:mx-auto w-full" showsVerticalScrollIndicator={false} contentContainerClassName="gap-3 pb-8">
         <View
           className="rounded-lg p-4"
           style={{ backgroundColor: colors.surface }}
@@ -123,8 +122,7 @@ export function ProfileNotificationsScreen() {
             />
           </View>
         ))}
-      </View>
-      </View>
+      </ScrollView>
     </ScreenContainer>
   );
 }

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Text, TouchableOpacity, TextInput, ActivityIndicator, Platform, useWindowDimensions } from "react-native";
+import { View, Text, TouchableOpacity, TextInput, ActivityIndicator, Platform, useWindowDimensions, ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ScreenContainer } from "../../components/ScreenContainer";
@@ -136,7 +136,8 @@ export function EditProfileScreen() {
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
       <Seo title={t("seo.editProfile")} />
       <SubScreenHeader title={t("screens.profile.editProfile")} />
-      <Animated.View className="md:max-w-lg md:mx-auto w-full" style={containerAnimatedStyle}>
+      <Animated.View className="flex-1 md:max-w-lg md:mx-auto w-full" style={containerAnimatedStyle}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerClassName="pb-8" keyboardShouldPersistTaps="handled" keyboardDismissMode="interactive">
       <View style={isDesktopWeb ? { marginBottom: 8 } : { marginHorizontal: -16, marginBottom: 8 }}>
         <CoverBanner url={me?.bannerUrl} onPress={pickBanner} isUploading={isBannerUploading} />
       </View>
@@ -319,6 +320,7 @@ export function EditProfileScreen() {
           </TouchableOpacity>
         )}
       </View>
+      </ScrollView>
       </Animated.View>
     </ScreenContainer>
   );

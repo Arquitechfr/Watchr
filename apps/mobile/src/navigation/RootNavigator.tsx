@@ -138,6 +138,13 @@ export function RootNavigator() {
         const data = response.notification.request.content.data as Record<string, unknown> | undefined;
         log("RootNavigator", "push notification tapped", { data });
 
+        posthog?.capture("push_notification_tapped", {
+          screen: (data?.screen as string) ?? null,
+          showId: (data?.showId as string) ?? null,
+          tmdbId: (data?.tmdbId as number) ?? null,
+          notificationType: (data?.type as string) ?? null,
+        });
+
         if (!data || (!data.screen && !data.url) || !navigationRef.current) return;
 
         navigateToPushTarget(navigationRef.current, data);

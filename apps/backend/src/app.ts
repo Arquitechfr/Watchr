@@ -33,6 +33,7 @@ import mobileConfigRoutes from "./routes/internal/mobileConfig.routes.js";
 import errorTrackingRoutes from "./routes/internal/errorTracking.routes.js";
 import adminRoutes from "./routes/admin/index.js";
 import inAppNotificationRoutes from "./routes/inAppNotifications.routes.js";
+import emailTrackingRoutes from "./routes/emailTracking.routes.js";
 import accountApiKeyRoutes from "./routes/account/apiKeys.js";
 import publicV1Router from "./routes/public/v1/index.js";
 import { apiKeyAuth } from "./middleware/apiKeyAuth.js";
@@ -363,6 +364,8 @@ export function createApp(): Application {
   });
 
   app.use(checkMaintenance);
+
+  app.use("/api/track", emailTrackingRoutes);
 
   app.use("/api", noCache);
 

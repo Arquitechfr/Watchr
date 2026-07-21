@@ -1,4 +1,4 @@
-import { View, Image, TouchableOpacity, ActivityIndicator, Platform } from "react-native";
+import { View, Image, TouchableOpacity, ActivityIndicator } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useThemeColors } from "../../theme/useThemeColors";
 
@@ -67,28 +67,42 @@ export function CoverBanner({ url, onPress, isUploading }: CoverBannerProps) {
       )}
 
       {onPress && (
-        <TouchableOpacity
-          onPress={onPress}
-          disabled={isUploading}
-          activeOpacity={0.8}
-          style={{
-            position: "absolute",
-            bottom: 8,
-            ...(Platform.OS === "web" ? { right: 8 } : { left: 8 }),
-            width: 32,
-            height: 32,
-            borderRadius: 16,
-            backgroundColor: colors.primary,
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          {isUploading ? (
-            <ActivityIndicator size="small" color={colors.background} />
-          ) : (
-            <Ionicons name="camera" size={18} color={colors.background} />
-          )}
-        </TouchableOpacity>
+        <>
+          <TouchableOpacity
+            onPress={onPress}
+            disabled={isUploading}
+            activeOpacity={0.8}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 10,
+            }}
+          />
+          <View
+            pointerEvents="none"
+            style={{
+              position: "absolute",
+              bottom: 8,
+              right: 8,
+              width: 32,
+              height: 32,
+              borderRadius: 16,
+              backgroundColor: colors.primary,
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 20,
+            }}
+          >
+            {isUploading ? (
+              <ActivityIndicator size="small" color={colors.background} />
+            ) : (
+              <Ionicons name="camera" size={18} color={colors.background} />
+            )}
+          </View>
+        </>
       )}
     </View>
   );

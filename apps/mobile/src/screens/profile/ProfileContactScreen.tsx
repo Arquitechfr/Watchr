@@ -137,6 +137,7 @@ export function ProfileContactScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 40 }}
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="interactive"
       >
         <View className="items-center mb-6">
           <Image

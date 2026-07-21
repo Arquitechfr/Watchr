@@ -21,6 +21,7 @@ import {
   AlertTriangle,
   KeyRound,
   CalendarClock,
+  TrendingUp,
 } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
 import { useNewUsersStore } from "../../store/newUsersStore";
@@ -71,6 +72,7 @@ const navGroups: NavGroup[] = [
       { to: "/notifications", label: "Notifications", icon: Bell },
       { to: "/email", label: "Email", icon: Mail },
       { to: "/scheduled", label: "Scheduled", icon: CalendarClock },
+      { to: "/engagement", label: "Engagement", icon: TrendingUp },
     ],
   },
   {

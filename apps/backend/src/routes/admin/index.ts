@@ -24,6 +24,7 @@ import { tmdbSearchQuerySchema, tmdbSeasonParamSchema } from "../../validators/a
 import { listNotifications, getUnreadCount, markAsRead, markAllAsRead, deleteNotification } from "../../services/admin/adminFeedNotification.service.js";
 import { mistralService } from "../../services/mistral.service.js";
 import { getAdminStats, getUserGrowth, getCommentActivity, getShowTypeBreakdown } from "../../services/admin/adminStats.service.js";
+import { getEngagementStats } from "../../services/admin/engagementStats.service.js";
 import { listUsers, getUserDetail, scheduleUserStatusAction, cancelBanAction, getBanHistory, updateUserRole, deleteUser, markUsersAsSeen, countNewUsersSinceLastVisit } from "../../services/admin/adminUser.service.js";
 import { User } from "../../models/user.model.js";
 import { listAllComments, adminDeleteComment, adminBulkDeleteComments, adminMarkSpoiler, deleteAllUserComments, deleteAllComments } from "../../services/admin/adminComment.service.js";
@@ -76,6 +77,14 @@ router.get(
       getShowTypeBreakdown(),
     ]);
     res.json({ userGrowth, commentActivity, showBreakdown });
+  }),
+);
+
+router.get(
+  "/engagement-stats",
+  asyncHandler(async (_req: Request, res: Response) => {
+    const stats = await getEngagementStats();
+    res.json(stats);
   }),
 );
 

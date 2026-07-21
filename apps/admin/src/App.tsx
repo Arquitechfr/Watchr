@@ -22,6 +22,7 @@ const ErrorTracking = lazy(() => import("./pages/ErrorTracking").then((m) => ({ 
 const ApiKeys = lazy(() => import("./pages/ApiKeys").then((m) => ({ default: m.ApiKeys })));
 const ScheduledJobs = lazy(() => import("./pages/ScheduledJobs").then((m) => ({ default: m.ScheduledJobs })));
 const Messages = lazy(() => import("./pages/Messages").then((m) => ({ default: m.Messages })));
+const Engagement = lazy(() => import("./pages/Engagement").then((m) => ({ default: m.Engagement })));
 
 function PageLoader() {
   return (
@@ -70,6 +71,7 @@ export default function App() {
             <Route path="/admin-feed" element={<AdminFeed />} />
             <Route path="/errors" element={<ErrorTracking />} />
             <Route path="/api-keys" element={<ApiKeys />} />
+            <Route path="/engagement" element={<Engagement />} />
             <Route path="/messages" element={<Messages />} />
             <Route path="*" element={<NotFound />} />
           </Route>

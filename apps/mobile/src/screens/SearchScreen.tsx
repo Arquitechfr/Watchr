@@ -170,6 +170,8 @@ export function SearchScreen() {
             ref={scrollRef as React.RefObject<ScrollView>}
             className="flex-1 -mx-4 px-4"
             contentContainerStyle={{ paddingBottom: 24 }}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="interactive"
             refreshControl={
               <RefreshControl
                 refreshing={isDiscoverLoading}
@@ -277,6 +279,8 @@ export function SearchScreen() {
             )}
             refreshControl={<RefreshControl refreshing={isLoading} onRefresh={() => throttledRefresh(refetch)} tintColor={colors.primary} />}
             contentContainerStyle={{ paddingBottom: 24 }}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="interactive"
             ListHeaderComponent={
               debouncedQuery.length > 10 ? (
                 <TouchableOpacity

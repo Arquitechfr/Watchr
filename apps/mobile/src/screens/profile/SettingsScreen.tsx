@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity, ActivityIndicator, ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -73,7 +73,7 @@ export function SettingsScreen() {
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
       <Seo title={t("seo.profileSettings")} />
       <SubScreenHeader title={t("screens.profile.settings")} />
-      <View className="md:max-w-lg md:mx-auto w-full">
+      <ScrollView className="md:max-w-lg md:mx-auto w-full" showsVerticalScrollIndicator={false} contentContainerClassName="pb-8">
         <View className="gap-3 mb-8">
           {SETTINGS_ROWS.map((row) => (
             <TouchableOpacity
@@ -105,7 +105,7 @@ export function SettingsScreen() {
             </Text>
           )}
         </TouchableOpacity>
-      </View>
+      </ScrollView>
     </ScreenContainer>
   );
 }

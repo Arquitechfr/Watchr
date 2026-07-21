@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Text, TextInput, TouchableOpacity, ActivityIndicator, View, Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { RouteProp } from "@react-navigation/native";
 import { resetPassword } from "../../services/auth.service";
 import { useUIStore } from "../../store/uiStore";
@@ -50,9 +51,16 @@ export function ResetPasswordScreen({ route }: ResetPasswordScreenProps) {
   }
 
   return (
-    <ScreenContainer className="px-6 justify-center" fullWidth>
+    <ScreenContainer className="px-6" fullWidth>
       <Seo title={t("seo.resetPassword")} />
-      <View style={Platform.OS === "web" ? { maxWidth: 400, width: "100%", alignSelf: "center" } : undefined}>
+      <KeyboardAwareScrollView
+        mode="layout"
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="interactive"
+        contentContainerStyle={Platform.OS === "web" ? { flexGrow: 1, justifyContent: "center", maxWidth: 400, width: "100%", alignSelf: "center" } : { flexGrow: 1, justifyContent: "center" }}
+        showsVerticalScrollIndicator={false}
+      >
+      <View style={Platform.OS === "web" ? undefined : { width: "100%" }}>
       <Text className="text-2xl font-bold text-text mb-2">{t("auth.resetPasswordTitle")}</Text>
       <Text className="text-text-muted mb-8">{t("auth.resetPasswordBody")}</Text>
 
@@ -111,6 +119,7 @@ export function ResetPasswordScreen({ route }: ResetPasswordScreenProps) {
         )}
       </TouchableOpacity>
       </View>
+      </KeyboardAwareScrollView>
     </ScreenContainer>
   );
 }

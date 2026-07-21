@@ -69,6 +69,8 @@ export function UserSearchScreen() {
         <FlatList
           data={results}
           keyExtractor={(item) => item.id}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="interactive"
           renderItem={({ item }: { item: FollowUserItem }) => (
             <TouchableOpacity
               className="flex-row items-center rounded-lg p-3 mb-2"

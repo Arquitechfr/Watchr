@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, type ParamListBase } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -42,8 +42,7 @@ export function ProfileLanguageScreen() {
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
       <Seo title={t("seo.profileLanguage")} />
       <SubScreenHeader title={t("screens.profile.language")} />
-      <View className="md:max-w-lg md:mx-auto w-full">
-      <View className="gap-3">
+      <ScrollView className="md:max-w-lg md:mx-auto w-full" showsVerticalScrollIndicator={false} contentContainerClassName="gap-3 pb-8">
         {SUPPORTED_LOCALES.map((lang) => (
           <TouchableOpacity
             key={lang}
@@ -62,8 +61,7 @@ export function ProfileLanguageScreen() {
             )}
           </TouchableOpacity>
         ))}
-      </View>
-      </View>
+      </ScrollView>
       <LoadingOverlay visible={isChanging} label={t("common.changingLanguage")} subtitle={t("common.changingLanguageHint")} />
     </ScreenContainer>
   );

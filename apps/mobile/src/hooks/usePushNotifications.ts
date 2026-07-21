@@ -33,7 +33,12 @@ export function usePushNotifications(enabled: boolean) {
       });
 
       notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
+        const data = notification.request.content.data as Record<string, unknown> | undefined;
         log("usePushNotifications", "notification received", { notification });
+        posthog?.capture("push_notification_received", {
+          screen: (data?.screen as string) ?? null,
+          notificationType: (data?.type as string) ?? null,
+        });
       });
 
       responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
@@ -43,8 +48,15 @@ export function usePushNotifications(enabled: boolean) {
           tmdbId?: number;
           season?: number;
           episode?: number;
+          type?: string;
         };
         log("usePushNotifications", "notification tapped", { data });
+        posthog?.capture("push_notification_tapped", {
+          screen: (data?.screen as string) ?? null,
+          showId: (data?.showId as string) ?? null,
+          tmdbId: (data?.tmdbId as number) ?? null,
+          notificationType: (data?.type as string) ?? null,
+        });
       });
 
       if (Platform.OS === "android") {

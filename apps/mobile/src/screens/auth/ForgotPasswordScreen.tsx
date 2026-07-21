@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Text, TextInput, TouchableOpacity, ActivityIndicator, View, Platform } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { requestPasswordReset } from "../../services/auth.service";
@@ -41,9 +42,16 @@ export function ForgotPasswordScreen() {
   }
 
   return (
-    <ScreenContainer className="px-6 justify-center" fullWidth>
+    <ScreenContainer className="px-6" fullWidth>
       <Seo title={t("seo.forgotPassword")} />
-      <View style={Platform.OS === "web" ? { maxWidth: 400, width: "100%", alignSelf: "center" } : undefined}>
+      <KeyboardAwareScrollView
+        mode="layout"
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="interactive"
+        contentContainerStyle={Platform.OS === "web" ? { flexGrow: 1, justifyContent: "center", maxWidth: 400, width: "100%", alignSelf: "center" } : { flexGrow: 1, justifyContent: "center" }}
+        showsVerticalScrollIndicator={false}
+      >
+      <View style={Platform.OS === "web" ? undefined : { width: "100%" }}>
       <Text className="text-2xl font-bold text-text mb-2">{t("auth.forgotPasswordTitle")}</Text>
       <Text className="text-text-muted mb-8">{t("auth.forgotPasswordBody")}</Text>
 
@@ -79,6 +87,7 @@ export function ForgotPasswordScreen() {
         <Text className="text-primary text-center">{t("auth.backToLogin")}</Text>
       </TouchableOpacity>
       </View>
+      </KeyboardAwareScrollView>
     </ScreenContainer>
   );
 }

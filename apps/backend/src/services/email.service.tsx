@@ -202,6 +202,28 @@ async function sendEmail(params: SendEmailParams): Promise<boolean> {
   return sendEmailDirect(params);
 }
 
+function injectTrackingPixel(html: string, emailLogId: string): string {
+  const pixelUrl = `${env.PUBLIC_URL}/api/track/email-open?eid=${emailLogId}`;
+  const pixel = `<img src="${pixelUrl}" width="1" height="1" alt="" style="display:none;border:0;outline:none;" />`;
+  if (html.includes("</body>")) {
+    return html.replace("</body>", `${pixel}</body>`);
+  }
+  return html + pixel;
+}
+
+function wrapCtaUrl(url: string, emailLogId: string): string {
+  if (!url || !/^https?:\/\//i.test(url)) return url;
+  if (url.includes("/api/track/")) return url;
+  return `${env.PUBLIC_URL}/api/track/email-click?eid=${emailLogId}&url=${encodeURIComponent(url)}`;
+}
+
+function wrapCtaLinks(html: string, emailLogId: string): string {
+  return html.replace(/href="(https?:\/\/[^"]+)"/gi, (_match, url: string) => {
+    if (url.includes("/api/track/")) return `href="${url}"`;
+    return `href="${wrapCtaUrl(url, emailLogId)}"`;
+  });
+}
+
 export async function sendEmailDirect(params: SendEmailParams): Promise<boolean> {
   if (!isEmailConfigured()) {
     emailMetrics.skipped++;
@@ -219,11 +241,9 @@ export async function sendEmailDirect(params: SendEmailParams): Promise<boolean>
     return false;
   }
 
+  let emailLogId: string | undefined;
   try {
-    await sendWithRetry(params);
-    emailMetrics.sent++;
-    log("EmailService", "email sent", { to: params.to, subject: params.subject, provider: env.BREVO_API_KEY ? "brevo_api" : "smtp" });
-    await EmailLog.create({
+    const emailLog = await EmailLog.create({
       to: params.to,
       subject: params.subject,
       template: params.template,
@@ -231,23 +251,44 @@ export async function sendEmailDirect(params: SendEmailParams): Promise<boolean>
       htmlContent: params.html,
       locale: params.locale,
       triggeredBy: params.triggeredBy,
-    }).catch((err) => logError("EmailService", "failed to log email", err));
+    });
+    emailLogId = emailLog._id.toString();
+  } catch (err) {
+    logError("EmailService", "failed to create email log", err);
+  }
+
+  const trackedHtml = emailLogId
+    ? wrapCtaLinks(injectTrackingPixel(params.html, emailLogId), emailLogId)
+    : params.html;
+
+  try {
+    await sendWithRetry({ ...params, html: trackedHtml });
+    emailMetrics.sent++;
+    log("EmailService", "email sent", { to: params.to, subject: params.subject, provider: env.BREVO_API_KEY ? "brevo_api" : "smtp" });
     return true;
   } catch (err) {
     const errorType = classifyError(err);
     emailMetrics.failed++;
     logError("EmailService", "failed to send email", err, { to: params.to, subject: params.subject, errorType, provider: env.BREVO_API_KEY ? "brevo_api" : "smtp" });
-    await EmailLog.create({
-      to: params.to,
-      subject: params.subject,
-      template: params.template,
-      status: "failed" as EmailStatus,
-      errorMessage: err instanceof Error ? err.message : String(err),
-      errorType,
-      htmlContent: params.html,
-      locale: params.locale,
-      triggeredBy: params.triggeredBy,
-    }).catch((logErr) => logError("EmailService", "failed to log email", logErr));
+    if (emailLogId) {
+      await EmailLog.findByIdAndUpdate(emailLogId, {
+        status: "failed" as EmailStatus,
+        errorMessage: err instanceof Error ? err.message : String(err),
+        errorType,
+      }).catch((logErr) => logError("EmailService", "failed to update email log", logErr));
+    } else {
+      await EmailLog.create({
+        to: params.to,
+        subject: params.subject,
+        template: params.template,
+        status: "failed" as EmailStatus,
+        errorMessage: err instanceof Error ? err.message : String(err),
+        errorType,
+        htmlContent: params.html,
+        locale: params.locale,
+        triggeredBy: params.triggeredBy,
+      }).catch((logErr) => logError("EmailService", "failed to log email", logErr));
+    }
     return false;
   }
 }

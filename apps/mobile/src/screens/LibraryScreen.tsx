@@ -291,6 +291,8 @@ export function LibraryScreen() {
             onEndReached={handleLoadMore}
             onEndReachedThreshold={0.5}
             contentContainerStyle={{ paddingBottom: 24 }}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="interactive"
           />
         ) : (
           <FlatList
@@ -304,6 +306,8 @@ export function LibraryScreen() {
             onEndReached={handleLoadMore}
             onEndReachedThreshold={0.5}
             contentContainerStyle={{ paddingBottom: 24 }}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="interactive"
           />
         )}
       </View>

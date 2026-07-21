@@ -176,7 +176,13 @@ watchr/
    - Fichiers clés : `apps/backend/src/emails/components/EmailLayout.tsx`, `apps/backend/src/emails/render.ts`, `apps/backend/src/services/email.service.tsx`.
 
 12. **Composants natifs d'UI interdits** : jamais `Alert.alert()`, `Alert.prompt()` ou tout équivalent natif RN pour les dialogues/alertes/confirmations. Utiliser le composant custom `CustomAlert` (`apps/mobile/src/components/CustomAlert.tsx`) via `useUIStore.showAlert()`. Snackbars via `useUIStore.showSnackbar()`. Tout nouveau besoin UI (input dialog, bottom sheet, etc.) doit être un composant custom aligné sur le design system — jamais l'équivalent natif. Fichiers clés : `apps/mobile/src/components/CustomAlert.tsx`, `apps/mobile/src/store/uiStore.ts`.
-13. **Sécurité & fiabilité** :
+13. **Gestion du clavier (mobile)** : tout screen ou composant contenant un `TextInput` doit gérer explicitement le clavier pour éviter que l'input soit masqué.
+   - **Input en bas fixé** (chat, commentaires) : pattern `useKeyboardHandler` + `useSharedValue` + `useAnimatedStyle` + `Animated.View` spacer (référence : `ShowCommentsScreen.tsx`, `ChatScreen.tsx`, `CommentThreadScreen.tsx`).
+   - **Input dans le contenu scrollable** (recherche, formulaires, filtres) : `keyboardShouldPersistTaps="handled"` + `keyboardDismissMode="interactive"` sur le `ScrollView` ou `FlatList` parent.
+   - **Formulaires centrés** (auth, onboarding) : `KeyboardAwareScrollView` de `react-native-keyboard-controller` en mode `layout` avec `keyboardShouldPersistTaps="handled"` + `keyboardDismissMode="interactive"` (référence : `LoginScreen.tsx`, `RegisterScreen.tsx`).
+   - **Web** : `KeyboardAwareScrollView` est inerte sur web (pas de clavier natif), le `Platform.OS` guard sur `contentContainerStyle` préserve le layout desktop.
+   - Fichiers de référence : `apps/mobile/src/screens/ShowCommentsScreen.tsx`, `apps/mobile/src/screens/auth/LoginScreen.tsx`, `apps/mobile/src/screens/profile/EditProfileScreen.tsx`.
+14. **Sécurité & fiabilité** :
    - Toute route `POST`/`PATCH`/`DELETE` validée avec Zod.
    - JWT : access 15 min, refresh 7-30 j stocké en DB avec révocation possible.
    - Pas de secret en dur : `.env` obligatoire, crash au démarrage si variable manquante.
@@ -271,6 +277,7 @@ Le script protège automatiquement avant traduction :
 - [ ] Mobile : pas de régression iOS/Android.
 - [ ] Translations : tous les fichiers de locale mobile (14), backend (14) et landing (14) restent en parité. 0 tag `<x>` résiduel, variables `{{}}` préservées, brand names intacts, clés `DO_NOT_TRANSLATE_KEYS` = valeur EN.
 - [ ] Pas d'usage de `Alert.alert()` / `Alert.prompt()` natif — utiliser `CustomAlert` via `useUIStore.showAlert()`.
+- [ ] Clavier mobile : tout `TextInput` a une gestion clavier explicite (`KeyboardAwareScrollView`, `useKeyboardHandler` + spacer, ou `keyboardShouldPersistTaps`/`keyboardDismissMode` sur ScrollView/FlatList parent).
 - [ ] Mobile = source of truth.
 - [ ] MCP pertinents utilisés.
 - [ ] Logiques optimistic UI/UX mises en place.

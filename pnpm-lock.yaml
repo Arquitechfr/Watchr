@@ -159,8 +159,8 @@ importers:
         specifier: ^8.3.0
         version: 8.3.0(socket.io-adapter@2.5.8)
       '@watchr/i18n-languages':
-        specifier: workspace:*
-        version: link:../../packages/i18n-languages
+        specifier: file:./watchr-i18n-languages-1.0.0.tgz
+        version: file:apps/backend/watchr-i18n-languages-1.0.0.tgz
       adm-zip:
         specifier: ^0.5.12
         version: 0.5.18
@@ -3533,6 +3533,10 @@ packages:
 
   '@vitest/utils@3.2.7':
     resolution: {integrity: sha512-x6BDOd7dyo3PFLY3I9/HJ25X/6OurhGXk2/B9gOZNPF7XDVjeBK4k01lQE5uvDpbuheErh91qYuE1E2OEjK3Rw==}
+
+  '@watchr/i18n-languages@file:apps/backend/watchr-i18n-languages-1.0.0.tgz':
+    resolution: {integrity: sha512-MuhnmSPr1i3O+7eT4wuVi7oBoC7poY/aSgAYerJU7hIZr4sR+9rKkGcMm18IjHTmbLHVT36YzGLEW8kM0gVBFQ==, tarball: file:apps/backend/watchr-i18n-languages-1.0.0.tgz}
+    version: 1.0.0
 
   '@xmldom/xmldom@0.8.13':
     resolution: {integrity: sha512-KRYzxepc14G/CEpEGc3Yn+JKaAeT63smlDr+vjB8jRfgTBBI9wRj/nkQEO+ucV8p8I9bfKLWp37uHgFrbntPvw==}
@@ -11545,6 +11549,10 @@ snapshots:
       '@vitest/pretty-format': 3.2.7
       loupe: 3.2.1
       tinyrainbow: 2.0.0
+
+  '@watchr/i18n-languages@file:apps/backend/watchr-i18n-languages-1.0.0.tgz':
+    dependencies:
+      date-fns: 3.6.0
 
   '@xmldom/xmldom@0.8.13': {}
 

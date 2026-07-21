@@ -47,6 +47,7 @@ apps/mobile/credentials.json
 .gitignore
 apps/mobile/credentials/android/keystore.jks
 apps/backend/scripts/*
+!apps/backend/scripts/prepare-deploy.mjs
 apps/mobile/app-debug.apk
 template.md
 .gitignore
@@ -60,6 +61,7 @@ AI-USE-CASES.md
 git_show_output.txt
 docs/MCP-OAUTH.md
 watchr.zip
+*.tgz
 apps/landing/src/i18n/locales/.translate-cache-*.json
 apps/backend/src/i18n/locales/.translate-cache-*.json
 apps/mobile/src/i18n/locales/.translate-cache-*.json

@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "tsx watch src/server.ts",
+    "prebuild": "node scripts/prepare-deploy.mjs",
     "build": "tsc",
     "start": "node dist/server.js",
     "worker": "tsx watch src/workers/startImportWorker.ts",
@@ -32,7 +33,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1079.0",
-    "@watchr/i18n-languages": "workspace:*",
+    "@watchr/i18n-languages": "file:./watchr-i18n-languages-1.0.0.tgz",
     "@mistralai/mistralai": "^2.4.1",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "@socket.io/redis-adapter": "^8.3.0",

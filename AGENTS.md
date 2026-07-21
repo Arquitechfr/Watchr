@@ -30,7 +30,8 @@ MVP : tracking watch-status + notes/ratings + commentaires publics sur shows/ép
 | Admin routing | React Router v6 |
 | Landing | ViteJS + React 19 + TypeScript |
 | Landing UI | TailwindCSS + shadcn/ui |
-| Landing i18n | react-i18next (7 langues) |
+| Landing i18n | react-i18next (14 langues) |
+| i18n tooling | `@watchr/i18n-languages` (package partagé) + LibreTranslate self-hosted |
 | Landing SEO | react-helmet-async + JSON-LD |
 | Emails | React Email (@react-email/components + @react-email/render) |
 
@@ -81,7 +82,7 @@ watchr/
 │       │   │   ├── sections/          # Hero, Features, Import, Showcase, Stats, Testimonials, FAQ, CTA
 │       │   │   └── shared/            # Logo, ThemeToggle, LanguageSwitcher, Seo
 │       │   ├── hooks/                 # useTheme, useScrollReveal
-│       │   ├── i18n/                  # config + locales/ (7 langues)
+│       │   ├── i18n/                  # config + locales/ (14 langues)
 │       │   ├── lib/                   # utils
 │       │   ├── assets/                # splash backgrounds, images
 │       │   ├── App.tsx
@@ -89,6 +90,11 @@ watchr/
 │       ├── public/                    # favicon, icons, og-image, robots.txt, sitemap.xml
 │       ├── package.json
 │       └── vite.config.ts
+├── packages/
+│   └── i18n-languages/            # package partagé (langues supportées, drapeaux, date-fns loaders)
+│       ├── src/index.ts            # source of truth: 14 langues, labels, flags, normalizeLocale
+│       ├── scripts/translate.ts    # script de traduction auto (LibreTranslate)
+│       └── .env                    # LIBRETRANSLATE_URL + LIBRETRANSLATE_KEY
 ├── pnpm-workspace.yaml
 └── AGENTS.md
 ```
@@ -109,6 +115,8 @@ watchr/
 - `pnpm --filter landing build` : landing build
 - `pnpm --filter landing preview` : landing preview
 - `pnpm --filter backend promote-admin <email>` : promouvoir un user admin
+- `pnpm --filter @watchr/i18n-languages translate --app <mobile|backend|landing> --target <lang1,lang2,...>` : traduire les locales via LibreTranslate (ex: `--target nl,pl,tr,ru,ja,ko,zh`)
+- `pnpm --filter @watchr/i18n-languages translate --app <app> --target <langs> --force` : forcer la re-traduction (ignore le cache)
 
 ## URLs de production
 
@@ -123,7 +131,7 @@ watchr/
 2. **pnpm uniquement** : jamais npm/yarn/bun dans les commandes ou la doc.
 3. **Sources de données** : TMDB est la source principale. Le parser TV Time GDPR est tolérant (détection par header) et produit un rapport d'erreurs ligne par ligne.
 4. **Planification obligatoire** : toute feature ou changement architectural > 2 fichiers ou intégration externe fait l'objet d'un plan validé avant implémentation.
-5. **Internationalisation** : `en` et `fr`. Tout texte UI mobile passe par `useI18n`/`t()`. Dates via `date-fns` + `dateFnsLocale`. Messages d'erreur API via `useErrorMessage`. Traductions dans `apps/mobile/src/i18n/locales/<lang>.ts` (mobile) et `apps/backend/src/i18n/locales/<lang>.ts` (backend). Toute clé/modification doit être répercutée dans **tous** les fichiers de locale (`en.ts`, `fr.ts`, etc.) des deux côtés — parfaite parité obligatoire.
+5. **Internationalisation** : 14 langues (`en`, `fr`, `es`, `pt`, `de`, `it`, `ar`, `nl`, `pl`, `tr`, `ru`, `ja`, `ko`, `zh`). Tout texte UI mobile passe par `useI18n`/`t()`. Dates via `date-fns` + `dateFnsLocale`. Messages d'erreur API via `useErrorMessage`. Traductions dans `apps/mobile/src/i18n/locales/<lang>.ts` (mobile), `apps/backend/src/i18n/locales/<lang>.ts` (backend) et `apps/landing/src/i18n/locales/<lang>.ts` (landing). Toute clé/modification doit être répercutée dans **tous** les fichiers de locale des trois apps — parfaite parité obligatoire. Le package `@watchr/i18n-languages` est la source de vérité pour la liste des langues, labels, drapeaux et loaders date-fns. Voir section **Procédure de traduction** ci-dessous pour l'ajout de nouvelles langues ou clés.
 6. **Compatibilité Web** : l'app Expo est aussi une web app desktop. Tout code doit être compatible web.
    - Guards `Platform.OS` pour les modules natifs (`expo-notifications`, `expo-secure-store`, `expo-file-system`, `expo-sharing`, etc.).
    - Layout responsive via Tailwind breakpoints (`md:`, `lg:`) ou `useWindowDimensions()`.
@@ -142,7 +150,7 @@ watchr/
 8. **Landing Page** : app ViteJS séparée (`apps/landing/`), statique, pas d'API backend.
    - Stack : React 19 + TailwindCSS + shadcn/ui + react-i18next + react-helmet-async.
    - Thème aligné mobile : dark bg `#1A1614`, primary `#C65D3A`, text `#F5F0EB`. Toggle dark/light avec localStorage + `prefers-color-scheme`.
-   - i18n : 7 langues (en, fr, ar, de, es, it, pt). RTL pour l'arabe. Traductions dans `apps/landing/src/i18n/locales/<lang>.ts`. Parité parfaite entre tous les fichiers de locale.
+   - i18n : 14 langues (en, fr, es, pt, de, it, ar, nl, pl, tr, ru, ja, ko, zh). RTL pour l'arabe. Traductions dans `apps/landing/src/i18n/locales/<lang>.ts`. Parité parfaite entre tous les fichiers de locale. Loaders dynamiques dans `apps/landing/src/i18n/config.ts` (lazy import par langue).
    - SEO dynamique : react-helmet-async, JSON-LD (WebSite, SoftwareApplication, FAQPage), hreflang, OG/Twitter Cards, robots.txt, sitemap.xml.
    - Performance : code splitting (manualChunks), lazy loading sections, font preload, PWA (vite-plugin-pwa).
    - Assets réutilisés depuis mobile (favicon, icon, og-image, splash backgrounds).
@@ -175,6 +183,63 @@ watchr/
    - Rate limiting sur auth et import.
    - Format d'erreur API cohérent : `{ error: { code, message } }`. Pas de stack trace en prod.
 
+## Procédure de traduction
+
+Le script `packages/i18n-languages/scripts/translate.ts` automatise la traduction des locales via l'API LibreTranslate self-hosted (`https://translate.watchr.me`).
+
+### Configuration
+
+- Variables d'environnement dans `packages/i18n-languages/.env` :
+  - `LIBRETRANSLATE_URL` : endpoint de l'API (ex: `https://translate.watchr.me/translate`)
+  - `LIBRETRANSLATE_KEY` : clé API
+- L'anglais (`en.ts`) est **toujours** la source de truth pour les clés et valeurs de référence.
+
+### Protection des placeholders et brand names
+
+Le script protège automatiquement avant traduction :
+1. **Variables de template** `{{...}}` (ex: `{{count}}`, `{{date}}`, `{{title}}`) — remplacées par des balises HTML opaques `<x id="N"></x>` avant envoi à l'API, restaurées après. LibreTranslate en mode `format: "html"` préserve les balises verbatim.
+2. **Brand names** (case-sensitive, mot entier) : `Watchr`, `TMDB`, `Google`, `Trakt`, `IMDb`, `Letterboxd`, `TV Time`, `SIRET` — même mécanisme de placeholder HTML.
+3. **Clés exclues** (`DO_NOT_TRANSLATE_KEYS` dans le script) : `common.appName`, `screens.home.title`, `maintenance.title`, `screens.export.watchrJson`, `screens.export.watchrCsv` — la valeur English est copiée telle quelle, jamais traduite.
+
+### Ajouter une nouvelle langue
+
+1. Ajouter le code langue dans `packages/i18n-languages/src/index.ts` : `SUPPORTED_LANGUAGES`, `LANGUAGE_LABELS`, `LANGUAGE_COUNTRY_CODES`, `LANGUAGE_FLAGS`, `LANGUAGE_I18N_KEYS`, `DATE_FNS_LOCALE_LOADERS`.
+2. Ajouter la clé i18n du nom de langue dans `apps/mobile/src/i18n/locales/en.ts` (ex: `languageXxx: "Xxx"`) et dans **tous** les autres fichiers de locale.
+3. Lancer la traduction : `pnpm --filter @watchr/i18n-languages translate --app mobile --target <lang>` (idem pour `backend` et `landing`).
+4. Ajouter l'import du nouveau locale dans :
+   - `apps/mobile/src/i18n/translations.ts`
+   - `apps/backend/src/i18n/translations.ts`
+   - `apps/landing/src/i18n/config.ts` (lazy loader)
+5. Si landing : ajouter l'import du drapeau dans `apps/landing/src/components/shared/LanguageSwitcher.tsx` (imports individuels, pas de `import.meta.glob` — `country-flag-icons` utilise des exports stricts).
+6. Vérifier : 0 tag `<x>` résiduel, variables `{{}}` préservées, brand names intacts.
+7. Build : `pnpm --filter landing build` et `pnpm --filter backend build` doivent passer sans erreur.
+
+### Ajouter de nouvelles clés de traduction
+
+1. Ajouter la clé dans `apps/mobile/src/i18n/locales/en.ts` (source of truth).
+2. Ajouter la clé dans `apps/mobile/src/i18n/locales/fr.ts` (traduction manuelle FR).
+3. Pour les autres langues : soit traduire manuellement, soit re-lancer le script `translate --app mobile --target <lang>` (le script ne traduit que les clés manquantes, utilise le cache pour les existantes).
+4. Répercuter dans `apps/backend/src/i18n/locales/` et `apps/landing/src/i18n/locales/` si applicable.
+5. Si la clé contient un brand name ou une variable `{{}}`, vérifier que le script la protège correctement.
+6. Si la clé ne doit **pas** être traduite (nom d'app, format technique, etc.), l'ajouter à `DO_NOT_TRANSLATE_KEYS` dans `packages/i18n-languages/scripts/translate.ts`.
+
+### Re-traduire entièrement une langue
+
+1. Supprimer le fichier locale : `rm apps/<app>/src/i18n/locales/<lang>.ts`
+2. Supprimer le cache : `rm apps/<app>/src/i18n/locales/.translate-cache-<lang>.json`
+3. Re-lancer : `pnpm --filter @watchr/i18n-languages translate --app <app> --target <lang>`
+4. Vérifier : 0 tag `<x>`, variables `{{}}` préservées, brand names intacts, clés exclues = valeur EN.
+
+### Fichiers clés
+
+- `packages/i18n-languages/src/index.ts` : source of truth (langues, labels, flags, date-fns)
+- `packages/i18n-languages/scripts/translate.ts` : script de traduction (LibreTranslate, protection placeholders)
+- `packages/i18n-languages/.env` : configuration API
+- `apps/mobile/src/i18n/translations.ts` : imports + exports des locales mobile
+- `apps/backend/src/i18n/translations.ts` : imports + exports des locales backend
+- `apps/landing/src/i18n/config.ts` : config i18next + lazy loaders landing
+- `apps/landing/src/components/shared/LanguageSwitcher.tsx` : drapeaux (imports individuels)
+
 ## Règles de comportement et de génération de code
 
 - **Assistant senior** : direct, précis. Si une approche est risquée ou sous-optimale, le dire clairement et proposer une alternative justifiée.
@@ -202,9 +267,9 @@ watchr/
 - [ ] Remote Config : nouvelle valeur runtime ajoutée à `DEFAULT_REMOTE_CONFIG`, seedée, aucune URL backend hardcodée.
 - [ ] Web : `pnpm --filter mobile web` sans crash, guards `Platform.OS`, layout responsive.
 - [ ] Admin : si touché, `pnpm --filter admin dev` sans crash, routes validées Zod, pas de régression backend.
-- [ ] Landing : si touché, `pnpm --filter landing dev` sans crash, i18n parité 7 langues, SEO meta à jour.
+- [ ] Landing : si touché, `pnpm --filter landing dev` sans crash, i18n parité 14 langues, SEO meta à jour.
 - [ ] Mobile : pas de régression iOS/Android.
-- [ ] Translations : tous les fichiers de locale mobile, backend et landing restent en parité.
+- [ ] Translations : tous les fichiers de locale mobile (14), backend (14) et landing (14) restent en parité. 0 tag `<x>` résiduel, variables `{{}}` préservées, brand names intacts, clés `DO_NOT_TRANSLATE_KEYS` = valeur EN.
 - [ ] Pas d'usage de `Alert.alert()` / `Alert.prompt()` natif — utiliser `CustomAlert` via `useUIStore.showAlert()`.
 - [ ] Mobile = source of truth.
 - [ ] MCP pertinents utilisés.

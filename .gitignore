@@ -60,3 +60,7 @@ AI-USE-CASES.md
 git_show_output.txt
 docs/MCP-OAUTH.md
 watchr.zip
+apps/landing/src/i18n/locales/.translate-cache-*.json
+apps/backend/src/i18n/locales/.translate-cache-*.json
+apps/mobile/src/i18n/locales/.translate-cache-*.json
+apps/mobile/src/i18n/locales/.translate-cache-*.json

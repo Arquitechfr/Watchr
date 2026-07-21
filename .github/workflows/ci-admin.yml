@@ -1,7 +1,7 @@
-name: CI — Backend
+name: CI — Admin
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Watchr — Backend typecheck & lint
+# Watchr — Admin typecheck & lint
 #
 # Runs on every push (all branches) and on pull requests targeting master/develop.
 # Steps: pnpm install → tsc --noEmit → eslint
@@ -13,7 +13,7 @@ on:
     branches: [master, develop]
 
 jobs:
-  backend-ci:
+  admin-ci:
     name: Typecheck & Lint
     runs-on: [self-hosted]
 
@@ -37,8 +37,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Typecheck
-        run: pnpm --filter backend typecheck
+        run: pnpm --filter admin typecheck
 
       - name: Lint
-        run: pnpm --filter backend lint
-
+        run: pnpm --filter admin lint

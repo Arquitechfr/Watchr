@@ -1,13 +1,15 @@
 /**
- * MyMemory Translation script for generating locale files.
+ * Translation script for generating locale files.
+ * Uses LibreTranslate (self-hosted at https://translate.watchr.me).
  *
  * Usage:
  *   pnpm --filter @watchr/i18n-languages translate --app mobile --target nl,pl,tr,ru,ja,ko,zh
  *   pnpm --filter @watchr/i18n-languages translate --app backend --target nl,pl,tr,ru,ja,ko,zh
  *   pnpm --filter @watchr/i18n-languages translate --app landing --target nl,pl,tr,ru,ja,ko,zh
  *
- * Optional: set MYMEMORY_EMAIL env var to increase daily limit (50000 words/day).
- * Without email: 5000 words/day.
+ * Env vars (loaded from packages/i18n-languages/.env):
+ *   LIBRETRANSLATE_URL — LibreTranslate endpoint (default: https://translate.watchr.me/translate)
+ *   LIBRETRANSLATE_KEY — API key for the instance
  *
  * ⚠️ This script must NOT be run without explicit user authorization.
  */
@@ -16,21 +18,95 @@ import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { parseArgs } from "node:util";
 
+// Load .env file from package root (overrides existing env vars)
+const envPath = resolve(import.meta.dirname, "..", ".env");
+if (existsSync(envPath)) {
+  for (const line of readFileSync(envPath, "utf-8").split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+    const eqIdx = trimmed.indexOf("=");
+    if (eqIdx === -1) continue;
+    const key = trimmed.slice(0, eqIdx).trim();
+    const value = trimmed.slice(eqIdx + 1).trim();
+    process.env[key] = value;
+  }
+}
+
 interface TranslateOptions {
   app: "mobile" | "backend" | "landing";
   target: string[];
 }
 
-// MyMemory API endpoint
-const MYMEMORY_ENDPOINT = "https://api.mymemory.translated.net/get";
+// LibreTranslate endpoint (self-hosted)
+const LIBRETRANSLATE_ENDPOINT =
+  process.env.LIBRETRANSLATE_URL ?? "https://translate.watchr.me/translate";
 
-// Language code mapping for MyMemory
-const LANG_MAP: Record<string, string> = {
-  zh: "zh-CN",
-};
+function getLibreTranslateKey(): string | undefined {
+  return process.env.LIBRETRANSLATE_KEY;
+}
 
-function getEmail(): string | undefined {
-  return process.env.MYMEMORY_EMAIL;
+// Brand names that must NOT be translated
+const BRAND_NAMES = [
+  "Watchr",
+  "TMDB",
+  "Google",
+  "Trakt",
+  "IMDb",
+  "Letterboxd",
+  "TV Time",
+  "SIRET",
+];
+
+// Keys that must NOT be translated (keep English value as-is)
+const DO_NOT_TRANSLATE_KEYS = new Set([
+  "common.appName",
+  "screens.home.title",
+  "maintenance.title",
+  "screens.export.watchrJson",
+  "screens.export.watchrCsv",
+]);
+
+// Protect template variables {{...}} and brand names before translation.
+// Uses HTML <x id="N"></x> tags as opaque placeholders — LibreTranslate's
+// format:"html" mode preserves HTML tags verbatim.
+function protectText(text: string): { protected: string; placeholders: Map<string, string> } {
+  const placeholders = new Map<string, string>();
+  let result = text;
+  let idx = 0;
+
+  // Protect {{...}} template variables
+  result = result.replace(/\{\{([^}]+)\}\}/g, (match) => {
+    const id = idx;
+    placeholders.set(`x${id}`, match);
+    idx++;
+    return `<x id="${id}"></x>`;
+  });
+
+  // Protect brand names (case-sensitive, whole word only)
+  for (const brand of BRAND_NAMES) {
+    const escaped = brand.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const regex = new RegExp(`(?<![a-zA-Z])${escaped}(?![a-zA-Z])`, "g");
+    result = result.replace(regex, (match) => {
+      const id = idx;
+      placeholders.set(`x${id}`, match);
+      idx++;
+      return `<x id="${id}"></x>`;
+    });
+  }
+
+  return { protected: result, placeholders };
+}
+
+// Restore protected placeholders after translation.
+// Finds <x id="N"></x> or <x id="N"/> tags and replaces with original content.
+function restoreText(text: string, placeholders: Map<string, string>): string {
+  let result = text;
+  result = result.replace(/<x\s+id="(\d+)"\s*><\/x>|<x\s+id="(\d+)"\s*\/>/gi, (match, id1, id2) => {
+    const id = id1 || id2;
+    const original = placeholders.get(`x${id}`);
+    return original ?? match;
+  });
+  return result;
 }
 
 function getLocaleDir(app: string): string {
@@ -110,57 +186,62 @@ function objectToString(obj: Record<string, unknown>, indent = 2): string {
 async function translateText(
   text: string,
   targetLang: string,
-  email?: string,
+  apiKey?: string,
 ): Promise<string> {
-  const lang = LANG_MAP[targetLang] ?? targetLang;
-  const langPair = `en|${lang}`;
+  const { protected: protectedText, placeholders } = protectText(text);
 
-  const params = new URLSearchParams({
-    q: text,
-    langpair: langPair,
-  });
+  const body: Record<string, string> = {
+    q: protectedText,
+    source: "en",
+    target: targetLang,
+    format: "html",
+  };
 
-  if (email) {
-    params.set("de", email);
+  if (apiKey) {
+    body.api_key = apiKey;
   }
 
-  const res = await fetch(`${MYMEMORY_ENDPOINT}?${params.toString()}`);
+  const res = await fetch(LIBRETRANSLATE_ENDPOINT, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
 
   if (!res.ok) {
     const errText = await res.text();
-    throw new Error(`MyMemory API error (${res.status}): ${errText}`);
+    throw new Error(`LibreTranslate error (${res.status}): ${errText}`);
   }
 
-  const data = await res.json() as {
-    responseData: { translatedText: string };
-    responseStatus: number;
-  };
-
-  if (data.responseStatus !== 200) {
-    throw new Error(`MyMemory API returned status ${data.responseStatus}`);
-  }
-
-  return data.responseData.translatedText ?? text;
+  const data = (await res.json()) as { translatedText: string };
+  const translated = data.translatedText ?? text;
+  return restoreText(translated, placeholders);
 }
 
-async function translateWithRateLimit(
+async function translateBatch(
   texts: string[],
   targetLang: string,
-  email?: string,
-  batchSize = 5,
-  delayMs = 1000,
+  apiKey?: string,
+  onBatchDone?: (translations: string[], startIdx: number) => void,
 ): Promise<string[]> {
   const results: string[] = [];
+  const batchSize = 20;
+  const delayMs = 100;
 
   for (let i = 0; i < texts.length; i += batchSize) {
     const batch = texts.slice(i, i + batchSize);
     const batchResults = await Promise.all(
-      batch.map((text) => translateText(text, targetLang, email)),
+      batch.map((text) => translateText(text, targetLang, apiKey)),
     );
     results.push(...batchResults);
 
+    if (onBatchDone) {
+      onBatchDone(batchResults, i);
+    }
+
     if (i + batchSize < texts.length) {
-      console.log(`  Translated ${i + batch.length}/${texts.length} strings...`);
+      if ((i + batchSize) % 100 === 0) {
+        console.log(`  Translated ${i + batch.length}/${texts.length} strings...`);
+      }
       await new Promise((resolve) => setTimeout(resolve, delayMs));
     }
   }
@@ -190,16 +271,13 @@ async function main() {
 
   const app = values.app as TranslateOptions["app"];
   const targetLangs = values.target.split(",").map((l) => l.trim());
-  const email = getEmail();
+  const libreKey = getLibreTranslateKey();
 
-  console.log(`\n=== Watchr Translation Script (MyMemory) ===`);
+  console.log(`\n=== Watchr Translation Script (LibreTranslate self-hosted) ===`);
   console.log(`App: ${app}`);
   console.log(`Target languages: ${targetLangs.join(", ")}`);
-  if (email) {
-    console.log(`Email: ${email} (50000 words/day limit)`);
-  } else {
-    console.log(`No email set (5000 words/day limit). Set MYMEMORY_EMAIL env var for higher limit.`);
-  }
+  console.log(`Endpoint: ${LIBRETRANSLATE_ENDPOINT}`);
+  console.log(`API key: ${libreKey ? "✅ set" : "❌ missing"}`);
   console.log();
 
   const localeDir = getLocaleDir(app);
@@ -225,6 +303,12 @@ async function main() {
     const uncachedStrings: string[] = [];
 
     enStrings.forEach((str, i) => {
+      const key = flatEntries[i][0];
+      // Skip translation for excluded keys — use English value directly
+      if (DO_NOT_TRANSLATE_KEYS.has(key)) {
+        cache[str] = str;
+        return;
+      }
       if (cache[str]) {
         // Use cached translation
       } else {
@@ -236,11 +320,22 @@ async function main() {
     console.log(`[${lang}] ${uncachedStrings.length} new strings to translate (${enStrings.length - uncachedStrings.length} cached)`);
 
     if (uncachedStrings.length > 0) {
-      const translations = await translateWithRateLimit(uncachedStrings, lang, email);
+      let translatedCount = 0;
+      const translations = await translateBatch(
+        uncachedStrings,
+        lang,
+        libreKey,
+        (batchTranslations, startIdx) => {
+          // Save cache incrementally after each translation
+          batchTranslations.forEach((tr, j) => {
+            cache[uncachedStrings[startIdx + j]] = tr;
+          });
+          writeFileSync(cachePath, JSON.stringify(cache, null, 2));
+          translatedCount += batchTranslations.length;
+        },
+      );
 
-      uncachedIndices.forEach((originalIdx, batchIdx) => {
-        cache[enStrings[originalIdx]] = translations[batchIdx];
-      });
+      // Final cache save
       writeFileSync(cachePath, JSON.stringify(cache, null, 2));
     }
 

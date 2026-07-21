@@ -10,16 +10,25 @@ import {
 } from "@/i18n/config";
 import { cn } from "@/lib/utils";
 
-// Dynamically import all country flag icons via Vite's import.meta.glob
-const flagModules = import.meta.glob("country-flag-icons/react/3x2/*", { eager: true });
+// Import only the flag icons we need (country-flag-icons uses strict exports)
+import GB from "country-flag-icons/react/3x2/GB";
+import FR from "country-flag-icons/react/3x2/FR";
+import ES from "country-flag-icons/react/3x2/ES";
+import PT from "country-flag-icons/react/3x2/PT";
+import DE from "country-flag-icons/react/3x2/DE";
+import IT from "country-flag-icons/react/3x2/IT";
+import SA from "country-flag-icons/react/3x2/SA";
+import NL from "country-flag-icons/react/3x2/NL";
+import PL from "country-flag-icons/react/3x2/PL";
+import TR from "country-flag-icons/react/3x2/TR";
+import RU from "country-flag-icons/react/3x2/RU";
+import JP from "country-flag-icons/react/3x2/JP";
+import KR from "country-flag-icons/react/3x2/KR";
+import CN from "country-flag-icons/react/3x2/CN";
 
-const FLAG_COMPONENTS: Record<string, ComponentType<{ className?: string }>> = {};
-for (const [path, module] of Object.entries(flagModules)) {
-  const code = path.split("/").pop();
-  if (code) {
-    FLAG_COMPONENTS[code] = (module as { default: ComponentType<{ className?: string }> }).default;
-  }
-}
+const FLAG_COMPONENTS: Record<string, ComponentType<{ className?: string }>> = {
+  GB, FR, ES, PT, DE, IT, SA, NL, PL, TR, RU, JP, KR, CN,
+};
 
 interface LanguageSwitcherProps {
   className?: string;

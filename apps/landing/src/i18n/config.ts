@@ -20,6 +20,13 @@ const localeLoaders: Partial<Record<SupportedLanguage, () => Promise<{ default: 
   es: () => import("./locales/es"),
   it: () => import("./locales/it"),
   pt: () => import("./locales/pt"),
+  nl: () => import("./locales/nl"),
+  pl: () => import("./locales/pl"),
+  tr: () => import("./locales/tr"),
+  ru: () => import("./locales/ru"),
+  ja: () => import("./locales/ja"),
+  ko: () => import("./locales/ko"),
+  zh: () => import("./locales/zh"),
 };
 
 const loadedLocales = new Set<SupportedLanguage>(["en"]);

@@ -114,6 +114,9 @@ jobs:
           cd ../..
 
       # ── 4b. Dépendances ────────────────────────────────────────────────────
+      - name: Prune pnpm store
+        run: pnpm store prune
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 

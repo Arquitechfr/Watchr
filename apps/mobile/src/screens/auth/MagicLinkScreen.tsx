@@ -76,6 +76,7 @@ export function MagicLinkScreen({ route }: { route: { params: { token: string } 
       <Seo title={t("seo.magicLink")} />
       <View style={Platform.OS === "web" ? { maxWidth: 400, width: "100%", alignItems: "center" } : { alignItems: "center" }}>
         <Image
+          // eslint-disable-next-line @typescript-eslint/no-require-imports
           source={require("../../../assets/splash-icon.webp")}
           style={{ width: 80, height: 80 }}
           resizeMode="contain"

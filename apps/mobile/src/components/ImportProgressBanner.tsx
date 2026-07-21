@@ -25,7 +25,6 @@ export function ImportProgressBanner() {
       ? Math.round((job.progress.processed / job.progress.total) * 100)
       : 0;
 
-  const statusColor = job.status === "failed" ? colors.danger : isComplete ? colors.primary : colors.textMuted;
   const statusText = job.status === "failed"
     ? t("screens.import.bannerFailed")
     : isComplete

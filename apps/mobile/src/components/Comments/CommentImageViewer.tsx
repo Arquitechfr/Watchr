@@ -1,6 +1,5 @@
 import { Modal, View, TouchableOpacity, Image, ScrollView, useWindowDimensions, Text } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useThemeColors } from "../../theme/useThemeColors";
 import { useI18n } from "../../i18n/useI18n";
 
 interface CommentImageViewerProps {
@@ -10,7 +9,6 @@ interface CommentImageViewerProps {
 }
 
 export function CommentImageViewer({ visible, imageUri, onClose }: CommentImageViewerProps) {
-  const colors = useThemeColors();
   const { t } = useI18n();
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const imageSize = Math.min(screenWidth, screenHeight);

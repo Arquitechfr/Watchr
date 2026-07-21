@@ -88,6 +88,7 @@ export function RegisterScreen() {
 
       <View className="items-center mb-10">
         <Image
+          // eslint-disable-next-line @typescript-eslint/no-require-imports
           source={require("../../../assets/splash-icon.webp")}
           style={{ width: 80, height: 80 }}
           resizeMode="contain"

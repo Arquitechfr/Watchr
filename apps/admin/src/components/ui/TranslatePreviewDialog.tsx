@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Globe, Loader2, X } from "lucide-react";
+import { Globe, Loader2 } from "lucide-react";
 import api from "../../lib/api";
 import { Button } from "./Button";
 import { Dialog } from "./Dialog";

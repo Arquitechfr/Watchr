@@ -42,7 +42,7 @@ export const useUserNavigationStore = create<UserNavigationState>((set, get) => 
   },
 
   canGoPrev: () => {
-    const { userIds, currentIndex } = get();
+    const { currentIndex } = get();
     return currentIndex > 0;
   },
 

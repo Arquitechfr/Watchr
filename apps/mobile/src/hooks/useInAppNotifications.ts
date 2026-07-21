@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback } from "react";
-import { Platform, AppState, AppStateStatus } from "react-native";
+import { AppState, AppStateStatus } from "react-native";
 import { useNotificationStore, type BannerNotification } from "../store/notificationStore";
 import { getActiveInAppNotifications, dismissInAppNotification } from "../services/notifications.service";
 import { log } from "../utils/logger";

@@ -54,6 +54,7 @@ export function DesktopSidebar({ activeTab, onTabPress, onNavigate }: DesktopSid
     >
       <View className="flex-row items-center px-5 mb-8" style={{ gap: 8 }}>
         <Image
+          // eslint-disable-next-line @typescript-eslint/no-require-imports
           source={require("../../assets/splash-icon.webp")}
           style={{ width: 28, height: 28 }}
           resizeMode="contain"

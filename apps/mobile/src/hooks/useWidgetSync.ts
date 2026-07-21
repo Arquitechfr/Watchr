@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 import React, { useEffect, useRef } from "react";
 import { Platform } from "react-native";
 import { useQueryClient } from "@tanstack/react-query";

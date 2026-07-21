@@ -18,7 +18,6 @@ import {
   addToWatchlistBatch,
   getTrackedTmdbIds,
   BatchAddItem,
-  BatchAddResult,
   WatchStatus,
   UpsertTrackingInput,
   UpsertWithProgressInput,

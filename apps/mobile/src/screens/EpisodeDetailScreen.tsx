@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef } from "react";
 import {
   View,
   Text,
-  Image,
   ScrollView,
   TouchableOpacity,
   Share,
@@ -64,7 +63,7 @@ export function EpisodeDetailScreen() {
   const { showId, tmdbId, season, episodeNumber, title } = route.params;
   const castScrollRef = useRef<ScrollView>(null);
   const { showSnackbar, showAlert } = useUIStore();
-  const { t, dateFnsLocale } = useI18n();
+  const { t } = useI18n();
   const getErrorMessage = useErrorMessage();
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();

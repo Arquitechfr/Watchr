@@ -19,6 +19,7 @@ function getDeviceLocale(): string {
   if (Platform.OS === 'web') {
     return navigator.language || 'en';
   }
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const Localization = require('expo-localization');
   return Localization.getLocales()[0]?.languageTag ?? 'en';
 }

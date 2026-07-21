@@ -1,7 +1,5 @@
-import { View, Text, ScrollView, TouchableOpacity } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { View, Text, ScrollView } from "react-native";
 import { useI18n } from "../../i18n/useI18n";
-import { useThemeColors } from "../../theme/useThemeColors";
 import { ScrollArrows } from "../ScrollArrows";
 import { CastMemberCard, CrewMemberCard } from "./PersonCards";
 import type { CastMember, CrewMember } from "../../services/shows.service";

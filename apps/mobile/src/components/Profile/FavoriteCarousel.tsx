@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef } from "react";
-import { View, Text, Image, TouchableOpacity, ScrollView, Modal, Pressable, FlatList, ActivityIndicator, TextInput } from "react-native";
+import { View, Text, Image, TouchableOpacity, ScrollView, Modal, FlatList, ActivityIndicator, TextInput } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";

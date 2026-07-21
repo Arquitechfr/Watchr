@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
-import { AppState, AppStateStatus, Platform } from "react-native";
+import { AppState, AppStateStatus } from "react-native";
 import { DEFAULT_REMOTE_CONFIG, DEFAULT_REMOTE_CONFIG_DESCRIPTIONS, RemoteConfig, RemoteConfigDescriptions } from "../config/defaults";
 import { warn } from "../utils/logger";
 

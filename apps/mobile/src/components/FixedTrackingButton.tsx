@@ -3,7 +3,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { ShowDetails } from "../services/shows.service";
 import { WatchEntry } from "../services/tracking.service";
-import { useThemeColors } from "../theme/useThemeColors";
 import { useI18n } from "../i18n/useI18n";
 import { hapticMedium } from "../utils/haptics";
 
@@ -27,7 +26,6 @@ export function FixedTrackingButton({
   onToggleDropped,
 }: FixedTrackingButtonProps) {
   const { t } = useI18n();
-  const colors = useThemeColors();
   const insets = useSafeAreaInsets();
   const hasProgress = progress !== undefined && progress > 0 && progress < 1;
   const isCompleted = progress === 1;

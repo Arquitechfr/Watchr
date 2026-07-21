@@ -204,6 +204,7 @@ class ErrorTracker {
 
   private getBaseUrl(): string | null {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const { remoteConfigService } = require("./remoteConfig");
       const config = remoteConfigService.getConfig();
       if (config?.backend_url) return config.backend_url;

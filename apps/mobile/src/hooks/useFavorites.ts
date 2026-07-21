@@ -4,7 +4,6 @@ import {
   addFavorite,
   removeFavorite,
   getFavoriteShowIds,
-  type FavoriteItem,
   type FavoritesResponse,
 } from "../services/favorites.service";
 import { useAuthStore } from "../store/authStore";

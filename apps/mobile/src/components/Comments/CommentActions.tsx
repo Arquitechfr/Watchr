@@ -65,7 +65,7 @@ export function CommentActions({
     setShowEmojiPicker(false);
   };
 
-  const handleDelete = () => {
+  const _handleDelete = () => {
     setShowMenu(false);
     showAlert({
       title: t("screens.comments.deleteConfirmTitle"),

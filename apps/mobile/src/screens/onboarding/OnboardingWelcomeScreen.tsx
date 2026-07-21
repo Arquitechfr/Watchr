@@ -3,7 +3,6 @@ import { View, Text, TouchableOpacity } from "react-native";
 import { ScreenContainer } from "../../components/ScreenContainer";
 import { OnboardingSkipButton } from "./OnboardingSkipButton";
 import { useI18n } from "../../i18n/useI18n";
-import { useThemeColors } from "../../theme/useThemeColors";
 import { Seo } from "../../components/Seo";
 import { usePostHog } from "posthog-react-native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -21,7 +20,6 @@ interface OnboardingWelcomeScreenProps {
 
 export function OnboardingWelcomeScreen({ navigation, onSkip }: OnboardingWelcomeScreenProps) {
   const { t } = useI18n();
-  const colors = useThemeColors();
   const posthog = usePostHog();
 
   useEffect(() => {

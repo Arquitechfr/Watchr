@@ -1,4 +1,4 @@
-import { type HTMLAttributes, type CSSProperties } from "react";
+import { type HTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
 interface SkeletonProps extends HTMLAttributes<HTMLDivElement> {

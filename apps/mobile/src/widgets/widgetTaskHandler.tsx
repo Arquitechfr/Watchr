@@ -1,6 +1,6 @@
 import React from 'react';
 import { WidgetTaskHandlerProps } from 'react-native-android-widget';
-import { UpNextWidget, UpNextWidgetProps } from './UpNextWidget';
+import { UpNextWidget } from './UpNextWidget';
 import { StatsWidget, StatsWidgetProps } from './StatsWidget';
 import { TodayWidget, TodayWidgetProps } from './TodayWidget';
 import { FavoritesWidget, FavoritesWidgetProps } from './FavoritesWidget';

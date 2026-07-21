@@ -127,9 +127,6 @@ export function ScheduledJobs() {
     }
   }
 
-  const isEmail = (type: string) => type.startsWith("email");
-  const isPush = (type: string) => type.startsWith("push");
-
   function formatType(type: string): string {
     if (type === "email_broadcast") return "Email Broadcast";
     if (type === "push_broadcast") return "Push Broadcast";

@@ -11,6 +11,7 @@ import { useLocaleStore } from "../store/localeStore";
 import { darkColors } from "../theme/colors";
 import type { SupportedLocale } from "../i18n/translations";
 
+/* eslint-disable @typescript-eslint/no-require-imports */
 const SPLASH_IMAGES: Record<SupportedLocale, ImageSourcePropType> = {
   en: require("../../assets/splash-background.webp"),
   fr: require("../../assets/splash-background-fr.webp"),
@@ -27,6 +28,7 @@ const SPLASH_IMAGES: Record<SupportedLocale, ImageSourcePropType> = {
   ko: require("../../assets/splash-background.webp"),
   zh: require("../../assets/splash-background.webp"),
 };
+/* eslint-enable @typescript-eslint/no-require-imports */
 
 interface SplashScreenProps {
   visible: boolean;

@@ -49,7 +49,6 @@ export function NotificationBell() {
     loading,
     dropdownOpen,
     fetchNotifications,
-    fetchUnreadCount,
     markAsRead,
     markAllAsRead,
     setDropdownOpen,

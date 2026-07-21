@@ -1,7 +1,6 @@
 import { View, FlatList, RefreshControl } from "react-native";
 import { useMemo } from "react";
 import { EmptyState } from "../EmptyState";
-import { Skeleton } from "../Skeleton";
 import { EpisodeCard } from "../EpisodeCard";
 import { UnwatchedEpisodeRow } from "../UnwatchedEpisodeRow";
 import { useI18n } from "../../i18n/useI18n";

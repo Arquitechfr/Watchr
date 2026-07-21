@@ -1,4 +1,4 @@
-import { View, Text, Image, TouchableOpacity, Platform } from "react-native";
+import { View, Text, Image, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { SearchResultItem, getPosterUrl } from "../services/shows.service";
 import { useThemeColors } from "../theme/useThemeColors";

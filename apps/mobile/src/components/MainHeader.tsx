@@ -15,6 +15,7 @@ export function MainHeader({ rightElement }: MainHeaderProps) {
       ) : (
         <View className="flex-row items-center" style={{ gap: 4 }}>
           <Image
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
             source={require("../../assets/splash-icon.webp")}
             style={{ width: 40, height: 40 }}
             resizeMode="contain"

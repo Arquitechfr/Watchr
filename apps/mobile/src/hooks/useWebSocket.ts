@@ -9,7 +9,6 @@ export function useWebSocketEvent(
   useEffect(() => {
     const unsub = websocketService.on(event, callback);
     return unsub;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
 }
 

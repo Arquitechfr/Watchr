@@ -140,6 +140,7 @@ export function ProfileContactScreen() {
       >
         <View className="items-center mb-6">
           <Image
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
             source={require("../../../assets/adaptive-icon.png")}
             style={{ width: 64, height: 64, borderRadius: 16, marginBottom: 12 }}
             resizeMode="contain"

@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useQueryClient } from "@tanstack/react-query";
-import Animated, { FadeIn, FadeOut, SlideInDown } from "react-native-reanimated";
+import Animated, { FadeOut, SlideInDown } from "react-native-reanimated";
 import { requestEmailCode, verifyEmailCode } from "../../services/auth.service";
 import { useAuthStore } from "../../store/authStore";
 import { useUIStore } from "../../store/uiStore";
@@ -130,6 +130,7 @@ export function EmailCodeScreen() {
 
         <View className="items-center mb-10">
           <Image
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
             source={require("../../../assets/splash-icon.webp")}
             style={{ width: 80, height: 80 }}
             resizeMode="contain"

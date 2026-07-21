@@ -88,7 +88,6 @@ export function ConfettiBurst({ trigger, colors }: ConfettiBurstProps) {
       color: particleColors[i % particleColors.length],
       size: 4 + Math.random() * 4,
     }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

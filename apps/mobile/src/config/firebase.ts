@@ -23,7 +23,9 @@ if (getApps().length === 0) {
       persistence: browserLocalPersistence,
     });
   } else {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { getReactNativePersistence } = require("firebase/auth");
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const AsyncStorage = require("@react-native-async-storage/async-storage").default;
     initializeAuth(app, {
       persistence: getReactNativePersistence(AsyncStorage),

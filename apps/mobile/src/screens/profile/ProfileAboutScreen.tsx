@@ -28,6 +28,7 @@ export function ProfileAboutScreen() {
       >
         <View className="items-center mb-8 mt-4">
           <Image
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
             source={require("../../../assets/adaptive-icon.png")}
             style={{ width: 72, height: 72, borderRadius: 18, marginBottom: 12 }}
             resizeMode="contain"

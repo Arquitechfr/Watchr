@@ -1,5 +1,4 @@
 import { View, Text } from "react-native";
-import { useI18n } from "../../i18n/useI18n";
 import { type Genre } from "../../services/shows.service";
 
 interface GenresSectionProps {

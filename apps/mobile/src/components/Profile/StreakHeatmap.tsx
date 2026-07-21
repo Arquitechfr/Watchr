@@ -85,7 +85,6 @@ export function StreakHeatmap({ watchedDates, weeks = DEFAULT_WEEKS }: StreakHea
             <View key={weekIdx} style={{ gap: cellGap }}>
               {column.map((cell, dayIdx) => {
                 const isFuture = cell.date > new Date();
-                const dateStr = cell.date.toISOString().split("T")[0];
                 return (
                   <TouchableOpacity
                     key={dayIdx}

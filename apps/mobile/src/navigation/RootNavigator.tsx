@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Linking, Platform, useWindowDimensions, View } from "react-native";
+import { Platform, useWindowDimensions, View } from "react-native";
 import { NavigationContainer, LinkingOptions } from "@react-navigation/native";
 import { usePostHog } from "posthog-react-native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";

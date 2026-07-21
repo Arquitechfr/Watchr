@@ -14,7 +14,7 @@ interface NewsCardProps {
 }
 
 export function NewsCard({ article, compact = false }: NewsCardProps) {
-  const { t, dateFnsLocale } = useI18n();
+  const { dateFnsLocale } = useI18n();
   const navigation = useNavigation<NewsCardNavigationProp>();
 
   function handlePress() {

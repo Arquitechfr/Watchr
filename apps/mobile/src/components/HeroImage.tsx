@@ -1,4 +1,4 @@
-import { View, Text, Platform, useWindowDimensions, type ViewStyle } from "react-native";
+import { View, Text, Platform, type ViewStyle } from "react-native";
 import Animated, { type AnimatedStyle } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
 import { getBackdropUrl, getPosterUrl } from "../services/shows.service";
@@ -18,7 +18,6 @@ interface HeroImageProps {
 export function HeroImage({ posterPath, backdropPath, title, subtitle, children, animatedStyle }: HeroImageProps) {
   const colors = useThemeColors();
   const { t } = useI18n();
-  const { width } = useWindowDimensions();
   const breakpoint = useBreakpoint();
   const heroUrl = getBackdropUrl(backdropPath, 780) ?? getPosterUrl(posterPath, 500);
   const isDesktopWeb = Platform.OS === "web" && breakpoint !== "mobile";

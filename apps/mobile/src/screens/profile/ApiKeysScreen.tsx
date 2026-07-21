@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Text, TouchableOpacity, FlatList, ActivityIndicator, Platform } from "react-native";
+import { View, Text, TouchableOpacity, FlatList, ActivityIndicator } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { ScreenContainer } from "../../components/ScreenContainer";
 import { SubScreenHeader } from "../../components/SubScreenHeader";
@@ -18,7 +18,7 @@ import { useErrorMessage } from "../../services/api";
 const MAX_ACTIVE_KEYS = 10;
 
 export function ApiKeysScreen() {
-  const { t, dateFnsLocale } = useI18n();
+  const { t } = useI18n();
   const colors = useThemeColors();
   const getErrorMessage = useErrorMessage();
   const { data: apiKeys, isLoading, isError, error, refetch } = useApiKeysQuery();

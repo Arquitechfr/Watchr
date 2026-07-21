@@ -21,7 +21,7 @@ export function ConversationListScreen() {
   const navigation = useNavigation<NavProp>();
   const currentUserId = useAuthStore((s) => s.userId);
 
-  const { data, isLoading, refetch, isRefetching } = useConversations();
+  const { data, refetch, isRefetching } = useConversations();
   const { data: unreadData } = useUnreadCount();
 
   const conversations = useMemo(() => {

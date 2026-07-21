@@ -196,7 +196,7 @@ export function UpNextWidget({
   tabUpcomingLabel,
   emptyUnwatchedText,
   emptyUpcomingText,
-  markWatchedLabel,
+  markWatchedLabel: _markWatchedLabel,
 }: UpNextWidgetProps) {
   const emptyText = activeTab === 'unwatched' ? emptyUnwatchedText : emptyUpcomingText;
 

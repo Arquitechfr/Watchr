@@ -96,6 +96,8 @@ function getStatusBadge(success: number, failure: number, target: number) {
   return <Badge className="bg-green-500/20 text-green-400">Success</Badge>;
 }
 
+type DeepLinkValue = { screen: string; params: Record<string, unknown> } | { url: string } | null;
+
 export function Notifications() {
   const [activeTab, setActiveTab] = useState<"push" | "inapp">("push");
   const [history, setHistory] = useState<HistoryResponse | null>(null);
@@ -113,8 +115,9 @@ export function Notifications() {
     locale: "",
     scheduledAt: "",
     scheduleEnabled: false,
-    deepLink: null as { screen: string; params: Record<string, unknown> } | null,
+    deepLink: null as DeepLinkValue,
     imageUrl: "" as string,
+    alsoInApp: false,
   });
   const [targetedForm, setTargetedForm] = useState({
     userId: "",
@@ -122,8 +125,9 @@ export function Notifications() {
     body: "",
     scheduledAt: "",
     scheduleEnabled: false,
-    deepLink: null as { screen: string; params: Record<string, unknown> } | null,
+    deepLink: null as DeepLinkValue,
     imageUrl: "" as string,
+    alsoInApp: false,
   });
   const [sending, setSending] = useState(false);
   const [result, setResult] = useState<string>("");
@@ -231,9 +235,11 @@ export function Notifications() {
       if (broadcastForm.scheduleEnabled && broadcastForm.scheduledAt) {
         payload.scheduledAt = new Date(broadcastForm.scheduledAt).toISOString();
       }
-      if (broadcastForm.deepLink) {
+      if (broadcastForm.deepLink && "screen" in broadcastForm.deepLink) {
         payload.deepLinkScreen = broadcastForm.deepLink.screen;
         payload.deepLinkParams = broadcastForm.deepLink.params;
+      } else if (broadcastForm.deepLink && "url" in broadcastForm.deepLink) {
+        payload.customUrl = broadcastForm.deepLink.url;
       }
       if (broadcastForm.imageUrl) {
         payload.imageUrl = broadcastForm.imageUrl;
@@ -241,9 +247,33 @@ export function Notifications() {
       const { data } = await api.post("/admin/notifications/broadcast", payload);
       if (data.scheduled) {
         setResult(`Broadcast scheduled for ${new Date(broadcastForm.scheduledAt).toLocaleString()}`);
-        setBroadcastForm({ title: "", body: "", target: "all", locale: "", scheduledAt: "", scheduleEnabled: false, deepLink: null, imageUrl: "" });
+        setBroadcastForm({ title: "", body: "", target: "all", locale: "", scheduledAt: "", scheduleEnabled: false, deepLink: null, imageUrl: "", alsoInApp: false });
       } else {
         startPolling(data.jobId);
+      }
+      if (broadcastForm.alsoInApp) {
+        try {
+          const inAppPayload: Record<string, unknown> = {
+            title: broadcastForm.title,
+            body: broadcastForm.body,
+            target: broadcastForm.target === "locale" ? "locale" : "all",
+          };
+          if (broadcastForm.target === "locale" && broadcastForm.locale) {
+            inAppPayload.locale = broadcastForm.locale;
+          }
+          if (broadcastForm.deepLink && "screen" in broadcastForm.deepLink) {
+            inAppPayload.deepLinkScreen = broadcastForm.deepLink.screen;
+            inAppPayload.deepLinkParams = broadcastForm.deepLink.params;
+          } else if (broadcastForm.deepLink && "url" in broadcastForm.deepLink) {
+            inAppPayload.customUrl = broadcastForm.deepLink.url;
+          }
+          if (broadcastForm.imageUrl) {
+            inAppPayload.imageUrl = broadcastForm.imageUrl;
+          }
+          await api.post("/admin/in-app-notifications", inAppPayload);
+        } catch (inAppErr) {
+          console.error("In-app notification creation failed:", inAppErr);
+        }
       }
     } catch (err) {
       setResult("Broadcast failed to start");
@@ -266,9 +296,11 @@ export function Notifications() {
       if (targetedForm.scheduleEnabled && targetedForm.scheduledAt) {
         payload.scheduledAt = new Date(targetedForm.scheduledAt).toISOString();
       }
-      if (targetedForm.deepLink) {
+      if (targetedForm.deepLink && "screen" in targetedForm.deepLink) {
         payload.deepLinkScreen = targetedForm.deepLink.screen;
         payload.deepLinkParams = targetedForm.deepLink.params;
+      } else if (targetedForm.deepLink && "url" in targetedForm.deepLink) {
+        payload.customUrl = targetedForm.deepLink.url;
       }
       if (targetedForm.imageUrl) {
         payload.imageUrl = targetedForm.imageUrl;
@@ -279,8 +311,30 @@ export function Notifications() {
       } else {
         setResult("Notification sent successfully");
       }
-      setTargetedForm({ userId: "", title: "", body: "", scheduledAt: "", scheduleEnabled: false, deepLink: null, imageUrl: "" });
+      setTargetedForm({ userId: "", title: "", body: "", scheduledAt: "", scheduleEnabled: false, deepLink: null, imageUrl: "", alsoInApp: false });
       loadHistory();
+      if (targetedForm.alsoInApp) {
+        try {
+          const inAppPayload: Record<string, unknown> = {
+            title: targetedForm.title,
+            body: targetedForm.body,
+            target: "user",
+            userId: targetedForm.userId,
+          };
+          if (targetedForm.deepLink && "screen" in targetedForm.deepLink) {
+            inAppPayload.deepLinkScreen = targetedForm.deepLink.screen;
+            inAppPayload.deepLinkParams = targetedForm.deepLink.params;
+          } else if (targetedForm.deepLink && "url" in targetedForm.deepLink) {
+            inAppPayload.customUrl = targetedForm.deepLink.url;
+          }
+          if (targetedForm.imageUrl) {
+            inAppPayload.imageUrl = targetedForm.imageUrl;
+          }
+          await api.post("/admin/in-app-notifications", inAppPayload);
+        } catch (inAppErr) {
+          console.error("In-app notification creation failed:", inAppErr);
+        }
+      }
     } catch (err) {
       setResult("Targeted notification failed");
       console.error("Targeted send failed:", err);
@@ -475,6 +529,15 @@ export function Notifications() {
               <ShowPicker
                 onSelect={(posterUrl) => setBroadcastForm({ ...broadcastForm, imageUrl: posterUrl })}
               />
+              <label className="flex items-center gap-2 text-sm text-text-muted">
+                <input
+                  type="checkbox"
+                  checked={broadcastForm.alsoInApp}
+                  onChange={(e) => setBroadcastForm({ ...broadcastForm, alsoInApp: e.target.checked })}
+                  className="rounded border-border"
+                />
+                Also create in-app notification
+              </label>
               <Button type="submit" disabled={sending || isPolling}>
                 {sending ? <Loader2 size={16} className="mr-2 animate-spin" /> : <Send size={16} className="mr-2" />} Send Broadcast
               </Button>
@@ -586,6 +649,15 @@ export function Notifications() {
               <ShowPicker
                 onSelect={(posterUrl) => setTargetedForm({ ...targetedForm, imageUrl: posterUrl })}
               />
+              <label className="flex items-center gap-2 text-sm text-text-muted">
+                <input
+                  type="checkbox"
+                  checked={targetedForm.alsoInApp}
+                  onChange={(e) => setTargetedForm({ ...targetedForm, alsoInApp: e.target.checked })}
+                  className="rounded border-border"
+                />
+                Also create in-app notification
+              </label>
               <Button type="submit" disabled={sending}>
                 <Send size={16} className="mr-2" /> Send to User
               </Button>

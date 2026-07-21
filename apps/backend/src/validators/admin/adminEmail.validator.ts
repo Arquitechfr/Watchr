@@ -20,6 +20,7 @@ export const emailBroadcastSchema = z.object({
   scheduledAt: z.string().datetime().optional(),
   deepLinkScreen: z.string().optional(),
   deepLinkParams: z.record(z.unknown()).optional(),
+  customUrl: z.string().url().optional(),
 });
 
 export const emailTargetedSchema = z.object({
@@ -29,4 +30,5 @@ export const emailTargetedSchema = z.object({
   scheduledAt: z.string().datetime().optional(),
   deepLinkScreen: z.string().optional(),
   deepLinkParams: z.record(z.unknown()).optional(),
+  customUrl: z.string().url().optional(),
 });

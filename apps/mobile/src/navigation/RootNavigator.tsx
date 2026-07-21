@@ -37,8 +37,9 @@ import { UserSearchScreen } from "../screens/UserSearchScreen";
 import { usePushNotifications } from "../hooks/usePushNotifications";
 import { useThemeSync } from "../hooks/useThemeSync";
 import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts";
+import { useInAppUpdates } from "../hooks/useInAppUpdates";
 import { log } from "../utils/logger";
-import { navigateToDeepLink } from "../services/deepLinkHandler";
+import { navigateToPushTarget } from "../services/deepLinkHandler";
 import { ResetPasswordScreen } from "../screens/auth/ResetPasswordScreen";
 import { MagicLinkScreen } from "../screens/auth/MagicLinkScreen";
 import { NewsArticleDetailScreen } from "../screens/NewsArticleDetailScreen";
@@ -116,6 +117,7 @@ export function RootNavigator() {
 
   usePushNotifications(!!me?.hasCompletedOnboarding);
   useThemeSync();
+  useInAppUpdates(isAuthenticated);
 
   useEffect(() => {
     if (isAuthenticated && userId) {
@@ -136,9 +138,9 @@ export function RootNavigator() {
         const data = response.notification.request.content.data as Record<string, unknown> | undefined;
         log("RootNavigator", "push notification tapped", { data });
 
-        if (!data?.screen || !navigationRef.current) return;
+        if (!data || (!data.screen && !data.url) || !navigationRef.current) return;
 
-        navigateToDeepLink(navigationRef.current, data);
+        navigateToPushTarget(navigationRef.current, data);
       });
     })();
 

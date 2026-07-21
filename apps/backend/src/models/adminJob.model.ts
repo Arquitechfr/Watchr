@@ -38,6 +38,7 @@ export interface IAdminJob extends Document {
   scheduledStatus?: ScheduledStatus;
   deepLinkScreen?: string;
   deepLinkParams?: Record<string, unknown>;
+  customUrl?: string;
   userId?: string;
   imageUrl?: string;
   createdAt: Date;
@@ -100,6 +101,7 @@ const adminJobSchema = new Schema<IAdminJob>(
     },
     deepLinkScreen: { type: String, required: false },
     deepLinkParams: { type: Schema.Types.Mixed, required: false },
+    customUrl: { type: String, required: false },
     userId: { type: String, required: false },
     imageUrl: { type: String, required: false },
   },

@@ -1,18 +1,8 @@
-export interface SupportedLanguage {
-  code: string;
-  label: string;
-  flag: string;
-}
+import { ADMIN_LANGUAGES, type AdminLanguage } from "@watchr/i18n-languages";
 
-export const SUPPORTED_LANGUAGES: SupportedLanguage[] = [
-  { code: "en", label: "English", flag: "🇬🇧" },
-  { code: "fr", label: "French", flag: "🇫🇷" },
-  { code: "es", label: "Spanish", flag: "🇪🇸" },
-  { code: "pt", label: "Portuguese", flag: "🇵🇹" },
-  { code: "de", label: "German", flag: "🇩🇪" },
-  { code: "it", label: "Italian", flag: "🇮🇹" },
-  { code: "ar", label: "Arabic", flag: "🇸🇦" },
-];
+export type { AdminLanguage as SupportedLanguage };
+
+export const SUPPORTED_LANGUAGES: AdminLanguage[] = ADMIN_LANGUAGES;
 
 export const LANGUAGE_FLAGS: Record<string, string> = Object.fromEntries(
   SUPPORTED_LANGUAGES.map((l) => [l.code, l.flag]),

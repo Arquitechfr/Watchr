@@ -34,6 +34,8 @@ interface InAppListResponse {
   limit: number;
 }
 
+type DeepLinkValue = { screen: string; params: Record<string, unknown> } | { url: string } | null;
+
 export function InAppNotificationsTab() {
   const [list, setList] = useState<InAppListResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -49,7 +51,8 @@ export function InAppNotificationsTab() {
     locale: "",
     userId: "",
     imageUrl: "",
-    deepLink: null as { screen: string; params: Record<string, unknown> } | null,
+    deepLink: null as DeepLinkValue,
+    alsoPush: false,
   });
 
   const loadList = useCallback(async () => {
@@ -81,14 +84,37 @@ export function InAppNotificationsTab() {
       if (form.target === "locale" && form.locale) payload.locale = form.locale;
       if (form.target === "user" && form.userId) payload.userId = form.userId;
       if (form.imageUrl) payload.imageUrl = form.imageUrl;
-      if (form.deepLink) {
+      if (form.deepLink && "screen" in form.deepLink) {
         payload.deepLinkScreen = form.deepLink.screen;
         payload.deepLinkParams = form.deepLink.params;
+      } else if (form.deepLink && "url" in form.deepLink) {
+        payload.customUrl = form.deepLink.url;
       }
       await api.post("/admin/in-app-notifications", payload);
       setResult("In-app notification created successfully");
-      setForm({ title: "", body: "", target: "all", locale: "", userId: "", imageUrl: "", deepLink: null });
+      setForm({ title: "", body: "", target: "all", locale: "", userId: "", imageUrl: "", deepLink: null, alsoPush: false });
       loadList();
+      if (form.alsoPush) {
+        try {
+          const pushPayload: Record<string, unknown> = {
+            title: form.title,
+            body: form.body,
+            target: form.target === "user" ? "all" : form.target,
+          };
+          if (form.target === "locale" && form.locale) pushPayload.locale = form.locale;
+          if (form.deepLink && "screen" in form.deepLink) {
+            pushPayload.deepLinkScreen = form.deepLink.screen;
+            pushPayload.deepLinkParams = form.deepLink.params;
+          } else if (form.deepLink && "url" in form.deepLink) {
+            pushPayload.customUrl = form.deepLink.url;
+          }
+          if (form.imageUrl) pushPayload.imageUrl = form.imageUrl;
+          await api.post("/admin/notifications/broadcast", pushPayload);
+          setResult("In-app notification + push notification created successfully");
+        } catch (pushErr) {
+          console.error("Push notification creation failed:", pushErr);
+        }
+      }
     } catch (err) {
       setResult("Failed to create in-app notification");
       console.error("Create failed:", err);
@@ -200,6 +226,15 @@ export function InAppNotificationsTab() {
                   </div>
                 )}
               </div>
+              <label className="flex items-center gap-2 text-sm text-text-muted">
+                <input
+                  type="checkbox"
+                  checked={form.alsoPush}
+                  onChange={(e) => setForm({ ...form, alsoPush: e.target.checked })}
+                  className="rounded border-border"
+                />
+                Also send push notification
+              </label>
               <Button type="submit" disabled={sending}>
                 {sending ? <Loader2 className="animate-spin" size={16} /> : <Bell size={16} />}
                 <span className="ml-2">Create Notification</span>

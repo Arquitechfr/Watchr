@@ -29,6 +29,13 @@ const INTL_LOCALE_MAP: Record<SupportedLocale, string> = {
   de: "de-DE",
   it: "it-IT",
   ar: "ar",
+  nl: "nl-NL",
+  pl: "pl-PL",
+  tr: "tr-TR",
+  ru: "ru-RU",
+  ja: "ja-JP",
+  ko: "ko-KR",
+  zh: "zh-CN",
 };
 
 export interface ListUsersQuery {

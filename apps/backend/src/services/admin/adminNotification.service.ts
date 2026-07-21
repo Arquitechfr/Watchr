@@ -19,6 +19,7 @@ export interface BroadcastInput {
   scheduledAt?: string;
   deepLinkScreen?: string;
   deepLinkParams?: Record<string, unknown>;
+  customUrl?: string;
   imageUrl?: string;
 }
 
@@ -30,6 +31,7 @@ export interface TargetedInput {
   scheduledAt?: string;
   deepLinkScreen?: string;
   deepLinkParams?: Record<string, unknown>;
+  customUrl?: string;
   imageUrl?: string;
 }
 
@@ -62,9 +64,11 @@ export async function sendBroadcast(
   sentBy: string,
   input: BroadcastInput,
 ): Promise<{ jobId: string; scheduled: boolean }> {
-  const pushData = input.deepLinkScreen
-    ? buildPushData(input.deepLinkScreen, input.deepLinkParams)
-    : input.data;
+  const pushData = input.customUrl
+    ? buildPushData(undefined, undefined, input.customUrl)
+    : input.deepLinkScreen
+      ? buildPushData(input.deepLinkScreen, input.deepLinkParams)
+      : input.data;
 
   const scheduledAt = input.scheduledAt ? new Date(input.scheduledAt) : undefined;
   const isScheduled = scheduledAt && scheduledAt.getTime() > Date.now();
@@ -86,6 +90,7 @@ export async function sendBroadcast(
     scheduledStatus: isScheduled ? "scheduled" : "none",
     deepLinkScreen: input.deepLinkScreen,
     deepLinkParams: input.deepLinkParams,
+    customUrl: input.customUrl,
     imageUrl: input.imageUrl,
   });
 
@@ -106,9 +111,11 @@ export async function sendTargeted(
   const isScheduled = scheduledAt && scheduledAt.getTime() > Date.now();
 
   if (isScheduled) {
-    const pushData = input.deepLinkScreen
-      ? buildPushData(input.deepLinkScreen, input.deepLinkParams)
-      : input.data;
+    const pushData = input.customUrl
+      ? buildPushData(undefined, undefined, input.customUrl)
+      : input.deepLinkScreen
+        ? buildPushData(input.deepLinkScreen, input.deepLinkParams)
+        : input.data;
 
     const job = await AdminJob.create({
       type: "push_targeted_scheduled",
@@ -126,6 +133,7 @@ export async function sendTargeted(
       scheduledStatus: "scheduled",
       deepLinkScreen: input.deepLinkScreen,
       deepLinkParams: input.deepLinkParams,
+      customUrl: input.customUrl,
       userId: input.userId,
       imageUrl: input.imageUrl,
     });
@@ -144,9 +152,11 @@ export async function sendTargeted(
     throw new ApiError(400, "NO_PUSH_TOKEN", "User has no push token");
   }
 
-  const pushData = input.deepLinkScreen
-    ? buildPushData(input.deepLinkScreen, input.deepLinkParams)
-    : input.data;
+  const pushData = input.customUrl
+    ? buildPushData(undefined, undefined, input.customUrl)
+    : input.deepLinkScreen
+      ? buildPushData(input.deepLinkScreen, input.deepLinkParams)
+      : input.data;
 
   // Auto-translate to user's preferred language
   const sourceText = pickLongestText({ title: input.title, body: input.body });
@@ -325,6 +335,7 @@ export async function updateScheduledJob(jobId: string, updates: {
   scheduledAt?: string;
   deepLinkScreen?: string | null;
   deepLinkParams?: Record<string, unknown> | null;
+  customUrl?: string | null;
   imageUrl?: string | null;
 }): Promise<IAdminJob | null> {
   const job = await AdminJob.findById(jobId);
@@ -341,6 +352,9 @@ export async function updateScheduledJob(jobId: string, updates: {
   if (updates.imageUrl !== undefined) {
     job.imageUrl = updates.imageUrl === null ? undefined : updates.imageUrl;
   }
+  if (updates.customUrl !== undefined) {
+    job.customUrl = updates.customUrl === null ? undefined : updates.customUrl;
+  }
   if (updates.deepLinkScreen !== undefined) {
     if (updates.deepLinkScreen === null) {
       job.deepLinkScreen = undefined;
@@ -351,9 +365,11 @@ export async function updateScheduledJob(jobId: string, updates: {
         job.deepLinkParams = updates.deepLinkParams;
       }
     }
-    if (job.deepLinkScreen) {
-      job.data = buildPushData(job.deepLinkScreen, job.deepLinkParams);
-    }
+  }
+  if (job.customUrl) {
+    job.data = buildPushData(undefined, undefined, job.customUrl);
+  } else if (job.deepLinkScreen) {
+    job.data = buildPushData(job.deepLinkScreen, job.deepLinkParams);
   }
 
   await job.save();
@@ -389,6 +405,7 @@ function formatScheduledJob(j: any) {
     scheduledStatus: j.scheduledStatus ?? "none",
     deepLinkScreen: j.deepLinkScreen ?? null,
     deepLinkParams: j.deepLinkParams ?? null,
+    customUrl: j.customUrl ?? null,
     userId: j.userId ?? null,
     imageUrl: j.imageUrl ?? null,
     sentBy: j.sentBy.toString(),

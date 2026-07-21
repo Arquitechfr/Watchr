@@ -6,7 +6,7 @@ import { processJob } from "./jobQueue.service.js";
 import { ApiError } from "../../middleware/error.middleware.js";
 import { logError } from "../../lib/logger.js";
 import { detectLanguage, translateForUser, pickLongestText, type TranslationInput } from "../translation.service.js";
-import { buildDeepLinkUrl } from "../deepLinkCatalog.js";
+import { buildCtaUrl } from "../deepLinkCatalog.js";
 import type { Types } from "mongoose";
 
 export interface EmailHistoryFilters {
@@ -25,6 +25,7 @@ export interface EmailBroadcastInput {
   scheduledAt?: string;
   deepLinkScreen?: string;
   deepLinkParams?: Record<string, unknown>;
+  customUrl?: string;
 }
 
 export interface EmailTargetedInput {
@@ -34,6 +35,7 @@ export interface EmailTargetedInput {
   scheduledAt?: string;
   deepLinkScreen?: string;
   deepLinkParams?: Record<string, unknown>;
+  customUrl?: string;
 }
 
 export async function getEmailHistory(filters: EmailHistoryFilters) {
@@ -136,6 +138,7 @@ export async function sendBroadcastEmail(
     scheduledStatus: isScheduled ? "scheduled" : "none",
     deepLinkScreen: input.deepLinkScreen,
     deepLinkParams: input.deepLinkParams,
+    customUrl: input.customUrl,
   });
 
   if (!isScheduled) {
@@ -170,6 +173,7 @@ export async function sendTargetedEmail(
       scheduledStatus: "scheduled",
       deepLinkScreen: input.deepLinkScreen,
       deepLinkParams: input.deepLinkParams,
+      customUrl: input.customUrl,
       userId: input.userId,
     });
 
@@ -191,9 +195,7 @@ export async function sendTargetedEmail(
   const translationInput: TranslationInput = { subject: input.subject, htmlContent: input.htmlContent };
   const translated = await translateForUser(translationInput, user.preferredLanguage, sourceLang);
 
-  const ctaUrl = input.deepLinkScreen
-    ? buildDeepLinkUrl(input.deepLinkScreen, input.deepLinkParams)
-    : undefined;
+  const ctaUrl = buildCtaUrl(input.customUrl, input.deepLinkScreen, input.deepLinkParams);
 
   const success = await EmailService.sendCustomEmail(
     user.email,

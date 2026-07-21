@@ -56,9 +56,10 @@ import { checkAuthEnabled } from "../middleware/authFlag.middleware.js";
 import { translate } from "../i18n/index.js";
 import { getUserStats } from "../services/stats.service.js";
 import { getYearInReview } from "../services/aiYearInReview.service.js";
+import { SUPPORTED_LANGUAGES } from "@watchr/i18n-languages";
 
 const updateLanguageSchema = z.object({
-  language: z.string().min(2).max(5),
+  language: z.enum(SUPPORTED_LANGUAGES),
 });
 
 const updateUsernameSchema = z.object({

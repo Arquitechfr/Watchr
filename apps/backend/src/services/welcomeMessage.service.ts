@@ -11,7 +11,7 @@ async function isWelcomeMessageEnabled(): Promise<boolean> {
 }
 
 function getWelcomeMessageContent(locale: SupportedLocale): string {
-  const pack = translations[locale] ?? translations.en;
+  const pack = (translations as unknown as Record<string, typeof translations.en>)[locale] ?? translations.en;
   return pack.welcomeMessage?.content ?? translations.en.welcomeMessage?.content ?? "Welcome to Watchr!";
 }
 

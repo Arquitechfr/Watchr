@@ -208,6 +208,13 @@ const pt = {
       languageGerman: "Alemão",
       languageItalian: "Italiano",
       languageArabic: "Árabe",
+      languageDutch: "Holandês",
+      languagePolish: "Polonês",
+      languageTurkish: "Turco",
+      languageRussian: "Russo",
+      languageJapanese: "Japonês",
+      languageKorean: "Coreano",
+      languageChinese: "Chinês",
       languageSyncError: "Não foi possível sincronizar o idioma com o servidor.",
       importData: "Importar dados",
       exportData: "Exportar dados",
@@ -882,6 +889,14 @@ const pt = {
     sendMessage: "Enviar mensagem",
     creatingConversation: "Iniciando conversa…",
     conversationError: "Não foi possível iniciar a conversa. Tente novamente.",
+  },
+  updates: {
+    title: "Atualização disponível",
+    message: "Uma nova versão do Watchr está disponível com melhorias e correções. Deseja atualizar agora?",
+    degradedWarning: "Se não atualizar, algumas funções podem não funcionar corretamente ou podem estar indisponíveis.",
+    updateNow: "Atualizar",
+    later: "Mais tarde",
+    ok: "OK",
   },
 };
 

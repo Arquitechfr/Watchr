@@ -1,13 +1,6 @@
 import { useState, useRef, useEffect, type ComponentType } from "react";
 import { Globe, Check } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import GB from "country-flag-icons/react/3x2/GB";
-import FR from "country-flag-icons/react/3x2/FR";
-import SA from "country-flag-icons/react/3x2/SA";
-import DE from "country-flag-icons/react/3x2/DE";
-import ES from "country-flag-icons/react/3x2/ES";
-import IT from "country-flag-icons/react/3x2/IT";
-import PT from "country-flag-icons/react/3x2/PT";
 import {
   SUPPORTED_LANGUAGES,
   LANGUAGE_LABELS,
@@ -17,15 +10,16 @@ import {
 } from "@/i18n/config";
 import { cn } from "@/lib/utils";
 
-const FLAG_COMPONENTS: Record<string, ComponentType<{ className?: string }>> = {
-  GB,
-  FR,
-  SA,
-  DE,
-  ES,
-  IT,
-  PT,
-};
+// Dynamically import all country flag icons via Vite's import.meta.glob
+const flagModules = import.meta.glob("country-flag-icons/react/3x2/*", { eager: true });
+
+const FLAG_COMPONENTS: Record<string, ComponentType<{ className?: string }>> = {};
+for (const [path, module] of Object.entries(flagModules)) {
+  const code = path.split("/").pop();
+  if (code) {
+    FLAG_COMPONENTS[code] = (module as { default: ComponentType<{ className?: string }> }).default;
+  }
+}
 
 interface LanguageSwitcherProps {
   className?: string;

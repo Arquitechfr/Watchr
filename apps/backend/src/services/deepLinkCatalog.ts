@@ -134,8 +134,10 @@ export function buildDeepLinkUrl(
 export function buildPushData(
   screen?: string,
   params?: Record<string, unknown>,
+  customUrl?: string,
 ): Record<string, unknown> | undefined {
-  if (!screen) return undefined;
+  if (!screen && !customUrl) return undefined;
+  if (!screen && customUrl) return { url: customUrl };
   const data: Record<string, unknown> = { screen };
   if (params) {
     for (const [key, value] of Object.entries(params)) {
@@ -145,4 +147,14 @@ export function buildPushData(
     }
   }
   return data;
+}
+
+export function buildCtaUrl(
+  customUrl?: string,
+  deepLinkScreen?: string,
+  deepLinkParams?: Record<string, unknown>,
+): string | undefined {
+  if (customUrl) return customUrl;
+  if (deepLinkScreen) return buildDeepLinkUrl(deepLinkScreen, deepLinkParams);
+  return undefined;
 }

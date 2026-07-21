@@ -9,6 +9,7 @@ export const createInAppNotificationSchema = z.object({
   userId: z.string().min(1).optional(),
   deepLinkScreen: z.string().optional(),
   deepLinkParams: z.record(z.unknown()).optional(),
+  customUrl: z.string().url().optional(),
   expiresAt: z.string().datetime().optional(),
 });
 

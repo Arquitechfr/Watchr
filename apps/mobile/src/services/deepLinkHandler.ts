@@ -1,9 +1,16 @@
 import { log } from "../utils/logger";
+import { Linking, Platform } from "react-native";
 
 export interface DeepLinkTarget {
   screen: string;
   params: Record<string, unknown>;
 }
+
+export interface CustomUrlTarget {
+  url: string;
+}
+
+export type PushTarget = DeepLinkTarget | CustomUrlTarget;
 
 const SCREEN_MAP: Record<string, { navScreen: string; paramMap?: Record<string, string> }> = {
   home: { navScreen: "Main", paramMap: {} },
@@ -57,6 +64,46 @@ export function resolveDeepLink(data: Record<string, unknown> | undefined): Deep
   return { screen: mapping.navScreen, params };
 }
 
+export function resolvePushTarget(data: Record<string, unknown> | undefined): PushTarget | null {
+  if (!data) return null;
+
+  if (data.url && typeof data.url === "string") {
+    return { url: data.url };
+  }
+
+  if (data.screen) {
+    return resolveDeepLink(data);
+  }
+
+  return null;
+}
+
+export async function handlePushData(
+  data: Record<string, unknown> | undefined,
+): Promise<boolean> {
+  const target = resolvePushTarget(data);
+  if (!target) return false;
+
+  if ("url" in target) {
+    try {
+      const supported = await Linking.canOpenURL(target.url);
+      if (supported) {
+        await Linking.openURL(target.url);
+        return true;
+      }
+      if (Platform.OS === "web") {
+        window.open(target.url, "_blank");
+        return true;
+      }
+    } catch (err) {
+      log("deepLinkHandler", "failed to open custom URL", { err, url: target.url });
+    }
+    return false;
+  }
+
+  return false;
+}
+
 export function navigateToDeepLink(
   navigation: { navigate: (screen: string, params?: Record<string, unknown>) => void },
   data: Record<string, unknown> | undefined,
@@ -71,4 +118,17 @@ export function navigateToDeepLink(
     log("deepLinkHandler", "navigation failed", { err, target });
     return false;
   }
+}
+
+export async function navigateToPushTarget(
+  navigation: { navigate: (screen: string, params?: Record<string, unknown>) => void },
+  data: Record<string, unknown> | undefined,
+): Promise<boolean> {
+  if (!data) return false;
+
+  if (data.url && typeof data.url === "string") {
+    return handlePushData(data);
+  }
+
+  return navigateToDeepLink(navigation, data);
 }

@@ -13,7 +13,8 @@
       "infoPlist": {
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": true
-        }
+        },
+        "LSApplicationQueriesSchemes": ["itms-apps"]
       },
       "supportsTablet": true,
       "bundleIdentifier": "com.watchr.app",

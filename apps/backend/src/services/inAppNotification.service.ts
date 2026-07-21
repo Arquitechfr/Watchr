@@ -5,7 +5,12 @@ import { wsEvents } from "../lib/wsEvents.js";
 import { log, logError } from "../lib/logger.js";
 import { ApiError } from "../middleware/error.middleware.js";
 
-function buildDeepLinkData(deepLinkScreen?: string, deepLinkParams?: Record<string, unknown>): Record<string, unknown> | undefined {
+function buildDeepLinkData(
+  deepLinkScreen?: string,
+  deepLinkParams?: Record<string, unknown>,
+  customUrl?: string,
+): Record<string, unknown> | undefined {
+  if (customUrl) return { url: customUrl };
   if (!deepLinkScreen) return undefined;
   const data: Record<string, unknown> = { screen: deepLinkScreen };
   if (deepLinkParams) {
@@ -25,9 +30,10 @@ export async function createInAppNotification(input: {
   createdBy?: string;
   deepLinkScreen?: string;
   deepLinkParams?: Record<string, unknown>;
+  customUrl?: string;
   expiresAt?: Date;
 }): Promise<IInAppNotification> {
-  const data = buildDeepLinkData(input.deepLinkScreen, input.deepLinkParams);
+  const data = buildDeepLinkData(input.deepLinkScreen, input.deepLinkParams, input.customUrl);
 
   const notification = await InAppNotification.create({
     type: input.type,

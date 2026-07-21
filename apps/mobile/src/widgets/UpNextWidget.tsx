@@ -2,7 +2,7 @@ import React from 'react';
 import { format } from 'date-fns';
 import { FlexWidget, TextWidget, ListWidget, ImageWidget } from 'react-native-android-widget';
 import { WidgetTab, WidgetEpisode } from './widgetDataHelper';
-import { getDateFnsLocale } from '../i18n/useI18n';
+import { getDateFnsLocaleSync } from '../i18n/useI18n';
 import { useLocaleStore } from '../store/localeStore';
 import { SupportedLocale } from '../i18n/translations';
 
@@ -85,7 +85,7 @@ function EpisodeRow({ episode }: { episode: WidgetEpisode }) {
   if (episode.airDate) {
     try {
       const locale = useLocaleStore.getState().locale || 'en';
-      const dateFnsLocale = getDateFnsLocale(locale as SupportedLocale);
+      const dateFnsLocale = getDateFnsLocaleSync(locale as SupportedLocale);
       formattedDate = format(new Date(episode.airDate), 'd MMM yyyy', { locale: dateFnsLocale });
     } catch {
       formattedDate = episode.airDate;

@@ -72,6 +72,8 @@ const TEMPLATE_LABELS: Record<string, string> = {
   custom: "Custom",
 };
 
+type DeepLinkValue = { screen: string; params: Record<string, unknown> } | { url: string } | null;
+
 export function EmailLogs() {
   const [history, setHistory] = useState<EmailHistoryResponse | null>(null);
   const [stats, setStats] = useState<EmailStats | null>(null);
@@ -93,7 +95,7 @@ export function EmailLogs() {
     locale: "",
     scheduledAt: "",
     scheduleEnabled: false,
-    deepLink: null as { screen: string; params: Record<string, unknown> } | null,
+    deepLink: null as DeepLinkValue,
   });
   const [targetedForm, setTargetedForm] = useState({
     userId: "",
@@ -101,7 +103,7 @@ export function EmailLogs() {
     htmlContent: "",
     scheduledAt: "",
     scheduleEnabled: false,
-    deepLink: null as { screen: string; params: Record<string, unknown> } | null,
+    deepLink: null as DeepLinkValue,
   });
   const [sending, setSending] = useState(false);
   const [result, setResult] = useState<string>("");
@@ -199,9 +201,11 @@ export function EmailLogs() {
       if (broadcastForm.scheduleEnabled && broadcastForm.scheduledAt) {
         payload.scheduledAt = new Date(broadcastForm.scheduledAt).toISOString();
       }
-      if (broadcastForm.deepLink) {
+      if (broadcastForm.deepLink && "screen" in broadcastForm.deepLink) {
         payload.deepLinkScreen = broadcastForm.deepLink.screen;
         payload.deepLinkParams = broadcastForm.deepLink.params;
+      } else if (broadcastForm.deepLink && "url" in broadcastForm.deepLink) {
+        payload.customUrl = broadcastForm.deepLink.url;
       }
       const { data } = await api.post("/admin/emails/broadcast", payload);
       if (data.scheduled) {
@@ -231,9 +235,11 @@ export function EmailLogs() {
       if (targetedForm.scheduleEnabled && targetedForm.scheduledAt) {
         payload.scheduledAt = new Date(targetedForm.scheduledAt).toISOString();
       }
-      if (targetedForm.deepLink) {
+      if (targetedForm.deepLink && "screen" in targetedForm.deepLink) {
         payload.deepLinkScreen = targetedForm.deepLink.screen;
         payload.deepLinkParams = targetedForm.deepLink.params;
+      } else if (targetedForm.deepLink && "url" in targetedForm.deepLink) {
+        payload.customUrl = targetedForm.deepLink.url;
       }
       const { data } = await api.post("/admin/emails/targeted", payload);
       if (data.scheduled) {

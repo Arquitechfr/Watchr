@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { Text, TouchableOpacity, Image, Platform } from "react-native";
+import { Text, TouchableOpacity, Image, Platform, Linking } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Animated, {
   useSharedValue,
@@ -47,7 +47,11 @@ export function InAppNotificationBanner() {
 
   const handleTap = useCallback(() => {
     if (!banner) return;
-    if (banner.data?.screen) {
+    if (banner.data?.url && typeof banner.data.url === "string") {
+      Linking.openURL(banner.data.url).catch((err) => {
+        log("InAppNotificationBanner", "failed to open URL", err);
+      });
+    } else if (banner.data?.screen) {
       const screen = banner.data.screen as string;
       const params = { ...banner.data };
       delete params.screen;

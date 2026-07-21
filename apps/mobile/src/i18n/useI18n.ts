@@ -3,24 +3,26 @@ import { I18n } from "i18n-js";
 import { useLocaleStore } from "../store/localeStore";
 import { translations, SupportedLocale } from "./translations";
 import { Locale } from "date-fns";
-import { enUS, fr, es, ptBR, de, it, ar } from "date-fns/locale";
+import { enUS } from "date-fns/locale";
+import { DATE_FNS_LOCALE_LOADERS } from "@watchr/i18n-languages";
 
 const i18n = new I18n(translations);
 i18n.defaultLocale = "en";
 i18n.enableFallback = true;
 
-const dateFnsLocales: Record<SupportedLocale, Locale> = {
-  en: enUS,
-  fr,
-  es,
-  pt: ptBR,
-  de,
-  it,
-  ar,
-};
+const localeCache: Partial<Record<SupportedLocale, Locale>> = {};
 
-export function getDateFnsLocale(locale: SupportedLocale): Locale {
-  return dateFnsLocales[locale] ?? enUS;
+export async function getDateFnsLocale(locale: SupportedLocale): Promise<Locale> {
+  if (localeCache[locale]) return localeCache[locale]!;
+  const loader = DATE_FNS_LOCALE_LOADERS[locale];
+  if (!loader) return enUS;
+  const mod = await loader();
+  localeCache[locale] = mod as Locale;
+  return localeCache[locale]!;
+}
+
+export function getDateFnsLocaleSync(locale: SupportedLocale): Locale {
+  return localeCache[locale] ?? enUS;
 }
 
 export function useI18n() {
@@ -32,7 +34,7 @@ export function useI18n() {
     () => ({
       locale,
       t: i18n.t.bind(i18n),
-      dateFnsLocale: getDateFnsLocale(locale),
+      dateFnsLocale: getDateFnsLocaleSync(locale),
     }),
     [locale],
   );

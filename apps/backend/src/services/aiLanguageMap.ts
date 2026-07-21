@@ -8,6 +8,13 @@ const LOCALE_TO_LANGUAGE_NAME: Record<SupportedLocale, string> = {
   de: "German",
   it: "Italian",
   ar: "Arabic",
+  nl: "Dutch",
+  pl: "Polish",
+  tr: "Turkish",
+  ru: "Russian",
+  ja: "Japanese",
+  ko: "Korean",
+  zh: "Chinese",
 };
 
 export function languageNameForLocale(locale: string): string {

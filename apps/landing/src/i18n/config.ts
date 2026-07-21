@@ -2,31 +2,16 @@ import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 import en from "./locales/en";
+import {
+  SUPPORTED_LANGUAGES,
+  LANGUAGE_LABELS,
+  LANGUAGE_COUNTRY_CODES,
+  RTL_LANGUAGES,
+  type SupportedLanguage,
+} from "@watchr/i18n-languages";
 
-export const SUPPORTED_LANGUAGES = ["en", "fr", "ar", "de", "es", "it", "pt"] as const;
-export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
-
-export const LANGUAGE_LABELS: Record<SupportedLanguage, string> = {
-  en: "English",
-  fr: "Français",
-  ar: "العربية",
-  de: "Deutsch",
-  es: "Español",
-  it: "Italiano",
-  pt: "Português",
-};
-
-export const LANGUAGE_COUNTRY_CODES: Record<SupportedLanguage, string> = {
-  en: "GB",
-  fr: "FR",
-  ar: "SA",
-  de: "DE",
-  es: "ES",
-  it: "IT",
-  pt: "PT",
-};
-
-export const RTL_LANGUAGES: SupportedLanguage[] = ["ar"];
+export { SUPPORTED_LANGUAGES, LANGUAGE_LABELS, LANGUAGE_COUNTRY_CODES, RTL_LANGUAGES };
+export type { SupportedLanguage };
 
 const localeLoaders: Partial<Record<SupportedLanguage, () => Promise<{ default: Record<string, unknown> }>>> = {
   fr: () => import("./locales/fr"),

@@ -19,6 +19,13 @@ const SPLASH_IMAGES: Record<SupportedLocale, ImageSourcePropType> = {
   de: require("../../assets/splash-background-de.webp"),
   it: require("../../assets/splash-background-it.webp"),
   ar: require("../../assets/splash-background-ar.webp"),
+  nl: require("../../assets/splash-background.webp"),
+  pl: require("../../assets/splash-background.webp"),
+  tr: require("../../assets/splash-background.webp"),
+  ru: require("../../assets/splash-background.webp"),
+  ja: require("../../assets/splash-background.webp"),
+  ko: require("../../assets/splash-background.webp"),
+  zh: require("../../assets/splash-background.webp"),
 };
 
 interface SplashScreenProps {

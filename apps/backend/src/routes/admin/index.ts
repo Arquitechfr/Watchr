@@ -20,6 +20,7 @@ import { listContactQuerySchema, contactIdParamSchema, updateContactStatusSchema
 import { listFeedNotificationsQuerySchema, feedNotificationIdParamSchema } from "../../validators/admin/adminFeedNotification.validator.js";
 import { listErrorsQuerySchema, errorIdParamSchema, updateErrorStatusSchema, listErrorEventsQuerySchema } from "../../validators/admin/adminError.validator.js";
 import { createInAppNotificationSchema, listInAppNotificationsQuerySchema, inAppNotificationIdParamSchema } from "../../validators/inAppNotification.validator.js";
+import { tmdbSearchQuerySchema, tmdbSeasonParamSchema } from "../../validators/admin/adminTmdb.validator.js";
 import { listNotifications, getUnreadCount, markAsRead, markAllAsRead, deleteNotification } from "../../services/admin/adminFeedNotification.service.js";
 import { mistralService } from "../../services/mistral.service.js";
 import { getAdminStats, getUserGrowth, getCommentActivity, getShowTypeBreakdown } from "../../services/admin/adminStats.service.js";
@@ -29,6 +30,7 @@ import { listAllComments, adminDeleteComment, adminBulkDeleteComments, adminMark
 import { listAllNewsSources, createNewsSource, updateNewsSource, deleteNewsSource, toggleNewsSource } from "../../services/admin/adminNews.service.js";
 import { sendBroadcast, sendTargeted, getNotificationHistory, getNotificationDetail, getNotificationStats, listScheduledJobs, updateScheduledJob, cancelScheduledJob } from "../../services/admin/adminNotification.service.js";
 import { listShows, forceSyncShow, deleteShow } from "../../services/admin/adminShow.service.js";
+import { tmdbService } from "../../services/tmdb.service.js";
 import { uploadMediaImage } from "../../services/upload.service.js";
 import { listAllConfig, setConfig, deleteConfig } from "../../services/admin/adminConfig.service.js";
 import { listAllImports, getImportStats, getImportDetail, deleteImportJob, retryImportJob, exportImportCsv } from "../../services/admin/adminImport.service.js";
@@ -463,6 +465,53 @@ router.post(
   asyncHandler(async (req: Request, res: Response) => {
     const result = await forceSyncShow(Number(req.params.tmdbId), req.body.type);
     res.json(result);
+  }),
+);
+
+// TMDB Search (for admin content picker)
+router.get(
+  "/tmdb/search",
+  validateRequest(undefined, tmdbSearchQuerySchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const query = req.query as unknown as { q: string; type: "multi" | "tv" | "movie" };
+    let results;
+    if (query.type === "tv") {
+      results = await tmdbService.searchShows(query.q);
+    } else if (query.type === "movie") {
+      results = await tmdbService.searchMovies(query.q);
+    } else {
+      const multi = await tmdbService.searchMulti(query.q);
+      results = multi.results;
+    }
+    res.json({
+      results: (results || [])
+        .filter((r) => r.media_type !== "person" && (r.id || r.id === 0))
+        .map((r) => ({
+          tmdbId: r.id,
+          type: r.media_type === "movie" ? "movie" : "tv",
+          title: r.title ?? r.name ?? "Unknown",
+          posterPath: r.poster_path ?? null,
+          releaseDate: r.release_date ?? r.first_air_date ?? null,
+        })),
+    });
+  }),
+);
+
+router.get(
+  "/tmdb/season/:tmdbId/:seasonNumber",
+  validateRequest(undefined, undefined, tmdbSeasonParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const tmdbId = Number(req.params.tmdbId);
+    const seasonNumber = Number(req.params.seasonNumber);
+    const season = await tmdbService.getTvSeason(tmdbId, seasonNumber);
+    res.json({
+      episodes: (season.episodes ?? []).map((e) => ({
+        episodeNumber: e.episode_number,
+        name: e.name ?? null,
+        airDate: e.air_date ?? null,
+        stillPath: e.still_path ?? null,
+      })),
+    });
   }),
 );
 
@@ -1201,6 +1250,7 @@ router.post(
       createdBy: req.userId!,
       deepLinkScreen: input.deepLinkScreen,
       deepLinkParams: input.deepLinkParams,
+      customUrl: input.customUrl,
       expiresAt: input.expiresAt ? new Date(input.expiresAt) : undefined,
     });
     res.status(201).json({ id: notification._id.toString() });

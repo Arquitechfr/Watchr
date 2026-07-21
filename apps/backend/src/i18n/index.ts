@@ -2,11 +2,15 @@ import { translations, normalizeLocale, SupportedLocale, DEFAULT_LOCALE } from "
 
 export { normalizeLocale, DEFAULT_LOCALE, SUPPORTED_LOCALES } from "./translations.js";
 
-export type I18nKey = keyof typeof translations.en.errors;
-export type NotificationKey = keyof typeof translations.en.notifications;
-export type EmailKey = keyof typeof translations.en.emails;
-export type DiscoverKey = keyof typeof translations.en.discover;
-export type RecommendationKey = keyof typeof translations.en.recommendations;
+export type TranslationPack = typeof translations.en;
+export type I18nKey = keyof TranslationPack["errors"];
+export type NotificationKey = keyof TranslationPack["notifications"];
+export type EmailKey = keyof TranslationPack["emails"];
+export type DiscoverKey = keyof TranslationPack["discover"];
+export type RecommendationKey = keyof TranslationPack["recommendations"];
+
+const packs = translations as unknown as Record<string, TranslationPack>;
+const defaultPack = packs[DEFAULT_LOCALE] ?? translations.en;
 
 function interpolate(template: string, params?: Record<string, string | number>): string {
   if (!params) return template;
@@ -15,12 +19,16 @@ function interpolate(template: string, params?: Record<string, string | number>)
   );
 }
 
+function getPack(locale: SupportedLocale): TranslationPack {
+  return packs[locale] ?? defaultPack;
+}
+
 export function translateError(
   code: string,
   language: SupportedLocale | string | undefined,
 ): string {
   const locale = normalizeLocale(language);
-  const pack = translations[locale] ?? translations[DEFAULT_LOCALE];
+  const pack = getPack(locale);
   return pack.errors[code as I18nKey] ?? pack.errors.UNKNOWN;
 }
 
@@ -29,8 +37,8 @@ export function translate(
   language: SupportedLocale | string | undefined,
 ): string {
   const locale = normalizeLocale(language);
-  const pack = translations[locale] ?? translations[DEFAULT_LOCALE];
-  return pack.errors[key as I18nKey] ?? translations[DEFAULT_LOCALE].errors[key as I18nKey] ?? key;
+  const pack = getPack(locale);
+  return pack.errors[key as I18nKey] ?? defaultPack.errors[key as I18nKey] ?? key;
 }
 
 export function translateNotification(
@@ -39,8 +47,8 @@ export function translateNotification(
   params?: Record<string, string | number>,
 ): string {
   const locale = normalizeLocale(language);
-  const pack = translations[locale] ?? translations[DEFAULT_LOCALE];
-  const template = pack.notifications[key] ?? translations[DEFAULT_LOCALE].notifications[key] ?? key;
+  const pack = getPack(locale);
+  const template = pack.notifications[key] ?? defaultPack.notifications[key] ?? key;
   return interpolate(template, params);
 }
 
@@ -50,8 +58,8 @@ export function translateEmail(
   params?: Record<string, string | number>,
 ): string {
   const locale = normalizeLocale(language);
-  const pack = translations[locale] ?? translations[DEFAULT_LOCALE];
-  const template = pack.emails[key] ?? translations[DEFAULT_LOCALE].emails[key] ?? key;
+  const pack = getPack(locale);
+  const template = pack.emails[key] ?? defaultPack.emails[key] ?? key;
   return interpolate(template, params);
 }
 
@@ -60,8 +68,8 @@ export function translateDiscover(
   language: SupportedLocale | string | undefined,
 ): string {
   const locale = normalizeLocale(language);
-  const pack = translations[locale] ?? translations[DEFAULT_LOCALE];
-  return pack.discover[key] ?? translations[DEFAULT_LOCALE].discover[key] ?? key;
+  const pack = getPack(locale);
+  return pack.discover[key] ?? defaultPack.discover[key] ?? key;
 }
 
 export function translateRecommendation(
@@ -69,6 +77,6 @@ export function translateRecommendation(
   language: SupportedLocale | string | undefined,
 ): string {
   const locale = normalizeLocale(language);
-  const pack = translations[locale] ?? translations[DEFAULT_LOCALE];
-  return pack.recommendations[key] ?? translations[DEFAULT_LOCALE].recommendations[key] ?? key;
+  const pack = getPack(locale);
+  return pack.recommendations[key] ?? defaultPack.recommendations[key] ?? key;
 }

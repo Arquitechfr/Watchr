@@ -5,7 +5,7 @@ import { PushTicket } from "../../models/pushTicket.model.js";
 import { EmailService } from "../email.service.js";
 import { PushNotificationService, type ExpoPushMessage } from "../pushNotification.service.js";
 import { translateMultiLang, detectLanguage, pickLongestText, type TranslationInput } from "../translation.service.js";
-import { buildDeepLinkUrl, buildPushData } from "../deepLinkCatalog.js";
+import { buildCtaUrl, buildPushData } from "../deepLinkCatalog.js";
 import { log, logError } from "../../lib/logger.js";
 import type { Types } from "mongoose";
 
@@ -92,6 +92,7 @@ async function processEmailBroadcast(job: IAdminJob): Promise<void> {
           htmlContent,
           u.preferredLanguage,
           "admin",
+          buildCtaUrl(job.customUrl, job.deepLinkScreen, job.deepLinkParams),
         );
       }),
     );
@@ -275,9 +276,11 @@ async function processPushTargetedScheduled(job: IAdminJob): Promise<void> {
     return;
   }
 
-  const pushData = job.deepLinkScreen
-    ? buildPushData(job.deepLinkScreen, job.deepLinkParams)
-    : job.data;
+  const pushData = job.customUrl
+    ? buildPushData(undefined, undefined, job.customUrl)
+    : job.deepLinkScreen
+      ? buildPushData(job.deepLinkScreen, job.deepLinkParams)
+      : job.data;
 
   const sourceText = pickLongestText({ title: job.title, body: job.body });
   const sourceLang = sourceText ? await detectLanguage(sourceText) : "en";
@@ -345,9 +348,7 @@ async function processEmailTargetedScheduled(job: IAdminJob): Promise<void> {
   const { translateForUser } = await import("../translation.service.js");
   const translated = await translateForUser(translationInput, user.preferredLanguage, sourceLang);
 
-  const ctaUrl = job.deepLinkScreen
-    ? buildDeepLinkUrl(job.deepLinkScreen, job.deepLinkParams)
-    : undefined;
+  const ctaUrl = buildCtaUrl(job.customUrl, job.deepLinkScreen, job.deepLinkParams);
 
   try {
     const success = await EmailService.sendCustomEmail(
@@ -430,6 +431,7 @@ export async function getJobStatus(jobId: string) {
     scheduledStatus: job.scheduledStatus ?? "none",
     deepLinkScreen: job.deepLinkScreen ?? null,
     deepLinkParams: job.deepLinkParams ?? null,
+    customUrl: job.customUrl ?? null,
     userId: job.userId ?? null,
     imageUrl: job.imageUrl ?? null,
     translations: job.translations

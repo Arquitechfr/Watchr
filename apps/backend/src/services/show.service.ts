@@ -22,6 +22,13 @@ const LOCALE_TO_TMDB_LANGUAGE: Record<SupportedLocale, string> = {
   de: "de-DE",
   it: "it-IT",
   ar: "ar-SA",
+  nl: "nl-NL",
+  pl: "pl-PL",
+  tr: "tr-TR",
+  ru: "ru-RU",
+  ja: "ja-JP",
+  ko: "ko-KR",
+  zh: "zh-CN",
 };
 
 export function toTmdbLanguage(locale: string): string {

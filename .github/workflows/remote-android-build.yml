@@ -100,11 +100,24 @@ jobs:
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
 
-      # ── 4. Dépendances ────────────────────────────────────────────────────
+      # ── 4. Préparer le tarball i18n-languages pour le backend ───────────
+      # Le backend référence @watchr/i18n-languages via file:./watchr-i18n-languages-1.0.0.tgz
+      # Ce tarball est gitignored, il doit donc être généré avant pnpm install.
+      - name: Prepare @watchr/i18n-languages tarball
+        run: |
+          cd packages/i18n-languages
+          npm install --no-save --no-package-lock typescript@5.5.2 date-fns
+          npx tsc
+          npm pack
+          mv watchr-i18n-languages-1.0.0.tgz ../../apps/backend/
+          rm -rf node_modules
+          cd ../..
+
+      # ── 4b. Dépendances ────────────────────────────────────────────────────
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # ── 4b. Build shared packages ────────────────────────────────────────
+      # ── 4c. Build shared packages ────────────────────────────────────────
       - name: Build shared packages
         run: pnpm --filter @watchr/i18n-languages build
 

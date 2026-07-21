@@ -33,6 +33,16 @@ jobs:
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
 
+      - name: Prepare @watchr/i18n-languages tarball
+        run: |
+          cd packages/i18n-languages
+          npm install --no-save --no-package-lock typescript@5.5.2 date-fns
+          npx tsc
+          npm pack
+          mv watchr-i18n-languages-1.0.0.tgz ../../apps/backend/
+          rm -rf node_modules
+          cd ../..
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 

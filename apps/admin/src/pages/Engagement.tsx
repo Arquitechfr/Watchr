@@ -21,11 +21,12 @@ export function Engagement() {
       try {
         const [statsRes, configRes] = await Promise.all([
           api.get("/admin/engagement-stats"),
-          api.get("/internal/mobile-config").catch(() => null),
+          api.get("/admin/config").catch(() => null),
         ]);
         setStats(statsRes.data);
-        if (configRes?.data?.posthog_engagement_dashboard_url) {
-          setDashboardUrl(configRes.data.posthog_engagement_dashboard_url);
+        const entry = configRes?.data?.find((e: { key: string; value: string }) => e.key === "posthog_engagement_dashboard_url");
+        if (entry?.value) {
+          setDashboardUrl(entry.value);
         }
       } catch (err) {
         console.error("Failed to load engagement stats", err);

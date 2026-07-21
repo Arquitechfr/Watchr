@@ -23,6 +23,7 @@ import { EmptyState } from "../components/ui/EmptyState";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "../components/ui/Table";
 import { Dialog } from "../components/ui/Dialog";
 import { formatDate } from "../lib/utils";
+import { logError } from "../lib/logger";
 
 interface AiStatus {
   configured: boolean;
@@ -163,7 +164,7 @@ export function AI() {
       setFlags(flagsRes.data);
       setLogs(logsRes.data);
     } catch (err) {
-      console.error("Failed to load AI data:", err);
+      logError("Failed to load AI data", err);
     } finally {
       setLoading(false);
     }
@@ -181,7 +182,7 @@ export function AI() {
       await api.put(`/admin/ai/flags/${key}`, { value: !currentValue });
     } catch (err) {
       setFlags(prevFlags);
-      console.error("Failed to toggle flag:", err);
+      logError("Failed to toggle flag", err);
     } finally {
       setTogglingFlag(null);
     }
@@ -197,7 +198,7 @@ export function AI() {
       const res = await api.get(`/admin/ai/logs/${log.id}`);
       setDetail(res.data);
     } catch (err) {
-      console.error("Failed to fetch log detail:", err);
+      logError("Failed to fetch log detail", err);
     } finally {
       setDetailLoading(false);
     }

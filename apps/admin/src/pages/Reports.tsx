@@ -8,6 +8,7 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from ".
 import { Skeleton } from "../components/ui/Skeleton";
 import { EmptyState } from "../components/ui/EmptyState";
 import { formatDate } from "../lib/utils";
+import { logError } from "../lib/logger";
 
 interface ReportRow {
   id: string;
@@ -71,7 +72,7 @@ export function Reports() {
       setData(reportsRes.data);
       setStats(statsRes.data);
     } catch (err) {
-      console.error("Failed to load reports:", err);
+      logError("Failed to load reports", err);
     } finally {
       setLoading(false);
     }
@@ -86,7 +87,7 @@ export function Reports() {
       await api.patch(`/admin/reports/${reportId}/resolve`);
       load();
     } catch (err) {
-      console.error("Failed to resolve report:", err);
+      logError("Failed to resolve report", err);
     }
   }
 
@@ -96,7 +97,7 @@ export function Reports() {
       await api.patch(`/admin/reports/${reportId}/dismiss`);
       load();
     } catch (err) {
-      console.error("Failed to dismiss report:", err);
+      logError("Failed to dismiss report", err);
     }
   }
 
@@ -107,7 +108,7 @@ export function Reports() {
       const res = await api.post(`/admin/ai/report-suggestion/${reportId}`);
       setAiSuggestion({ reportId, ...res.data });
     } catch (err) {
-      console.error("Failed to get AI suggestion:", err);
+      logError("Failed to get AI suggestion", err);
     } finally {
       setAiLoading(false);
     }

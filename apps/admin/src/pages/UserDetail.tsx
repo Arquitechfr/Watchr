@@ -11,6 +11,7 @@ import { EmptyState } from "../components/ui/EmptyState";
 import { Dialog } from "../components/ui/Dialog";
 import { formatDate } from "../lib/utils";
 import { LANGUAGE_FLAGS } from "../lib/languages";
+import { logError } from "../lib/logger";
 
 const PLATFORM_LABELS: Record<string, string> = {
   ios: "iOS",
@@ -90,7 +91,7 @@ export function UserDetail() {
         setUser(userRes.data);
         setBanHistory(historyRes.data);
       } catch (err) {
-        console.error("Failed to load user:", err);
+        logError("Failed to load user", err);
       } finally {
         setLoading(false);
       }
@@ -119,7 +120,7 @@ export function UserDetail() {
       await api.delete(`/admin/users/${id}`);
       navigate("/users");
     } catch (err) {
-      console.error("Failed to delete user:", err);
+      logError("Failed to delete user", err);
       setDeleteSubmitting(false);
     }
   }
@@ -132,7 +133,7 @@ export function UserDetail() {
       setCommentsConfirmStep(1);
       setUser((prev) => prev ? { ...prev, recentComments: [] } : prev);
     } catch (err) {
-      console.error("Failed to delete user comments:", err);
+      logError("Failed to delete user comments", err);
     } finally {
       setCommentsSubmitting(false);
     }

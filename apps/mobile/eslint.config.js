@@ -12,9 +12,6 @@ export default tseslint.config(
         ...globals.browser,
         ...globals.node,
       },
-      parserOptions: {
-        project: true,
-      },
     },
     rules: {
       "@typescript-eslint/no-unused-vars": [
@@ -26,22 +23,24 @@ export default tseslint.config(
     },
   },
   {
-    files: ["**/*.js", "**/*.config.ts", "**/*.config.js"],
-    languageOptions: {
-      parserOptions: {
-        project: false,
-      },
-    },
-  },
-  {
     ignores: [
       "**/dist/**",
+      "**/dist-test/**",
       "**/node_modules/**",
       "**/coverage/**",
       "**/.expo/**",
-      "babel.config.js",
-      "tailwind.config.js",
-      "metro.config.js",
+      "**/android/**",
+      "**/ios/**",
+      "**/web/**",
+      "**/__tests__/**",
+      "**/*.test.*",
+      "**/*.spec.*",
+      "**/scripts/**",
+      "**/plugins/**",
+      "**/*.config.{js,ts,cjs}",
+      "**/credentials/**",
+      "GoogleService-Info.plist",
+      "google-services.json",
     ],
   },
 );

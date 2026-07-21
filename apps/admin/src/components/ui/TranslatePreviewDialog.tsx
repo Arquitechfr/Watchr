@@ -4,6 +4,7 @@ import api from "../../lib/api";
 import { Button } from "./Button";
 import { Dialog } from "./Dialog";
 import { SUPPORTED_LANGUAGES } from "../../lib/languages";
+import { extractApiErrorMessage } from "../../lib/logger";
 
 interface TranslatePreviewDialogProps {
   open: boolean;
@@ -55,8 +56,8 @@ export function TranslatePreviewDialog({
       if (htmlContent) payload.htmlContent = htmlContent;
       const { data } = await api.post("/admin/ai/translate-preview", payload);
       setTranslations(data.translations);
-    } catch (err: any) {
-      setError(err?.response?.data?.error?.message ?? "Translation failed");
+    } catch (err) {
+      setError(extractApiErrorMessage(err, "Translation failed"));
     } finally {
       setLoading(false);
     }

@@ -10,6 +10,7 @@ import { Skeleton } from "../components/ui/Skeleton";
 import { EmptyState } from "../components/ui/EmptyState";
 import { Dialog } from "../components/ui/Dialog";
 import { formatDate } from "../lib/utils";
+import { logError } from "../lib/logger";
 
 interface ConfigEntry {
   key: string;
@@ -52,7 +53,7 @@ export function RemoteConfig() {
       const { data } = await api.get("/admin/config");
       setConfig(data);
     } catch (err) {
-      console.error("Failed to load config:", err);
+      logError("Failed to load config", err);
     } finally {
       setLoading(false);
     }
@@ -96,7 +97,7 @@ export function RemoteConfig() {
       setEditing(null);
       load();
     } catch (err) {
-      console.error("Failed to update config:", err);
+      logError("Failed to update config", err);
       setEditError("Failed to save. Check console for details.");
     }
   }
@@ -123,7 +124,7 @@ export function RemoteConfig() {
       setAddData({ key: "", value: "", type: "string", description: "" });
       load();
     } catch (err) {
-      console.error("Failed to create config:", err);
+      logError("Failed to create config", err);
       setAddError("Failed to create. Key may already exist.");
     } finally {
       setAddSubmitting(false);
@@ -143,7 +144,7 @@ export function RemoteConfig() {
         prev.map((c) => (c.key === entry.key ? { ...c, value: newValue } : c)),
       );
     } catch (err) {
-      console.error("Failed to toggle config:", err);
+      logError("Failed to toggle config", err);
     } finally {
       setTogglingKey(null);
     }
@@ -157,7 +158,7 @@ export function RemoteConfig() {
       setDeleteTarget(null);
       load();
     } catch (err) {
-      console.error("Failed to delete config:", err);
+      logError("Failed to delete config", err);
     } finally {
       setDeleteSubmitting(false);
     }

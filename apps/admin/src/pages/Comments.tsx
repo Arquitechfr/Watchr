@@ -9,6 +9,7 @@ import { Skeleton } from "../components/ui/Skeleton";
 import { EmptyState } from "../components/ui/EmptyState";
 import { Dialog } from "../components/ui/Dialog";
 import { formatDate } from "../lib/utils";
+import { logError } from "../lib/logger";
 
 interface CommentRow {
   id: string;
@@ -55,7 +56,7 @@ export function Comments() {
       const { data } = await api.get("/admin/comments", { params });
       setData(data);
     } catch (err) {
-      console.error("Failed to load comments:", err);
+      logError("Failed to load comments", err);
     } finally {
       setLoading(false);
     }
@@ -71,7 +72,7 @@ export function Comments() {
       await api.delete(`/admin/comments/${commentId}`);
       load();
     } catch (err) {
-      console.error("Failed to delete comment:", err);
+      logError("Failed to delete comment", err);
     }
   }
 
@@ -80,7 +81,7 @@ export function Comments() {
       await api.patch(`/admin/comments/${comment.id}/spoiler`, { isSpoiler: !comment.isSpoiler });
       load();
     } catch (err) {
-      console.error("Failed to toggle spoiler:", err);
+      logError("Failed to toggle spoiler", err);
     }
   }
 
@@ -91,7 +92,7 @@ export function Comments() {
       const res = await api.post(`/admin/ai/analyze-comment/${commentId}`);
       setAiAnalysis({ commentId, ...res.data });
     } catch (err) {
-      console.error("Failed to analyze comment:", err);
+      logError("Failed to analyze comment", err);
     } finally {
       setAiLoading(false);
     }
@@ -105,7 +106,7 @@ export function Comments() {
       setAllCommentsConfirmStep(1);
       load();
     } catch (err) {
-      console.error("Failed to delete all comments:", err);
+      logError("Failed to delete all comments", err);
     } finally {
       setAllCommentsSubmitting(false);
     }

@@ -17,6 +17,7 @@ import { PageSelector } from "../components/ui/PageSelector";
 import { LanguageSelect } from "../components/ui/LanguageSelect";
 import { useJobPolling } from "../hooks/useJobPolling";
 import { formatDate } from "../lib/utils";
+import { logError } from "../lib/logger";
 
 interface EmailLogEntry {
   id: string;
@@ -163,7 +164,7 @@ export function EmailLogs() {
       setHistory(historyRes.data);
       setStats(statsRes.data);
     } catch (err) {
-      console.error("Failed to load email logs:", err);
+      logError("Failed to load email logs", err);
     } finally {
       setLoading(false);
     }
@@ -216,7 +217,7 @@ export function EmailLogs() {
       }
     } catch (err) {
       setResult("Broadcast failed to start");
-      console.error("Broadcast failed:", err);
+      logError("Broadcast failed", err);
     } finally {
       setSending(false);
     }
@@ -251,7 +252,7 @@ export function EmailLogs() {
       loadData();
     } catch (err) {
       setResult("Targeted email failed");
-      console.error("Targeted send failed:", err);
+      logError("Targeted send failed", err);
     } finally {
       setSending(false);
     }
@@ -539,7 +540,7 @@ export function EmailLogs() {
                   setResult("Weekly digest batch started");
                 } catch (err) {
                   setResult("Failed to start weekly digest");
-                  console.error("Weekly digest failed:", err);
+                  logError("Weekly digest failed", err);
                 } finally {
                   setSending(false);
                 }

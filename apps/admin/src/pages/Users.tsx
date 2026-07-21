@@ -14,6 +14,7 @@ import { EmptyState } from "../components/ui/EmptyState";
 import { Dialog } from "../components/ui/Dialog";
 import { formatDate } from "../lib/utils";
 import { LANGUAGE_FLAGS, LANGUAGE_NAMES } from "../lib/languages";
+import { logError } from "../lib/logger";
 
 interface UserRow {
   id: string;
@@ -110,7 +111,7 @@ export function Users() {
       setData(data);
       setHasNewUsers(data.users.some((u: UserRow) => u.isNew));
     } catch (err) {
-      console.error("Failed to load users:", err);
+      logError("Failed to load users", err);
     } finally {
       setLoading(false);
     }
@@ -129,7 +130,7 @@ export function Users() {
       setDeleteDialog(null);
       load();
     } catch (err) {
-      console.error("Failed to delete user:", err);
+      logError("Failed to delete user", err);
     } finally {
       setDeleteSubmitting(false);
     }
@@ -140,7 +141,7 @@ export function Users() {
       await api.patch(`/admin/users/${userId}/role`, { role });
       load();
     } catch (err) {
-      console.error("Failed to update user role:", err);
+      logError("Failed to update user role", err);
     }
   }
 
@@ -176,7 +177,7 @@ export function Users() {
       closeBanDialog();
       load();
     } catch (err) {
-      console.error("Failed to update user status:", err);
+      logError("Failed to update user status", err);
     } finally {
       setDialogSubmitting(false);
     }
@@ -194,7 +195,7 @@ export function Users() {
     try {
       await markSeen();
     } catch (err) {
-      console.error("Failed to mark users as seen:", err);
+      logError("Failed to mark users as seen", err);
       load();
     } finally {
       setMarkingSeen(false);

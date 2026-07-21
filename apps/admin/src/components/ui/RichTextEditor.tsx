@@ -2,6 +2,7 @@ import { useMemo, useRef, useCallback } from "react";
 import ReactQuill from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
 import api from "../../lib/api";
+import { logError } from "../../lib/logger";
 
 interface RichTextEditorProps {
   value: string;
@@ -34,7 +35,7 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
           quill.setSelection(range.index + 1, 0);
         }
       } catch (err) {
-        console.error("Image upload failed:", err);
+        logError("Image upload failed", err);
       }
     };
   }, []);

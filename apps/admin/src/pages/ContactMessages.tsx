@@ -11,6 +11,7 @@ import { EmptyState } from "../components/ui/EmptyState";
 import { Dialog } from "../components/ui/Dialog";
 import { toast } from "../store/toastStore";
 import { formatDate } from "../lib/utils";
+import { logError, extractApiErrorMessage } from "../lib/logger";
 
 interface ContactMessage {
   id: string;
@@ -105,7 +106,7 @@ export function ContactMessages() {
       setData(contactRes.data);
       setStats(statsRes.data);
     } catch (err) {
-      console.error("Failed to load contact messages:", err);
+      logError("Failed to load contact messages", err);
     } finally {
       setLoading(false);
     }
@@ -130,7 +131,7 @@ export function ContactMessages() {
         load();
       }
     } catch (err) {
-      console.error("Failed to load contact detail:", err);
+      logError("Failed to load contact detail", err);
     } finally {
       setDetailLoading(false);
     }
@@ -144,7 +145,7 @@ export function ContactMessages() {
       }
       load();
     } catch (err) {
-      console.error("Failed to update status:", err);
+      logError("Failed to update status", err);
     }
   }
 
@@ -161,8 +162,8 @@ export function ContactMessages() {
       setReplyText("");
       toast("Reply sent successfully", "success");
       load();
-    } catch (err: any) {
-      setReplyError(err?.response?.data?.error?.message ?? "Failed to send reply");
+    } catch (err) {
+      setReplyError(extractApiErrorMessage(err, "Failed to send reply"));
     } finally {
       setReplying(false);
     }
@@ -178,7 +179,7 @@ export function ContactMessages() {
       toast("Contact message deleted", "success");
       load();
     } catch (err) {
-      console.error("Failed to delete contact message:", err);
+      logError("Failed to delete contact message", err);
     } finally {
       setDeleteSubmitting(false);
     }
@@ -197,7 +198,7 @@ export function ContactMessages() {
       toast(`Bulk ${bulkAction} completed`, "success");
       load();
     } catch (err) {
-      console.error("Failed to perform bulk action:", err);
+      logError("Failed to perform bulk action", err);
     } finally {
       setBulkSubmitting(false);
     }
@@ -218,7 +219,7 @@ export function ContactMessages() {
       window.URL.revokeObjectURL(url);
       toast("CSV exported", "success");
     } catch (err) {
-      console.error("Failed to export CSV:", err);
+      logError("Failed to export CSV", err);
     }
   }
 
@@ -260,8 +261,8 @@ export function ContactMessages() {
       setEditReplyMode(false);
       toast("Reply updated and resent", "success");
       load();
-    } catch (err: any) {
-      setEditReplyError(err?.response?.data?.error?.message ?? "Failed to edit reply");
+    } catch (err) {
+      setEditReplyError(extractApiErrorMessage(err, "Failed to edit reply"));
     } finally {
       setEditReplySubmitting(false);
     }

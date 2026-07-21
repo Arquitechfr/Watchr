@@ -19,6 +19,7 @@ import { ShowPicker } from "../components/ui/ShowPicker";
 import { useJobPolling } from "../hooks/useJobPolling";
 import { formatDate } from "../lib/utils";
 import { InAppNotificationsTab } from "../components/InAppNotificationsTab";
+import { logError } from "../lib/logger";
 
 interface SentByInfo {
   id: string;
@@ -186,7 +187,7 @@ export function Notifications() {
       setHistory(historyRes.data);
       setStats(statsRes.data);
     } catch (err) {
-      console.error("Failed to load notification history:", err);
+      logError("Failed to load notification history", err);
     } finally {
       setLoading(false);
     }
@@ -213,7 +214,7 @@ export function Notifications() {
       const { data } = await api.get(`/admin/notifications/${id}`);
       setDetail(data);
     } catch (err) {
-      console.error("Failed to load notification detail:", err);
+      logError("Failed to load notification detail", err);
     } finally {
       setDetailLoading(false);
     }
@@ -272,12 +273,12 @@ export function Notifications() {
           }
           await api.post("/admin/in-app-notifications", inAppPayload);
         } catch (inAppErr) {
-          console.error("In-app notification creation failed:", inAppErr);
+          logError("In-app notification creation failed", inAppErr);
         }
       }
     } catch (err) {
       setResult("Broadcast failed to start");
-      console.error("Broadcast failed:", err);
+      logError("Broadcast failed", err);
     } finally {
       setSending(false);
     }
@@ -332,12 +333,12 @@ export function Notifications() {
           }
           await api.post("/admin/in-app-notifications", inAppPayload);
         } catch (inAppErr) {
-          console.error("In-app notification creation failed:", inAppErr);
+          logError("In-app notification creation failed", inAppErr);
         }
       }
     } catch (err) {
       setResult("Targeted notification failed");
-      console.error("Targeted send failed:", err);
+      logError("Targeted send failed", err);
     } finally {
       setSending(false);
     }

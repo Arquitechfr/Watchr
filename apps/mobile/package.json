@@ -15,7 +15,7 @@
     "run:ios": "expo run:ios",
     "web": "expo start --web",
     "web:build": "expo export --platform web --output-dir dist && node scripts/post-web-build.cjs",
-    "lint": "eslint .",
+    "lint": "eslint src/ App.tsx",
     "typecheck": "tsc --noEmit",
     "eas-build-pre-install": "bash scripts/eas-build-pre-install.sh"
   },

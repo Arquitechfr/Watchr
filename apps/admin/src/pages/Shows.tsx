@@ -10,6 +10,7 @@ import { Skeleton } from "../components/ui/Skeleton";
 import { EmptyState } from "../components/ui/EmptyState";
 import { Dialog } from "../components/ui/Dialog";
 import { formatDate } from "../lib/utils";
+import { logError } from "../lib/logger";
 
 interface ShowRow {
   id: string;
@@ -44,7 +45,7 @@ export function Shows() {
       const { data } = await api.post(`/admin/ai/show-description/${showId}`);
       setDescSuggestion({ showId, title, description: data.description || data.suggestion || "No suggestion available.", loading: false });
     } catch (err) {
-      console.error("Failed to get AI description:", err);
+      logError("Failed to get AI description", err);
       setDescSuggestion({ showId, title, description: "Failed to generate suggestion.", loading: false });
     }
   }
@@ -58,7 +59,7 @@ export function Shows() {
       const { data } = await api.get("/admin/shows", { params });
       setData(data);
     } catch (err) {
-      console.error("Failed to load shows:", err);
+      logError("Failed to load shows", err);
     } finally {
       setLoading(false);
     }
@@ -74,7 +75,7 @@ export function Shows() {
       await api.post(`/admin/shows/${tmdbId}/sync`, { type: typeFilter || "tv" });
       load();
     } catch (err) {
-      console.error("Failed to sync show:", err);
+      logError("Failed to sync show", err);
     }
   }
 
@@ -84,7 +85,7 @@ export function Shows() {
       await api.delete(`/admin/shows/${showId}`);
       load();
     } catch (err) {
-      console.error("Failed to delete show:", err);
+      logError("Failed to delete show", err);
     }
   }
 

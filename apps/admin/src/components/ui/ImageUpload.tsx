@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from "react";
 import { Upload, X, Loader2, ImageIcon } from "lucide-react";
 import api from "../../lib/api";
+import { logError } from "../../lib/logger";
 
 interface ImageUploadProps {
   value?: string;
@@ -27,7 +28,7 @@ export function ImageUpload({ value, onChange, label = "Image", category = "noti
       onChange(data.url);
     } catch (err) {
       setError("Upload failed");
-      console.error("Image upload failed:", err);
+      logError("Image upload failed", err);
     } finally {
       setUploading(false);
     }

@@ -18,6 +18,7 @@ import { Button } from "../components/ui/Button";
 import { Badge } from "../components/ui/Badge";
 import { Skeleton } from "../components/ui/Skeleton";
 import { Dialog } from "../components/ui/Dialog";
+import { logError, extractApiErrorMessage } from "../lib/logger";
 
 interface Stats {
   totalUsers: number;
@@ -62,7 +63,7 @@ export function Dashboard() {
         setStats(statsRes.data);
         setGrowth(growthRes.data);
       } catch (err) {
-        console.error("Failed to load dashboard data:", err);
+        logError("Failed to load dashboard data", err);
       } finally {
         setLoading(false);
       }
@@ -216,10 +217,9 @@ export function Dashboard() {
                   setReengagementResult(
                     `${data.message} — Sent: ${data.sent ?? 0}, Failed: ${data.failed ?? 0}, Skipped: ${data.skipped ?? 0}`
                   );
-                } catch (err: any) {
-                  const errMsg = err?.response?.data?.error?.message || "Failed to run re-engagement batch";
-                  setReengagementResult(errMsg);
-                  console.error("Re-engagement failed:", err);
+                } catch (err) {
+                  setReengagementResult(extractApiErrorMessage(err, "Failed to run re-engagement batch"));
+                  logError("Re-engagement failed", err);
                 } finally {
                   setReengagementSending(false);
                 }
@@ -255,10 +255,9 @@ export function Dashboard() {
                   setNudgeResult(
                     `${data.message} — Sent: ${data.sent ?? 0}, Failed: ${data.failed ?? 0}, Skipped: ${data.skipped ?? 0}`
                   );
-                } catch (err: any) {
-                  const errMsg = err?.response?.data?.error?.message || "Failed to run activation nudge batch";
-                  setNudgeResult(errMsg);
-                  console.error("Activation nudge failed:", err);
+                } catch (err) {
+                  setNudgeResult(extractApiErrorMessage(err, "Failed to run activation nudge batch"));
+                  logError("Activation nudge failed", err);
                 } finally {
                   setNudgeSending(false);
                 }
@@ -293,7 +292,7 @@ export function Dashboard() {
                   setAnomalies(data.alerts || []);
                   setAnomaliesOpen(true);
                 } catch (err) {
-                  console.error("Anomaly detection failed:", err);
+                  logError("Anomaly detection failed", err);
                 } finally {
                   setAnomaliesLoading(false);
                 }

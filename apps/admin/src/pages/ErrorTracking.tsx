@@ -25,6 +25,7 @@ import { Skeleton } from "../components/ui/Skeleton";
 import { EmptyState } from "../components/ui/EmptyState";
 import { Dialog } from "../components/ui/Dialog";
 import { formatDate } from "../lib/utils";
+import { logError } from "../lib/logger";
 
 interface ErrorIssueRow {
   id: string;
@@ -148,7 +149,7 @@ export function ErrorTracking() {
       setData(issuesRes.data);
       setStats(statsRes.data);
     } catch (err) {
-      console.error("Failed to load errors:", err);
+      logError("Failed to load errors", err);
     } finally {
       setLoading(false);
     }
@@ -170,7 +171,7 @@ export function ErrorTracking() {
       setSelectedIssue(detailRes.data);
       setIssueEvents(eventsRes.data);
     } catch (err) {
-      console.error("Failed to load issue detail:", err);
+      logError("Failed to load issue detail", err);
     } finally {
       setDetailLoading(false);
     }
@@ -186,7 +187,7 @@ export function ErrorTracking() {
       setIssueEvents(res.data);
       setEventsPage(newPage);
     } catch (err) {
-      console.error("Failed to load events:", err);
+      logError("Failed to load events", err);
     } finally {
       setEventsLoading(false);
     }
@@ -200,7 +201,7 @@ export function ErrorTracking() {
       setSelectedIssue({ ...selectedIssue, status: newStatus });
       load();
     } catch (err) {
-      console.error("Failed to update status:", err);
+      logError("Failed to update status", err);
     } finally {
       setActionLoading(false);
     }
@@ -216,7 +217,7 @@ export function ErrorTracking() {
       setIssueEvents(null);
       load();
     } catch (err) {
-      console.error("Failed to delete issue:", err);
+      logError("Failed to delete issue", err);
     } finally {
       setDeleteLoading(false);
     }

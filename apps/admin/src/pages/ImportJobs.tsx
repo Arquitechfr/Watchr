@@ -11,6 +11,7 @@ import { EmptyState } from "../components/ui/EmptyState";
 import { Dialog } from "../components/ui/Dialog";
 import { toast } from "../store/toastStore";
 import { formatDate } from "../lib/utils";
+import { logError } from "../lib/logger";
 
 interface ImportError {
   line: number;
@@ -97,7 +98,7 @@ export function ImportJobs() {
       setData(jobsRes.data);
       setStats(statsRes.data);
     } catch (err) {
-      console.error("Failed to load imports:", err);
+      logError("Failed to load imports", err);
     } finally {
       setLoading(false);
     }
@@ -115,7 +116,7 @@ export function ImportJobs() {
       const res = await api.get(`/admin/imports/${job.id}`);
       setDetail(res.data);
     } catch (err) {
-      console.error("Failed to load import detail:", err);
+      logError("Failed to load import detail", err);
     } finally {
       setDetailLoading(false);
     }
@@ -131,7 +132,7 @@ export function ImportJobs() {
       toast("Import job deleted", "success");
       load();
     } catch (err) {
-      console.error("Failed to delete import job:", err);
+      logError("Failed to delete import job", err);
     } finally {
       setDeleteSubmitting(false);
     }
@@ -146,7 +147,7 @@ export function ImportJobs() {
       toast("Import job requeued", "success");
       load();
     } catch (err) {
-      console.error("Failed to retry import job:", err);
+      logError("Failed to retry import job", err);
     } finally {
       setRetrySubmitting(false);
     }
@@ -167,7 +168,7 @@ export function ImportJobs() {
       window.URL.revokeObjectURL(url);
       toast("CSV exported", "success");
     } catch (err) {
-      console.error("Failed to export CSV:", err);
+      logError("Failed to export CSV", err);
     }
   }
 

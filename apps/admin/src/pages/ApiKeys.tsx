@@ -12,6 +12,7 @@ import { EmptyState } from "../components/ui/EmptyState";
 import { Dialog } from "../components/ui/Dialog";
 import { toast } from "../store/toastStore";
 import { formatDate } from "../lib/utils";
+import { logError } from "../lib/logger";
 
 interface ApiKeyUser {
   id: string;
@@ -64,7 +65,7 @@ export function ApiKeys() {
       const { data } = await api.get<ApiKeysResponse>("/admin/api-keys", { params });
       setData(data);
     } catch (err) {
-      console.error("Failed to load API keys:", err);
+      logError("Failed to load API keys", err);
     } finally {
       setLoading(false);
     }
@@ -91,7 +92,7 @@ export function ApiKeys() {
       toast("API key revoked successfully", "success");
       load();
     } catch (err) {
-      console.error("Failed to revoke API key:", err);
+      logError("Failed to revoke API key", err);
       toast("Failed to revoke API key", "error");
     } finally {
       setRevokeSubmitting(false);
@@ -107,7 +108,7 @@ export function ApiKeys() {
       toast("API key deleted successfully", "success");
       load();
     } catch (err) {
-      console.error("Failed to delete API key:", err);
+      logError("Failed to delete API key", err);
       toast("Failed to delete API key", "error");
     } finally {
       setDeleteSubmitting(false);

@@ -11,6 +11,7 @@ import { EmptyState } from "../components/ui/EmptyState";
 import { Dialog } from "../components/ui/Dialog";
 import { LanguageSelect } from "../components/ui/LanguageSelect";
 import { LANGUAGE_FLAGS } from "../lib/languages";
+import { logError } from "../lib/logger";
 
 interface NewsSource {
   id: string;
@@ -42,7 +43,7 @@ export function NewsSources() {
       const { data } = await api.get("/admin/news-sources", { params });
       setSources(data);
     } catch (err) {
-      console.error("Failed to load news sources:", err);
+      logError("Failed to load news sources", err);
     } finally {
       setLoading(false);
     }
@@ -61,7 +62,7 @@ export function NewsSources() {
       setFormData({ id: "", name: "", url: "", locale: "en" });
       load();
     } catch (err) {
-      console.error("Failed to create news source:", err);
+      logError("Failed to create news source", err);
     }
   }
 
@@ -71,7 +72,7 @@ export function NewsSources() {
       await api.delete(`/admin/news-sources/${sourceId}`);
       load();
     } catch (err) {
-      console.error("Failed to delete news source:", err);
+      logError("Failed to delete news source", err);
     }
   }
 
@@ -80,7 +81,7 @@ export function NewsSources() {
       await api.patch(`/admin/news-sources/${sourceId}/toggle`);
       load();
     } catch (err) {
-      console.error("Failed to toggle news source:", err);
+      logError("Failed to toggle news source", err);
     }
   }
 
@@ -97,7 +98,7 @@ export function NewsSources() {
       setEditDialog(null);
       load();
     } catch (err) {
-      console.error("Failed to update news source:", err);
+      logError("Failed to update news source", err);
     } finally {
       setEditSubmitting(false);
     }

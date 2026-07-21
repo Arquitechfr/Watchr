@@ -19,6 +19,7 @@ import { Badge } from "../components/ui/Badge";
 import { Skeleton } from "../components/ui/Skeleton";
 import { EmptyState } from "../components/ui/EmptyState";
 import { formatDate } from "../lib/utils";
+import { logError } from "../lib/logger";
 
 interface FeedNotification {
   id: string;
@@ -90,7 +91,7 @@ export function AdminFeed() {
       const { data: result } = await api.get("/admin/feed-notifications", { params });
       setData(result);
     } catch (err) {
-      console.error("Failed to load feed notifications:", err);
+      logError("Failed to load feed notifications", err);
     } finally {
       setLoading(false);
     }

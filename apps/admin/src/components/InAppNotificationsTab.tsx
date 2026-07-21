@@ -12,6 +12,7 @@ import { PageSelector } from "../components/ui/PageSelector";
 import { ImageUpload } from "../components/ui/ImageUpload";
 import { ShowPicker } from "../components/ui/ShowPicker";
 import { formatDate } from "../lib/utils";
+import { logError } from "../lib/logger";
 
 interface InAppNotificationEntry {
   id: string;
@@ -61,7 +62,7 @@ export function InAppNotificationsTab() {
       const { data } = await api.get("/admin/in-app-notifications", { params: { page, limit: 20 } });
       setList(data);
     } catch (err) {
-      console.error("Failed to load in-app notifications:", err);
+      logError("Failed to load in-app notifications", err);
     } finally {
       setLoading(false);
     }
@@ -112,12 +113,12 @@ export function InAppNotificationsTab() {
           await api.post("/admin/notifications/broadcast", pushPayload);
           setResult("In-app notification + push notification created successfully");
         } catch (pushErr) {
-          console.error("Push notification creation failed:", pushErr);
+          logError("Push notification creation failed", pushErr);
         }
       }
     } catch (err) {
       setResult("Failed to create in-app notification");
-      console.error("Create failed:", err);
+      logError("Create failed", err);
     } finally {
       setSending(false);
     }
@@ -129,7 +130,7 @@ export function InAppNotificationsTab() {
       setDeleteId(null);
       loadList();
     } catch (err) {
-      console.error("Delete failed:", err);
+      logError("Delete failed", err);
     }
   }
 

@@ -49,7 +49,7 @@ const MCP_TOOLS: McpTool[] = [
     ],
     responseExample: `{
   "content": [
-    { "type": "text", "text": "{\"results\":[{\"tmdbId\":1396,\"type\":\"tv\",\"title\":\"Breaking Bad\"}]}" }
+    { "type": "text", "text": "{\\"results\\":[{\\"tmdbId\\":1396,\\"type\\":\\"tv\\",\\"title\\":\\"Breaking Bad\\"}]}" }
   ]
 }`,
   },

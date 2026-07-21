@@ -11,7 +11,7 @@ async function runHogQL(query: string): Promise<Record<string, unknown>[]> {
       { query: { kind: "HogQLQuery", query } },
       {
         headers: {
-          Authorization: `Bearer ${env.POSTHOG_API_KEY}`,
+          Authorization: `Bearer ${env.POSTHOG_PERSONAL_API_KEY ?? env.POSTHOG_API_KEY}`,
           "Content-Type": "application/json",
         },
         timeout: 10000,

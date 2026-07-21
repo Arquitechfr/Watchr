@@ -24,32 +24,90 @@ async function runHogQL(query: string): Promise<Record<string, unknown>[]> {
   }
 }
 
-export async function getEngagementStats(): Promise<{
-  pushTaps30d: number;
-  pushReceived30d: number;
-  emailOpens30d: number;
-  emailClicks30d: number;
-}> {
-  const [tapResults, receivedResults, openResults, clickResults] = await Promise.all([
+interface DailyPoint {
+  date: string;
+  count: number;
+}
+
+interface EngagementResponse {
+  totals: {
+    pushTaps30d: number;
+    pushReceived30d: number;
+    emailOpens30d: number;
+    emailClicks30d: number;
+    emailSent30d: number;
+  };
+  series: {
+    pushTaps: DailyPoint[];
+    pushReceived: DailyPoint[];
+    emailOpens: DailyPoint[];
+    emailClicks: DailyPoint[];
+  };
+  rates: {
+    pushTapRate: number;
+    emailOpenRate: number;
+    emailClickRate: number;
+  };
+}
+
+function extractCount(rows: Record<string, unknown>[]): number {
+  if (rows.length === 0) return 0;
+  const val = rows[0]?.total;
+  return typeof val === "number" ? val : Number(val) || 0;
+}
+
+function extractDailySeries(rows: Record<string, unknown>[], valueKey: string = "count"): DailyPoint[] {
+  return rows.map((row) => ({
+    date: String(row.day ?? ""),
+    count: typeof row[valueKey] === "number" ? (row[valueKey] as number) : Number(row[valueKey]) || 0,
+  }));
+}
+
+export async function getEngagementStats(): Promise<EngagementResponse> {
+  const [
+    tapTotal,
+    receivedTotal,
+    openTotal,
+    clickTotal,
+    sentTotal,
+    tapSeries,
+    receivedSeries,
+    openSeries,
+    clickSeries,
+  ] = await Promise.all([
     runHogQL("SELECT count() as total FROM events WHERE event = 'push_notification_tapped' AND timestamp > now() - INTERVAL 30 DAY"),
     runHogQL("SELECT count() as total FROM events WHERE event = 'push_notification_received' AND timestamp > now() - INTERVAL 30 DAY"),
     runHogQL("SELECT count() as total FROM events WHERE event = 'email_opened' AND timestamp > now() - INTERVAL 30 DAY"),
     runHogQL("SELECT count() as total FROM events WHERE event = 'email_clicked' AND timestamp > now() - INTERVAL 30 DAY"),
+    runHogQL("SELECT count() as total FROM events WHERE event = 'email_sent' AND timestamp > now() - INTERVAL 30 DAY"),
+    runHogQL("SELECT toDate(timestamp) as day, count() as count FROM events WHERE event = 'push_notification_tapped' AND timestamp > now() - INTERVAL 30 DAY GROUP BY day ORDER BY day"),
+    runHogQL("SELECT toDate(timestamp) as day, count() as count FROM events WHERE event = 'push_notification_received' AND timestamp > now() - INTERVAL 30 DAY GROUP BY day ORDER BY day"),
+    runHogQL("SELECT toDate(timestamp) as day, count() as count FROM events WHERE event = 'email_opened' AND timestamp > now() - INTERVAL 30 DAY GROUP BY day ORDER BY day"),
+    runHogQL("SELECT toDate(timestamp) as day, count() as count FROM events WHERE event = 'email_clicked' AND timestamp > now() - INTERVAL 30 DAY GROUP BY day ORDER BY day"),
   ]);
 
-  const extractCount = (rows: Record<string, unknown>[]): number => {
-    if (rows.length === 0) return 0;
-    const val = rows[0]?.total;
-    return typeof val === "number" ? val : Number(val) || 0;
+  const totals = {
+    pushTaps30d: extractCount(tapTotal),
+    pushReceived30d: extractCount(receivedTotal),
+    emailOpens30d: extractCount(openTotal),
+    emailClicks30d: extractCount(clickTotal),
+    emailSent30d: extractCount(sentTotal),
   };
 
-  const stats = {
-    pushTaps30d: extractCount(tapResults),
-    pushReceived30d: extractCount(receivedResults),
-    emailOpens30d: extractCount(openResults),
-    emailClicks30d: extractCount(clickResults),
+  const series = {
+    pushTaps: extractDailySeries(tapSeries),
+    pushReceived: extractDailySeries(receivedSeries),
+    emailOpens: extractDailySeries(openSeries),
+    emailClicks: extractDailySeries(clickSeries),
   };
 
-  log("EngagementStats", "fetched", stats);
-  return stats;
+  const rates = {
+    pushTapRate: totals.pushReceived30d > 0 ? (totals.pushTaps30d / totals.pushReceived30d) * 100 : 0,
+    emailOpenRate: totals.emailSent30d > 0 ? (totals.emailOpens30d / totals.emailSent30d) * 100 : 0,
+    emailClickRate: totals.emailOpens30d > 0 ? (totals.emailClicks30d / totals.emailOpens30d) * 100 : 0,
+  };
+
+  const result = { totals, series, rates };
+  log("EngagementStats", "fetched", result);
+  return result;
 }

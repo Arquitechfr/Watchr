@@ -44,8 +44,8 @@ export async function signInWithGoogleWeb(): Promise<AuthTokens> {
   }
 
   const url = new URL(result.url);
-  const accessToken = url.searchParams.get("accessToken");
-  const refreshToken = url.searchParams.get("refreshToken");
+  const accessToken = url.searchParams.get("accessToken") || new URLSearchParams(url.hash.replace(/^#/, "")).get("accessToken");
+  const refreshToken = url.searchParams.get("refreshToken") || new URLSearchParams(url.hash.replace(/^#/, "")).get("refreshToken");
 
   if (!accessToken || !refreshToken) {
     throw new Error("Google authentication failed: missing tokens in redirect");

@@ -4,11 +4,63 @@ import { env } from "../config/env.js";
 import { setRedisValue, getRedisValue, deleteRedisKey } from "../lib/redis.js";
 import { log, logError } from "../lib/logger.js";
 import { loginWithGoogleUserInfo } from "./auth.service.js";
+import { MobileConfig } from "../models/MobileConfig.js";
+import { ApiError } from "../middleware/error.middleware.js";
 
 const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
 const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
 const STATE_TTL_SECONDS = 300;
 const STATE_KEY_PREFIX = "google-oauth-state:";
+
+const DEFAULT_ALLOWED_REDIRECTS = [
+  "https://app.watchr.me",
+  "https://watchr.me",
+  "watchr://",
+  "exp://",
+  "http://localhost:8081",
+  "http://localhost:19006",
+];
+
+async function getAllowedRedirects(): Promise<string[]> {
+  try {
+    const entry = await MobileConfig.findOne({ key: "oauth_allowed_redirects" }).lean();
+    if (entry?.value) {
+      const parsed = JSON.parse(entry.value);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed as string[];
+      }
+    }
+  } catch {
+    // fall through to defaults
+  }
+  return DEFAULT_ALLOWED_REDIRECTS;
+}
+
+function isRedirectAllowed(appRedirect: string, allowedRedirects: string[]): boolean {
+  try {
+    const parsed = new URL(appRedirect);
+    const origin = parsed.origin;
+    return allowedRedirects.some((allowed) => {
+      if (allowed.includes("://")) {
+        const allowedParsed = new URL(allowed);
+        return origin === allowedParsed.origin;
+      }
+      return appRedirect.startsWith(allowed);
+    });
+  } catch {
+    // Not a valid URL — could be a custom scheme like watchr://
+    return allowedRedirects.some((allowed) => appRedirect.startsWith(allowed));
+  }
+}
+
+async function isFragmentTokensEnabled(): Promise<boolean> {
+  try {
+    const entry = await MobileConfig.findOne({ key: "oauth_fragment_tokens_enabled" }).lean();
+    return entry?.value === "true";
+  } catch {
+    return false;
+  }
+}
 
 export function buildGoogleAuthUrl(state: string): string {
   const redirectUri = `${env.PUBLIC_URL}/api/auth/google/callback`;
@@ -27,6 +79,12 @@ export async function createOAuthState(
   signupPlatform?: "ios" | "android" | "web",
   language?: string,
 ): Promise<string> {
+  const allowedRedirects = await getAllowedRedirects();
+  if (!isRedirectAllowed(appRedirect, allowedRedirects)) {
+    logError("GoogleOAuth", "redirect rejected — not in allowlist", { appRedirect });
+    throw new ApiError(400, "INVALID_REDIRECT", "The redirect URL is not allowed");
+  }
+
   const state = crypto.randomUUID();
   const stateData = JSON.stringify({ appRedirect, signupPlatform, language });
   await setRedisValue(`${STATE_KEY_PREFIX}${state}`, stateData, STATE_TTL_SECONDS);
@@ -84,7 +142,7 @@ async function getGoogleUserInfo(accessToken: string): Promise<GoogleUserInfo> {
 export async function handleGoogleCallback(
   code: string,
   state: string,
-): Promise<{ accessToken: string; refreshToken: string; appRedirect: string }> {
+): Promise<{ accessToken: string; refreshToken: string; appRedirect: string; useFragment: boolean }> {
   const stateRaw = await getAppRedirect(state);
   if (!stateRaw) {
     logError("GoogleOAuth", "state not found or expired", { state });
@@ -104,6 +162,12 @@ export async function handleGoogleCallback(
     appRedirect = stateRaw;
   }
 
+  const allowedRedirects = await getAllowedRedirects();
+  if (!isRedirectAllowed(appRedirect, allowedRedirects)) {
+    logError("GoogleOAuth", "redirect rejected in callback — not in allowlist", { appRedirect });
+    throw new Error("Invalid redirect URL");
+  }
+
   const googleTokens = await exchangeCodeForTokens(code);
   log("GoogleOAuth", "exchanged code for tokens");
 
@@ -116,9 +180,12 @@ export async function handleGoogleCallback(
 
   const tokens = await loginWithGoogleUserInfo(userInfo.email, signupPlatform, language);
 
+  const useFragment = await isFragmentTokensEnabled();
+
   return {
     accessToken: tokens.accessToken,
     refreshToken: tokens.refreshToken,
     appRedirect,
+    useFragment,
   };
 }

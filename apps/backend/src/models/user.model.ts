@@ -117,6 +117,7 @@ const userSchema = new Schema<IUser>(
       minlength: 3,
       maxlength: 20,
       index: true,
+      collation: { locale: "en", strength: 2 },
     },
     usernameChanged: {
       type: Boolean,

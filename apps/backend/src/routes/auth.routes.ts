@@ -173,8 +173,15 @@ router.get(
     const result = await handleGoogleCallback(code, state);
 
     const redirectUrl = new URL(result.appRedirect);
-    redirectUrl.searchParams.set("accessToken", result.accessToken);
-    redirectUrl.searchParams.set("refreshToken", result.refreshToken);
+    if (result.useFragment) {
+      const params = new URLSearchParams();
+      params.set("accessToken", result.accessToken);
+      params.set("refreshToken", result.refreshToken);
+      redirectUrl.hash = params.toString();
+    } else {
+      redirectUrl.searchParams.set("accessToken", result.accessToken);
+      redirectUrl.searchParams.set("refreshToken", result.refreshToken);
+    }
 
     res.redirect(302, redirectUrl.toString());
   }),

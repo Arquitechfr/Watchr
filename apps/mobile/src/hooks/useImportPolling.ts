@@ -26,6 +26,7 @@ export function useImportPolling(jobId: string | null) {
       const event = payload as { jobId: string; status: string };
       if (event.jobId !== jobId) return;
       log("useImportPolling", "ws event", { jobId, status: event.status });
+      websocketService.updateLastEventTimestamp(Date.now());
       queryClient.invalidateQueries({ queryKey: ["import", jobId] });
     });
 

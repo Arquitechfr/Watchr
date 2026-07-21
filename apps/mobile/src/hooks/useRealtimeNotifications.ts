@@ -16,6 +16,7 @@ export function useRealtimeNotifications(): void {
     const unsub = websocketService.on("notification:new", (payload: unknown) => {
       const data = payload as { userId?: string; notification: Omit<InAppNotification, "id" | "read"> };
       log("useRealtimeNotifications", "received", { type: data.notification.type });
+      websocketService.updateLastEventTimestamp(Date.now());
       addNotification(data.notification);
     });
 

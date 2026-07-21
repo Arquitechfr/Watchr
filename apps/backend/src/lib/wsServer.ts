@@ -7,7 +7,7 @@ import { verifyAccessToken } from "../services/auth.service.js";
 import { wsEvents } from "./wsEvents.js";
 import { wsMetrics } from "./wsMetrics.js";
 import { log, logError } from "./logger.js";
-import { storeEvent, getEventsSince, shouldStoreEvent } from "./wsEventStore.js";
+import { storeEvent, storeShowEvent, getEventsSince, getShowEventsSince, shouldStoreUserEvent, shouldStoreShowEvent } from "./wsEventStore.js";
 
 const RATE_LIMIT_WINDOW_MS = 1000;
 const RATE_LIMIT_MAX = 10;
@@ -106,12 +106,20 @@ export function createWsServer(httpServer: HttpServer): IoServer {
       wsMetrics.eventsReceivedTotal.labels({ event: "replay:since" }).inc();
       log("WS", "replay:since", { userId, timestamp });
       try {
-        const events = await getEventsSince(userId, timestamp);
-        for (const stored of events) {
+        const userEvents = await getEventsSince(userId, timestamp);
+        const showRooms = Array.from(socket.rooms)
+          .filter((r) => r.startsWith("show:"))
+          .map((r) => r.slice(5));
+        const showEventLists = await Promise.all(
+          showRooms.map((showId) => getShowEventsSince(showId, timestamp)),
+        );
+        const allEvents = [...userEvents, ...showEventLists.flat()];
+        allEvents.sort((a, b) => a.timestamp - b.timestamp);
+        for (const stored of allEvents) {
           socket.emit(stored.event, stored.data);
           wsMetrics.eventsSentTotal.labels({ event: stored.event }).inc();
         }
-        log("WS", "replay complete", { userId, count: events.length });
+        log("WS", "replay complete", { userId, count: allEvents.length, userEvents: userEvents.length, showEvents: allEvents.length - userEvents.length });
       } catch (err) {
         logError("WS", "replay failed", err, { userId });
       }
@@ -129,7 +137,7 @@ export function createWsServer(httpServer: HttpServer): IoServer {
   });
 
   function emitToUser(userId: string, event: string, data: unknown): void {
-    if (shouldStoreEvent(event)) {
+    if (shouldStoreUserEvent(event)) {
       storeEvent(userId, event, data).catch(() => {});
     }
     io.to(createUserRoom(userId)).emit(event, data);
@@ -137,6 +145,9 @@ export function createWsServer(httpServer: HttpServer): IoServer {
   }
 
   function emitToShow(showId: string, event: string, data: unknown): void {
+    if (shouldStoreShowEvent(event)) {
+      storeShowEvent(showId, event, data).catch(() => {});
+    }
     io.to(createShowRoom(showId)).emit(event, data);
     wsMetrics.eventsSentTotal.labels({ event }).inc();
   }

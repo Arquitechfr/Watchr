@@ -13,7 +13,7 @@ import { EmailService } from "../services/email.service.js";
 import { ApiError } from "../middleware/error.middleware.js";
 import { posthogClient } from "../lib/posthog.js";
 import { translateBioAsync } from "../services/aiBioTranslation.service.js";
-import { logError } from "../lib/logger.js";
+import { log, logError } from "../lib/logger.js";
 import { normalizeLocale } from "../i18n/index.js";
 import { isEmailDomainBlocked } from "../lib/blockedEmailDomains.js";
 import { autoFollowAdmin } from "../services/autoFollowAdmin.js";
@@ -486,7 +486,10 @@ export async function updateUsername(userId: string, newUsername: string): Promi
   if (user.usernameChanged) {
     throw new ApiError(403, "USERNAME_ALREADY_CHANGED", "Username can only be changed once");
   }
-  const existing = await User.findOne({ username: newUsername, _id: { $ne: userId } }).lean();
+  const existing = await User.findOne({
+    username: { $regex: `^${newUsername.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, $options: "i" },
+    _id: { $ne: userId },
+  }).lean();
   if (existing) {
     throw new ApiError(409, "USERNAME_TAKEN", "This username is already taken");
   }
@@ -526,10 +529,14 @@ export async function resetPassword(token: string, newPassword: string): Promise
   }
 
   const passwordHash = await bcrypt.hash(newPassword, 12);
-  const result = await User.updateOne({ _id: payload.sub }, { $set: { passwordHash } });
+  const result = await User.updateOne(
+    { _id: payload.sub },
+    { $set: { passwordHash }, $unset: { refreshTokens: [] } },
+  );
   if (result.matchedCount === 0) {
     throw new ApiError(404, "USER_NOT_FOUND", "User not found");
   }
+  log("Auth", "password reset — sessions revoked", { userId: payload.sub });
 }
 
 export async function requestEmailCode(email: string): Promise<void> {
@@ -687,12 +694,17 @@ export async function updateNotificationPreferences(
     commentReplies: boolean;
     commentReactions: boolean;
     commentLikes: boolean;
+    directMessages: boolean;
     notificationOffsetMinutes: number;
   }>,
 ): Promise<{ notificationPreferences: NotificationPreferences }> {
+  const setFields: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(prefs)) {
+    setFields[`notificationPreferences.${key}`] = value;
+  }
   const user = await User.findByIdAndUpdate(
     userId,
-    { $set: { "notificationPreferences": prefs } },
+    { $set: setFields },
     { new: true },
   ).select("notificationPreferences").lean();
   if (!user) {

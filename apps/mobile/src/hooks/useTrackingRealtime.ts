@@ -10,6 +10,7 @@ export function useTrackingRealtime(): void {
     const unsub = websocketService.on("tracking:updated", (payload: unknown) => {
       const data = payload as { userId: string; showId: string };
       log("useTrackingRealtime", "event", { showId: data.showId });
+      websocketService.updateLastEventTimestamp(Date.now());
       queryClient.invalidateQueries({ queryKey: ["tracking"] });
       queryClient.invalidateQueries({ queryKey: ["unwatched"] });
       queryClient.invalidateQueries({ queryKey: ["upcoming"] });

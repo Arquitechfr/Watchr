@@ -231,7 +231,9 @@ export async function getPublicProfile(
   requestingUserId: string,
   locale: SupportedLocale = "en",
 ): Promise<PublicProfileResult> {
-  const user = await User.findOne({ username })
+  const user = await User.findOne({
+    username: { $regex: `^${username.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, $options: "i" },
+  })
     .select("username avatarUrl bannerUrl createdAt activityVisibility isBanned bio bioTranslations bioOriginalLanguage favoriteGenres")
     .lean();
 
@@ -331,42 +333,6 @@ interface RawActivityItem {
   content?: string;
 }
 
-function groupWatchEntriesByTimeWindow(
-  entries: RawActivityItem[],
-  windowMs: number,
-): RawActivityItem[] {
-  const groups = new Map<string, RawActivityItem[]>();
-
-  for (const entry of entries) {
-    const bucketTime = Math.floor(entry.createdAt.getTime() / windowMs) * windowMs;
-    const key = `${entry.userId.toString()}:${bucketTime}`;
-    const group = groups.get(key);
-    if (group) {
-      group.push(entry);
-    } else {
-      groups.set(key, [entry]);
-    }
-  }
-
-  const result: RawActivityItem[] = [];
-  for (const group of groups.values()) {
-    if (group.length === 1) {
-      result.push(group[0]);
-    } else {
-      const first = group[0];
-      result.push({
-        ...first,
-        type: "watchlist_add",
-        createdAt: first.createdAt,
-        watchlistCount: group.length,
-        watchlistTitles: group.map((g) => g.title).slice(0, 3),
-      } as RawActivityItem & { watchlistCount: number; watchlistTitles: string[] });
-    }
-  }
-
-  return result;
-}
-
 export async function getFriendsActivityFeed(
   userId: string,
   page: number,
@@ -402,104 +368,172 @@ export async function getFriendsActivityFeed(
     };
   }
 
-  const [ratings, watchEntries, comments] = await Promise.all([
-    Rating.find({ userId: { $in: publicFollowingIds } })
-      .populate("userId", "username avatarUrl")
-      .populate("showId", "tmdbId title posterPath type")
-      .sort({ createdAt: -1 })
-      .limit(limit * 3)
-      .lean(),
-    WatchEntry.find({
-      userId: { $in: publicFollowingIds },
-      status: { $in: ["plan_to_watch", "watching"] },
-    })
-      .populate("userId", "username avatarUrl")
-      .populate("showId", "tmdbId title posterPath type")
-      .sort({ createdAt: -1 })
-      .limit(limit * 3)
-      .lean(),
-    Comment.find({
-      userId: { $in: publicFollowingIds },
-      isSpoiler: false,
-      isHidden: false,
-    })
-      .populate("userId", "username avatarUrl")
-      .populate("showId", "tmdbId title posterPath type")
-      .sort({ createdAt: -1 })
-      .limit(limit * 3)
-      .lean(),
+  const skip = (page - 1) * limit;
+
+  const pipeline = [
+    {
+      $facet: {
+        ratings: [
+          { $match: { userId: { $in: publicFollowingIds } } },
+          { $sort: { createdAt: -1 } },
+          { $skip: skip },
+          { $limit: limit },
+          {
+            $lookup: {
+              from: "users",
+              localField: "userId",
+              foreignField: "_id",
+              as: "userDoc",
+              pipeline: [{ $project: { username: 1, avatarUrl: 1 } }],
+            },
+          },
+          { $unwind: "$userDoc" },
+          {
+            $lookup: {
+              from: "shows",
+              localField: "showId",
+              foreignField: "_id",
+              as: "showDoc",
+              pipeline: [{ $project: { tmdbId: 1, title: 1, posterPath: 1, type: 1 } }],
+            },
+          },
+          { $unwind: "$showDoc" },
+          {
+            $project: {
+              type: { $literal: "rating" },
+              createdAt: 1,
+              userId: 1,
+              username: "$userDoc.username",
+              avatarUrl: "$userDoc.avatarUrl",
+              showId: 1,
+              tmdbId: "$showDoc.tmdbId",
+              title: "$showDoc.title",
+              posterPath: "$showDoc.posterPath",
+              showType: "$showDoc.type",
+              ratingValue: "$value",
+            },
+          },
+        ],
+        watchlist: [
+          { $match: { userId: { $in: publicFollowingIds }, status: { $in: ["plan_to_watch", "watching"] } } },
+          { $sort: { createdAt: -1 } },
+          { $skip: skip },
+          { $limit: limit },
+          {
+            $lookup: {
+              from: "users",
+              localField: "userId",
+              foreignField: "_id",
+              as: "userDoc",
+              pipeline: [{ $project: { username: 1, avatarUrl: 1 } }],
+            },
+          },
+          { $unwind: "$userDoc" },
+          {
+            $lookup: {
+              from: "shows",
+              localField: "showId",
+              foreignField: "_id",
+              as: "showDoc",
+              pipeline: [{ $project: { tmdbId: 1, title: 1, posterPath: 1, type: 1 } }],
+            },
+          },
+          { $unwind: "$showDoc" },
+          {
+            $project: {
+              type: { $literal: "watchlist_add" },
+              createdAt: 1,
+              userId: 1,
+              username: "$userDoc.username",
+              avatarUrl: "$userDoc.avatarUrl",
+              showId: 1,
+              tmdbId: "$showDoc.tmdbId",
+              title: "$showDoc.title",
+              posterPath: "$showDoc.posterPath",
+              showType: "$showDoc.type",
+            },
+          },
+        ],
+        comments: [
+          { $match: { userId: { $in: publicFollowingIds }, isSpoiler: false, isHidden: false } },
+          { $sort: { createdAt: -1 } },
+          { $skip: skip },
+          { $limit: limit },
+          {
+            $lookup: {
+              from: "users",
+              localField: "userId",
+              foreignField: "_id",
+              as: "userDoc",
+              pipeline: [{ $project: { username: 1, avatarUrl: 1 } }],
+            },
+          },
+          { $unwind: "$userDoc" },
+          {
+            $lookup: {
+              from: "shows",
+              localField: "showId",
+              foreignField: "_id",
+              as: "showDoc",
+              pipeline: [{ $project: { tmdbId: 1, title: 1, posterPath: 1, type: 1 } }],
+            },
+          },
+          { $unwind: "$showDoc" },
+          {
+            $project: {
+              type: { $literal: "comment" },
+              createdAt: 1,
+              userId: 1,
+              username: "$userDoc.username",
+              avatarUrl: "$userDoc.avatarUrl",
+              showId: 1,
+              tmdbId: "$showDoc.tmdbId",
+              title: "$showDoc.title",
+              posterPath: "$showDoc.posterPath",
+              showType: "$showDoc.type",
+              commentId: { $toString: "$_id" },
+              content: 1,
+            },
+          },
+        ],
+      },
+    },
+    {
+      $project: {
+        allItems: { $concatArrays: ["$ratings", "$watchlist", "$comments"] },
+      },
+    },
+    { $unwind: "$allItems" },
+    { $replaceRoot: { newRoot: "$allItems" } },
+    { $sort: { createdAt: -1 } },
+    { $limit: limit },
+  ];
+
+  const [ratingsCount, watchlistCount, commentsCount] = await Promise.all([
+    Rating.countDocuments({ userId: { $in: publicFollowingIds } }),
+    WatchEntry.countDocuments({ userId: { $in: publicFollowingIds }, status: { $in: ["plan_to_watch", "watching"] } }),
+    Comment.countDocuments({ userId: { $in: publicFollowingIds }, isSpoiler: false, isHidden: false }),
   ]);
 
-  const rawItems: RawActivityItem[] = [];
+  const results = await Rating.aggregate(pipeline as unknown as any[]);
 
-  for (const r of ratings) {
-    const user = r.userId as unknown as { _id: Types.ObjectId; username: string; avatarUrl?: string } | null;
-    const show = r.showId as unknown as { _id: Types.ObjectId; tmdbId: number; title: string; posterPath?: string; type: "tv" | "movie" } | null;
-    if (!user || !show) continue;
-    rawItems.push({
-      type: "rating",
-      createdAt: r.createdAt,
-      userId: user._id,
-      username: user.username,
-      avatarUrl: user.avatarUrl,
-      showId: show._id,
-      tmdbId: show.tmdbId,
-      title: show.title,
-      posterPath: show.posterPath,
-      showType: show.type,
-      ratingValue: r.value,
-    });
-  }
+  const rawItems: RawActivityItem[] = results.map((r: any) => ({
+    type: r.type,
+    createdAt: r.createdAt instanceof Date ? r.createdAt : new Date(r.createdAt),
+    userId: r.userId,
+    username: r.username,
+    avatarUrl: r.avatarUrl,
+    showId: r.showId,
+    tmdbId: r.tmdbId,
+    title: r.title,
+    posterPath: r.posterPath,
+    showType: r.showType,
+    ratingValue: r.ratingValue,
+    commentId: r.commentId,
+    content: r.content,
+  }));
 
-  const watchlistItems: RawActivityItem[] = [];
-  for (const w of watchEntries) {
-    const user = w.userId as unknown as { _id: Types.ObjectId; username: string; avatarUrl?: string } | null;
-    const show = w.showId as unknown as { _id: Types.ObjectId; tmdbId: number; title: string; posterPath?: string; type: "tv" | "movie" } | null;
-    if (!user || !show) continue;
-    watchlistItems.push({
-      type: "watchlist_add",
-      createdAt: w.createdAt,
-      userId: user._id,
-      username: user.username,
-      avatarUrl: user.avatarUrl,
-      showId: show._id,
-      tmdbId: show.tmdbId,
-      title: show.title,
-      posterPath: show.posterPath,
-      showType: show.type,
-    });
-  }
-
-  const groupedWatchlist = groupWatchEntriesByTimeWindow(watchlistItems, 5 * 60 * 1000);
-  rawItems.push(...groupedWatchlist);
-
-  for (const c of comments) {
-    const user = c.userId as unknown as { _id: Types.ObjectId; username: string; avatarUrl?: string } | null;
-    const show = c.showId as unknown as { _id: Types.ObjectId; tmdbId: number; title: string; posterPath?: string; type: "tv" | "movie" } | null;
-    if (!user || !show) continue;
-    rawItems.push({
-      type: "comment",
-      createdAt: c.createdAt,
-      userId: user._id,
-      username: user.username,
-      avatarUrl: user.avatarUrl,
-      showId: show._id,
-      tmdbId: show.tmdbId,
-      title: show.title,
-      posterPath: show.posterPath,
-      showType: show.type,
-      commentId: c._id.toString(),
-      content: c.content,
-    });
-  }
-
-  rawItems.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-
-  const total = rawItems.length;
-  const start = (page - 1) * limit;
-  const paged = rawItems.slice(start, start + limit);
-
-  const data: ActivityFeedItem[] = paged.map((item) => {
+  const data: ActivityFeedItem[] = rawItems.map((item) => {
     const base = {
       type: item.type,
       user: {
@@ -525,21 +559,13 @@ export async function getFriendsActivityFeed(
     }
 
     if (item.type === "watchlist_add") {
-      const grouped = item as RawActivityItem & { watchlistCount?: number; watchlistTitles?: string[] };
-      if (grouped.watchlistCount && grouped.watchlistCount > 1) {
-        return {
-          ...base,
-          watchlistAdd: {
-            count: grouped.watchlistCount,
-            titles: grouped.watchlistTitles ?? [],
-          },
-        };
-      }
       return { ...base, watchlistAdd: { count: 1, titles: [item.title] } };
     }
 
     return base as ActivityFeedItem;
   });
+
+  const total = ratingsCount + watchlistCount + commentsCount;
 
   return {
     data,

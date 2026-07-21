@@ -13,6 +13,7 @@ export function useShowDetailsRealtime(showId: string | null, tmdbId?: number): 
       const data = payload as { showId: string };
       if (data.showId !== showId) return;
       log("useShowDetailsRealtime", "event", { showId, tmdbId });
+      websocketService.updateLastEventTimestamp(Date.now());
       if (tmdbId) {
         queryClient.invalidateQueries({ queryKey: ["shows", "details", tmdbId] });
       } else {

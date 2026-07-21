@@ -16,8 +16,10 @@ import {
 } from "../emails/index.js";
 import { log, logError } from "../lib/logger.js";
 import { EmailLog, EmailTemplate, EmailStatus } from "../models/emailLog.model.js";
+import { MobileConfig } from "../models/MobileConfig.js";
+import { getEmailQueue, type EmailJobData } from "../workers/email.worker.js";
 
-interface SendEmailParams {
+export interface SendEmailParams {
   to: string;
   subject: string;
   html: string;
@@ -175,7 +177,32 @@ function isEmailConfigured(): boolean {
   return !!env.BREVO_API_KEY || (!!env.SMTP_USER && !!env.SMTP_PASS);
 }
 
+async function isEmailQueueEnabled(): Promise<boolean> {
+  try {
+    const entry = await MobileConfig.findOne({ key: "email_queue_enabled" }).lean();
+    return entry?.value !== "false";
+  } catch {
+    return true;
+  }
+}
+
 async function sendEmail(params: SendEmailParams): Promise<boolean> {
+  try {
+    const queueEnabled = await isEmailQueueEnabled();
+    if (queueEnabled) {
+      const queue = getEmailQueue();
+      await queue.add("send", params as unknown as EmailJobData);
+      log("EmailService", "email queued", { to: params.to, subject: params.subject, template: params.template });
+      return true;
+    }
+  } catch (err) {
+    logError("EmailService", "queue failed, falling back to sync", err, { to: params.to });
+  }
+
+  return sendEmailDirect(params);
+}
+
+export async function sendEmailDirect(params: SendEmailParams): Promise<boolean> {
   if (!isEmailConfigured()) {
     emailMetrics.skipped++;
     log("EmailService", "email not configured, skipping send", { to: params.to });

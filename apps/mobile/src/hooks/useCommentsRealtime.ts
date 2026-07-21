@@ -29,6 +29,7 @@ export function useCommentsRealtime(showId: string | null): void {
         const data = payload as { showId: string };
         if (data.showId !== showId) return;
         log("useCommentsRealtime", "event", { event, showId });
+        websocketService.updateLastEventTimestamp(Date.now());
         queryClient.invalidateQueries({ queryKey: [COMMENTS_QUERY_KEY, showId] });
         queryClient.invalidateQueries({ queryKey: [COMMENTS_QUERY_KEY, "count", showId] });
         queryClient.invalidateQueries({ queryKey: [COMMENTS_QUERY_KEY, "replies"] });

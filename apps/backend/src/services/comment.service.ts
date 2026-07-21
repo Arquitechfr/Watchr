@@ -245,6 +245,7 @@ export async function createComment(userId: string, input: CreateCommentInput) {
 
   const aiSpoilerDetected = !input.isSpoiler && moderation.isSpoiler;
   const isSpoiler = input.isSpoiler || moderation.isSpoiler;
+  const needsReview = moderation.confidence > 0 && moderation.confidence < 0.8;
 
   const comment = await Comment.create({
     userId: new Types.ObjectId(userId),
@@ -254,6 +255,7 @@ export async function createComment(userId: string, input: CreateCommentInput) {
     content: input.content,
     images: input.images ?? [],
     isSpoiler,
+    needsReview,
   });
 
   if (input.parentId) {

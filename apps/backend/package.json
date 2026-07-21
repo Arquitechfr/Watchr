@@ -18,6 +18,8 @@
     "activation-nudge-worker": "tsx watch src/workers/startActivationNudgeWorker.ts",
     "username-fix-worker": "tsx watch src/workers/startUsernameFixWorker.ts",
     "ban-scheduler-worker": "tsx watch src/workers/startBanSchedulerWorker.ts",
+    "email-worker": "tsx watch src/workers/startEmailWorker.ts",
+    "moderation-worker": "tsx watch src/workers/startModerationWorker.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint .",

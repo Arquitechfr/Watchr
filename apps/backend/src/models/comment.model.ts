@@ -26,6 +26,7 @@ export interface IComment extends Document {
   externalId?: string;
   ratingValue?: number;
   repliesDisabled?: boolean;
+  needsReview?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -122,6 +123,11 @@ const commentSchema = new Schema<IComment>(
     repliesDisabled: {
       type: Boolean,
       default: false,
+    },
+    needsReview: {
+      type: Boolean,
+      default: false,
+      index: true,
     },
   },
   { timestamps: true },

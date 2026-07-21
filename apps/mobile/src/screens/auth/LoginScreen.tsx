@@ -44,8 +44,9 @@ export function LoginScreen() {
   useEffect(() => {
     if (Platform.OS !== "web") return;
     const params = new URLSearchParams(window.location.search);
-    const accessToken = params.get("accessToken");
-    const refreshToken = params.get("refreshToken");
+    const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+    const accessToken = params.get("accessToken") || hashParams.get("accessToken");
+    const refreshToken = params.get("refreshToken") || hashParams.get("refreshToken");
     if (accessToken && refreshToken) {
       log("Login", "Google OAuth redirect: tokens found in URL");
       setTokens(accessToken, refreshToken).then(() => {

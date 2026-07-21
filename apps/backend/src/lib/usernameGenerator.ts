@@ -34,7 +34,9 @@ function generateCandidate(): string {
 export async function generateUniqueUsername(maxAttempts = 10): Promise<string> {
   for (let i = 0; i < maxAttempts; i++) {
     const candidate = generateCandidate();
-    const existing = await User.findOne({ username: candidate }).lean();
+    const existing = await User.findOne({
+      username: { $regex: `^${candidate.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, $options: "i" },
+    }).lean();
     if (!existing) {
       return candidate;
     }

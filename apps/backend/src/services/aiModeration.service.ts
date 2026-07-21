@@ -15,6 +15,76 @@ const NEUTRAL_RESULT: ModerationResult = {
   confidence: 0,
 };
 
+const TOXIC_KEYWORDS = [
+  "kill yourself", "kys", "rape", "retard", "faggot", "tranny", "nigger", "nazi",
+  "go die", "end yourself", "slit your wrists", "hang yourself",
+];
+
+const TOXIC_PATTERNS = [
+  /\b(idiot|stupid|moron|trash|garbage)\b.*\b(you|your|ur)\b/i,
+  /\b(shut up|stfu|gtfo)\b/i,
+  /\b(spam|scam|fraud)\b/i,
+];
+
+const SPOILER_KEYWORDS = [
+  "dies", "death", "ending", "finale", "twist", "revealed", "plot twist",
+  "spoiler", "ends with", "结局", "死亡", "ネタバレ",
+];
+
+function heuristicModerate(content: string, showTitle?: string): ModerationResult {
+  const lower = content.toLowerCase();
+  const showLower = showTitle?.toLowerCase() ?? "";
+
+  let isToxic = false;
+  let isSpoiler = false;
+
+  for (const kw of TOXIC_KEYWORDS) {
+    if (lower.includes(kw)) {
+      isToxic = true;
+      break;
+    }
+  }
+  if (!isToxic) {
+    for (const pattern of TOXIC_PATTERNS) {
+      if (pattern.test(content)) {
+        isToxic = true;
+        break;
+      }
+    }
+  }
+
+  for (const kw of SPOILER_KEYWORDS) {
+    if (lower.includes(kw)) {
+      if (showLower && lower.includes(showLower)) {
+        isSpoiler = true;
+        break;
+      }
+      isSpoiler = true;
+      break;
+    }
+  }
+
+  if (isToxic || isSpoiler) {
+    return {
+      isSpoiler,
+      isToxic,
+      toxicCategory: isToxic ? "other" : undefined,
+      confidence: 0.5,
+    };
+  }
+
+  return NEUTRAL_RESULT;
+}
+
+async function isFallbackEnabled(): Promise<boolean> {
+  try {
+    const entry = await MobileConfig.findOne({ key: "ai_moderation_fallback_enabled" }).lean();
+    return entry?.value !== "false";
+  } catch {
+    return true;
+  }
+}
+
 async function isFeatureEnabled(key: string): Promise<boolean> {
   const entry = await MobileConfig.findOne({ key }).lean();
   return entry?.value === "true";
@@ -22,6 +92,14 @@ async function isFeatureEnabled(key: string): Promise<boolean> {
 
 export async function moderateComment(content: string, showTitle?: string): Promise<ModerationResult> {
   if (!mistralService.isConfigured()) {
+    const fallbackEnabled = await isFallbackEnabled();
+    if (fallbackEnabled) {
+      const heuristic = heuristicModerate(content, showTitle);
+      if (heuristic.isToxic || heuristic.isSpoiler) {
+        log("AIModeration", "Mistral not configured, heuristic fallback result", { ...heuristic });
+        return { ...heuristic, confidence: 0.5 };
+      }
+    }
     return NEUTRAL_RESULT;
   }
 
@@ -66,7 +144,15 @@ export async function moderateComment(content: string, showTitle?: string): Prom
   });
 
   if (!result) {
-    log("AIModeration", "AI unavailable, returning neutral");
+    log("AIModeration", "AI unavailable, trying heuristic fallback");
+    const fallbackEnabled = await isFallbackEnabled();
+    if (fallbackEnabled) {
+      const heuristic = heuristicModerate(content, showTitle);
+      if (heuristic.isToxic || heuristic.isSpoiler) {
+        log("AIModeration", "heuristic fallback result", { ...heuristic });
+        return { ...heuristic, confidence: 0.5 };
+      }
+    }
     return NEUTRAL_RESULT;
   }
 

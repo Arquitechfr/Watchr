@@ -167,6 +167,25 @@ watchr/
    - Emails custom (admin, AI digest) : HTML arbitraire sanitizé via `sanitizeHtml()` puis wrappé dans `<CustomEmail>` avec `dangerouslySetInnerHTML`.
    - Fichiers clés : `apps/backend/src/emails/components/EmailLayout.tsx`, `apps/backend/src/emails/render.ts`, `apps/backend/src/services/email.service.tsx`.
 
+12. **Composants natifs d'UI interdits** : jamais `Alert.alert()`, `Alert.prompt()` ou tout équivalent natif RN pour les dialogues/alertes/confirmations. Utiliser le composant custom `CustomAlert` (`apps/mobile/src/components/CustomAlert.tsx`) via `useUIStore.showAlert()`. Snackbars via `useUIStore.showSnackbar()`. Tout nouveau besoin UI (input dialog, bottom sheet, etc.) doit être un composant custom aligné sur le design system — jamais l'équivalent natif. Fichiers clés : `apps/mobile/src/components/CustomAlert.tsx`, `apps/mobile/src/store/uiStore.ts`.
+13. **Sécurité & fiabilité** :
+   - Toute route `POST`/`PATCH`/`DELETE` validée avec Zod.
+   - JWT : access 15 min, refresh 7-30 j stocké en DB avec révocation possible.
+   - Pas de secret en dur : `.env` obligatoire, crash au démarrage si variable manquante.
+   - Rate limiting sur auth et import.
+   - Format d'erreur API cohérent : `{ error: { code, message } }`. Pas de stack trace en prod.
+
+## Règles de comportement et de génération de code
+
+- **Assistant senior** : direct, précis. Si une approche est risquée ou sous-optimale, le dire clairement et proposer une alternative justifiée.
+- **Langue** : communiquer en français avec l'humain. Code et commentaires en anglais.
+- **Ne jamais inventer** un comportement technique incertain. Inspecter le code, poser une question, ou documenter un `[?]` explicite — puis le résoudre avant merge.
+- **Code production-ready** : lisible, performant, sécurisé, gestion d'erreurs (try/catch sur I/O, validation des entrées).
+- **Interdit** : placeholders (`TODO`, `// ...`, fausses implémentations, mocks non signalés) dans du code livré comme final.
+- **Correction/réécriture** de fichier = fichier complet retourné, jamais un diff partiel.
+- **Composants fonctionnels**, `const` par défaut, composition > héritage.
+- **Fichiers de composants ≤ 300 lignes.** Si dépassement, extraire agressivement (sous-composants, hooks custom).
+
 ## Principes transversaux
 
 - **Mobile = source of truth** par rapport aux autres apps.
@@ -186,3 +205,7 @@ watchr/
 - [ ] Landing : si touché, `pnpm --filter landing dev` sans crash, i18n parité 7 langues, SEO meta à jour.
 - [ ] Mobile : pas de régression iOS/Android.
 - [ ] Translations : tous les fichiers de locale mobile, backend et landing restent en parité.
+- [ ] Pas d'usage de `Alert.alert()` / `Alert.prompt()` natif — utiliser `CustomAlert` via `useUIStore.showAlert()`.
+- [ ] Mobile = source of truth.
+- [ ] MCP pertinents utilisés.
+- [ ] Logiques optimistic UI/UX mises en place.

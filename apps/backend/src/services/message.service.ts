@@ -85,9 +85,8 @@ interface LeanMessage {
   createdAt: Date;
 }
 
-function buildMessageItem(msg: LeanMessage, userId: string): MessageItem {
+function buildMessageItem(msg: LeanMessage, userId: string, userLocale: string = "en"): MessageItem {
   const translations = msg.translations;
-  const userLocale = "en";
 
   return {
     id: msg._id.toString(),
@@ -226,7 +225,8 @@ export async function sendMessage(
 
   const populatedMsg = await Message.findById(msg._id).lean();
   if (!populatedMsg) throw new ApiError(500, "INTERNAL_ERROR", "Failed to load message after creation");
-  const messageItem = buildMessageItem(populatedMsg, senderId);
+  const sender = await User.findById(senderId).select("preferredLanguage").lean();
+  const messageItem = buildMessageItem(populatedMsg, senderId, sender?.preferredLanguage ?? "en");
 
   wsEvents.emit("message:new", {
     recipientId,
@@ -333,6 +333,8 @@ export async function getMessages(
     throw new ApiError(403, "NOT_PARTICIPANT", "You are not a participant in this conversation");
   }
 
+  const requester = await User.findById(userId).select("preferredLanguage").lean();
+
   const filter: Record<string, unknown> = { conversationId: new Types.ObjectId(conversationId) };
   if (before) {
     filter.createdAt = { $lt: new Date(before) };
@@ -349,7 +351,7 @@ export async function getMessages(
   const sliced = hasMore ? messages.slice(0, limit) : messages;
 
   return {
-    messages: sliced.map((m) => buildMessageItem(m as unknown as LeanMessage, userId)),
+    messages: sliced.map((m) => buildMessageItem(m as unknown as LeanMessage, userId, requester?.preferredLanguage ?? "en")),
     hasMore,
     page,
     limit,
@@ -431,7 +433,8 @@ export async function editMessage(
 
   const updatedMsg = await Message.findById(messageId).lean();
   if (!updatedMsg) throw new ApiError(500, "INTERNAL_ERROR", "Failed to load message after edit");
-  const messageItem = buildMessageItem(updatedMsg, userId);
+  const editor = await User.findById(userId).select("preferredLanguage").lean();
+  const messageItem = buildMessageItem(updatedMsg, userId, editor?.preferredLanguage ?? "en");
 
   wsEvents.emit("message:updated", {
     recipientId,

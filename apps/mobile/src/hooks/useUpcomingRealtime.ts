@@ -9,6 +9,7 @@ export function useUpcomingRealtime(): void {
   useEffect(() => {
     const unsub = websocketService.on("upcoming:updated", () => {
       log("useUpcomingRealtime", "event");
+      websocketService.updateLastEventTimestamp(Date.now());
       queryClient.invalidateQueries({ queryKey: ["upcoming"] });
     });
 

@@ -114,11 +114,8 @@ jobs:
           cd ../..
 
       # ── 4b. Dépendances ────────────────────────────────────────────────────
-      - name: Prune pnpm store
-        run: pnpm store prune
-
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --no-frozen-lockfile
 
       # ── 4c. Build shared packages ────────────────────────────────────────
       - name: Build shared packages

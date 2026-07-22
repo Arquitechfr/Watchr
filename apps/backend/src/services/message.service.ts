@@ -151,7 +151,9 @@ export async function createConversation(
     .map((id) => new Types.ObjectId(id))
     .sort((a, b) => a.toString().localeCompare(b.toString()));
 
-  const existing = await Conversation.findOne({ participantIds: { $all: sortedIds } }).lean();
+  const participantKey = sortedIds.map((id) => id.toString()).join("_");
+
+  const existing = await Conversation.findOne({ participantKey }).lean();
   if (existing) {
     await Conversation.updateOne(
       { _id: existing._id },
@@ -162,6 +164,7 @@ export async function createConversation(
 
   const conv = await Conversation.create({
     participantIds: sortedIds,
+    participantKey,
     lastMessageAt: new Date(),
   });
 

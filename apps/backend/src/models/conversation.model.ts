@@ -2,6 +2,7 @@ import { Schema, model, Document, Types } from "mongoose";
 
 export interface IConversation extends Document {
   participantIds: Types.ObjectId[];
+  participantKey: string;
   lastMessageId?: Types.ObjectId;
   lastMessageAt: Date;
   archivedBy: Types.ObjectId[];
@@ -20,6 +21,11 @@ const conversationSchema = new Schema<IConversation>(
         validator: (v: Types.ObjectId[]) => v.length === 2,
         message: "Conversation must have exactly 2 participants",
       },
+    },
+    participantKey: {
+      type: String,
+      required: true,
+      unique: true,
     },
     lastMessageId: {
       type: Schema.Types.ObjectId,
@@ -44,7 +50,7 @@ const conversationSchema = new Schema<IConversation>(
   { timestamps: true },
 );
 
-conversationSchema.index({ participantIds: 1 }, { unique: true });
+conversationSchema.index({ participantIds: 1 });
 conversationSchema.index({ participantIds: 1, lastMessageAt: -1 });
 
 export const Conversation = model<IConversation>("Conversation", conversationSchema);

@@ -494,6 +494,34 @@ describe("Messaging System", () => {
     });
   });
 
+  describe("Multiple conversations with same user (regression: multikey index bug)", () => {
+    it("should allow a user to have conversations with multiple different users", async () => {
+      const { user: userA, token: tokenA } = await getAuthUser("UserA", "a@example.com");
+      const { user: userB } = await getAuthUser("UserB", "b@example.com");
+      const { user: userC } = await getAuthUser("UserC", "c@example.com");
+
+      const res1 = await request(app)
+        .post(`/api/messages/conversations/${userB._id}`)
+        .set("Authorization", `Bearer ${tokenA}`);
+
+      const res2 = await request(app)
+        .post(`/api/messages/conversations/${userC._id}`)
+        .set("Authorization", `Bearer ${tokenA}`);
+
+      expect(res1.status).toBe(201);
+      expect(res2.status).toBe(201);
+      expect(res1.body.isNew).toBe(true);
+      expect(res2.body.isNew).toBe(true);
+      expect(res1.body.id).not.toBe(res2.body.id);
+
+      const conv1 = await Conversation.findById(res1.body.id);
+      const conv2 = await Conversation.findById(res2.body.id);
+      expect(conv1!.participantKey).toBeTruthy();
+      expect(conv2!.participantKey).toBeTruthy();
+      expect(conv1!.participantKey).not.toBe(conv2!.participantKey);
+    });
+  });
+
   describe("Admin message routes", () => {
     it("should get message stats as admin", async () => {
       const admin = await User.create({

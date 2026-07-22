@@ -27,8 +27,9 @@ export async function blockUser(blockerId: string, blockedId: string): Promise<{
     throw err;
   }
 
+  const sortedKey = [blockerId, blockedId].sort((a, b) => a.localeCompare(b)).join("_");
   await Conversation.updateMany(
-    { participantIds: { $all: [new Types.ObjectId(blockerId), new Types.ObjectId(blockedId)] } },
+    { participantKey: sortedKey },
     { $addToSet: { archivedBy: new Types.ObjectId(blockerId) } },
   ).catch((err) => logError("UserBlock", "failed to archive conversations on block", err));
 

@@ -258,9 +258,17 @@ const pl = {
         title: "Zatrzymanie danych",
         content: "Zatrzymujemy Twoje dane przez następujące okresy: (1) Dane konta - do czasu usunięcia Twojego konta, w którym to momencie wszystkie powiązane dane są trwale usuwane w ciągu 30 dni. (2) Dane śledzące (lista obserwacyjna, oceny, komentarze) - dopóki nie usuniesz ich lub swojego konta. (3) Znaczniki OAuth - znaczniki dostępu wygasają po konfigurowalnym TTL (domyślnie: 1 godzina); znaczniki odświeżania są ważne do odwołania lub do wygaśnięcia (domyślnie: 30 dni). (4) Klucze API - dopóki ich nie cofniesz. Odwołane klucze są natychmiast unieważnione. (5) Importuj pliki - usunięte natychmiast po przetworzeniu. (6) Analityka - przechowywana w anonimowej, zagregowanej formie bez indywidualnego zatrzymywania użytkownika. (7) Logi serwerów - przechowywane maksymalnie przez 90 dni dla celów bezpieczeństwa i debugowania.",
       },
+      legalBasis: {
+        title: "Podstawa prawna przetwarzania danych (GDPR)",
+        content: "Przetwarzamy dane osobowe na podstawie jednej lub kilku z następujących podstaw prawnych: (1) Wykonanie umowy - przetwarzanie niezbędne do świadczenia usługi, o którą wystąpiłeś, w tym zarządzanie kontem, śledzenie danych oraz integracje platformy AI. (2) Zgoda - przetwarzanie na podstawie wyraźnej zgody, takie jak połączenie Watchr na platformy AI za pośrednictwem MCP i publikowanie uwag publicznych. (3) Przestrzeganie obowiązków prawnych - przetwarzanie w celu przestrzegania obowiązujących przepisów, takich jak przechowywanie dzienników serwerów w celu zapobiegania bezpieczeństwu i oszustwom. (4) Legalne interesy - przetwarzanie niezbędne do zabezpieczenia i poprawy Usług, w tym wykrywanie nadużyć, rozwiązywanie problemów i anonimowe analizy. Masz prawo sprzeciwiać się przetwarzaniu w oparciu o uzasadnione interesy. Aby to zrobić, skontaktuj się z nami pod adresem contact @ arquitech.com.",
+      },
       aiIntegration: {
         title: "Integracja platformy AI (MCP)",
         content: "Watchr integruje się z platformami AI - w tym ChatGPT (OpenAI), Claude (Antropic), Gemini (Google) i Microsoft Copilot - za pośrednictwem Modelowego protokołu kontekstowego (MCP). Po połączeniu Watchr do platformy AI stosuje się następujące zasady: (1) Uwierzytelnianie - autoryzujesz połączenie za pośrednictwem OAuth 2.0 z PKCE, wybierając zarówno zakres tylko do odczytu, jak i do zapisu. Przed przyznaniem dostępu wyświetlany jest ekran zgody. (2) Narzędzia - Watchr Eksponuje 15 narzędzi (8 tylko do odczytu, 7 zapisu). Czytaj narzędzia wyszukiwania pokazuje, lista listy, pobrać oceny i komentarze, a statystyki i zalecenia. Napisz narzędzia dodaj lub usuń pokazy z listy obserwacyjnej, uaktualnij status zegarka, oznacz epizody jako oglądane, popisz oceny i wyślij komentarze. (3) Dane wysyłane na platformy AI - tylko wyjścia narzędzia, o które prosisz (np. pokazują wyniki wyszukiwania, zawartość listy obserwacyjnej, oceny, komentarze, statystyki). (4) Dane otrzymane z platform AI - tylko wejścia narzędzia potrzebne do wykonania wniosku (np. pytania dotyczące wyszukiwania, TMDB Identyfikatory, wartości ratingowe, tekst komentarza). (5) Czego NIE zbieramy - nigdy nie mamy dostępu, nie przechowujemy, nie przetwarzamy dziennika czatu, historii rozmowy, pamięci AI, podsumowań rozmów lub plików użytkowników z platformy AI. Nie zbieramy danych zastrzeżonych (informacje o karcie płatniczej, informacje o zdrowiu, identyfikatory rządowe, dane uwierzytelniające dostęp). Nie zbieramy danych o lokalizacji. Nie angażujemy się w nadzór, profilowanie behawioralne lub śledzenie metadanych (znaczniki czasu, IP, wzory zapytań) poza tym, co jest absolutnie konieczne do wykonania żądanego narzędzia. (6) Inotacje narzędzi - wszystkie narzędzia są zanotowane za pomocą readOnlyHint i destructiveHint, aby wyraźnie wskazać ich zachowanie. (7) Odwołanie - w każdej chwili można cofnąć dostęp do platformy AI z ustawień każdej platformy lub ze swojego Watchr konto.",
+      },
+      mcpTools: {
+        title: "Dane wejściowe i wyjściowe narzędzia MCP",
+        content: "Poniższa tabela opisuje dokładne otrzymane dane (wejścia) i dane zwrócone (wyjścia) dla każdego z 15 narzędzi MCP. Informacje te są dostarczane w celu zapewnienia przejrzystości przetwarzania danych podczas korzystania z Watchr przez platformę SI.",
       },
       dataStorage: {
         title: "Przechowywanie i bezpieczeństwo danych",
@@ -285,14 +293,6 @@ const pl = {
       contact: {
         title: "Skontaktuj się z nami",
         content: "Jeśli masz pytania dotyczące tej polityki prywatności, naszej integracji platformy AI lub chcesz skorzystać z praw do ochrony danych, skontaktuj się z nami pod adresem: ArquiTech - contact @ arquitech.com. Odpowiemy na twoją prośbę w ciągu 30 dni.",
-      },
-      legalBasis: {
-        title: "Podstawa prawna przetwarzania danych (GDPR)",
-        content: "Przetwarzamy dane osobowe na podstawie jednej lub kilku z następujących podstaw prawnych: (1) Wykonanie umowy - przetwarzanie niezbędne do świadczenia usługi, o którą wystąpiłeś, w tym zarządzanie kontem, śledzenie danych oraz integracje platformy AI. (2) Zgoda - przetwarzanie na podstawie wyraźnej zgody, takie jak połączenie Watchr na platformy AI za pośrednictwem MCP i publikowanie uwag publicznych. (3) Przestrzeganie obowiązków prawnych - przetwarzanie w celu przestrzegania obowiązujących przepisów, takich jak przechowywanie dzienników serwerów w celu zapobiegania bezpieczeństwu i oszustwom. (4) Legalne interesy - przetwarzanie niezbędne do zabezpieczenia i poprawy Usług, w tym wykrywanie nadużyć, rozwiązywanie problemów i anonimowe analizy. Masz prawo sprzeciwiać się przetwarzaniu w oparciu o uzasadnione interesy. Aby to zrobić, skontaktuj się z nami pod adresem contact @ arquitech.com.",
-      },
-      mcpTools: {
-        title: "Dane wejściowe i wyjściowe narzędzia MCP",
-        content: "Poniższa tabela opisuje dokładne otrzymane dane (wejścia) i dane zwrócone (wyjścia) dla każdego z 15 narzędzi MCP. Informacje te są dostarczane w celu zapewnienia przejrzystości przetwarzania danych podczas korzystania z Watchr przez platformę SI.",
       },
     },
   },
@@ -513,18 +513,88 @@ const pl = {
       configTitle: "Konfiguracja MCP",
       toolsTitle: "Dostępne narzędzia",
       tools: {
-        search_show: "Szukaj programów telewizyjnych i filmów według tytułu. Zwraca wyniki za pomocą TMDB Identyfikatory, tytuły i metadane.",
-        list_watchlist: "Lista obserwowanych użytkowników z obsługą strony. Zwraca wpisy śledzące ze szczegółami.",
-        add_to_watchlist: "Dodaj show lub film do listy obserwacyjnej TMDB ID i typ (tv lub film).",
-        update_watch_status: "Aktualizuj status oglądania programu na liście obserwowanych. Podczas zaznaczania jako zakończone, wszystkie odcinki są automatycznie oznaczone jako oglądane. Status może być obserwowany, uzupełniany, planowany _ to _ watch lub upuszczony.",
-        remove_from_watchlist: "Usunięcie programu z listy obserwacyjnej przez Pokaż obiekt.",
-        toggle_episode: "Zaznacz konkretny odcinek jako obserwowany lub nieobserwowany.",
-        mark_episodes_up_to: "Zaznacz wszystkie odcinki do określonego sezonu / epizodu, jak oglądane.",
-        get_show_details: "Pobierz szczegółowe informacje o pokazie przez TMDB ID, w tym pory roku i epizody.",
-        rate_show: "Oceń show lub odcinek od 1 do 5 gwiazd. Opcjonalnie zawiera tekst przeglądu.",
-        get_ratings: "Pobierz ocenę użytkownika i ocen społeczności dla programu.",
-        list_comments: "Lista komentarzy publicznych do programu, opcjonalnie filtrowane przez odcinek.",
-        add_comment: "Publiczny komentarz na temat serialu lub odcinka.",
+        search_show: {
+          params: {
+            query: "Łańcuch zapytań wyszukiwania (1-200 znaków).",
+          },
+        },
+        list_watchlist: {
+          params: {
+            page: "Numer strony (domyślnie: 1).",
+            limit: "Pozycje na stronę (domyślnie: 20, max: 100).",
+          },
+        },
+        add_to_watchlist: {
+          params: {
+            tmdbId: "W TMDB Identyfikator programu lub filmu.",
+            type: "Rodzaj treści: \"tv\" lub \"film\".",
+          },
+        },
+        update_watch_status: {
+          params: {
+            showId: "Przedstawienie.",
+            status: "Nowy status zegarka: oglądanie, uzupełnianie, planowanie _ to _ watch lub upuszczanie.",
+          },
+        },
+        remove_from_watchlist: {
+          params: {
+            showId: "Przedstawienie.",
+          },
+        },
+        toggle_episode: {
+          params: {
+            showId: "Przedstawienie.",
+            season: "Numer sezonu.",
+            episode: "Numer odcinka.",
+            watched: "Czy zaznaczyć jako oglądane (prawdziwe) czy nieoglądane (fałszywe).",
+          },
+        },
+        mark_episodes_up_to: {
+          params: {
+            showId: "Przedstawienie.",
+            season: "Numer sezonu docelowego.",
+            episode: "Numer odcinka docelowego.",
+            includePrevious: "Czy zaznaczać wszystkie poprzednie odcinki w sezonach (domyślnie: true).",
+          },
+        },
+        get_show_details: {
+          params: {
+            tmdbId: "W TMDB Identyfikator programu.",
+          },
+        },
+        rate_show: {
+          params: {
+            showId: "Przedstawienie.",
+            value: "Wartość ratingowa od 1 do 5.",
+            season: "Opcjonalny numer sezonu dla ratingów specyficznych dla epizodu.",
+            episode: "Opcjonalny numer odcinka dla ratingów specyficznych dla epizodu.",
+            review: "Opcjonalny tekst przeglądu (maks. 2000 znaków).",
+          },
+        },
+        get_ratings: {
+          params: {
+            showId: "Przedstawienie.",
+          },
+        },
+        list_comments: {
+          params: {
+            showId: "Przedstawienie.",
+            season: "Opcjonalny numer sezonu filtrowania komentarzy.",
+            episode: "Opcjonalny numer odcinka do filtrowania komentarzy.",
+            page: "Numer strony (domyślnie: 1).",
+            limit: "Pozycje na stronę (domyślnie: 10, max: 50).",
+            sort: "Sortuj kolejność: ostatni, lubiany, odpowiadający lub odpowiedni (domyślnie: ostatni).",
+          },
+        },
+        add_comment: {
+          params: {
+            showId: "Przedstawienie.",
+            content: "Tekst komentarza (1-2000 znaków).",
+            season: "Opcjonalny numer sezonu dla komentarzy epizodu.",
+            episode: "Opcjonalny numer odcinka dla komentarzy odcinka.",
+            isSpoiler: "Czy komentarz zawiera spoilery (domyślnie: false).",
+          },
+        },
         get_upcoming: "Uzyskaj nadchodzące odcinki dla pokazów na liście obserwowanych użytkowników, sklasyfikowanych przez dzisiaj, w tym tygodniu, w przyszłym tygodniu i później.",
         get_stats: "Pobierz statystyki oglądania użytkownika, w tym odcinki oglądane, godziny, passa, podział gatunków, i ostatnia aktywność.",
         get_recommendations: "Pobierz spersonalizowane rekomendacje show na podstawie historii oglądania i ocen.",

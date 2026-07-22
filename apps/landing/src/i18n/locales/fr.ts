@@ -258,9 +258,17 @@ const fr = {
         title: "Conservation des Données",
         content: "Nous conservons vos données pour les durées suivantes : (1) Données de compte — jusqu'à la suppression de votre compte, après quoi toutes les données associées sont définitivement supprimées dans un délai de 30 jours. (2) Données de suivi (watchlist, notes, commentaires) — jusqu'à leur suppression par vous ou la suppression de votre compte. (3) Jetons OAuth — les jetons d'accès expirent après un TTL configurable (défaut : 1 heure) ; les jetons de rafraîchissement sont valables jusqu'à leur révocation ou expiration (défaut : 30 jours). Les jetons révoqués sont immédiatement invalidés. (4) Clés API — jusqu'à leur révocation. Les clés révoquées sont immédiatement invalidées. (5) Fichiers d'import — supprimés immédiatement après traitement. (6) Analyses — stockées sous forme anonymisée et agrégée sans rétention individuelle. (7) Logs serveur — conservés maximum 90 jours pour des raisons de sécurité et de débogage.",
       },
+      legalBasis: {
+        title: "Base juridique du traitement des données (RGPD)",
+        content: "Nous traitons les données personnelles sous l'une ou plusieurs des bases juridiques suivantes: (1) Exécution d'un contrat — traitement nécessaire pour fournir le Service que vous avez demandé, y compris la gestion de compte, le suivi des données et les intégrations de plate-forme AI. 2) Consentement — traitement basé sur votre consentement explicite, comme la connexion Watchr aux plates-formes d'IA via le MCP et en affichant des commentaires du public. 3) Respect des obligations légales - traitement pour se conformer aux lois applicables, comme la conservation des registres de serveurs pour la sécurité et la prévention de la fraude. (4) Intérêts légitimes — traitement nécessaire pour sécuriser et améliorer le Service, y compris la détection des abus, le dépannage et l'analyse anonyme. Vous avez le droit de vous opposer à un traitement fondé sur des intérêts légitimes. Pour ce faire, contactez-nous à contact@arquitech.com.",
+      },
       aiIntegration: {
         title: "Intégration de Plateformes IA (MCP)",
         content: "Watchr s'intègre aux plateformes IA — notamment ChatGPT (OpenAI), Claude (Anthropic), Gemini (Google) et Microsoft Copilot — via le Model Context Protocol (MCP). Lorsque vous connectez Watchr à une plateforme IA, les éléments suivants s'appliquent : (1) Authentification — vous autorisez la connexion via OAuth 2.0 avec PKCE, en choisissant un accès en lecture seule ou en lecture-écriture. Un écran de consentement s'affiche avant tout accès. (2) Outils — Watchr expose 15 outils (8 en lecture seule, 7 en écriture). Les outils de lecture recherchent des séries, listent votre watchlist, récupèrent notes et commentaires, et obtiennent statistiques et recommandations. Les outils d'écriture ajoutent ou suppriment des séries de votre watchlist, mettent à jour le statut de visionnage, marquent les épisodes comme vus, publient des notes et des commentaires. (3) Données envoyées aux plateformes IA — uniquement les sorties d'outils que vous demandez (résultats de recherche, contenu de la watchlist, notes, commentaires, statistiques). (4) Données reçues des plateformes IA — uniquement les entrées d'outils nécessaires à l'exécution d'une requête (requêtes de recherche, IDs TMDB, valeurs de notes, texte de commentaires). (5) Ce que nous ne collectons PAS — nous n'accédons jamais, ne stockons ni ne traitons votre historique de conversation, la mémoire de l'IA, les résumés de conversation ou les fichiers utilisateur de la plateforme IA. Nous ne collectons pas de données restreintes (informations de paiement, données de santé, identifiants gouvernementaux, identifiants d'accès). Nous ne collectons pas de données de localisation. Nous ne pratiquons pas de surveillance, de profilage comportemental ni de suivi de métadonnées (horodatages, IP, modèles de requêtes) au-delà de ce qui est strictement nécessaire pour exécuter l'outil demandé. (6) Annotations d'outils — tous les outils sont annotés avec readOnlyHint et destructiveHint pour indiquer clairement leur comportement. (7) Révocation — vous pouvez révoquer l'accès de la plateforme IA à tout moment depuis les paramètres de chaque plateforme ou depuis votre compte Watchr.",
+      },
+      mcpTools: {
+        title: "Entrées et sorties des données de l'outil MCP",
+        content: "Le tableau suivant décrit les données exactes reçues (intrants) et retournées (extrants) pour chacun des 15 outils du PCM. Ces informations sont fournies pour assurer la transparence sur les données traitées lorsque vous utilisez Watchr via une plateforme d'IA.",
       },
       dataStorage: {
         title: "Stockage & Sécurité",
@@ -285,14 +293,6 @@ const fr = {
       contact: {
         title: "Nous Contacter",
         content: "Si vous avez des questions sur cette Politique de Confidentialité, nos intégrations de plateformes IA, ou souhaitez exercer vos droits de protection des données, contactez-nous à : ArquiTech — contact@arquitech.com. Nous répondrons à votre demande dans un délai de 30 jours.",
-      },
-      legalBasis: {
-        title: "Base juridique du traitement des données (RGPD)",
-        content: "Nous traitons les données personnelles sous l'une ou plusieurs des bases juridiques suivantes: (1) Exécution d'un contrat — traitement nécessaire pour fournir le Service que vous avez demandé, y compris la gestion de compte, le suivi des données et les intégrations de plate-forme AI. 2) Consentement — traitement basé sur votre consentement explicite, comme la connexion Watchr aux plates-formes d'IA via le MCP et en affichant des commentaires du public. 3) Respect des obligations légales - traitement pour se conformer aux lois applicables, comme la conservation des registres de serveurs pour la sécurité et la prévention de la fraude. (4) Intérêts légitimes — traitement nécessaire pour sécuriser et améliorer le Service, y compris la détection des abus, le dépannage et l'analyse anonyme. Vous avez le droit de vous opposer à un traitement fondé sur des intérêts légitimes. Pour ce faire, contactez-nous à contact@arquitech.com.",
-      },
-      mcpTools: {
-        title: "Entrées et sorties des données de l'outil MCP",
-        content: "Le tableau suivant décrit les données exactes reçues (intrants) et retournées (extrants) pour chacun des 15 outils du PCM. Ces informations sont fournies pour assurer la transparence sur les données traitées lorsque vous utilisez Watchr via une plateforme d'IA.",
       },
     },
   },
@@ -513,88 +513,18 @@ const fr = {
       configTitle: "Configuration MCP",
       toolsTitle: "Outils disponibles",
       tools: {
-        search_show: {
-          params: {
-            query: "La chaîne de recherche (1-200 caractères).",
-          },
-        },
-        list_watchlist: {
-          params: {
-            page: "Numéro de page (défaut : 1).",
-            limit: "Éléments par page (défaut : 20, max : 100).",
-          },
-        },
-        add_to_watchlist: {
-          params: {
-            tmdbId: "L'ID TMDB de la série ou du film.",
-            type: "Le type de contenu : \"tv\" ou \"movie\".",
-          },
-        },
-        update_watch_status: {
-          params: {
-            showId: "L'ObjectId du Show.",
-            status: "Le nouveau statut : watching, completed, plan_to_watch ou dropped.",
-          },
-        },
-        remove_from_watchlist: {
-          params: {
-            showId: "L'ObjectId du Show.",
-          },
-        },
-        toggle_episode: {
-          params: {
-            showId: "L'ObjectId du Show.",
-            season: "Le numéro de saison.",
-            episode: "Le numéro d'épisode.",
-            watched: "Marquer comme vu (true) ou non vu (false).",
-          },
-        },
-        mark_episodes_up_to: {
-          params: {
-            showId: "L'ObjectId du Show.",
-            season: "Le numéro de saison cible.",
-            episode: "Le numéro d'épisode cible.",
-            includePrevious: "Marquer tous les épisodes précédents toutes saisons confondues (défaut : true).",
-          },
-        },
-        get_show_details: {
-          params: {
-            tmdbId: "L'ID TMDB de la série.",
-          },
-        },
-        rate_show: {
-          params: {
-            showId: "L'ObjectId du Show.",
-            value: "La note de 1 à 5.",
-            season: "Numéro de saison optionnel pour une note par épisode.",
-            episode: "Numéro d'épisode optionnel pour une note par épisode.",
-            review: "Texte de critique optionnel (max 2000 caractères).",
-          },
-        },
-        get_ratings: {
-          params: {
-            showId: "L'ObjectId du Show.",
-          },
-        },
-        list_comments: {
-          params: {
-            showId: "L'ObjectId du Show.",
-            season: "Numéro de saison optionnel pour filtrer les commentaires.",
-            episode: "Numéro d'épisode optionnel pour filtrer les commentaires.",
-            page: "Numéro de page (défaut : 1).",
-            limit: "Éléments par page (défaut : 10, max : 50).",
-            sort: "Ordre de tri : recent, liked, replied ou relevant (défaut : recent).",
-          },
-        },
-        add_comment: {
-          params: {
-            showId: "L'ObjectId du Show.",
-            content: "Le texte du commentaire (1-2000 caractères).",
-            season: "Numéro de saison optionnel pour les commentaires d'épisode.",
-            episode: "Numéro d'épisode optionnel pour les commentaires d'épisode.",
-            isSpoiler: "Indique si le commentaire contient des spoilers (défaut : false).",
-          },
-        },
+        search_show: "Rechercher des émissions de télévision et des films par titre. Retourne les résultats avec TMDB ID, titres et métadonnées.",
+        list_watchlist: "Énumérez la liste de surveillance de l'utilisateur avec le support de pagination. Retourne les entrées de suivi avec les détails.",
+        add_to_watchlist: "Ajouter un spectacle ou un film à la liste de surveillance par TMDB ID et type (tv ou film).",
+        update_watch_status: "Mettre à jour l'état d'une montre dans la liste de surveillance. Lorsque le marquage est terminé, tous les épisodes sont automatiquement marqués comme surveillés. L'état peut être observé, complété, plan to watch ou abandonné.",
+        remove_from_watchlist: "Supprimer un spectacle de la liste de surveillance par son Show ObjectId.",
+        toggle_episode: "Marquez un épisode spécifique tel qu'il est regardé ou non.",
+        mark_episodes_up_to: "Marquez tous les épisodes jusqu'à une saison/épisode spécifique tel qu'observé.",
+        get_show_details: "Obtenez des informations détaillées sur un spectacle par TMDB ID, y compris les saisons et les épisodes.",
+        rate_show: "Évaluer un spectacle ou un épisode de 1 à 5 étoiles. Inclure éventuellement un texte de révision.",
+        get_ratings: "Obtenez la cote de l'utilisateur et les cotes de la communauté pour un spectacle.",
+        list_comments: "Énumérez les commentaires du public pour un spectacle, éventuellement filtré par un épisode.",
+        add_comment: "Publiez un commentaire public sur un spectacle ou un épisode.",
         get_upcoming: "Obtenir les épisodes à venir pour les séries dans la watchlist de l'utilisateur, catégorisés par aujourd'hui, cette semaine, la semaine prochaine et plus tard.",
         get_stats: "Obtenir les statistiques de visionnage de l'utilisateur incluant les épisodes vus, les heures, le streak, la répartition par genre et l'activité récente.",
         get_recommendations: "Obtenir des recommandations personnalisées basées sur l'historique de visionnage et les notes.",

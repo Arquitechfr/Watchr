@@ -258,9 +258,17 @@ const it = {
         title: "Ritenzione dei dati",
         content: "Conserviamo i tuoi dati per i seguenti periodi: (1) Dati dell'account — fino a quando non elimini il tuo account, a quel punto tutti i dati associati vengono cancellati definitivamente entro 30 giorni. (2) Dati di monitoraggio (elenco di controllo, valutazioni, commenti) — fino a quando non si elimina o il tuo account. (3) Token di autenticazione — i token di accesso scadono dopo una TTL configurabile (default: 1 ora); i token di aggiornamento sono validi fino a revocare o fino alla scadenza (default: 30 giorni). I token evocati sono immediatamente invalidati. (4) chiavi API — fino a quando non li revoca. Le chiavi invocate sono immediatamente invalidate. (5) Importa file — cancellati immediatamente dopo l'elaborazione. (6) Analytics — archiviato in forma aggregata e anonimizzata senza alcuna conservazione individuale dell'utente. (7) log del server — conservati per un massimo di 90 giorni per scopi di sicurezza e debug.",
       },
+      legalBasis: {
+        title: "Base legale per il trattamento dei dati (GDPR)",
+        content: "Trattiamo i dati personali in una o più delle seguenti basi giuridiche: (1) Prestazioni di un contratto — trattamento necessario per fornire il Servizio richiesto, compresa la gestione dell'account, i dati di monitoraggio e le integrazioni della piattaforma AI. (2) Consenso — trattamento basato sul Suo esplicito consenso, come la connessione Watchr alle piattaforme AI tramite MCP e postando commenti pubblici. (3) Rispetto agli obblighi legali — trattamento conforme alle leggi applicabili, come il mantenimento dei registri dei server per la sicurezza e la prevenzione delle frodi. (4) Interessi legittimi — elaborazione necessaria per garantire e migliorare il Servizio, tra cui rilevamento di abusi, risoluzione dei problemi e analisi anonimizzata. Ha il diritto di opporsi al trattamento basato su interessi legittimi. Per farlo, contattateci a contact@arquitech.com.",
+      },
       aiIntegration: {
         title: "Integrazione della piattaforma AI (MCP)",
         content: "Watchr integra con le piattaforme AI — tra cui ChatGPT (OpenAI), Claude (Antropic), Gemini (Google), e Microsoft Copilot — tramite il Modello Context Protocol (MCP). Quando si collega Watchr a una piattaforma AI, si applica quanto segue: (1) Autenticazione — si autorizza la connessione via OAuth 2.0 con PKCE, scegliendo sia l'ambito di sola lettura o lettura. Una schermata di consenso viene visualizzata prima che venga concesso un accesso. (2) Strumenti — Watchr espone 15 strumenti (8 sola lettura, 7 scrittura). Leggi gli strumenti di ricerca mostra, elenca la tua lista di orologi, recupera valutazioni e commenti, e ottieni statistiche e raccomandazioni. Scrivere gli strumenti aggiungere o rimuovere gli spettacoli dalla tua lista di orologi, aggiornare lo stato dell'orologio, contrassegnare gli episodi come guardato, post valutazioni e post commenti. (3) Dati inviati alle piattaforme AI — solo gli output degli strumenti richiesti (ad esempio, mostra risultati di ricerca, contenuti della lista di orologi, valutazioni, commenti, statistiche). (4) Dati ricevuti da piattaforme AI — solo gli input degli strumenti necessari per eseguire una richiesta (ad esempio, query di ricerca, TMDB ID, valori di valutazione, testo di commento). (5) Ciò che non raccogliamo — non accedono mai, archiviamo o elaboriamo il registro di chat, cronologia di conversazione, memoria AI, sintesi di conversazione o file utente dalla piattaforma AI. Non raccogliamo dati limitati (informazioni sulla carta di pagamento, informazioni sulla salute, identificatori governativi, credenziali di accesso). Non raccogliamo dati di localizzazione. Non ci impegniamo nella sorveglianza, nella profilazione comportamentale o nel tracciamento dei metadati (tempi, IP, modelli di query) oltre a ciò che è strettamente necessario per eseguire lo strumento richiesto. (6) Annunciazioni degli strumenti — tutti gli strumenti sono annotati con readOnlyHint e distruttivoHint per indicare chiaramente il loro comportamento. (7) Rivocazione — è possibile revocare l'accesso della piattaforma AI in qualsiasi momento dall'interno delle impostazioni di ogni piattaforma o dal vostro Watchr conto.",
+      },
+      mcpTools: {
+        title: "Ingressi e uscite dei dati dello strumento MCP",
+        content: "La seguente tabella descrive i dati esatti ricevuti (input) e i dati restituiti (output) per ciascuno dei 15 strumenti MCP. Queste informazioni sono fornite per garantire la trasparenza su quali dati vengono trattati quando si utilizza Watchr attraverso una piattaforma AI.",
       },
       dataStorage: {
         title: "Conservazione e sicurezza dei dati",
@@ -285,14 +293,6 @@ const it = {
       contact: {
         title: "Contattaci",
         content: "Se hai domande sulla presente Informativa sulla privacy, le nostre integrazioni sulla piattaforma AI o desideri esercitare i tuoi diritti di protezione dei dati, puoi contattarci a: ArquiTech — contact@arquitech.com. Risponderemo alla vostra richiesta entro 30 giorni.",
-      },
-      legalBasis: {
-        title: "Base legale per il trattamento dei dati (GDPR)",
-        content: "Trattiamo i dati personali in una o più delle seguenti basi giuridiche: (1) Prestazioni di un contratto — trattamento necessario per fornire il Servizio richiesto, compresa la gestione dell'account, i dati di monitoraggio e le integrazioni della piattaforma AI. (2) Consenso — trattamento basato sul Suo esplicito consenso, come la connessione Watchr alle piattaforme AI tramite MCP e postando commenti pubblici. (3) Rispetto agli obblighi legali — trattamento conforme alle leggi applicabili, come il mantenimento dei registri dei server per la sicurezza e la prevenzione delle frodi. (4) Interessi legittimi — elaborazione necessaria per garantire e migliorare il Servizio, tra cui rilevamento di abusi, risoluzione dei problemi e analisi anonimizzata. Ha il diritto di opporsi al trattamento basato su interessi legittimi. Per farlo, contattateci a contact@arquitech.com.",
-      },
-      mcpTools: {
-        title: "Ingressi e uscite dei dati dello strumento MCP",
-        content: "La seguente tabella descrive i dati esatti ricevuti (input) e i dati restituiti (output) per ciascuno dei 15 strumenti MCP. Queste informazioni sono fornite per garantire la trasparenza su quali dati vengono trattati quando si utilizza Watchr attraverso una piattaforma AI.",
       },
     },
   },
@@ -513,18 +513,88 @@ const it = {
       configTitle: "Configurazione MCP",
       toolsTitle: "Strumenti disponibili",
       tools: {
-        search_show: "Cerca spettacoli televisivi e film per titolo. Risultati con TMDB ID, titoli e metadati.",
-        list_watchlist: "Elenca la lista di orologi dell'utente con supporto paginazione. Restituisce le voci di tracciamento con i dettagli dello spettacolo.",
-        add_to_watchlist: "Aggiungi uno spettacolo o un film alla lista di orologi da TMDB ID e tipo (tv o film).",
-        update_watch_status: "Aggiorna lo stato dell'orologio di uno spettacolo nella lista degli orologi. Quando si marca come completato, tutti gli episodi vengono contrassegnati automaticamente come osservati. Lo stato può essere guardando, completato, plan to watch, o caduto.",
-        remove_from_watchlist: "Rimuovere uno spettacolo dalla lista di orologi dal suo Show ObjectId.",
-        toggle_episode: "Segna un episodio specifico come guardato o non guardato.",
-        mark_episodes_up_to: "Segna tutti gli episodi fino a una specifica stagione/episode come guardato.",
-        get_show_details: "Ottieni informazioni dettagliate su uno spettacolo da TMDB ID, incluse stagioni e episodi.",
-        rate_show: "Vota uno spettacolo o un episodio da 1 a 5 stelle. Opzionalmente includere un testo di revisione.",
-        get_ratings: "Ottenere la valutazione dell'utente e le valutazioni della comunità per uno spettacolo.",
-        list_comments: "Elenca commenti pubblici per uno spettacolo, facoltativamente filtrato per episodio.",
-        add_comment: "Pubblica un commento pubblico su uno spettacolo o un episodio.",
+        search_show: {
+          params: {
+            query: "La stringa di query di ricerca (1-200 caratteri).",
+          },
+        },
+        list_watchlist: {
+          params: {
+            page: "Numero di pagina (default: 1).",
+            limit: "Articoli per pagina (default: 20, max: 100).",
+          },
+        },
+        add_to_watchlist: {
+          params: {
+            tmdbId: "The TMDB ID dello spettacolo o del film.",
+            type: "Il tipo di contenuto: \"tv\" o \"movie\".",
+          },
+        },
+        update_watch_status: {
+          params: {
+            showId: "Lo Show ObjectId.",
+            status: "Il nuovo stato dell'orologio: guardare, completare, plan to watch, o cadere.",
+          },
+        },
+        remove_from_watchlist: {
+          params: {
+            showId: "Lo Show ObjectId.",
+          },
+        },
+        toggle_episode: {
+          params: {
+            showId: "Lo Show ObjectId.",
+            season: "Il numero di stagione.",
+            episode: "Il numero dell'episodio.",
+            watched: "Se segnare come guardato (vero) o non guardato (falso).",
+          },
+        },
+        mark_episodes_up_to: {
+          params: {
+            showId: "Lo Show ObjectId.",
+            season: "Il numero di stagione target.",
+            episode: "Il numero di episodio di destinazione.",
+            includePrevious: "Se segnare tutti gli episodi precedenti in tutte le stagioni (default: true).",
+          },
+        },
+        get_show_details: {
+          params: {
+            tmdbId: "The TMDB ID dello spettacolo.",
+          },
+        },
+        rate_show: {
+          params: {
+            showId: "Lo Show ObjectId.",
+            value: "Il valore di valutazione da 1 a 5.",
+            season: "Numero di stagione opzionale per le valutazioni specifiche degli episodi.",
+            episode: "Numero di episodio opzionale per le valutazioni specifiche degli episodi.",
+            review: "Testo di recensione opzionale (max 2000 caratteri).",
+          },
+        },
+        get_ratings: {
+          params: {
+            showId: "Lo Show ObjectId.",
+          },
+        },
+        list_comments: {
+          params: {
+            showId: "Lo Show ObjectId.",
+            season: "Numero di stagione opzionale per filtrare i commenti.",
+            episode: "Numero di episodio opzionale per filtrare i commenti.",
+            page: "Numero di pagina (default: 1).",
+            limit: "Articoli per pagina (default: 10, max: 50).",
+            sort: "Ordinare ordine: recente, gradito, risposto, o pertinente (default: recente).",
+          },
+        },
+        add_comment: {
+          params: {
+            showId: "Lo Show ObjectId.",
+            content: "Il testo del commento (1-2000 caratteri).",
+            season: "Numero di stagione opzionale per i commenti degli episodi.",
+            episode: "Numero di episodio opzionale per i commenti degli episodi.",
+            isSpoiler: "Se il commento contiene spoiler (default: false).",
+          },
+        },
         get_upcoming: "Ricevi i prossimi episodi per spettacoli nella lista degli utenti, classificato da oggi, questa settimana, la prossima settimana, e più tardi.",
         get_stats: "Ottenere l'utente sta guardando le statistiche, tra cui episodi guardati, ore, striature, ripartizione del genere e attività recente.",
         get_recommendations: "Ottieni consigli personalizzati sulla mostra in base alla cronologia degli orologi e alle valutazioni.",

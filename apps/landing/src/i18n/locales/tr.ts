@@ -258,9 +258,17 @@ const tr = {
         title: "Data Retention",
         content: "Aşağıdaki dönemler için verilerinizi koruyoruz: (1) Hesap verileri – hesabınızı silinceye kadar, bu noktada tüm ilişkili veriler 30 gün içinde kalıcı olarak silinir. (2) Takip verileri (watchlist, ratings, comments) – onu veya hesabınızı silinceye kadar. (3) OAuth jetonları - yapılandırılabilir bir TTL (default: 1 saat); yenileme jetleri iptal edilene kadar veya genişletilene kadar geçerlidir (default: 30 gün). Revoked jetler hemen geçersizdir. (4) API anahtarları - onları geri döndürene kadar. Revoked anahtarları hemen geçersizdir. (5) İthalat dosyaları - işlemden hemen sonra silin. (6) Analytics - anonim olarak depolanır, bireysel kullanıcı tutma ile askıya alındı. (7) Server girişleri - güvenlik ve debugging amaçları için en fazla 90 gün kaldı.",
       },
+      legalBasis: {
+        title: "Data Processing için Yasal Basis (GDPR)",
+        content: "Aşağıdaki yasal üslerin bir veya daha fazlası altında kişisel verileri işlem yapıyoruz: (1) Bir sözleşme Performansı - talep ettiğiniz hizmeti sağlamak için gerekli işlem, hesap yönetimi, verileri takip etmek ve AI platform entegrasyonu. (2) Consent - açık rızanıza bağlı olarak işleme, bağlanmak gibi, Watchr MCP aracılığıyla AI platformlarına ve halk yorumları yayınlayın. (3) Yasal yükümlülüklere uymak - güvenlik ve dolandırıcılık önleme için sunucu loglarını korumak gibi geçerli yasalara uymak. (4) Legitimate ilgileri - Hizmeti korumak ve geliştirmek için gerekli işlem, istismar tespiti, sorun giderme ve anonim analizler dahil. Yasal çıkarlara dayanan işleme itiraz etme hakkına sahipsiniz. Bunu yapmak için bizimle iletişime geçin@arquitech.com.",
+      },
       aiIntegration: {
         title: "AI Platform Entegrasyonu (MCP)",
         content: "Watchr ChatGPT (OpenAI), Claude (Anthropic), Gemini (Anthropic) de dahil olmak üzere AI platformları ile bütünleşir.Google) ve Microsoft Copilot - Model Context Protokolü (MCP). Bağlandığında Watchr Bir AI platformuna göre, aşağıdaki geçerlidir: (1) Kimlik - OAuth 2.0 ile PKCE ile bağlantıyı yazarsınız, ya okuma-yazma kapsamını seçin. Herhangi bir erişimden önce bir onay ekranı gösterilir. (2) Araçlar - Watchr 15 araç ortaya çıkar (8 sadece 7 yazı). Araçlar arama şovlarını okuyun, saat listenizi listeleyin, puanları ve yorumları alın ve istatistikler ve öneriler alın. Arama araçları ekle ya da şov listenizden gösterir, güncelleştirme izleme durumu, izledikçe işaret bölümleri, post ratings ve post comments. (3) AI platformlarına gönderilen veriler - sadece talep ettiğiniz araç çıktıları (örneğin, arama sonuçları, izleme listeleri, puanlar, yorumlar, istatistikler). (4) AI platformlarından alınan veriler - sadece bir istek uygulamak için gerekli olan araç girişi (örneğin, arama sorguları, arama sorguları, TMDB IDs, derecelendirme değerleri, yorum metni) (5) Ne toplamayız - sohbet logunuzu, konuşma tarihinizi, AI hafızanızı, konuşma özetlerini veya kullanıcı dosyalarını AI platformundan işlemeyiz. Sınırlı verileri toplamayız (ödeme kartı bilgileri, sağlık bilgileri, hükümet tanımlayıcıları, erişim kimlikleri). Konum verilerini toplamayız. İzleme, davranışsal profilleme veya metadata izleme (timestamps, IPs, sorgu kalıpları) talep edilen aracı yürütmek için kesinlikle gerekli olan şeyin ötesinde. (6) Alet annotasyonları - tüm araçlar, davranışlarını açıkça belirtmek için sadeceHint ve yıkıcıHint'i okumakla birleştirildi. (7) Revo - her platformdaki ayarlardan veya her platformunuzun ayarlarından herhangi bir zamanda AI platform erişimini geri döndürebilirsiniz Watchr hesap.",
+      },
+      mcpTools: {
+        title: "MCP Tool Data Girişleri ve Çıktılar",
+        content: "Aşağıdaki tablo, 15 MCP aracının her biri için alınan verileri (inputs) ve verileri açıklar. Bu bilgiler, kullandığınız zaman hangi verilerin işlendiği hakkında şeffaflık sağlamak için sağlanmaktadır. Watchr Bir AI platformu aracılığıyla.",
       },
       dataStorage: {
         title: "Data Storage & Security",
@@ -285,14 +293,6 @@ const tr = {
       contact: {
         title: "Bize ulaşın",
         content: "Bu Gizlilik Politikası ile ilgili sorularınız varsa, AI platform entegrasyonları veya veri koruma haklarını kullanmak istiyorsanız, bizimle iletişime geçebilirsiniz: ArquiTech – contact@arquitech.com. 30 gün içinde isteğinize cevap vereceğiz.",
-      },
-      legalBasis: {
-        title: "Data Processing için Yasal Basis (GDPR)",
-        content: "Aşağıdaki yasal üslerin bir veya daha fazlası altında kişisel verileri işlem yapıyoruz: (1) Bir sözleşme Performansı - talep ettiğiniz hizmeti sağlamak için gerekli işlem, hesap yönetimi, verileri takip etmek ve AI platform entegrasyonu. (2) Consent - açık rızanıza bağlı olarak işleme, bağlanmak gibi, Watchr MCP aracılığıyla AI platformlarına ve halk yorumları yayınlayın. (3) Yasal yükümlülüklere uymak - güvenlik ve dolandırıcılık önleme için sunucu loglarını korumak gibi geçerli yasalara uymak. (4) Legitimate ilgileri - Hizmeti korumak ve geliştirmek için gerekli işlem, istismar tespiti, sorun giderme ve anonim analizler dahil. Yasal çıkarlara dayanan işleme itiraz etme hakkına sahipsiniz. Bunu yapmak için bizimle iletişime geçin@arquitech.com.",
-      },
-      mcpTools: {
-        title: "MCP Tool Data Girişleri ve Çıktılar",
-        content: "Aşağıdaki tablo, 15 MCP aracının her biri için alınan verileri (inputs) ve verileri açıklar. Bu bilgiler, kullandığınız zaman hangi verilerin işlendiği hakkında şeffaflık sağlamak için sağlanmaktadır. Watchr Bir AI platformu aracılığıyla.",
       },
     },
   },
@@ -513,18 +513,88 @@ const tr = {
       configTitle: "MCP yapılandırma",
       toolsTitle: "Mevcut aletler",
       tools: {
-        search_show: "TV şovları ve filmleri başlıkla arayın. Geri dönüş sonuçları ile TMDB IDs, başlıklar ve metadata.",
-        list_watchlist: "Kullanıcının pigination desteği ile saat listesi. Gösteri ayrıntılarıyla giriş giriş girişleri takip eder.",
-        add_to_watchlist: "İzleme listesine bir gösteri veya film ekleyin TMDB ID ve tip (tv veya film).",
-        update_watch_status: "Saat listesinde bir gösterinin saat durumunu güncelleyin. Tamamlandığında, tüm bölümler otomatik olarak izlenme olarak işaretlenir. Durum izlemek, tamamlanabilir, plan to watch veya düştü.",
-        remove_from_watchlist: "Show ObjectId tarafından izleyen bir şov çıkarın.",
-        toggle_episode: "Mark a specific section as watching or unwatched.",
-        mark_episodes_up_to: "Mark tüm bölümler belirli bir sezon/episode izledikçe.",
-        get_show_details: "Bir gösteri hakkında ayrıntılı bilgi alın TMDB ID, mevsimler ve bölümler dahil.",
-        rate_show: "Bir gösteri veya bölüm 1 ila 5 yıldıza katılın. Seçmeli olarak bir inceleme metni içerir.",
-        get_ratings: "Kullanıcının derecelendirme ve topluluk puanlarını bir gösteri için alın.",
-        list_comments: "Bir gösteri için halk yorumları, bölüm tarafından isteğe bağlı olarak filtrelendi.",
-        add_comment: "Bir gösteri veya bölüm hakkında bir halk yorumu.",
+        search_show: {
+          params: {
+            query: "Arama sorgu dizesi (1-200 karakter).",
+          },
+        },
+        list_watchlist: {
+          params: {
+            page: "Sayfa numarası (default: 1).",
+            limit: "Sayfa başına öğeler (default: 20, max: 100).",
+          },
+        },
+        add_to_watchlist: {
+          params: {
+            tmdbId: "The The The The The The The The TMDB Gösterinin veya filmin kimliği.",
+            type: "İçerik türü: \"tv\" veya \"movie\".",
+          },
+        },
+        update_watch_status: {
+          params: {
+            showId: "Show ObjectId.",
+            status: "Yeni saat durumu: izlemek, tamamlandı, plan to watch, ya da düştü.",
+          },
+        },
+        remove_from_watchlist: {
+          params: {
+            showId: "Show ObjectId.",
+          },
+        },
+        toggle_episode: {
+          params: {
+            showId: "Show ObjectId.",
+            season: "Sezon numarası.",
+            episode: "Bölüm numarası.",
+            watched: "İzlendiği gibi işaret etmek (gerçek) veya gözlemsiz (false).",
+          },
+        },
+        mark_episodes_up_to: {
+          params: {
+            showId: "Show ObjectId.",
+            season: "Hedef sezon numarası.",
+            episode: "Hedef bölüm numarası.",
+            includePrevious: "Sezonların tüm önceki bölümlerini işaretlemek (default: true).",
+          },
+        },
+        get_show_details: {
+          params: {
+            tmdbId: "The The The The The The The The TMDB Gösterinin kimliği.",
+          },
+        },
+        rate_show: {
+          params: {
+            showId: "Show ObjectId.",
+            value: "Puan değeri 1 ila 5.",
+            season: "Bölüm özel notlar için Seçmeli sezon sayısı.",
+            episode: "bölüm özel notlar için zorunlu bölüm numarası.",
+            review: "Seçmeli inceleme metni (max 2000 karakter).",
+          },
+        },
+        get_ratings: {
+          params: {
+            showId: "Show ObjectId.",
+          },
+        },
+        list_comments: {
+          params: {
+            showId: "Show ObjectId.",
+            season: "Filtre yorumları için Seçmeli sezon numarası.",
+            episode: "Seçmeli bölüm numarası filtre yorumları için.",
+            page: "Sayfa numarası (default: 1).",
+            limit: "Sayfa başına öğeler (default: 10, max: 50).",
+            sort: "Sort: Son zamanlarda, hoşlandı, ya da ilgili (default: son).",
+          },
+        },
+        add_comment: {
+          params: {
+            showId: "Show ObjectId.",
+            content: "Yorum metni (1-2000 karakter).",
+            season: "Bölüm yorumları için Seçmeli sezon sayısı.",
+            episode: "bölüm yorumları için zorunlu bölüm numarası.",
+            isSpoiler: "Yorum şımartıcılar (default: false).",
+          },
+        },
         get_upcoming: "Kullanıcının izleme listesindeki gösteriler için önümüzdeki hafta ve daha sonra bu hafta, kategorize edilen bölüm alın.",
         get_stats: "Kullanıcının bölümler dahil olmak üzere istatistikler izlemek, saatler, çizgi, tür arıza ve son etkinlik.",
         get_recommendations: "Tarih ve derecelendirmelere dayanan kişisel şov önerileri alın.",

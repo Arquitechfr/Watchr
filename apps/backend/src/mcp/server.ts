@@ -20,6 +20,7 @@ import { getRecommendations } from "../services/recommendation.service.js";
 import { WatchStatus } from "../models/watchEntry.model.js";
 import { Show } from "../models/show.model.js";
 import { logError } from "../lib/logger.js";
+import { ApiError } from "../middleware/error.middleware.js";
 
 export interface ApiUserContext {
   userId: string;
@@ -48,6 +49,31 @@ function jsonResult(result: unknown): {
   };
 }
 
+function toolError(status: number, code: string, message: string): {
+  content: { type: "text"; text: string }[];
+  isError: true;
+} {
+  return {
+    content: [{ type: "text", text: JSON.stringify({ error: { status, code, message } }) }],
+    isError: true,
+  };
+}
+
+async function safeTool<T>(
+  fn: () => Promise<T>,
+): Promise<ReturnType<typeof jsonResult> | ReturnType<typeof toolError>> {
+  try {
+    const result = await fn();
+    return jsonResult(result);
+  } catch (err) {
+    if (err instanceof ApiError) {
+      return toolError(err.status, err.code, err.message);
+    }
+    logError("McpServer", "Unexpected tool error", err);
+    return toolError(500, "INTERNAL_ERROR", "An unexpected error occurred");
+  }
+}
+
 export function buildMcpServer(apiUser: ApiUserContext): McpServer {
   const server = new McpServer({
     name: "watchr-mcp",
@@ -66,8 +92,7 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
       if (!checkScope(apiUser.scopes, "read")) {
         return scopeError("read");
       }
-      const results = await searchShows(query, apiUser.language);
-      return jsonResult(results);
+      return safeTool(() => searchShows(query, apiUser.language));
     },
   );
 
@@ -86,8 +111,7 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
       if (!checkScope(apiUser.scopes, "read")) {
         return scopeError("read");
       }
-      const result = await listTracking(apiUser.userId, page, limit, undefined, apiUser.language);
-      return jsonResult(result);
+      return safeTool(() => listTracking(apiUser.userId, page, limit, undefined, apiUser.language));
     },
   );
 
@@ -106,8 +130,7 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
       if (!checkScope(apiUser.scopes, "write")) {
         return scopeError("write");
       }
-      const entry = await addToWatchlistByTmdb(apiUser.userId, tmdbId, type, apiUser.language);
-      return jsonResult(entry);
+      return safeTool(() => addToWatchlistByTmdb(apiUser.userId, tmdbId, type, apiUser.language));
     },
   );
 
@@ -129,31 +152,29 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
 
       // When marking as completed, mark all episodes as watched
       if (status === "completed") {
-        const show = await Show.findById(showId).lean();
-        if (!show) {
-          return {
-            content: [{ type: "text", text: JSON.stringify({ error: "Show not found" }) }],
-            isError: true,
-          };
-        }
-        const seasons = show.seasons ?? [];
-        if (seasons.length > 0) {
-          const lastSeason = seasons[seasons.length - 1];
-          const lastEpisode = lastSeason.episodes?.length ?? 0;
-          const entry = await upsertWithProgress(apiUser.userId, showId, {
-            status: "completed",
-            markUpTo: {
-              season: lastSeason.seasonNumber,
-              episode: lastEpisode,
-              includePrevious: true,
-            },
-          });
-          return jsonResult(entry);
-        }
+        return safeTool(async () => {
+          const show = await Show.findById(showId).lean();
+          if (!show) {
+            throw new ApiError(404, "SHOW_NOT_FOUND", "Show not found");
+          }
+          const seasons = show.seasons ?? [];
+          if (seasons.length > 0) {
+            const lastSeason = seasons[seasons.length - 1];
+            const lastEpisode = lastSeason.episodes?.length ?? 0;
+            return upsertWithProgress(apiUser.userId, showId, {
+              status: "completed",
+              markUpTo: {
+                season: lastSeason.seasonNumber,
+                episode: lastEpisode,
+                includePrevious: true,
+              },
+            });
+          }
+          return upsertTracking(apiUser.userId, showId, { status: status as WatchStatus });
+        });
       }
 
-      const entry = await upsertTracking(apiUser.userId, showId, { status: status as WatchStatus });
-      return jsonResult(entry);
+      return safeTool(() => upsertTracking(apiUser.userId, showId, { status: status as WatchStatus }));
     },
   );
 
@@ -171,8 +192,10 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
       if (!checkScope(apiUser.scopes, "write")) {
         return scopeError("write");
       }
-      await deleteTracking(apiUser.userId, showId);
-      return jsonResult({ success: true, showId });
+      return safeTool(async () => {
+        await deleteTracking(apiUser.userId, showId);
+        return { success: true, showId };
+      });
     },
   );
 
@@ -195,8 +218,7 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
       if (!checkScope(apiUser.scopes, "write")) {
         return scopeError("write");
       }
-      const entry = await toggleEpisode(apiUser.userId, showId, season, episode, watched);
-      return jsonResult(entry);
+      return safeTool(() => toggleEpisode(apiUser.userId, showId, season, episode, watched));
     },
   );
 
@@ -211,14 +233,13 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
         includePrevious: z.boolean().default(true),
       },
       outputSchema: { result: z.unknown() },
-      annotations: { readOnlyHint: false, openWorldHint: false, destructiveHint: false },
+      annotations: { readOnlyHint: false, openWorldHint: false, destructiveHint: true },
     },
     async ({ showId, season, episode, includePrevious }) => {
       if (!checkScope(apiUser.scopes, "write")) {
         return scopeError("write");
       }
-      const entry = await markEpisodesUpTo(apiUser.userId, showId, season, episode, includePrevious);
-      return jsonResult(entry);
+      return safeTool(() => markEpisodesUpTo(apiUser.userId, showId, season, episode, includePrevious));
     },
   );
 
@@ -236,8 +257,7 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
       if (!checkScope(apiUser.scopes, "read")) {
         return scopeError("read");
       }
-      const show = await getShowDetails(tmdbId, apiUser.language);
-      return jsonResult(show);
+      return safeTool(() => getShowDetails(tmdbId, apiUser.language));
     },
   );
 
@@ -255,15 +275,14 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
         review: z.string().max(2000).optional(),
       },
       outputSchema: { result: z.unknown() },
-      annotations: { readOnlyHint: false, openWorldHint: false, destructiveHint: true },
+      annotations: { readOnlyHint: false, openWorldHint: false, destructiveHint: false },
     },
     async ({ showId, value, season, episode, review }) => {
       if (!checkScope(apiUser.scopes, "write")) {
         return scopeError("write");
       }
       const episodeRef = season !== undefined && episode !== undefined ? { season, episode } : undefined;
-      const result = await upsertRating(apiUser.userId, { showId, value, episodeRef, review });
-      return jsonResult(result);
+      return safeTool(() => upsertRating(apiUser.userId, { showId, value, episodeRef, review }));
     },
   );
 
@@ -281,8 +300,7 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
       if (!checkScope(apiUser.scopes, "read")) {
         return scopeError("read");
       }
-      const result = await listRatingsForShow(apiUser.userId, showId);
-      return jsonResult(result);
+      return safeTool(() => listRatingsForShow(apiUser.userId, showId));
     },
   );
 
@@ -307,14 +325,13 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
       if (!checkScope(apiUser.scopes, "read")) {
         return scopeError("read");
       }
-      const result = await listCommentsForShow(apiUser.userId, showId, {
+      return safeTool(() => listCommentsForShow(apiUser.userId, showId, {
         season,
         episode,
         page,
         limit,
         sort,
-      });
-      return jsonResult(result);
+      }));
     },
   );
 
@@ -330,15 +347,14 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
         isSpoiler: z.boolean().default(false),
       },
       outputSchema: { result: z.unknown() },
-      annotations: { readOnlyHint: false, openWorldHint: true, destructiveHint: false },
+      annotations: { readOnlyHint: false, openWorldHint: false, destructiveHint: false },
     },
     async ({ showId, content, season, episode, isSpoiler }) => {
       if (!checkScope(apiUser.scopes, "write")) {
         return scopeError("write");
       }
       const episodeRef = season !== undefined && episode !== undefined ? { season, episode } : undefined;
-      const comment = await createComment(apiUser.userId, { showId, content, episodeRef, isSpoiler });
-      return jsonResult(comment);
+      return safeTool(() => createComment(apiUser.userId, { showId, content, episodeRef, isSpoiler }));
     },
   );
 
@@ -356,8 +372,7 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
       if (!checkScope(apiUser.scopes, "read")) {
         return scopeError("read");
       }
-      const result = await getUpcomingEpisodes(apiUser.userId, apiUser.language);
-      return jsonResult(result);
+      return safeTool(() => getUpcomingEpisodes(apiUser.userId, apiUser.language));
     },
   );
 
@@ -373,8 +388,7 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
       if (!checkScope(apiUser.scopes, "read")) {
         return scopeError("read");
       }
-      const result = await getUserStats(apiUser.userId, apiUser.language);
-      return jsonResult(result);
+      return safeTool(() => getUserStats(apiUser.userId, apiUser.language));
     },
   );
 
@@ -390,8 +404,7 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
       if (!checkScope(apiUser.scopes, "read")) {
         return scopeError("read");
       }
-      const result = await getRecommendations(apiUser.userId, apiUser.language);
-      return jsonResult(result);
+      return safeTool(() => getRecommendations(apiUser.userId, apiUser.language));
     },
   );
 

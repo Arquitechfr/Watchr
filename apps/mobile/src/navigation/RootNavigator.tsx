@@ -76,7 +76,7 @@ export type RootStackParamList = {
   MagicLink: { token: string };
   NewsArticleDetail: { link: string; title: string };
   ConversationList: undefined;
-  Chat: { conversationId: string; otherUsername: string };
+  Chat: { conversationId: string; otherUsername: string; otherUserAvatarUrl?: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -197,6 +197,13 @@ export function RootNavigator() {
         FriendsActivity: "friends",
         UserSearch: "search-users",
         NewsArticleDetail: "news-article",
+        ConversationList: "conversations",
+        Chat: {
+          path: "chat/:conversationId",
+          parse: {
+            conversationId: (value: string) => value,
+          },
+        },
         Main: {
           path: "main",
           screens: {

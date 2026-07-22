@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Text, TouchableOpacity, ActivityIndicator, Share, Linking, Platform } from "react-native";
+import { View, Text, TouchableOpacity, ActivityIndicator, Linking, Platform } from "react-native";
 import { WebView } from "react-native-webview";
 import { useRoute, useNavigation, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -9,6 +9,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useThemeColors } from "../theme/useThemeColors";
 import { useI18n } from "../i18n/useI18n";
 import { Seo } from "../components/Seo";
+import { shareContent } from "../utils/share";
 
 type NewsArticleDetailRouteProp = RouteProp<RootStackParamList, "NewsArticleDetail">;
 type NewsArticleDetailNavigationProp = NativeStackNavigationProp<RootStackParamList, "NewsArticleDetail">;
@@ -23,7 +24,7 @@ export function NewsArticleDetailScreen() {
 
   async function handleShare() {
     try {
-      await Share.share({ url: link, message: title });
+      await shareContent({ url: link, message: title });
     } catch {
       // user dismissed share sheet
     }

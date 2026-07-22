@@ -22,8 +22,11 @@ import {
   blockUser,
   unblockUser,
   getBlockedUsers,
+  getDmContacts,
   type MessageItem,
   type MessageAttachment,
+  type ConversationItem,
+  type DmContact,
 } from "../services/message.service";
 
 const CONVERSATIONS_KEY = "conversations";
@@ -83,7 +86,7 @@ export function useSendMessage(conversationId: string) {
   return useMutation({
     mutationFn: ({ content, attachments }: { content: string; attachments?: MessageAttachment[] }) =>
       sendMessage(conversationId, content, attachments),
-    onMutate: async ({ content }) => {
+    onMutate: async ({ content, attachments }) => {
       await queryClient.cancelQueries({ queryKey: [MESSAGES_KEY, conversationId] });
 
       const prevData = queryClient.getQueriesData<{ pages: { messages: MessageItem[] }[] }>({
@@ -95,7 +98,7 @@ export function useSendMessage(conversationId: string) {
         conversationId,
         senderId: useAuthStore.getState().userId ?? "",
         content,
-        attachments: [],
+        attachments: attachments ?? [],
         isRead: true,
         editedAt: null,
         isDeleted: false,
@@ -140,7 +143,38 @@ export function useEditMessage(conversationId: string) {
   return useMutation({
     mutationFn: ({ messageId, content }: { messageId: string; content: string }) =>
       editMessage(messageId, content),
-    onSuccess: () => {
+    onMutate: async ({ messageId, content }) => {
+      await queryClient.cancelQueries({ queryKey: [MESSAGES_KEY, conversationId] });
+      const prevData = queryClient.getQueriesData<{ pages: { messages: MessageItem[] }[] }>({
+        queryKey: [MESSAGES_KEY, conversationId],
+      });
+      queryClient.setQueriesData<{ pages: { messages: MessageItem[] }[] }>(
+        { queryKey: [MESSAGES_KEY, conversationId] },
+        (old: { pages: { messages: MessageItem[] }[] } | undefined) => {
+          if (!old?.pages?.length) return old;
+          return {
+            ...old,
+            pages: old.pages.map((page: { messages: MessageItem[] }) => ({
+              ...page,
+              messages: page.messages.map((msg: MessageItem) =>
+                msg.id === messageId
+                  ? { ...msg, content, editedAt: new Date().toISOString() }
+                  : msg,
+              ),
+            })),
+          };
+        },
+      );
+      return { prevData };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.prevData) {
+        context.prevData.forEach(([key, data]) => {
+          queryClient.setQueryData(key, data);
+        });
+      }
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: [MESSAGES_KEY, conversationId] });
     },
   });
@@ -150,7 +184,38 @@ export function useDeleteMessage(conversationId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (messageId: string) => deleteMessage(messageId),
-    onSuccess: () => {
+    onMutate: async (messageId) => {
+      await queryClient.cancelQueries({ queryKey: [MESSAGES_KEY, conversationId] });
+      const prevData = queryClient.getQueriesData<{ pages: { messages: MessageItem[] }[] }>({
+        queryKey: [MESSAGES_KEY, conversationId],
+      });
+      queryClient.setQueriesData<{ pages: { messages: MessageItem[] }[] }>(
+        { queryKey: [MESSAGES_KEY, conversationId] },
+        (old: { pages: { messages: MessageItem[] }[] } | undefined) => {
+          if (!old?.pages?.length) return old;
+          return {
+            ...old,
+            pages: old.pages.map((page: { messages: MessageItem[] }) => ({
+              ...page,
+              messages: page.messages.map((msg: MessageItem) =>
+                msg.id === messageId
+                  ? { ...msg, isDeleted: true, content: "" }
+                  : msg,
+              ),
+            })),
+          };
+        },
+      );
+      return { prevData };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.prevData) {
+        context.prevData.forEach(([key, data]) => {
+          queryClient.setQueryData(key, data);
+        });
+      }
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: [MESSAGES_KEY, conversationId] });
     },
   });
@@ -161,7 +226,45 @@ export function useAddReaction(conversationId: string) {
   return useMutation({
     mutationFn: ({ messageId, emoji }: { messageId: string; emoji: string }) =>
       addReaction(messageId, emoji),
-    onSuccess: () => {
+    onMutate: async ({ messageId, emoji }) => {
+      await queryClient.cancelQueries({ queryKey: [MESSAGES_KEY, conversationId] });
+      const prevData = queryClient.getQueriesData<{ pages: { messages: MessageItem[] }[] }>({
+        queryKey: [MESSAGES_KEY, conversationId],
+      });
+      const currentUserId = useAuthStore.getState().userId ?? "";
+      queryClient.setQueriesData<{ pages: { messages: MessageItem[] }[] }>(
+        { queryKey: [MESSAGES_KEY, conversationId] },
+        (old: { pages: { messages: MessageItem[] }[] } | undefined) => {
+          if (!old?.pages?.length) return old;
+          return {
+            ...old,
+            pages: old.pages.map((page: { messages: MessageItem[] }) => ({
+              ...page,
+              messages: page.messages.map((msg: MessageItem) => {
+                if (msg.id !== messageId) return msg;
+                const hasReaction = msg.reactions.some(
+                  (r) => r.userId === currentUserId && r.emoji === emoji,
+                );
+                if (hasReaction) return msg;
+                return {
+                  ...msg,
+                  reactions: [...msg.reactions, { userId: currentUserId, emoji }],
+                };
+              }),
+            })),
+          };
+        },
+      );
+      return { prevData };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.prevData) {
+        context.prevData.forEach(([key, data]) => {
+          queryClient.setQueryData(key, data);
+        });
+      }
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: [MESSAGES_KEY, conversationId] });
     },
   });
@@ -172,7 +275,43 @@ export function useRemoveReaction(conversationId: string) {
   return useMutation({
     mutationFn: ({ messageId, emoji }: { messageId: string; emoji: string }) =>
       removeReaction(messageId, emoji),
-    onSuccess: () => {
+    onMutate: async ({ messageId, emoji }) => {
+      await queryClient.cancelQueries({ queryKey: [MESSAGES_KEY, conversationId] });
+      const prevData = queryClient.getQueriesData<{ pages: { messages: MessageItem[] }[] }>({
+        queryKey: [MESSAGES_KEY, conversationId],
+      });
+      const currentUserId = useAuthStore.getState().userId ?? "";
+      queryClient.setQueriesData<{ pages: { messages: MessageItem[] }[] }>(
+        { queryKey: [MESSAGES_KEY, conversationId] },
+        (old: { pages: { messages: MessageItem[] }[] } | undefined) => {
+          if (!old?.pages?.length) return old;
+          return {
+            ...old,
+            pages: old.pages.map((page: { messages: MessageItem[] }) => ({
+              ...page,
+              messages: page.messages.map((msg: MessageItem) => {
+                if (msg.id !== messageId) return msg;
+                return {
+                  ...msg,
+                  reactions: msg.reactions.filter(
+                    (r) => !(r.userId === currentUserId && r.emoji === emoji),
+                  ),
+                };
+              }),
+            })),
+          };
+        },
+      );
+      return { prevData };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.prevData) {
+        context.prevData.forEach(([key, data]) => {
+          queryClient.setQueryData(key, data);
+        });
+      }
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: [MESSAGES_KEY, conversationId] });
     },
   });
@@ -189,7 +328,47 @@ export function useMarkAsRead(conversationId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: () => markAsRead(conversationId),
-    onSuccess: () => {
+    onMutate: async () => {
+      const prevConversations = queryClient.getQueriesData<{ pages: { conversations: ConversationItem[] }[] }>({
+        queryKey: [CONVERSATIONS_KEY],
+      });
+      const prevUnread = queryClient.getQueryData<{ unreadCount: number }>([UNREAD_KEY]);
+
+      queryClient.setQueriesData<{ pages: { conversations: ConversationItem[] }[] }>(
+        { queryKey: [CONVERSATIONS_KEY] },
+        (old: { pages: { conversations: ConversationItem[] }[] } | undefined) => {
+          if (!old?.pages?.length) return old;
+          return {
+            ...old,
+            pages: old.pages.map((page: { conversations: ConversationItem[] }) => ({
+              ...page,
+              conversations: page.conversations.map((conv: ConversationItem) =>
+                conv.id === conversationId ? { ...conv, unreadCount: 0 } : conv,
+              ),
+            })),
+          };
+        },
+      );
+
+      if (prevUnread) {
+        queryClient.setQueryData<{ unreadCount: number }>([UNREAD_KEY], {
+          unreadCount: Math.max(0, prevUnread.unreadCount - 1),
+        });
+      }
+
+      return { prevConversations, prevUnread };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.prevConversations) {
+        context.prevConversations.forEach(([key, data]) => {
+          queryClient.setQueryData(key, data);
+        });
+      }
+      if (context?.prevUnread) {
+        queryClient.setQueryData([UNREAD_KEY], context.prevUnread);
+      }
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: [CONVERSATIONS_KEY] });
       queryClient.invalidateQueries({ queryKey: [UNREAD_KEY] });
       queryClient.invalidateQueries({ queryKey: [MESSAGES_KEY, conversationId] });
@@ -245,6 +424,21 @@ export function useBlockedUsers(page = 1, limit = 20) {
   return useQuery({
     queryKey: ["blocked-users", page],
     queryFn: () => getBlockedUsers(page, limit),
+    enabled: isHydrated,
+    staleTime: 60 * 1000,
+  });
+}
+
+const DM_CONTACTS_KEY = "dm-contacts";
+
+export function useDmContacts() {
+  const isHydrated = useAuthStore((s) => s.isHydrated);
+  return useInfiniteQuery({
+    queryKey: [DM_CONTACTS_KEY],
+    queryFn: ({ pageParam = 1 }) => getDmContacts(pageParam, 20),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) =>
+      lastPage.contacts.length >= 20 ? lastPage.page + 1 : undefined,
     enabled: isHydrated,
     staleTime: 60 * 1000,
   });

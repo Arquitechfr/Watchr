@@ -10,6 +10,7 @@ import { ProfileScreen } from "../screens/ProfileScreen";
 import { useThemeColors } from "../theme/useThemeColors";
 import { useI18n } from "../i18n/useI18n";
 import { useRealtimeNotifications } from "../hooks/useRealtimeNotifications";
+import { useMessageRealtime } from "../hooks/useMessageRealtime";
 import { useTrackingRealtime } from "../hooks/useTrackingRealtime";
 import { useUpcomingRealtime } from "../hooks/useUpcomingRealtime";
 import { useInAppNotifications } from "../hooks/useInAppNotifications";
@@ -56,6 +57,7 @@ export function MainTabs() {
   const isDesktopWeb = Platform.OS === "web" && width >= 768;
 
   useRealtimeNotifications();
+  useMessageRealtime();
   useTrackingRealtime();
   useUpcomingRealtime();
   useInAppNotifications();

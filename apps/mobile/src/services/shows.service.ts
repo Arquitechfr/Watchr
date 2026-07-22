@@ -180,6 +180,7 @@ export interface RecommendationItem {
   title: string;
   posterPath?: string;
   overview?: string;
+  firstAirDate?: string;
   reason: string;
 }
 
@@ -218,6 +219,7 @@ export interface MoodRecommendation {
   title: string;
   posterPath?: string;
   overview?: string;
+  firstAirDate?: string;
   reason: string;
 }
 

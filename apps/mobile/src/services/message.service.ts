@@ -172,3 +172,20 @@ export async function getBlockedUsers(page = 1, limit = 20): Promise<{
   const res = await api.get("/blocks", { params: { page, limit } });
   return res.data;
 }
+
+export interface DmContact {
+  id: string;
+  username: string;
+  avatarUrl?: string;
+  isMutual: boolean;
+}
+
+export async function getDmContacts(page = 1, limit = 20): Promise<{
+  contacts: DmContact[];
+  total: number;
+  page: number;
+  limit: number;
+}> {
+  const res = await api.get("/messages/contacts", { params: { page, limit } });
+  return res.data;
+}

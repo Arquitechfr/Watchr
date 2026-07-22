@@ -88,7 +88,8 @@ const en = {
     forgotPasswordBody: "Enter your email to receive a reset link.",
     sendResetLink: "Send reset link",
     resetEmailSent: "Email sent!",
-    resetEmailSentDescription: "If an account exists with this email, you will receive a reset link.",
+    resetEmailSentDescription:
+      "If an account exists with this email, you will receive a reset link.",
     backToLogin: "Back to login",
     resetPasswordTitle: "Reset password",
     resetPasswordBody: "Choose a new password for your account.",
@@ -252,7 +253,8 @@ const en = {
       themeDark: "Dark",
       about: "About",
       aboutVersion: "Version",
-      aboutDescription: "Watchr is a TV show and movie tracker. Track your progress, rate your favorite episodes, and chat with the community.",
+      aboutDescription:
+        "Watchr is a TV show and movie tracker. Track your progress, rate your favorite episodes, and chat with the community.",
       aboutCredits: "Data provided by TMDB. Watchr is an open-source project.",
       aboutLegalEditor: "Editor",
       aboutLegalCompanyName: "Company name",
@@ -300,11 +302,13 @@ const en = {
       contactSuccess: "Message sent! We'll get back to you soon.",
       contactError: "Failed to send message. Please try again.",
       apiKeys: "API keys",
+      settings: "Settings",
       apiKeysDescription: "Manage your API keys to access Watchr programmatically.",
       apiKeysCreate: "Create a key",
       apiKeysEmpty: "No API keys yet",
       apiKeysEmptyDescription: "Create an API key to access your Watchr data from other apps.",
-      apiKeysLimitReached: "You've reached the limit of 10 active API keys. Revoke or delete one to create a new key.",
+      apiKeysLimitReached:
+        "You've reached the limit of 10 active API keys. Revoke or delete one to create a new key.",
       apiKeyName: "Key name",
       apiKeyNamePlaceholder: "e.g. My script",
       apiKeyNameRequired: "Please enter a name for your key.",
@@ -320,13 +324,16 @@ const en = {
       apiKeysRenamed: "API key renamed.",
       apiKeysRevoke: "Revoke",
       apiKeysRevokeConfirmTitle: "Revoke API key?",
-      apiKeysRevokeConfirmMessage: "This key will stop working immediately. This action cannot be undone.",
+      apiKeysRevokeConfirmMessage:
+        "This key will stop working immediately. This action cannot be undone.",
       apiKeysRevokedSuccess: "API key revoked.",
       apiKeysDeleteConfirmTitle: "Delete API key?",
-      apiKeysDeleteConfirmMessage: "This will permanently delete the key. This action is irreversible.",
+      apiKeysDeleteConfirmMessage:
+        "This will permanently delete the key. This action is irreversible.",
       apiKeysDeletedSuccess: "API key deleted.",
       apiKeysTokenWarning: "This token will never be shown again",
-      apiKeysTokenWarningDescription: "Copy it now and store it securely. You won't be able to see it again.",
+      apiKeysTokenWarningDescription:
+        "Copy it now and store it securely. You won't be able to see it again.",
       apiKeysTokenLabel: "Your API token",
       apiKeysCopy: "Copy token",
       apiKeysCopied: "Copied to clipboard",
@@ -401,12 +408,18 @@ const en = {
       following: "Following",
       friendsActivity: "Friends activity",
       findFriends: "Find friends",
-      activityFeedEmpty: "No activity yet. Follow users who share their activity to see their updates here.",
+      activityFeedEmpty:
+        "No activity yet. Follow users who share their activity to see their updates here.",
+      filter_all: "All",
+      filter_rating: "Ratings",
+      filter_watchlist_add: "Watchlist",
+      filter_comment: "Comments",
       noFollowingYet: "You're not following anyone yet.",
       privateProfile: "This user's activity is private.",
       publicProfileActivity: "This user shares their activity publicly.",
       shareActivityTitle: "Share my activity",
-      shareActivityDescription: "When enabled, users who follow you can see your ratings, watchlist additions, and comments in their activity feed.",
+      shareActivityDescription:
+        "When enabled, users who follow you can see your ratings, watchlist additions, and comments in their activity feed.",
       activityPublic: "Public",
       activityPrivate: "Private",
       ratedShow: "rated {{title}} ({{value}}/10)",
@@ -461,7 +474,8 @@ const en = {
       dropShow: "Stop show",
       resumeShow: "Resume show",
       dropConfirmTitle: "Stop show?",
-      dropConfirmMessage: "This show will be removed from your list. You can add it back at any time.",
+      dropConfirmMessage:
+        "This show will be removed from your list. You can add it back at any time.",
       updateProgressError: "Unable to update progress",
       updateTrackingError: "Unable to update tracking",
       droppedStatus: "Show removed from your list",
@@ -470,7 +484,8 @@ const en = {
       episodesWatched: "{{count}} episodes watched",
       markAllAired: "Mark aired",
       markAllAiredConfirmTitle: "Mark all aired episodes?",
-      markAllAiredConfirmMessage: "All aired episodes will be marked as watched. Unaired ones are skipped.",
+      markAllAiredConfirmMessage:
+        "All aired episodes will be marked as watched. Unaired ones are skipped.",
       markAllAiredSuccess: "All aired episodes marked as watched",
       markAllAiredError: "Unable to mark episodes",
       markAllAiredAlreadyUpToDate: "All aired episodes are already marked as watched",
@@ -494,9 +509,11 @@ const en = {
       rejectedHate: "Your comment contains hateful content. Please be respectful.",
       rejectedHarassment: "Your comment contains harassment. Please be respectful.",
       rejectedSpam: "Your comment looks like spam. Please write meaningful content.",
-      rejectedSelfHarm: "If you're struggling, please reach out for help. This content is not allowed.",
+      rejectedSelfHarm:
+        "If you're struggling, please reach out for help. This content is not allowed.",
       rejectedViolence: "Your comment contains violent content. Please be respectful.",
-      rejectedOther: "Your comment was flagged as inappropriate. Please review our community guidelines.",
+      rejectedOther:
+        "Your comment was flagged as inappropriate. Please review our community guidelines.",
       spoilerAutoDetected: "Spoiler detected — your comment was automatically tagged.",
       aiSummary: "AI Summary",
       aiSummaryLoading: "Generating summary…",
@@ -511,7 +528,7 @@ const en = {
       sortLiked: "Liked",
       sortReplied: "Most replied",
       spoilerWarningTitle: "Warning — spoilers",
-      spoilerWarningMessage: "You haven't watched \"{{title}}\" yet. Comments may contain spoilers.",
+      spoilerWarningMessage: 'You haven\'t watched "{{title}}" yet. Comments may contain spoilers.',
       proceedAnyway: "View anyway",
       markWatchedAndProceed: "Mark as watched and read",
       reactionError: "Unable to react",
@@ -580,7 +597,8 @@ const en = {
       reviewPending: "Review {{count}} pending matches",
       recentImports: "Recent imports",
       noRecentImports: "No recent imports",
-      importDisclaimer: "Imports may vary by platform. Some data might not be matched or could be delayed.",
+      importDisclaimer:
+        "Imports may vary by platform. Some data might not be matched or could be delayed.",
       bannerProcessing: "Importing… {{processed}}/{{total}}",
       bannerCompleted: "Import completed — {{matched}} imported",
       bannerFailed: "Import failed",
@@ -645,7 +663,8 @@ const en = {
       ratingError: "Unable to rate episode",
       markSeasonAired: "Mark aired",
       markSeasonAiredConfirmTitle: "Mark aired episodes of S{{season}}?",
-      markSeasonAiredConfirmMessage: "All aired episodes of this season will be marked as watched. Unaired ones are skipped.",
+      markSeasonAiredConfirmMessage:
+        "All aired episodes of this season will be marked as watched. Unaired ones are skipped.",
       aiSummaryLoading: "Generating AI summary…",
       aiSummaryTitle: "AI Summary",
       communityStats: "Community",
@@ -670,22 +689,29 @@ const en = {
       title: "Help",
       subtitle: "Guides for importing and exporting your data.",
       importTvTime: "Import from TV Time",
-      importTvTimeDesc: "TV Time is closing on July 15, 2026. To import your data, request a GDPR export from the TV Time app (Settings → Privacy → Download my data). You will receive a .zip file containing your watch history. Upload it here and we will match your shows automatically.",
+      importTvTimeDesc:
+        "TV Time is closing on July 15, 2026. To import your data, request a GDPR export from the TV Time app (Settings → Privacy → Download my data). You will receive a .zip file containing your watch history. Upload it here and we will match your shows automatically.",
       importTrakt: "Import from Trakt",
-      importTraktDesc: "Export your data from Trakt by going to Settings → Export Data. This will download a JSON file with your watched history, ratings, and watchlist. Upload the file here to import it into Watchr.",
+      importTraktDesc:
+        "Export your data from Trakt by going to Settings → Export Data. This will download a JSON file with your watched history, ratings, and watchlist. Upload the file here to import it into Watchr.",
       importImdb: "Import from IMDb",
-      importImdbDesc: "Export your IMDb ratings and watchlist from imdb.com (Your Activity → Download your data). The CSV file will contain your rated titles. Upload it here and we will match them to TMDB.",
+      importImdbDesc:
+        "Export your IMDb ratings and watchlist from imdb.com (Your Activity → Download your data). The CSV file will contain your rated titles. Upload it here and we will match them to TMDB.",
       importLetterboxd: "Import from Letterboxd",
-      importLetterboxdDesc: "Export your Letterboxd diary from letterboxd.com (Settings → Privacy → Export). The CSV file will contain your watched films with dates. Upload it here to import your movie history.",
+      importLetterboxdDesc:
+        "Export your Letterboxd diary from letterboxd.com (Settings → Privacy → Export). The CSV file will contain your watched films with dates. Upload it here to import your movie history.",
       exportFormats: "Export formats",
-      exportFormatsDesc: "Watchr supports multiple export formats. The native Watchr JSON format is recommended for backups and re-importing. Other formats are compatible with their respective platforms.",
+      exportFormatsDesc:
+        "Watchr supports multiple export formats. The native Watchr JSON format is recommended for backups and re-importing. Other formats are compatible with their respective platforms.",
       reviewMatches: "Reviewing matches",
-      reviewMatchesDesc: "When importing, we automatically match your shows to TMDB. If a match is uncertain, it will be marked for review. You can then confirm the correct match or skip it. Skipped items can be searched manually later.",
+      reviewMatchesDesc:
+        "When importing, we automatically match your shows to TMDB. If a match is uncertain, it will be marked for review. You can then confirm the correct match or skip it. Skipped items can be searched manually later.",
       backToDashboard: "Back to dashboard",
     },
     onboarding: {
       welcomeTitle: "Welcome to Watchr",
-      welcomeSubtitle: "Track your shows and movies, rate your favorite episodes, and chat with the community.",
+      welcomeSubtitle:
+        "Track your shows and movies, rate your favorite episodes, and chat with the community.",
       welcomeStart: "Get started",
       skip: "Skip",
       importTitle: "Import your data",
@@ -792,7 +818,8 @@ const en = {
     },
   },
   trafficNotice: {
-    message: "Our services are experiencing slowdowns. We are working on resolving the issue. Thank you for your patience.",
+    message:
+      "Our services are experiencing slowdowns. We are working on resolving the issue. Thank you for your patience.",
   },
   maintenance: {
     title: "Watchr",
@@ -804,7 +831,8 @@ const en = {
   seo: {
     defaultTitle: "Watchr — Track your TV shows & movies",
     contact: "Contact Us",
-    defaultDescription: "Track your watch status, rate episodes, discover new content, and import your TV Time data.",
+    defaultDescription:
+      "Track your watch status, rate episodes, discover new content, and import your TV Time data.",
     library: "My Library",
     search: "Search",
     series: "My Series",
@@ -889,11 +917,20 @@ const en = {
     sendMessage: "Send message",
     creatingConversation: "Starting conversation…",
     conversationError: "Could not start conversation. Try again.",
+    startConversation: "Start a conversation",
+    searchContacts: "Search contacts",
+    noContacts: "No contacts available",
+    noContactsDesc: "Follow someone to start messaging them.",
+    mutualFriend: "Mutual friend",
+    newMessageSnackbar: "{{sender}}: {{preview}}",
+    maxImages: "Maximum 4 images per message",
   },
   updates: {
     title: "Update available",
-    message: "A new version of Watchr is available with improvements and bug fixes. Would you like to update now?",
-    degradedWarning: "If you don't update, some features may not work correctly or may be unavailable.",
+    message:
+      "A new version of Watchr is available with improvements and bug fixes. Would you like to update now?",
+    degradedWarning:
+      "If you don't update, some features may not work correctly or may be unavailable.",
     updateNow: "Update",
     later: "Maybe later",
     ok: "OK",

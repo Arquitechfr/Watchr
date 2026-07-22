@@ -206,6 +206,7 @@ export function SearchScreen() {
                           title: item.title,
                           posterPath: item.posterPath,
                           overview: item.overview,
+                          firstAirDate: item.firstAirDate,
                           source: "tmdb",
                         }}
                         onPress={() => handleShowPress({
@@ -214,6 +215,7 @@ export function SearchScreen() {
                           title: item.title,
                           posterPath: item.posterPath,
                           overview: item.overview,
+                          firstAirDate: item.firstAirDate,
                           source: "tmdb",
                         })}
                       />

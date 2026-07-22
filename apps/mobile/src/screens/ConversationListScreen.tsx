@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { FlatList, View, Text, TouchableOpacity, RefreshControl } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -10,6 +10,8 @@ import { useAuthStore } from "../store/authStore";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { SubScreenHeader } from "../components/SubScreenHeader";
 import { Seo } from "../components/Seo";
+import { Avatar } from "../components/Avatar";
+import { NewConversationSheet } from "../components/NewConversationSheet";
 import type { ConversationItem } from "../services/message.service";
 import type { RootStackParamList } from "../navigation/RootNavigator";
 
@@ -20,6 +22,7 @@ export function ConversationListScreen() {
   const colors = useThemeColors();
   const navigation = useNavigation<NavProp>();
   const currentUserId = useAuthStore((s) => s.userId);
+  const [showNewConversation, setShowNewConversation] = useState(false);
 
   const { data, refetch, isRefetching } = useConversations();
   const { data: unreadData } = useUnreadCount();
@@ -35,24 +38,9 @@ export function ConversationListScreen() {
       <TouchableOpacity
         className="flex-row items-center px-4 py-3"
         style={{ borderBottomWidth: 0.5, borderBottomColor: colors.border }}
-        onPress={() => navigation.navigate("Chat", { conversationId: item.id, otherUsername: item.otherUser.username })}
+        onPress={() => navigation.navigate("Chat", { conversationId: item.id, otherUsername: item.otherUser.username, otherUserAvatarUrl: item.otherUser.avatarUrl })}
       >
-        <View
-          className="items-center justify-center rounded-full"
-          style={{
-            width: 48,
-            height: 48,
-            backgroundColor: colors.surface,
-          }}
-        >
-          {item.otherUser.avatarUrl ? (
-            <Text>{""}</Text>
-          ) : (
-            <Text style={{ color: colors.primary, fontSize: 20, fontWeight: "700" }}>
-              {item.otherUser.username.charAt(0).toUpperCase()}
-            </Text>
-          )}
-        </View>
+        <Avatar url={item.otherUser.avatarUrl} size={48} />
         <View className="flex-1 ml-3">
           <View className="flex-row items-center justify-between">
             <Text style={{ color: colors.text, fontSize: 16, fontWeight: "600" }} numberOfLines={1}>
@@ -112,13 +100,25 @@ export function ConversationListScreen() {
       <SubScreenHeader title={t("messages.title")} />
       <View className="flex-row items-center justify-between py-3" style={{ borderBottomWidth: 0.5, borderBottomColor: colors.border }}>
         <Text style={{ color: colors.text, fontSize: 20, fontWeight: "700" }}>{t("messages.title")}</Text>
-        {unreadData && unreadData.unreadCount > 0 && (
-          <TouchableOpacity onPress={() => {}}>
-            <Text style={{ color: colors.primary, fontSize: 14, fontWeight: "600" }}>
-              {t("messages.markAllRead")}
+        <View className="flex-row items-center">
+          {unreadData && unreadData.unreadCount > 0 && (
+            <TouchableOpacity onPress={() => {}} className="mr-3">
+              <Text style={{ color: colors.primary, fontSize: 14, fontWeight: "600" }}>
+                {t("messages.markAllRead")}
+              </Text>
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity
+            onPress={() => setShowNewConversation(true)}
+            className="flex-row items-center rounded-lg px-3 py-1.5"
+            style={{ backgroundColor: colors.primary }}
+          >
+            <Ionicons name="create-outline" size={16} color={colors.background} />
+            <Text style={{ color: colors.background, fontSize: 14, fontWeight: "600", marginLeft: 4 }}>
+              {t("messages.newConversation")}
             </Text>
           </TouchableOpacity>
-        )}
+        </View>
       </View>
       <FlatList
         data={conversations}
@@ -134,10 +134,21 @@ export function ConversationListScreen() {
             <Text style={{ color: colors.textMuted, fontSize: 14, marginTop: 4, textAlign: "center" }}>
               {t("messages.noConversationsDesc")}
             </Text>
+            <TouchableOpacity
+              onPress={() => setShowNewConversation(true)}
+              className="flex-row items-center rounded-lg px-4 py-2.5 mt-6"
+              style={{ backgroundColor: colors.primary }}
+            >
+              <Ionicons name="create-outline" size={18} color={colors.background} />
+              <Text style={{ color: colors.background, fontSize: 15, fontWeight: "600", marginLeft: 6 }}>
+                {t("messages.startConversation")}
+              </Text>
+            </TouchableOpacity>
           </View>
         }
         contentContainerStyle={conversations.length === 0 ? { flex: 1 } : undefined}
       />
+      <NewConversationSheet visible={showNewConversation} onClose={() => setShowNewConversation(false)} />
     </ScreenContainer>
   );
 }

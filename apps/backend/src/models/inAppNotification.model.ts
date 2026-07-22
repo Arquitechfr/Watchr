@@ -11,7 +11,8 @@ export type InAppNotificationType =
   | "comment_deleted"
   | "comment_hidden"
   | "comment_auto_spoiler"
-  | "comment_admin_spoiler";
+  | "comment_admin_spoiler"
+  | "direct_message";
 
 export type InAppNotificationTarget = "all" | "locale" | "user";
 

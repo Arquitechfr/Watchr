@@ -130,9 +130,10 @@ export async function searchUsers(
 export async function getFriendsActivityFeed(
   page = 1,
   limit = 20,
+  types?: string[],
 ): Promise<ActivityFeedResult> {
   const response = await api.get<ActivityFeedResult>("/social/activity", {
-    params: { page, limit },
+    params: { page, limit, types: types?.join(",") },
   });
   return response.data;
 }

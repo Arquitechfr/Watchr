@@ -14,6 +14,7 @@ export interface LibraryItem {
     title: string;
     posterPath: string | null;
     type: "tv" | "movie";
+    firstAirDate?: string;
     totalEpisodes?: number;
   };
   createdAt: string;

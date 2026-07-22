@@ -69,6 +69,7 @@ export interface TrackingListItem {
     title: string;
     posterPath: string | null;
     type: "tv" | "movie";
+    firstAirDate?: string;
     totalEpisodes?: number;
   };
   createdAt: Date;
@@ -117,6 +118,7 @@ export async function listTracking(
       title?: string;
       type?: "tv" | "movie";
       posterPath?: string | null;
+      firstAirDate?: Date;
       status?: string;
       seasons?: Season[];
       translations?: Map<string, ShowTranslation> | Record<string, ShowTranslation>;
@@ -136,6 +138,7 @@ export async function listTracking(
         title,
         posterPath: populatedShow.posterPath ?? null,
         type: populatedShow.type ?? "tv",
+        firstAirDate: populatedShow.firstAirDate ? new Date(populatedShow.firstAirDate).toISOString() : undefined,
         totalEpisodes: getAiredEpisodeCount(populatedShow.seasons ?? []),
       },
     } as TrackingListItem;
@@ -221,6 +224,7 @@ export async function listLibrary(
       title?: string;
       type?: "tv" | "movie";
       posterPath?: string | null;
+      firstAirDate?: Date;
       status?: string;
       seasons?: Season[];
       translations?: Map<string, ShowTranslation> | Record<string, ShowTranslation>;
@@ -241,6 +245,7 @@ export async function listLibrary(
         title,
         posterPath: show.posterPath ?? null,
         type: show.type ?? "tv",
+        firstAirDate: show.firstAirDate ? new Date(show.firstAirDate).toISOString() : undefined,
         totalEpisodes: getAiredEpisodeCount(show.seasons ?? []),
       },
     } as unknown as TrackingListItem;

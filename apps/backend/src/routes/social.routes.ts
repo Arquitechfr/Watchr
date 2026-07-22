@@ -128,11 +128,13 @@ router.get(
   "/activity",
   validateRequest(undefined, activityFeedQuerySchema),
   asyncHandler(async (req: Request, res: Response) => {
-    const query = req.query as { page: string; limit: string };
+    const query = req.query as { page: string; limit: string; types?: string };
+    const types = query.types ? query.types.split(",").map((t) => t.trim()).filter(Boolean) : undefined;
     const result = await getFriendsActivityFeed(
       req.userId!,
       Number(query.page) || 1,
       Number(query.limit) || 20,
+      types,
     );
     res.json(result);
   }),

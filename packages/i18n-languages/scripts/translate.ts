@@ -166,19 +166,26 @@ function setNestedValue(obj: Record<string, unknown>, path: string, value: strin
   current[parts[parts.length - 1]] = value;
 }
 
+function isValidIdentifier(key: string): boolean {
+  return /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key);
+}
+
+function formatKey(key: string): string {
+  return isValidIdentifier(key) ? key : JSON.stringify(key);
+}
+
 function objectToString(obj: Record<string, unknown>, indent = 2): string {
   const spaces = " ".repeat(indent);
   let result = "{\n";
 
   for (const [key, value] of Object.entries(obj)) {
     if (typeof value === "string") {
-      result += `${spaces}"${key}": ${JSON.stringify(value)},\n`;
+      result += `${spaces}${formatKey(key)}: ${JSON.stringify(value)},\n`;
     } else if (typeof value === "object" && value !== null) {
-      result += `${spaces}"${key}": ${objectToString(value as Record<string, unknown>, indent + 2)},\n`;
+      result += `${spaces}${formatKey(key)}: ${objectToString(value as Record<string, unknown>, indent + 2)},\n`;
     }
   }
 
-  result = result.replace(/,\n$/, "\n");
   result += " ".repeat(indent - 2) + "}";
   return result;
 }

@@ -49,9 +49,11 @@ const en = {
     COMMENT_REJECTED_HATE: "Your comment contains hateful content. Please be respectful.",
     COMMENT_REJECTED_HARASSMENT: "Your comment contains harassment. Please be respectful.",
     COMMENT_REJECTED_SPAM: "Your comment looks like spam. Please write meaningful content.",
-    COMMENT_REJECTED_SELF_HARM: "If you're struggling, please reach out for help. This content is not allowed.",
+    COMMENT_REJECTED_SELF_HARM:
+      "If you're struggling, please reach out for help. This content is not allowed.",
     COMMENT_REJECTED_VIOLENCE: "Your comment contains violent content. Please be respectful.",
-    COMMENT_REJECTED_OTHER: "Your comment was flagged as inappropriate. Please review our community guidelines.",
+    COMMENT_REJECTED_OTHER:
+      "Your comment was flagged as inappropriate. Please review our community guidelines.",
     EMAIL_CODE_EXPIRED: "Code expired or not found. Please request a new one.",
     INVALID_EMAIL_CODE: "Invalid code.",
     TOO_MANY_CODE_ATTEMPTS: "Too many attempts. Please request a new code.",
@@ -91,54 +93,79 @@ const en = {
     actionBan: "banned",
     actionSuspend: "suspended",
     commentDeletedTitle: "Your comment was removed",
-    commentDeletedBody: "Your comment on \"{{show}}\" was removed following multiple reports from the community.",
+    commentDeletedBody:
+      'Your comment on "{{show}}" was removed following multiple reports from the community.',
     commentHiddenTitle: "Your comment was hidden",
-    commentHiddenBody: "Your comment on \"{{show}}\" was hidden following reports from the community and is no longer visible to other users.",
+    commentHiddenBody:
+      'Your comment on "{{show}}" was hidden following reports from the community and is no longer visible to other users.',
     commentAutoSpoilerTitle: "Your comment was marked as spoiler",
-    commentAutoSpoilerBody: "Your comment on \"{{show}}\" was automatically marked as a spoiler following reports from the community.",
+    commentAutoSpoilerBody:
+      'Your comment on "{{show}}" was automatically marked as a spoiler following reports from the community.',
     commentAdminSpoilerTitle: "Your comment was marked as spoiler",
-    commentAdminSpoilerBody: "A moderator has marked your comment on \"{{show}}\" as a spoiler.",
+    commentAdminSpoilerBody: 'A moderator has marked your comment on "{{show}}" as a spoiler.',
     activationNudgeTitle: "Your watchlist is waiting",
     activationNudgeBody: "Add a few shows or movies to start getting notified about new episodes.",
+    directMessageTitle: "New message",
+    directMessageBody: "{{sender}}: {{preview}}",
   },
   emails: {
     welcomeSubject: "Welcome to Watchr!",
     welcomeHeading: "Welcome to Watchr!",
-    welcomeBody: "Hello {{username}}, your account has been created successfully. Start tracking your favorite shows and movies now!",
-    welcomeTipUsername: "Your username \"{{username}}\" was generated automatically. You can change it anytime in your profile settings.",
-    welcomeTipFeatures: "Here's what you can do: track shows and movies, rate episodes, join discussions, import your TV Time history, and get notified when new episodes air.",
+    welcomeBody:
+      "Hello {{username}}, your account has been created successfully. Start tracking your favorite shows and movies now!",
+    welcomeTipUsername:
+      'Your username "{{username}}" was generated automatically. You can change it anytime in your profile settings.',
+    welcomeTipFeatures:
+      "Here's what you can do: track shows and movies, rate episodes, join discussions, import your TV Time history, and get notified when new episodes air.",
     welcomeCta: "Get started on web",
-    welcomeFooter: "You're receiving this email because you created a Watchr account. If this wasn't you, you can safely ignore this email.",
+    welcomeFooter:
+      "You're receiving this email because you created a Watchr account. If this wasn't you, you can safely ignore this email.",
     resetPasswordSubject: "Reset your password",
     resetPasswordHeading: "Reset your password",
-    resetPasswordBody: "You requested a password reset. Click the button below to choose a new password. This link expires in 15 minutes.",
-    resetPasswordTipSecurity: "Choose a strong, unique password. Don't reuse one from another service. Never share this link with anyone — Watchr staff will never ask for it.",
+    resetPasswordBody:
+      "You requested a password reset. Click the button below to choose a new password. This link expires in 15 minutes.",
+    resetPasswordTipSecurity:
+      "Choose a strong, unique password. Don't reuse one from another service. Never share this link with anyone — Watchr staff will never ask for it.",
     resetPasswordCta: "Reset password",
-    resetPasswordFooter: "If you didn't request this reset, ignore this email — your password won't change. Contact support if this keeps happening.",
+    resetPasswordFooter:
+      "If you didn't request this reset, ignore this email — your password won't change. Contact support if this keeps happening.",
     banSubject: "Your Watchr account has been suspended",
     banHeading: "Account suspension notice",
-    banBody: "Hello {{username}}, your account has been {{action}}. Reason: {{reason}}. This action will take effect on {{effectiveDate}}.",
+    banBody:
+      "Hello {{username}}, your account has been {{action}}. Reason: {{reason}}. This action will take effect on {{effectiveDate}}.",
     banSuspendedUntil: "Your account will be reinstated on {{date}}.",
-    banTipAppeal: "If you believe this decision is incorrect, you can appeal by contacting our support team. Please include your username and any relevant context.",
-    banFooter: "Review our community guidelines at https://watchr.me/community-guidelines. If you believe this is an error, please contact support.",
+    banTipAppeal:
+      "If you believe this decision is incorrect, you can appeal by contacting our support team. Please include your username and any relevant context.",
+    banFooter:
+      "Review our community guidelines at https://watchr.me/community-guidelines. If you believe this is an error, please contact support.",
     commentDeletedSubject: "Your comment on Watchr was removed",
     commentDeletedHeading: "Comment removed",
-    commentDeletedBody: "Hello {{username}}, your comment on \"{{show}}\" was removed following multiple reports from the Watchr community. We encourage you to review our community guidelines before posting again.",
-    commentDeletedTip: "You're welcome to post a new comment, as long as it follows our community guidelines. Be respectful and avoid spoilers without proper tagging.",
-    commentDeletedFooter: "Review our community guidelines at https://watchr.me/community-guidelines. If you believe this was an error, please contact support.",
+    commentDeletedBody:
+      'Hello {{username}}, your comment on "{{show}}" was removed following multiple reports from the Watchr community. We encourage you to review our community guidelines before posting again.',
+    commentDeletedTip:
+      "You're welcome to post a new comment, as long as it follows our community guidelines. Be respectful and avoid spoilers without proper tagging.",
+    commentDeletedFooter:
+      "Review our community guidelines at https://watchr.me/community-guidelines. If you believe this was an error, please contact support.",
     commentHiddenSubject: "Your comment on Watchr was hidden",
     commentHiddenHeading: "Comment hidden",
-    commentHiddenBody: "Hello {{username}}, your comment on \"{{show}}\" was hidden following reports from other users. It is no longer visible to the community. Repeated violations may lead to further action on your account.",
-    commentHiddenTip: "You can edit your comment to align with our guidelines. Once updated, it will be reviewed and may be made visible again.",
-    commentHiddenFooter: "Review our community guidelines at https://watchr.me/community-guidelines. If you believe this was an error, please contact support.",
+    commentHiddenBody:
+      'Hello {{username}}, your comment on "{{show}}" was hidden following reports from other users. It is no longer visible to the community. Repeated violations may lead to further action on your account.',
+    commentHiddenTip:
+      "You can edit your comment to align with our guidelines. Once updated, it will be reviewed and may be made visible again.",
+    commentHiddenFooter:
+      "Review our community guidelines at https://watchr.me/community-guidelines. If you believe this was an error, please contact support.",
     commentSpoilerSubject: "Your comment was marked as spoiler",
     commentSpoilerHeading: "Spoiler tag added to your comment",
-    commentSpoilerBody: "Hello {{username}}, your comment on \"{{show}}\" was marked as a spoiler following reports from the community. Please remember to use the spoiler tag when discussing plot details.",
-    commentSpoilerTip: "To mark a spoiler, use the spoiler button when writing your comment or wrap sensitive text with the spoiler tag. This keeps the community experience enjoyable for everyone.",
-    commentSpoilerFooter: "Review our community guidelines at https://watchr.me/community-guidelines. If you believe this was an error, please contact support.",
+    commentSpoilerBody:
+      'Hello {{username}}, your comment on "{{show}}" was marked as a spoiler following reports from the community. Please remember to use the spoiler tag when discussing plot details.',
+    commentSpoilerTip:
+      "To mark a spoiler, use the spoiler button when writing your comment or wrap sensitive text with the spoiler tag. This keeps the community experience enjoyable for everyone.",
+    commentSpoilerFooter:
+      "Review our community guidelines at https://watchr.me/community-guidelines. If you believe this was an error, please contact support.",
     emailCodeSubject: "Your Watchr sign-in code",
     emailCodeHeading: "Sign in to Watchr",
-    emailCodeBody: "Use the code below to sign in to your account. This code expires in 15 minutes.",
+    emailCodeBody:
+      "Use the code below to sign in to your account. This code expires in 15 minutes.",
     emailCodeLabel: "Your sign-in code:",
     emailCodeCta: "Sign in",
     emailCodeTipSecurity: "Never share this code with anyone. Watchr staff will never ask for it.",
@@ -162,7 +189,8 @@ const en = {
     popularMovies: "Popular Movies",
   },
   welcomeMessage: {
-    content: "Welcome to Watchr! 🎬\n\nTrack your favorite shows, discover new ones, and connect with friends. Here are a few things you can do:\n\n• Add shows to your watchlist\n• Rate and comment on episodes\n• Follow friends to see their activity\n\nIf you have any questions, just reply to this message!",
+    content:
+      "Welcome to Watchr! 🎬\n\nTrack your favorite shows, discover new ones, and connect with friends. Here are a few things you can do:\n\n• Add shows to your watchlist\n• Rate and comment on episodes\n• Follow friends to see their activity\n\nIf you have any questions, just reply to this message!",
   },
   recommendations: {
     fallbackReason: "Currently trending",

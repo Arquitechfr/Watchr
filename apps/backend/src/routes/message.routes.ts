@@ -35,6 +35,7 @@ import {
   unmuteConversation,
   reportMessage,
   getUnreadCount,
+  getDmContacts,
 } from "../services/message.service.js";
 
 const router: Router = Router();
@@ -209,6 +210,16 @@ router.get(
   "/unread-count",
   asyncHandler(async (req: Request, res: Response) => {
     const result = await getUnreadCount(req.userId!);
+    res.json(result);
+  }),
+);
+
+router.get(
+  "/contacts",
+  asyncHandler(async (req: Request, res: Response) => {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 20;
+    const result = await getDmContacts(req.userId!, page, limit);
     res.json(result);
   }),
 );

@@ -21,6 +21,7 @@ function toSearchResultItem(item: RecommendationItem): SearchResultItem {
     title: item.title,
     posterPath: item.posterPath,
     overview: item.overview,
+    firstAirDate: item.firstAirDate,
     source: "tmdb",
   };
 }

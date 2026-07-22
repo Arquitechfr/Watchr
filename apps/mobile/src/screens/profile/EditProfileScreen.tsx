@@ -143,11 +143,20 @@ export function EditProfileScreen() {
       </View>
       <View className="items-center mb-8">
         <TouchableOpacity onPress={pickAvatar} disabled={isAvatarUploading} activeOpacity={0.8}>
-          <View className="relative">
+          <View style={{ width: 96, height: 96 }}>
             <Avatar url={me?.avatarUrl} size={96} />
             <View
-              className="absolute bottom-0 items-center justify-center rounded-full"
-              style={{ width: 32, height: 32, backgroundColor: colors.primary, right: 4 }}
+              style={{
+                position: "absolute",
+                bottom: 0,
+                right: 0,
+                width: 32,
+                height: 32,
+                borderRadius: 16,
+                backgroundColor: colors.primary,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
             >
               {isAvatarUploading ? (
                 <ActivityIndicator size="small" color={colors.background} />

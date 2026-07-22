@@ -5,6 +5,7 @@ import {
   getFollowStatus,
   getPublicProfile,
   searchUsers,
+  listFollowing,
   getFriendsActivityFeed,
   updateActivityVisibility,
   type ActivityFeedResult,
@@ -61,12 +62,12 @@ export function usePublicProfile(username: string | undefined) {
   });
 }
 
-export function useFriendsActivityFeed() {
+export function useFriendsActivityFeed(types?: string[]) {
   const isHydrated = useAuthStore((state) => state.isHydrated);
 
   return useInfiniteQuery<ActivityFeedResult>({
-    queryKey: ["social", "activity"],
-    queryFn: ({ pageParam }) => getFriendsActivityFeed((pageParam as number) ?? 1, 20),
+    queryKey: ["social", "activity", types],
+    queryFn: ({ pageParam }) => getFriendsActivityFeed((pageParam as number) ?? 1, 20, types),
     initialPageParam: 1,
     enabled: isHydrated,
     getNextPageParam: (lastPage) => {
@@ -84,6 +85,21 @@ export function useUpdateActivityVisibility() {
     onSuccess: () => {
       log("useSocial", "activity visibility updated");
       queryClient.invalidateQueries({ queryKey: ["me"] });
+    },
+  });
+}
+
+export function useFollowing(userId: string | null) {
+  const isHydrated = useAuthStore((state) => state.isHydrated);
+
+  return useInfiniteQuery<PaginatedResult<FollowUserItem>>({
+    queryKey: ["social", "following", userId],
+    queryFn: ({ pageParam }) => listFollowing(userId!, (pageParam as number) ?? 1, 20),
+    initialPageParam: 1,
+    enabled: isHydrated && !!userId,
+    getNextPageParam: (lastPage) => {
+      const { page, pages } = lastPage.pagination;
+      return page < pages ? page + 1 : undefined;
     },
   });
 }

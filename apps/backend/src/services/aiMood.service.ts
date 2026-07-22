@@ -21,6 +21,7 @@ export interface MoodRecommendation {
   title: string;
   posterPath?: string;
   overview?: string;
+  firstAirDate?: string;
   reason: string;
 }
 
@@ -113,6 +114,7 @@ Rules:
             title: match.name ?? match.title ?? item.tmdb_title,
             posterPath: match.poster_path ?? undefined,
             overview: match.overview,
+            firstAirDate: match.first_air_date ?? match.release_date,
             reason: item.reason,
           });
         }
@@ -158,6 +160,7 @@ async function getFallbackMoodRecommendations(
       title: item.name ?? item.title ?? "Unknown",
       posterPath: item.poster_path ?? undefined,
       overview: item.overview,
+      firstAirDate: item.first_air_date ?? item.release_date,
       reason: mood,
     }));
 

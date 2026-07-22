@@ -9,6 +9,7 @@ import { logError } from "../lib/logger.js";
 import { wsEvents } from "../lib/wsEvents.js";
 import { translateMessageAsync } from "./messageTranslation.service.js";
 import { isEitherBlocked } from "./userBlock.service.js";
+import { PushNotificationService } from "./pushNotification.service.js";
 import { MobileConfig } from "../models/MobileConfig.js";
 
 async function getRemoteConfigValue(key: string): Promise<string | null> {
@@ -233,6 +234,21 @@ export async function sendMessage(
     conversationId,
     message: messageItem,
   });
+
+  if (!isSystemMessage) {
+    const senderUser = await User.findById(senderId).select("username preferredLanguage").lean();
+    if (senderUser) {
+      PushNotificationService.notifyNewMessage(
+        recipientId,
+        senderUser.username,
+        content,
+        conversationId,
+        senderUser.preferredLanguage,
+      ).catch((err) =>
+        logError("MessageService", "notifyNewMessage failed", err, { conversationId, recipientId }),
+      );
+    }
+  }
 
   return messageItem;
 }
@@ -614,4 +630,56 @@ export async function getUnreadCount(userId: string): Promise<{ unreadCount: num
   });
 
   return { unreadCount: count };
+}
+
+export interface DmContact {
+  id: string;
+  username: string;
+  avatarUrl?: string;
+  isMutual: boolean;
+}
+
+export async function getDmContacts(
+  userId: string,
+  page: number,
+  limit: number,
+): Promise<{ contacts: DmContact[]; total: number; page: number; limit: number }> {
+  const userObjectId = new Types.ObjectId(userId);
+
+  const followingDocs = await Follow.find({ followerId: userObjectId }).select("followingId").lean();
+  const followingIds = followingDocs.map((f) => f.followingId);
+
+  const followersDocs = await Follow.find({ followingId: userObjectId }).select("followerId").lean();
+  const followerIds = followersDocs.map((f) => f.followerId);
+
+  const mutualIds = followingIds.filter((id) =>
+    followerIds.some((fid) => new Types.ObjectId(String(fid)).equals(new Types.ObjectId(String(id)))),
+  );
+
+  const openDmIds = followingIds.filter(
+    (id) => !mutualIds.some((mid) => new Types.ObjectId(String(mid)).equals(new Types.ObjectId(String(id)))),
+  );
+
+  const eligibleIds = [...new Set([...mutualIds, ...openDmIds])];
+
+  const skip = (page - 1) * limit;
+  const users = await User.find({ _id: { $in: eligibleIds } })
+    .select("username avatarUrl dmPrivacy")
+    .skip(skip)
+    .limit(limit)
+    .lean();
+
+  const contacts: DmContact[] = users
+    .filter((u) => {
+      const isMutual = mutualIds.some((mid) => new Types.ObjectId(String(mid)).equals(u._id));
+      return isMutual || u.dmPrivacy === "open";
+    })
+    .map((u) => ({
+      id: u._id.toString(),
+      username: u.username,
+      avatarUrl: u.avatarUrl,
+      isMutual: mutualIds.some((mid) => new Types.ObjectId(String(mid)).equals(u._id)),
+    }));
+
+  return { contacts, total: contacts.length, page, limit };
 }

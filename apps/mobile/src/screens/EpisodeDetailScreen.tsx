@@ -4,7 +4,6 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
-  Share,
   RefreshControl,
   Platform,
   useWindowDimensions,
@@ -28,6 +27,7 @@ import { ScreenContainer } from "../components/ScreenContainer";
 import { DetailHeader } from "../components/DetailHeader";
 import { ScrollArrows } from "../components/ScrollArrows";
 import { NetworkError } from "../components/NetworkError";
+import { shareContent } from "../utils/share";
 import { Skeleton } from "../components/Skeleton";
 import { RatingCard } from "../components/RatingCard";
 import { RootStackParamList } from "../navigation/RootNavigator";
@@ -191,7 +191,7 @@ export function EpisodeDetailScreen() {
   const handleShare = async () => {
     try {
       const message = `${show?.title ?? ""} — S${season}E${episodeNumber}${episode?.name ? ` : ${episode.name}` : ""}`;
-      await Share.share({ message, title: show?.title ?? t("common.appName") });
+      await shareContent({ message, title: show?.title ?? t("common.appName") });
     } catch (err) {
       log("EpisodeDetail", "share error", err);
     }

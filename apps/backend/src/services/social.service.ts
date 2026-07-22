@@ -337,6 +337,7 @@ export async function getFriendsActivityFeed(
   userId: string,
   page: number,
   limit: number,
+  types?: string[],
 ): Promise<ActivityFeedResult> {
   const followingDocs = await Follow.find({
     followerId: new Types.ObjectId(userId),
@@ -368,139 +369,154 @@ export async function getFriendsActivityFeed(
     };
   }
 
+  const validTypes = types?.filter((t) => ["rating", "watchlist_add", "comment"].includes(t)) ?? [];
+  const includeRatings = validTypes.length === 0 || validTypes.includes("rating");
+  const includeWatchlist = validTypes.length === 0 || validTypes.includes("watchlist_add");
+  const includeComments = validTypes.length === 0 || validTypes.includes("comment");
+
   const skip = (page - 1) * limit;
 
-  const pipeline = [
-    {
-      $facet: {
-        ratings: [
-          { $match: { userId: { $in: publicFollowingIds } } },
-          { $sort: { createdAt: -1 } },
-          { $skip: skip },
-          { $limit: limit },
-          {
-            $lookup: {
-              from: "users",
-              localField: "userId",
-              foreignField: "_id",
-              as: "userDoc",
-              pipeline: [{ $project: { username: 1, avatarUrl: 1 } }],
-            },
-          },
-          { $unwind: "$userDoc" },
-          {
-            $lookup: {
-              from: "shows",
-              localField: "showId",
-              foreignField: "_id",
-              as: "showDoc",
-              pipeline: [{ $project: { tmdbId: 1, title: 1, posterPath: 1, type: 1 } }],
-            },
-          },
-          { $unwind: "$showDoc" },
-          {
-            $project: {
-              type: { $literal: "rating" },
-              createdAt: 1,
-              userId: 1,
-              username: "$userDoc.username",
-              avatarUrl: "$userDoc.avatarUrl",
-              showId: 1,
-              tmdbId: "$showDoc.tmdbId",
-              title: "$showDoc.title",
-              posterPath: "$showDoc.posterPath",
-              showType: "$showDoc.type",
-              ratingValue: "$value",
-            },
-          },
-        ],
-        watchlist: [
-          { $match: { userId: { $in: publicFollowingIds }, status: { $in: ["plan_to_watch", "watching"] } } },
-          { $sort: { createdAt: -1 } },
-          { $skip: skip },
-          { $limit: limit },
-          {
-            $lookup: {
-              from: "users",
-              localField: "userId",
-              foreignField: "_id",
-              as: "userDoc",
-              pipeline: [{ $project: { username: 1, avatarUrl: 1 } }],
-            },
-          },
-          { $unwind: "$userDoc" },
-          {
-            $lookup: {
-              from: "shows",
-              localField: "showId",
-              foreignField: "_id",
-              as: "showDoc",
-              pipeline: [{ $project: { tmdbId: 1, title: 1, posterPath: 1, type: 1 } }],
-            },
-          },
-          { $unwind: "$showDoc" },
-          {
-            $project: {
-              type: { $literal: "watchlist_add" },
-              createdAt: 1,
-              userId: 1,
-              username: "$userDoc.username",
-              avatarUrl: "$userDoc.avatarUrl",
-              showId: 1,
-              tmdbId: "$showDoc.tmdbId",
-              title: "$showDoc.title",
-              posterPath: "$showDoc.posterPath",
-              showType: "$showDoc.type",
-            },
-          },
-        ],
-        comments: [
-          { $match: { userId: { $in: publicFollowingIds }, isSpoiler: false, isHidden: false } },
-          { $sort: { createdAt: -1 } },
-          { $skip: skip },
-          { $limit: limit },
-          {
-            $lookup: {
-              from: "users",
-              localField: "userId",
-              foreignField: "_id",
-              as: "userDoc",
-              pipeline: [{ $project: { username: 1, avatarUrl: 1 } }],
-            },
-          },
-          { $unwind: "$userDoc" },
-          {
-            $lookup: {
-              from: "shows",
-              localField: "showId",
-              foreignField: "_id",
-              as: "showDoc",
-              pipeline: [{ $project: { tmdbId: 1, title: 1, posterPath: 1, type: 1 } }],
-            },
-          },
-          { $unwind: "$showDoc" },
-          {
-            $project: {
-              type: { $literal: "comment" },
-              createdAt: 1,
-              userId: 1,
-              username: "$userDoc.username",
-              avatarUrl: "$userDoc.avatarUrl",
-              showId: 1,
-              tmdbId: "$showDoc.tmdbId",
-              title: "$showDoc.title",
-              posterPath: "$showDoc.posterPath",
-              showType: "$showDoc.type",
-              commentId: { $toString: "$_id" },
-              content: 1,
-            },
-          },
-        ],
+  const facetStages: Record<string, unknown[]> = {};
+  if (includeRatings) {
+    facetStages.ratings = [
+      { $match: { userId: { $in: publicFollowingIds } } },
+      { $sort: { createdAt: -1 } },
+      { $skip: skip },
+      { $limit: limit },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "userDoc",
+          pipeline: [{ $project: { username: 1, avatarUrl: 1 } }],
+        },
       },
-    },
+      { $unwind: "$userDoc" },
+      {
+        $lookup: {
+          from: "shows",
+          localField: "showId",
+          foreignField: "_id",
+          as: "showDoc",
+          pipeline: [{ $project: { tmdbId: 1, title: 1, posterPath: 1, type: 1 } }],
+        },
+      },
+      { $unwind: "$showDoc" },
+      {
+        $project: {
+          type: { $literal: "rating" },
+          createdAt: 1,
+          userId: 1,
+          username: "$userDoc.username",
+          avatarUrl: "$userDoc.avatarUrl",
+          showId: 1,
+          tmdbId: "$showDoc.tmdbId",
+          title: "$showDoc.title",
+          posterPath: "$showDoc.posterPath",
+          showType: "$showDoc.type",
+          ratingValue: "$value",
+        },
+      },
+    ];
+  }
+  if (includeWatchlist) {
+    facetStages.watchlist = [
+      { $match: { userId: { $in: publicFollowingIds }, status: { $in: ["plan_to_watch", "watching"] } } },
+      { $sort: { createdAt: -1 } },
+      { $skip: skip },
+      { $limit: limit },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "userDoc",
+          pipeline: [{ $project: { username: 1, avatarUrl: 1 } }],
+        },
+      },
+      { $unwind: "$userDoc" },
+      {
+        $lookup: {
+          from: "shows",
+          localField: "showId",
+          foreignField: "_id",
+          as: "showDoc",
+          pipeline: [{ $project: { tmdbId: 1, title: 1, posterPath: 1, type: 1 } }],
+        },
+      },
+      { $unwind: "$showDoc" },
+      {
+        $project: {
+          type: { $literal: "watchlist_add" },
+          createdAt: 1,
+          userId: 1,
+          username: "$userDoc.username",
+          avatarUrl: "$userDoc.avatarUrl",
+          showId: 1,
+          tmdbId: "$showDoc.tmdbId",
+          title: "$showDoc.title",
+          posterPath: "$showDoc.posterPath",
+          showType: "$showDoc.type",
+        },
+      },
+    ];
+  }
+  if (includeComments) {
+    facetStages.comments = [
+      { $match: { userId: { $in: publicFollowingIds }, isSpoiler: false, isHidden: false } },
+      { $sort: { createdAt: -1 } },
+      { $skip: skip },
+      { $limit: limit },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "userDoc",
+          pipeline: [{ $project: { username: 1, avatarUrl: 1 } }],
+        },
+      },
+      { $unwind: "$userDoc" },
+      {
+        $lookup: {
+          from: "shows",
+          localField: "showId",
+          foreignField: "_id",
+          as: "showDoc",
+          pipeline: [{ $project: { tmdbId: 1, title: 1, posterPath: 1, type: 1 } }],
+        },
+      },
+      { $unwind: "$showDoc" },
+      {
+        $project: {
+          type: { $literal: "comment" },
+          createdAt: 1,
+          userId: 1,
+          username: "$userDoc.username",
+          avatarUrl: "$userDoc.avatarUrl",
+          showId: 1,
+          tmdbId: "$showDoc.tmdbId",
+          title: "$showDoc.title",
+          posterPath: "$showDoc.posterPath",
+          showType: "$showDoc.type",
+          commentId: { $toString: "$_id" },
+          content: 1,
+        },
+      },
+    ];
+  }
+
+  const concatArrays: string[] = [];
+  if (includeRatings) concatArrays.push("$ratings");
+  if (includeWatchlist) concatArrays.push("$watchlist");
+  if (includeComments) concatArrays.push("$comments");
+
+  const pipeline = [
+    { $facet: facetStages },
     {
       $project: {
-        allItems: { $concatArrays: ["$ratings", "$watchlist", "$comments"] },
+        allItems: { $concatArrays: concatArrays },
       },
     },
     { $unwind: "$allItems" },

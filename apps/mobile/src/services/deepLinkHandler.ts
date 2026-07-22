@@ -36,6 +36,8 @@ const SCREEN_MAP: Record<string, { navScreen: string; paramMap?: Record<string, 
   friendsActivity: { navScreen: "FriendsActivity" },
   userSearch: { navScreen: "UserSearch" },
   newsArticle: { navScreen: "NewsArticleDetail" },
+  chat: { navScreen: "Chat" },
+  conversations: { navScreen: "ConversationList" },
 };
 
 export function resolveDeepLink(data: Record<string, unknown> | undefined): DeepLinkTarget | null {

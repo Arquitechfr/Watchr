@@ -167,6 +167,7 @@ export function LibraryScreen() {
     type: item.show.type,
     title: item.show.title,
     posterPath: item.show.posterPath ?? undefined,
+    firstAirDate: item.show.firstAirDate,
     source: "tmdb",
   }), []);
 

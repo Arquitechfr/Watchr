@@ -433,4 +433,30 @@ export const PushNotificationService = {
     await createAutomatedInAppNotification({ type: "comment_admin_spoiler", userId, title, body, data });
     await logAutomatedNotification(userId, pushToken, title, body, data, "comment_admin_spoiler", resolvedLocale);
   },
+
+  async notifyNewMessage(
+    recipientId: string,
+    senderUsername: string,
+    messagePreview: string,
+    conversationId: string,
+    locale: SupportedLocale | string | undefined,
+  ): Promise<void> {
+    const { allowed, locale: userLocale, pushToken } = await checkPreference(recipientId, "directMessages");
+    if (!allowed || !pushToken) return;
+
+    const resolvedLocale = locale ? (locale as SupportedLocale) : userLocale;
+    const title = translateNotification("directMessageTitle", resolvedLocale);
+    const preview = messagePreview.length > 100 ? messagePreview.slice(0, 100) + "..." : messagePreview;
+    const body = translateNotification("directMessageBody", resolvedLocale, { sender: senderUsername, preview });
+
+    const data = { screen: "chat", conversationId, otherUsername: senderUsername };
+
+    wsEvents.emit("notification:new", {
+      userId: recipientId,
+      notification: { type: "directMessage", title, body, data, createdAt: new Date().toISOString() },
+    });
+
+    await createAutomatedInAppNotification({ type: "direct_message", userId: recipientId, title, body, data });
+    await logAutomatedNotification(recipientId, pushToken, title, body, data, "direct_message", resolvedLocale);
+  },
 };

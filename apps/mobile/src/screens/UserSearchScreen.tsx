@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { View, Text, TextInput, FlatList, TouchableOpacity, ActivityIndicator } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -8,7 +8,8 @@ import { Avatar } from "../components/Avatar";
 import { Seo } from "../components/Seo";
 import { useI18n } from "../i18n/useI18n";
 import { useThemeColors } from "../theme/useThemeColors";
-import { useSearchUsers } from "../hooks/useSocial";
+import { useSearchUsers, useFollowing } from "../hooks/useSocial";
+import { useAuthStore } from "../store/authStore";
 import type { FollowUserItem } from "../services/social.service";
 import { RootStackParamList } from "../navigation/RootNavigator";
 
@@ -18,9 +19,13 @@ export function UserSearchScreen() {
   const { t } = useI18n();
   const colors = useThemeColors();
   const navigation = useNavigation<NavigationProp>();
+  const currentUserId = useAuthStore((s) => s.userId);
   const [query, setQuery] = useState("");
 
-  const { data, isLoading } = useSearchUsers(query);
+  const { data: searchData, isLoading: searchLoading } = useSearchUsers(query);
+  const { data: followingData, isLoading: followingLoading } = useFollowing(
+    query.length < 2 ? currentUserId : null,
+  );
 
   const handleUserPress = useCallback(
     (username: string) => {
@@ -29,14 +34,21 @@ export function UserSearchScreen() {
     [navigation],
   );
 
-  const results = data?.data ?? [];
+  const isSearching = query.length >= 2;
+  const searchResults = searchData?.data ?? [];
+  const followingList = useMemo(
+    () => followingData?.pages.flatMap((p) => p.data) ?? [],
+    [followingData],
+  );
+  const results = isSearching ? searchResults : followingList;
+  const isLoading = isSearching ? searchLoading : followingLoading;
   const showMinCharsHint = query.length > 0 && query.length < 2;
 
   return (
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
       <Seo title={t("screens.social.findFriends")} />
       <SubScreenHeader title={t("screens.social.findFriends")} />
-      <View className="md:max-w-lg md:mx-auto w-full">
+      <View className="md:max-w-lg md:mx-auto w-full flex-1">
         <View
           className="flex-row items-center rounded-lg px-4 py-3 mb-4"
           style={{ backgroundColor: colors.surface }}
@@ -63,6 +75,12 @@ export function UserSearchScreen() {
         {query.length >= 2 && !isLoading && results.length === 0 && (
           <View className="items-center py-8">
             <Text className="text-text-muted">{t("screens.social.noResults")}</Text>
+          </View>
+        )}
+
+        {!isSearching && followingList.length === 0 && !followingLoading && (
+          <View className="items-center py-8">
+            <Text className="text-text-muted">{t("screens.social.noFollowingYet")}</Text>
           </View>
         )}
 

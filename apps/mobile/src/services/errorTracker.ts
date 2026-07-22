@@ -128,7 +128,7 @@ class ErrorTracker {
       } else {
         this.deviceInfo = {
           os: "web",
-          osVersion: navigator.userAgent,
+          osVersion: navigator.userAgent.slice(0, 100),
           deviceModel: undefined,
           screenResolution: `${window.screen.width}x${window.screen.height}`,
         };

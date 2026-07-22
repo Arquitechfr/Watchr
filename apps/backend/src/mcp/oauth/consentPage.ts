@@ -1,3 +1,5 @@
+import { env } from "../../config/env.js";
+
 const STYLES = `
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -22,10 +24,10 @@ const STYLES = `
     text-align: center;
     margin-bottom: 1.5rem;
   }
-  .logo h1 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #C65D3A;
+  .logo img {
+    height: 40px;
+    width: 40px;
+    border-radius: 8px;
   }
   .subtitle {
     text-align: center;
@@ -117,19 +119,38 @@ const STYLES = `
     color: #8B8580;
     margin-top: 0.25rem;
   }
-  .consent-info .scopes {
-    margin-top: 0.75rem;
+  .scope-list {
+    margin: 1rem 0;
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     gap: 0.5rem;
   }
-  .scope-badge {
-    padding: 0.25rem 0.625rem;
-    border-radius: 6px;
+  .scope-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625rem;
+    padding: 0.75rem;
+    background: #1A1614;
+    border: 1px solid #3A3633;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .scope-checkbox input[type="checkbox"] {
+    margin-top: 0.15rem;
+    accent-color: #C65D3A;
+  }
+  .scope-checkbox .scope-text {
+    display: flex;
+    flex-direction: column;
+  }
+  .scope-checkbox .scope-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #F5F0EB;
+  }
+  .scope-checkbox .scope-description {
     font-size: 0.75rem;
-    font-weight: 500;
-    background: rgba(198, 93, 58, 0.15);
-    color: #C65D3A;
+    color: #8B8580;
   }
   .hidden { display: none; }
 `;
@@ -145,7 +166,7 @@ function baseHtml(title: string, bodyContent: string): string {
 </head>
 <body>
   <div class="container">
-    <div class="logo"><h1>Watchr</h1></div>
+    <div class="logo"><img src="${env.PUBLIC_URL}/assets/icon.png" alt="Watchr"></div>
     ${bodyContent}
   </div>
 </body>
@@ -180,26 +201,39 @@ export function renderLoginPage(
   `);
 }
 
+const AVAILABLE_SCOPES: { value: string; label: string; description: string }[] = [
+  { value: "read", label: "Read", description: "View your watchlist, ratings, and comments" },
+  { value: "write", label: "Write", description: "Add or update your watchlist, ratings, and comments" },
+];
+
 export function renderConsentPage(
   clientName: string,
   clientUri: string | undefined,
-  scopes: string[],
+  requestedScopes: string[],
   consentParams: string,
 ): string {
-  const scopeBadges = scopes
-    .map((s) => `<span class="scope-badge">${escapeHtml(s)}</span>`)
-    .join("");
+  const scopeCheckboxes = AVAILABLE_SCOPES.map((s) => {
+    const checked = requestedScopes.includes(s.value) ? "checked" : "";
+    return `
+      <label class="scope-checkbox">
+        <input type="checkbox" name="scopes" value="${s.value}" ${checked}>
+        <span class="scope-text">
+          <span class="scope-label">${escapeHtml(s.label)}</span>
+          <span class="scope-description">${escapeHtml(s.description)}</span>
+        </span>
+      </label>`;
+  }).join("");
 
   return baseHtml("Authorize", `
     <p class="subtitle">An app is requesting access to your Watchr account</p>
     <div class="consent-info">
       <div class="app-name">${escapeHtml(clientName)}</div>
       ${clientUri ? `<div class="app-url">${escapeHtml(clientUri)}</div>` : ""}
-      <div class="scopes">${scopeBadges}</div>
     </div>
-    <p class="subtitle">This app will be able to access your watchlist, ratings, and comments${scopes.includes("write") ? ", and make changes to your account" : ""}.</p>
+    <p class="subtitle">Choose the permissions to grant:</p>
     <form method="POST" action="/mcp/auth/consent/approve">
       <input type="hidden" name="consent_params" value="${escapeHtml(consentParams)}">
+      <div class="scope-list">${scopeCheckboxes}</div>
       <button type="submit" class="btn btn-primary">Authorize</button>
     </form>
     <form method="POST" action="/mcp/auth/consent/deny">

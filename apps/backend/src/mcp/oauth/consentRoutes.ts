@@ -187,8 +187,13 @@ consentRouter.get("/google/callback", async (req: Request, res: Response) => {
   }
 });
 
+const ALLOWED_CONSENT_SCOPES = ["read", "write"];
+
 consentRouter.post("/consent/approve", async (req: Request, res: Response) => {
-  const { consent_params } = req.body as { consent_params: string };
+  const { consent_params, scopes: rawScopes } = req.body as {
+    consent_params: string;
+    scopes?: string | string[];
+  };
   if (!consent_params) {
     res.status(400).send(renderErrorPage("Missing consent parameters"));
     return;
@@ -202,14 +207,25 @@ consentRouter.post("/consent/approve", async (req: Request, res: Response) => {
     return;
   }
 
+  // Scopes actually granted are the ones the user checked on the consent screen,
+  // not blindly re-derived from the client's original OAuth request. This lets the
+  // user grant broader access (e.g. "write") even when the client only requested "read".
+  const grantedScopes = (Array.isArray(rawScopes) ? rawScopes : rawScopes ? [rawScopes] : []).filter(
+    (s) => ALLOWED_CONSENT_SCOPES.includes(s),
+  );
+
+  if (grantedScopes.length === 0) {
+    res.status(400).send(renderErrorPage("You must grant at least one permission to continue"));
+    return;
+  }
+
   const params = new URLSearchParams(consent_params);
   const clientId = params.get("client_id") ?? "";
   const redirectUri = params.get("redirect_uri") ?? "";
   const codeChallenge = params.get("code_challenge") ?? "";
   const state = params.get("state") ?? undefined;
-  const scope = params.get("scope") ?? "read";
   const resource = params.get("resource") ?? undefined;
-  const scopes = scope.split(" ");
+  const scopes = grantedScopes;
 
   const authCodeData: AuthCodeData = {
     clientId,

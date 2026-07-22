@@ -39,6 +39,37 @@ function scopeError(scope: "read" | "write"): { content: { type: "text"; text: s
   };
 }
 
+const OBJECT_ID_REGEX = /^[0-9a-fA-F]{24}$/;
+
+/**
+ * MCP tools receive `showId` from an LLM, which often only knows the TMDB ID
+ * surfaced by `search_show`/`get_show_details` rather than Watchr's internal
+ * Mongo _id. This resolves either form to a valid Watchr show _id, fetching
+ * and caching the show from TMDB if it isn't tracked yet.
+ */
+async function resolveShowId(showIdOrTmdbId: string, language: string): Promise<string> {
+  if (OBJECT_ID_REGEX.test(showIdOrTmdbId)) {
+    return showIdOrTmdbId;
+  }
+
+  const tmdbId = Number(showIdOrTmdbId);
+  if (!Number.isInteger(tmdbId) || tmdbId <= 0) {
+    throw new ApiError(404, "SHOW_NOT_FOUND", "Show not found");
+  }
+
+  let show = await Show.findOne({ tmdbId }).select("_id").lean();
+  if (!show) {
+    await getShowDetails(tmdbId, language);
+    show = await Show.findOne({ tmdbId }).select("_id").lean();
+  }
+
+  if (!show) {
+    throw new ApiError(404, "SHOW_NOT_FOUND", "Show not found");
+  }
+
+  return show._id.toString();
+}
+
 function jsonResult(result: unknown): {
   content: { type: "text"; text: string }[];
   structuredContent: { result: unknown };
@@ -137,7 +168,7 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
   server.registerTool(
     "update_watch_status",
     {
-      description: "Update the watch status of a show in the user's watchlist",
+      description: "Update the watch status of a show in the user's watchlist. showId accepts either the Watchr show ID or a TMDB ID.",
       inputSchema: {
         showId: z.string().min(1),
         status: z.enum(["watching", "completed", "plan_to_watch", "dropped"]),
@@ -150,10 +181,12 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
         return scopeError("write");
       }
 
-      // When marking as completed, mark all episodes as watched
-      if (status === "completed") {
-        return safeTool(async () => {
-          const show = await Show.findById(showId).lean();
+      return safeTool(async () => {
+        const resolvedShowId = await resolveShowId(showId, apiUser.language);
+
+        // When marking as completed, mark all episodes as watched
+        if (status === "completed") {
+          const show = await Show.findById(resolvedShowId).lean();
           if (!show) {
             throw new ApiError(404, "SHOW_NOT_FOUND", "Show not found");
           }
@@ -161,7 +194,7 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
           if (seasons.length > 0) {
             const lastSeason = seasons[seasons.length - 1];
             const lastEpisode = lastSeason.episodes?.length ?? 0;
-            return upsertWithProgress(apiUser.userId, showId, {
+            return upsertWithProgress(apiUser.userId, resolvedShowId, {
               status: "completed",
               markUpTo: {
                 season: lastSeason.seasonNumber,
@@ -170,18 +203,18 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
               },
             });
           }
-          return upsertTracking(apiUser.userId, showId, { status: status as WatchStatus });
-        });
-      }
+          return upsertTracking(apiUser.userId, resolvedShowId, { status: status as WatchStatus });
+        }
 
-      return safeTool(() => upsertTracking(apiUser.userId, showId, { status: status as WatchStatus }));
+        return upsertTracking(apiUser.userId, resolvedShowId, { status: status as WatchStatus });
+      });
     },
   );
 
   server.registerTool(
     "remove_from_watchlist",
     {
-      description: "Remove a show from the user's watchlist",
+      description: "Remove a show from the user's watchlist. showId accepts either the Watchr show ID or a TMDB ID.",
       inputSchema: {
         showId: z.string().min(1),
       },
@@ -193,8 +226,9 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
         return scopeError("write");
       }
       return safeTool(async () => {
-        await deleteTracking(apiUser.userId, showId);
-        return { success: true, showId };
+        const resolvedShowId = await resolveShowId(showId, apiUser.language);
+        await deleteTracking(apiUser.userId, resolvedShowId);
+        return { success: true, showId: resolvedShowId };
       });
     },
   );
@@ -204,7 +238,7 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
   server.registerTool(
     "toggle_episode",
     {
-      description: "Mark a specific episode as watched or unwatched",
+      description: "Mark a specific episode as watched or unwatched. showId accepts either the Watchr show ID or a TMDB ID.",
       inputSchema: {
         showId: z.string().min(1),
         season: z.number().int().min(1),
@@ -218,14 +252,17 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
       if (!checkScope(apiUser.scopes, "write")) {
         return scopeError("write");
       }
-      return safeTool(() => toggleEpisode(apiUser.userId, showId, season, episode, watched));
+      return safeTool(async () => {
+        const resolvedShowId = await resolveShowId(showId, apiUser.language);
+        return toggleEpisode(apiUser.userId, resolvedShowId, season, episode, watched);
+      });
     },
   );
 
   server.registerTool(
     "mark_episodes_up_to",
     {
-      description: "Mark all episodes up to a specific season/episode as watched",
+      description: "Mark all episodes up to a specific season/episode as watched. showId accepts either the Watchr show ID or a TMDB ID.",
       inputSchema: {
         showId: z.string().min(1),
         season: z.number().int().min(1),
@@ -239,7 +276,10 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
       if (!checkScope(apiUser.scopes, "write")) {
         return scopeError("write");
       }
-      return safeTool(() => markEpisodesUpTo(apiUser.userId, showId, season, episode, includePrevious));
+      return safeTool(async () => {
+        const resolvedShowId = await resolveShowId(showId, apiUser.language);
+        return markEpisodesUpTo(apiUser.userId, resolvedShowId, season, episode, includePrevious);
+      });
     },
   );
 
@@ -266,7 +306,7 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
   server.registerTool(
     "rate_show",
     {
-      description: "Rate a show or episode (1-5 stars). Optionally include a review text.",
+      description: "Rate a show or episode (1-5 stars). Optionally include a review text. showId accepts either the Watchr show ID or a TMDB ID.",
       inputSchema: {
         showId: z.string().min(1),
         value: z.number().int().min(1).max(5),
@@ -282,14 +322,17 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
         return scopeError("write");
       }
       const episodeRef = season !== undefined && episode !== undefined ? { season, episode } : undefined;
-      return safeTool(() => upsertRating(apiUser.userId, { showId, value, episodeRef, review }));
+      return safeTool(async () => {
+        const resolvedShowId = await resolveShowId(showId, apiUser.language);
+        return upsertRating(apiUser.userId, { showId: resolvedShowId, value, episodeRef, review });
+      });
     },
   );
 
   server.registerTool(
     "get_ratings",
     {
-      description: "Get user ratings and community ratings for a show",
+      description: "Get user ratings and community ratings for a show. showId accepts either the Watchr show ID or a TMDB ID.",
       inputSchema: {
         showId: z.string().min(1),
       },
@@ -300,7 +343,10 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
       if (!checkScope(apiUser.scopes, "read")) {
         return scopeError("read");
       }
-      return safeTool(() => listRatingsForShow(apiUser.userId, showId));
+      return safeTool(async () => {
+        const resolvedShowId = await resolveShowId(showId, apiUser.language);
+        return listRatingsForShow(apiUser.userId, resolvedShowId);
+      });
     },
   );
 
@@ -309,7 +355,7 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
   server.registerTool(
     "list_comments",
     {
-      description: "List public comments for a show, optionally filtered by episode",
+      description: "List public comments for a show, optionally filtered by episode. showId accepts either the Watchr show ID or a TMDB ID.",
       inputSchema: {
         showId: z.string().min(1),
         season: z.number().int().min(1).optional(),
@@ -325,20 +371,23 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
       if (!checkScope(apiUser.scopes, "read")) {
         return scopeError("read");
       }
-      return safeTool(() => listCommentsForShow(apiUser.userId, showId, {
-        season,
-        episode,
-        page,
-        limit,
-        sort,
-      }));
+      return safeTool(async () => {
+        const resolvedShowId = await resolveShowId(showId, apiUser.language);
+        return listCommentsForShow(apiUser.userId, resolvedShowId, {
+          season,
+          episode,
+          page,
+          limit,
+          sort,
+        });
+      });
     },
   );
 
   server.registerTool(
     "add_comment",
     {
-      description: "Post a public comment on a show or episode",
+      description: "Post a public comment on a show or episode. showId accepts either the Watchr show ID or a TMDB ID.",
       inputSchema: {
         showId: z.string().min(1),
         content: z.string().min(1).max(2000),
@@ -354,7 +403,10 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
         return scopeError("write");
       }
       const episodeRef = season !== undefined && episode !== undefined ? { season, episode } : undefined;
-      return safeTool(() => createComment(apiUser.userId, { showId, content, episodeRef, isSpoiler }));
+      return safeTool(async () => {
+        const resolvedShowId = await resolveShowId(showId, apiUser.language);
+        return createComment(apiUser.userId, { showId: resolvedShowId, content, episodeRef, isSpoiler });
+      });
     },
   );
 

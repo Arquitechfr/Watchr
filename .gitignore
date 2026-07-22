@@ -66,3 +66,4 @@ apps/landing/src/i18n/locales/.translate-cache-*.json
 apps/backend/src/i18n/locales/.translate-cache-*.json
 apps/mobile/src/i18n/locales/.translate-cache-*.json
 apps/mobile/src/i18n/locales/.translate-cache-*.json
+chatgpt-app-submission.json

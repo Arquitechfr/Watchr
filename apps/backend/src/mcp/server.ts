@@ -38,6 +38,16 @@ function scopeError(scope: "read" | "write"): { content: { type: "text"; text: s
   };
 }
 
+function jsonResult(result: unknown): {
+  content: { type: "text"; text: string }[];
+  structuredContent: { result: unknown };
+} {
+  return {
+    content: [{ type: "text", text: JSON.stringify(result) }],
+    structuredContent: { result },
+  };
+}
+
 export function buildMcpServer(apiUser: ApiUserContext): McpServer {
   const server = new McpServer({
     name: "watchr-mcp",
@@ -49,15 +59,15 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
     {
       description: "Search for TV shows and movies by title",
       inputSchema: { query: z.string().min(1).max(200) },
+      outputSchema: { result: z.unknown() },
+      annotations: { readOnlyHint: true, openWorldHint: false, destructiveHint: false },
     },
     async ({ query }) => {
       if (!checkScope(apiUser.scopes, "read")) {
         return scopeError("read");
       }
       const results = await searchShows(query, apiUser.language);
-      return {
-        content: [{ type: "text", text: JSON.stringify(results) }],
-      };
+      return jsonResult(results);
     },
   );
 
@@ -69,15 +79,15 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
         page: z.number().int().min(1).default(1),
         limit: z.number().int().min(1).max(100).default(20),
       },
+      outputSchema: { result: z.unknown() },
+      annotations: { readOnlyHint: true, openWorldHint: false, destructiveHint: false },
     },
     async ({ page, limit }) => {
       if (!checkScope(apiUser.scopes, "read")) {
         return scopeError("read");
       }
       const result = await listTracking(apiUser.userId, page, limit, undefined, apiUser.language);
-      return {
-        content: [{ type: "text", text: JSON.stringify(result) }],
-      };
+      return jsonResult(result);
     },
   );
 
@@ -89,15 +99,15 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
         tmdbId: z.number().int().positive(),
         type: z.enum(["tv", "movie"]),
       },
+      outputSchema: { result: z.unknown() },
+      annotations: { readOnlyHint: false, openWorldHint: false, destructiveHint: false },
     },
     async ({ tmdbId, type }) => {
       if (!checkScope(apiUser.scopes, "write")) {
         return scopeError("write");
       }
       const entry = await addToWatchlistByTmdb(apiUser.userId, tmdbId, type, apiUser.language);
-      return {
-        content: [{ type: "text", text: JSON.stringify(entry) }],
-      };
+      return jsonResult(entry);
     },
   );
 
@@ -109,6 +119,8 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
         showId: z.string().min(1),
         status: z.enum(["watching", "completed", "plan_to_watch", "dropped"]),
       },
+      outputSchema: { result: z.unknown() },
+      annotations: { readOnlyHint: false, openWorldHint: false, destructiveHint: true },
     },
     async ({ showId, status }) => {
       if (!checkScope(apiUser.scopes, "write")) {
@@ -136,16 +148,12 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
               includePrevious: true,
             },
           });
-          return {
-            content: [{ type: "text", text: JSON.stringify(entry) }],
-          };
+          return jsonResult(entry);
         }
       }
 
       const entry = await upsertTracking(apiUser.userId, showId, { status: status as WatchStatus });
-      return {
-        content: [{ type: "text", text: JSON.stringify(entry) }],
-      };
+      return jsonResult(entry);
     },
   );
 
@@ -156,15 +164,15 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
       inputSchema: {
         showId: z.string().min(1),
       },
+      outputSchema: { result: z.unknown() },
+      annotations: { readOnlyHint: false, openWorldHint: false, destructiveHint: true },
     },
     async ({ showId }) => {
       if (!checkScope(apiUser.scopes, "write")) {
         return scopeError("write");
       }
       await deleteTracking(apiUser.userId, showId);
-      return {
-        content: [{ type: "text", text: JSON.stringify({ success: true, showId }) }],
-      };
+      return jsonResult({ success: true, showId });
     },
   );
 
@@ -180,15 +188,15 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
         episode: z.number().int().min(1),
         watched: z.boolean(),
       },
+      outputSchema: { result: z.unknown() },
+      annotations: { readOnlyHint: false, openWorldHint: false, destructiveHint: true },
     },
     async ({ showId, season, episode, watched }) => {
       if (!checkScope(apiUser.scopes, "write")) {
         return scopeError("write");
       }
       const entry = await toggleEpisode(apiUser.userId, showId, season, episode, watched);
-      return {
-        content: [{ type: "text", text: JSON.stringify(entry) }],
-      };
+      return jsonResult(entry);
     },
   );
 
@@ -202,15 +210,15 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
         episode: z.number().int().min(1),
         includePrevious: z.boolean().default(true),
       },
+      outputSchema: { result: z.unknown() },
+      annotations: { readOnlyHint: false, openWorldHint: false, destructiveHint: false },
     },
     async ({ showId, season, episode, includePrevious }) => {
       if (!checkScope(apiUser.scopes, "write")) {
         return scopeError("write");
       }
       const entry = await markEpisodesUpTo(apiUser.userId, showId, season, episode, includePrevious);
-      return {
-        content: [{ type: "text", text: JSON.stringify(entry) }],
-      };
+      return jsonResult(entry);
     },
   );
 
@@ -221,15 +229,15 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
       inputSchema: {
         tmdbId: z.number().int().positive(),
       },
+      outputSchema: { result: z.unknown() },
+      annotations: { readOnlyHint: true, openWorldHint: false, destructiveHint: false },
     },
     async ({ tmdbId }) => {
       if (!checkScope(apiUser.scopes, "read")) {
         return scopeError("read");
       }
       const show = await getShowDetails(tmdbId, apiUser.language);
-      return {
-        content: [{ type: "text", text: JSON.stringify(show) }],
-      };
+      return jsonResult(show);
     },
   );
 
@@ -246,6 +254,8 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
         episode: z.number().int().min(1).optional(),
         review: z.string().max(2000).optional(),
       },
+      outputSchema: { result: z.unknown() },
+      annotations: { readOnlyHint: false, openWorldHint: false, destructiveHint: true },
     },
     async ({ showId, value, season, episode, review }) => {
       if (!checkScope(apiUser.scopes, "write")) {
@@ -253,9 +263,7 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
       }
       const episodeRef = season !== undefined && episode !== undefined ? { season, episode } : undefined;
       const result = await upsertRating(apiUser.userId, { showId, value, episodeRef, review });
-      return {
-        content: [{ type: "text", text: JSON.stringify(result) }],
-      };
+      return jsonResult(result);
     },
   );
 
@@ -266,15 +274,15 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
       inputSchema: {
         showId: z.string().min(1),
       },
+      outputSchema: { result: z.unknown() },
+      annotations: { readOnlyHint: true, openWorldHint: false, destructiveHint: false },
     },
     async ({ showId }) => {
       if (!checkScope(apiUser.scopes, "read")) {
         return scopeError("read");
       }
       const result = await listRatingsForShow(apiUser.userId, showId);
-      return {
-        content: [{ type: "text", text: JSON.stringify(result) }],
-      };
+      return jsonResult(result);
     },
   );
 
@@ -292,6 +300,8 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
         limit: z.number().int().min(1).max(50).default(10),
         sort: z.enum(["recent", "liked", "replied", "relevant"]).default("recent"),
       },
+      outputSchema: { result: z.unknown() },
+      annotations: { readOnlyHint: true, openWorldHint: false, destructiveHint: false },
     },
     async ({ showId, season, episode, page, limit, sort }) => {
       if (!checkScope(apiUser.scopes, "read")) {
@@ -304,9 +314,7 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
         limit,
         sort,
       });
-      return {
-        content: [{ type: "text", text: JSON.stringify(result) }],
-      };
+      return jsonResult(result);
     },
   );
 
@@ -321,6 +329,8 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
         episode: z.number().int().min(1).optional(),
         isSpoiler: z.boolean().default(false),
       },
+      outputSchema: { result: z.unknown() },
+      annotations: { readOnlyHint: false, openWorldHint: true, destructiveHint: false },
     },
     async ({ showId, content, season, episode, isSpoiler }) => {
       if (!checkScope(apiUser.scopes, "write")) {
@@ -328,9 +338,7 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
       }
       const episodeRef = season !== undefined && episode !== undefined ? { season, episode } : undefined;
       const comment = await createComment(apiUser.userId, { showId, content, episodeRef, isSpoiler });
-      return {
-        content: [{ type: "text", text: JSON.stringify(comment) }],
-      };
+      return jsonResult(comment);
     },
   );
 
@@ -341,15 +349,15 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
     {
       description: "Get upcoming episodes for shows in the user's watchlist (today, this week, next week, later)",
       inputSchema: {},
+      outputSchema: { result: z.unknown() },
+      annotations: { readOnlyHint: true, openWorldHint: false, destructiveHint: false },
     },
     async () => {
       if (!checkScope(apiUser.scopes, "read")) {
         return scopeError("read");
       }
       const result = await getUpcomingEpisodes(apiUser.userId, apiUser.language);
-      return {
-        content: [{ type: "text", text: JSON.stringify(result) }],
-      };
+      return jsonResult(result);
     },
   );
 
@@ -358,15 +366,15 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
     {
       description: "Get the user's watching statistics (episodes watched, hours, streak, genres, recent activity)",
       inputSchema: {},
+      outputSchema: { result: z.unknown() },
+      annotations: { readOnlyHint: true, openWorldHint: false, destructiveHint: false },
     },
     async () => {
       if (!checkScope(apiUser.scopes, "read")) {
         return scopeError("read");
       }
       const result = await getUserStats(apiUser.userId, apiUser.language);
-      return {
-        content: [{ type: "text", text: JSON.stringify(result) }],
-      };
+      return jsonResult(result);
     },
   );
 
@@ -375,15 +383,15 @@ export function buildMcpServer(apiUser: ApiUserContext): McpServer {
     {
       description: "Get personalized show recommendations based on watch history and ratings",
       inputSchema: {},
+      outputSchema: { result: z.unknown() },
+      annotations: { readOnlyHint: true, openWorldHint: false, destructiveHint: false },
     },
     async () => {
       if (!checkScope(apiUser.scopes, "read")) {
         return scopeError("read");
       }
       const result = await getRecommendations(apiUser.userId, apiUser.language);
-      return {
-        content: [{ type: "text", text: JSON.stringify(result) }],
-      };
+      return jsonResult(result);
     },
   );
 

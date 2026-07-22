@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import { Types, type PipelineStage } from "mongoose";
 import { Follow } from "../models/follow.model.js";
 import { User } from "../models/user.model.js";
 import { Rating } from "../models/rating.model.js";
@@ -531,22 +531,22 @@ export async function getFriendsActivityFeed(
     Comment.countDocuments({ userId: { $in: publicFollowingIds }, isSpoiler: false, isHidden: false }),
   ]);
 
-  const results = await Rating.aggregate(pipeline as unknown as Record<string, unknown>[]);
+  const results = await Rating.aggregate(pipeline as PipelineStage[]);
 
   const rawItems: RawActivityItem[] = results.map((r: Record<string, unknown>) => ({
-    type: r.type,
-    createdAt: r.createdAt instanceof Date ? r.createdAt : new Date(r.createdAt),
-    userId: r.userId,
-    username: r.username,
-    avatarUrl: r.avatarUrl,
-    showId: r.showId,
-    tmdbId: r.tmdbId,
-    title: r.title,
-    posterPath: r.posterPath,
-    showType: r.showType,
-    ratingValue: r.ratingValue,
-    commentId: r.commentId,
-    content: r.content,
+    type: r.type as RawActivityItem["type"],
+    createdAt: r.createdAt instanceof Date ? r.createdAt : new Date(r.createdAt as string | number),
+    userId: r.userId as Types.ObjectId,
+    username: r.username as string,
+    avatarUrl: r.avatarUrl as string | undefined,
+    showId: r.showId as Types.ObjectId,
+    tmdbId: r.tmdbId as number,
+    title: r.title as string,
+    posterPath: r.posterPath as string | undefined,
+    showType: r.showType as "tv" | "movie",
+    ratingValue: r.ratingValue as number | undefined,
+    commentId: r.commentId as string | undefined,
+    content: r.content as string | undefined,
   }));
 
   const data: ActivityFeedItem[] = rawItems.map((item) => {

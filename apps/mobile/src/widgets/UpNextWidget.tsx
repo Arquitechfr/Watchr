@@ -17,6 +17,7 @@ export interface UpNextWidgetProps {
   markWatchedLabel: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const COLORS: Record<string, any> = {
   bg: '#1A1614',
   surface: '#252019',

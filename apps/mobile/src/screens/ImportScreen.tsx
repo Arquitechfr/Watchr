@@ -2,6 +2,8 @@ import { useState, useCallback } from "react";
 import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Linking, Switch } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import type { RootStackParamList } from "../navigation/RootNavigator";
 import * as DocumentPicker from "expo-document-picker";
 import { format } from "date-fns";
 import { useImportPolling } from "../hooks/useImportPolling";
@@ -70,7 +72,7 @@ function PlatformCard({ icon, name, description, onPress, disabled }: PlatformCa
 
 export function ImportScreen() {
   const colors = useThemeColors();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { showSnackbar, showAlert } = useUIStore();
   const { t } = useI18n();
   const getErrorMessage = useErrorMessage();
@@ -451,7 +453,7 @@ interface ImportHistoryRowProps {
 
 function ImportHistoryRow({ job }: ImportHistoryRowProps) {
   const colors = useThemeColors();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { t, dateFnsLocale } = useI18n();
   const icon = SOURCE_ICONS[job.source ?? "unknown"] ?? "📦";
   const dateStr = format(new Date(job.createdAt), "PP", { locale: dateFnsLocale });

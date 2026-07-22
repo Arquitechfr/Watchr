@@ -100,8 +100,8 @@ export function useWidgetSync() {
       episodesWatched: statsData.episodesWatched ?? 0,
       hoursWatched: statsData.hoursWatched ?? 0,
       watchStreak: statsData.watchStreak ?? 0,
-      tvCount: (statsData as any).tvCount ?? 0,
-      movieCount: (statsData as any).movieCount ?? 0,
+      tvCount: (statsData as { tvCount?: number }).tvCount ?? 0,
+      movieCount: (statsData as { movieCount?: number }).movieCount ?? 0,
     };
     const serialized = JSON.stringify(stats);
     if (serialized === lastStatsSyncRef.current) return;
@@ -138,7 +138,7 @@ export function useWidgetSync() {
     if (Platform.OS === "web") return;
     if (!upcomingData) return;
 
-    const todayEpisodes = (upcomingData.today ?? []).map((ep: any) => ({
+    const todayEpisodes = (upcomingData.today ?? []).map((ep: { showId: string; tmdbId: number; title: string; posterPath?: string; season: number; episode: number; name?: string; airDate?: string }) => ({
       showId: ep.showId, tmdbId: ep.tmdbId, title: ep.title,
       posterUrl: ep.posterPath ? `${require("../services/remoteConfig").remoteConfigService.getConfig().backend_url}/api/images/poster/w200${ep.posterPath}` : undefined,
       season: ep.season, episode: ep.episode, name: ep.name, airDate: ep.airDate,

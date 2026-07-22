@@ -153,7 +153,7 @@ export function ChatScreen() {
 
   const REACTION_EMOJIS = ["👍", "❤️", "😂", "🔥", "😮", "😢"];
 
-  function renderAttachment(att: MessageAttachment, isOwnMessage: boolean) {
+  function renderAttachment(att: MessageAttachment, _isOwnMessage: boolean) {
     if (att.type === "image" && att.imageUrl) {
       return (
         <Image

@@ -1,8 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { remoteConfigService } from "../services/remoteConfig";
-import { getItem as secureGetItem } from "../utils/secureStorage";
-
-const WIDGET_AUTH_TOKEN_KEY = "widget_auth_token";
+import { getValidWidgetToken } from "./widgetAuth";
 
 function getApiBaseUrl(): string {
   return `${remoteConfigService.getConfig().backend_url}/api`;
@@ -13,22 +11,8 @@ function getPosterUrl(path?: string): string | undefined {
   return `${getApiBaseUrl()}/images/poster/w200${path}`;
 }
 
-async function getAuthToken(): Promise<string | null> {
-  try {
-    const token = await secureGetItem("accessToken");
-    if (token) return token;
-  } catch {
-    // secure storage may not be available in headless task
-  }
-  try {
-    return await AsyncStorage.getItem(WIDGET_AUTH_TOKEN_KEY);
-  } catch {
-    return null;
-  }
-}
-
 async function fetchJson(url: string, timeoutMs = 8000): Promise<Response> {
-  const token = await getAuthToken();
+  const token = await getValidWidgetToken();
   const headers: Record<string, string> = { "Content-Type": "application/json" };
   if (token) headers["Authorization"] = `Bearer ${token}`;
   const controller = new AbortController();
@@ -121,7 +105,7 @@ export async function fetchTodayWidgetData(): Promise<WidgetTodayData> {
     const res = await fetchJson(`${getApiBaseUrl()}/upcoming`);
     if (res.ok) {
       const data = await res.json();
-      const episodes: WidgetEpisode[] = (data.today ?? []).map((ep: any) => ({
+      const episodes: WidgetEpisode[] = (data.today ?? []).map((ep: { showId: string; tmdbId: number; title: string; posterPath?: string; season: number; episode: number; name?: string; airDate?: string }) => ({
         showId: ep.showId,
         tmdbId: ep.tmdbId,
         title: ep.title,
@@ -174,7 +158,7 @@ export async function fetchFavoritesWidgetData(): Promise<WidgetFavoritesData> {
     const res = await fetchJson(`${getApiBaseUrl()}/favorites?limit=${MAX_FAVORITES}`);
     if (res.ok) {
       const data = await res.json();
-      const favorites: WidgetFavoriteItem[] = (data.data ?? []).map((item: any) => ({
+      const favorites: WidgetFavoriteItem[] = (data.data ?? []).map((item: { showId: string; tmdbId: number; title: string; posterPath?: string; type: "tv" | "movie" }) => ({
         showId: item.showId,
         tmdbId: item.tmdbId,
         title: item.title,
@@ -228,7 +212,7 @@ export async function fetchFriendsWidgetData(): Promise<WidgetFriendsData> {
     const res = await fetchJson(`${getApiBaseUrl()}/social/activity?limit=${MAX_ACTIVITIES}`);
     if (res.ok) {
       const data = await res.json();
-      const activities: WidgetActivityItem[] = (data.data ?? []).map((item: any) => ({
+      const activities: WidgetActivityItem[] = (data.data ?? []).map((item: { user?: { username?: string; avatarUrl?: string }; type: "rating" | "comment" | "watchlist_add"; show?: { title?: string; tmdbId?: number; posterPath?: string }; rating?: { value?: number }; comment?: { content?: string }; createdAt: string }) => ({
         username: item.user?.username ?? "",
         avatarUrl: item.user?.avatarUrl,
         type: item.type,

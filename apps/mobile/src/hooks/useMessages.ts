@@ -26,7 +26,6 @@ import {
   type MessageItem,
   type MessageAttachment,
   type ConversationItem,
-  type DmContact,
 } from "../services/message.service";
 
 const CONVERSATIONS_KEY = "conversations";

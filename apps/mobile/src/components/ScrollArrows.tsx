@@ -4,6 +4,7 @@ import { RefObject, useCallback } from "react";
 import { useThemeColors } from "../theme/useThemeColors";
 
 interface ScrollArrowsProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   scrollRef: RefObject<any>;
   scrollAmount?: number;
 }

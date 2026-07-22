@@ -115,7 +115,7 @@ export function ProfileContactScreen() {
         message: t("screens.profile.contactSuccess"),
         buttons: [{ text: t("common.ok"), style: "default" }],
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(getErrorMessage(err) ?? t("screens.profile.contactError"));
     } finally {
       setSubmitting(false);

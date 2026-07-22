@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { remoteConfigService } from "../services/remoteConfig";
-import { getItem as secureGetItem } from "../utils/secureStorage";
+import { getValidWidgetToken } from "./widgetAuth";
 
 export type WidgetTab = "unwatched" | "upcoming";
 
@@ -22,7 +22,6 @@ export interface WidgetData {
 
 const WIDGET_DATA_KEY = "widgetData";
 const WIDGET_TAB_KEY = "widgetActiveTab";
-const WIDGET_AUTH_TOKEN_KEY = "widget_auth_token";
 const MAX_EPISODES = 5;
 
 function getApiBaseUrl(): string {
@@ -68,20 +67,6 @@ export async function saveWidgetData(data: WidgetData): Promise<void> {
     await AsyncStorage.setItem(WIDGET_DATA_KEY, JSON.stringify(data));
   } catch {
     // ignore
-  }
-}
-
-async function getAuthToken(): Promise<string | null> {
-  try {
-    const token = await secureGetItem("accessToken");
-    if (token) return token;
-  } catch {
-    // secure storage may not be available in headless task
-  }
-  try {
-    return await AsyncStorage.getItem(WIDGET_AUTH_TOKEN_KEY);
-  } catch {
-    return null;
   }
 }
 
@@ -144,7 +129,7 @@ interface UpcomingApiResponse {
 }
 
 export async function fetchWidgetData(): Promise<WidgetData> {
-  const token = await getAuthToken();
+  const token = await getValidWidgetToken();
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };
@@ -230,7 +215,7 @@ export async function markEpisodeWatched(
   season: number,
   episode: number,
 ): Promise<boolean> {
-  const token = await getAuthToken();
+  const token = await getValidWidgetToken();
   if (!token) return false;
 
   const baseUrl = getApiBaseUrl();

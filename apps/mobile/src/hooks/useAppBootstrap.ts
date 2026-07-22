@@ -19,6 +19,7 @@ import { getMe } from "../services/auth.service";
 import { remoteConfigService } from "../services/remoteConfig";
 import { prefetchSeriesData } from "../utils/prefetch";
 import { log } from "../utils/logger";
+import { registerWidgetBackgroundTask, unregisterWidgetBackgroundTask } from "../widgets/widgetBackgroundTask";
 
 const BOOTSTRAP_TIMEOUT_MS = 6000;
 
@@ -77,6 +78,13 @@ export function useAppBootstrap(queryClient: QueryClient) {
         }
 
         log("Bootstrap", "stores ready");
+
+        const { isAuthenticated: isAuthed } = useAuthStore.getState();
+        if (isAuthed) {
+          registerWidgetBackgroundTask().catch((err) =>
+            log("Bootstrap", "widget background task register failed", err),
+          );
+        }
       })();
 
       await Promise.race([storesPromise, timeoutPromise]);
@@ -84,11 +92,20 @@ export function useAppBootstrap(queryClient: QueryClient) {
       if (mounted) setStoresReady(true);
     }
 
+    const unsubAuth = useAuthStore.subscribe((state) => {
+      if (state.isAuthenticated) {
+        registerWidgetBackgroundTask().catch(() => {});
+      } else {
+        unregisterWidgetBackgroundTask().catch(() => {});
+      }
+    });
+
     bootstrap();
 
     return () => {
       mounted = false;
       if (timeoutId) clearTimeout(timeoutId);
+      unsubAuth();
     };
   }, [queryClient]);
 

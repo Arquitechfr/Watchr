@@ -159,7 +159,7 @@ export function CommentItem({
                   <TouchableOpacity
                     onPress={() => {
                       if (comment.source !== "tmdb" && comment.authorUsername) {
-                        (navigation as any).navigate("PublicProfile", { username: comment.authorUsername });
+                        navigation.navigate("PublicProfile", { username: comment.authorUsername! });
                       }
                     }}
                     disabled={comment.source === "tmdb"}
@@ -207,7 +207,7 @@ export function CommentItem({
                 <TouchableOpacity
                   onPress={() => {
                     if (comment.source !== "tmdb" && comment.authorUsername) {
-                      (navigation as any).navigate("PublicProfile", { username: comment.authorUsername });
+                      navigation.navigate("PublicProfile", { username: comment.authorUsername! });
                     }
                   }}
                   disabled={comment.source === "tmdb"}

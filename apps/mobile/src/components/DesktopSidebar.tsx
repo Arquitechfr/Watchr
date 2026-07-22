@@ -48,7 +48,7 @@ export function DesktopSidebar({ activeTab, onTabPress, onNavigate }: DesktopSid
       style={{
         width: sidebarWidth,
         backgroundColor: colors.background,
-        ...(isWeb ? { position: "sticky" as any, top: 0, height: "100vh" as any, overflow: "scroll" as any } : {}),
+        ...(isWeb ? ({ position: "sticky", top: 0, height: "100vh", overflow: "scroll" } as Record<string, string | number>) : {}),
       }}
       className="h-full border-r border-border py-6"
     >

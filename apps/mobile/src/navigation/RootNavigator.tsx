@@ -86,7 +86,7 @@ type TabName = "Series" | "Movies" | "Search" | "News" | "Profile";
 export function RootNavigator() {
   const { isAuthenticated, userId } = useAuthStore();
   const config = useRemoteConfig();
-  const navigationRef = useRef<any>(null);
+  const navigationRef = useRef<import("@react-navigation/native").NavigationContainerRef<RootStackParamList>>(null);
   const routeNameRef = useRef<string | undefined>(undefined);
   const posthog = usePostHog();
   const queryClient = useQueryClient();
@@ -213,7 +213,7 @@ export function RootNavigator() {
             News: "news",
             Profile: "profile",
           },
-        } as any,
+        } as Record<string, unknown>,
       },
     },
   };
@@ -323,7 +323,7 @@ export function RootNavigator() {
   return (
     <NavigationContainer
       linking={linking}
-      ref={navigationRef as any}
+      ref={navigationRef}
       onReady={() => {
         routeNameRef.current = navigationRef.current?.getCurrentRoute()?.name;
       }}
@@ -341,8 +341,8 @@ export function RootNavigator() {
           if (rootState && rootState.index !== undefined) {
             const currentRoute = rootState.routes[rootState.index];
             if (currentRoute?.name === "Main" && currentRoute.state) {
-              const tabState = currentRoute.state as any;
-              if (tabState.index !== undefined) {
+              const tabState = currentRoute.state as { index?: number; routes?: { name?: string }[] } | undefined;
+              if (tabState?.index !== undefined && tabState.routes) {
                 const tabName = tabState.routes[tabState.index]?.name as TabName;
                 if (tabName) setActiveTab(tabName);
               }

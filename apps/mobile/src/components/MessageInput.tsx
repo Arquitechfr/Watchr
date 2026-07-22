@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { View, Text, TextInput, TouchableOpacity, Image, ActivityIndicator, Platform } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Image, ActivityIndicator } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useThemeColors } from "../theme/useThemeColors";

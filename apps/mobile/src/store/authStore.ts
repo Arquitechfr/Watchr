@@ -5,6 +5,7 @@ import { log } from "../utils/logger";
 import { refreshTokens } from "../services/tokenRefreshManager";
 
 const WIDGET_AUTH_TOKEN_KEY = "widget_auth_token";
+const WIDGET_REFRESH_TOKEN_KEY = "widget_refresh_token";
 
 function decodeJwtPayload(token: string): Record<string, unknown> | null {
   try {
@@ -66,7 +67,10 @@ export const useAuthStore = create<AuthState>((set) => ({
     log("AuthStore", "setTokens");
     await secureSetItem("accessToken", accessToken);
     await secureSetItem("refreshToken", refreshToken);
-    try { await AsyncStorage.setItem(WIDGET_AUTH_TOKEN_KEY, accessToken); } catch { /* ignore */ }
+    try {
+      await AsyncStorage.setItem(WIDGET_AUTH_TOKEN_KEY, accessToken);
+      await AsyncStorage.setItem(WIDGET_REFRESH_TOKEN_KEY, refreshToken);
+    } catch { /* ignore */ }
     const userId = decodeJwtUserId(accessToken);
     set({ accessToken, userId, isAuthenticated: true });
     log("AuthStore", "tokens saved");
@@ -81,7 +85,10 @@ export const useAuthStore = create<AuthState>((set) => ({
     websocketService.disconnect();
     await secureDeleteItem("accessToken");
     await secureDeleteItem("refreshToken");
-    try { await AsyncStorage.removeItem(WIDGET_AUTH_TOKEN_KEY); } catch { /* ignore */ }
+    try {
+      await AsyncStorage.removeItem(WIDGET_AUTH_TOKEN_KEY);
+      await AsyncStorage.removeItem(WIDGET_REFRESH_TOKEN_KEY);
+    } catch { /* ignore */ }
     set({ accessToken: null, userId: null, isAuthenticated: false });
     const { errorTracker } = await import("../services/errorTracker");
     errorTracker.clearUserContext();
@@ -115,13 +122,19 @@ export const useAuthStore = create<AuthState>((set) => ({
           currentRefreshToken = data.refreshToken;
           await secureSetItem("accessToken", currentAccessToken);
           await secureSetItem("refreshToken", currentRefreshToken);
-          try { await AsyncStorage.setItem(WIDGET_AUTH_TOKEN_KEY, currentAccessToken); } catch { /* ignore */ }
+          try {
+            await AsyncStorage.setItem(WIDGET_AUTH_TOKEN_KEY, currentAccessToken);
+            await AsyncStorage.setItem(WIDGET_REFRESH_TOKEN_KEY, currentRefreshToken);
+          } catch { /* ignore */ }
           log("AuthStore", "hydrate refresh success");
         } catch (refreshErr) {
           log("AuthStore", "hydrate refresh failed", refreshErr);
           await secureDeleteItem("accessToken");
           await secureDeleteItem("refreshToken");
-          try { await AsyncStorage.removeItem(WIDGET_AUTH_TOKEN_KEY); } catch { /* ignore */ }
+          try {
+            await AsyncStorage.removeItem(WIDGET_AUTH_TOKEN_KEY);
+            await AsyncStorage.removeItem(WIDGET_REFRESH_TOKEN_KEY);
+          } catch { /* ignore */ }
           set({ accessToken: null, userId: null, isAuthenticated: false, isHydrated: true });
           return;
         }

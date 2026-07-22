@@ -6,6 +6,7 @@ import {
   FlatList,
   Platform,
   Image,
+  ActivityIndicator,
 } from "react-native";
 import Animated, { useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 import { useKeyboardHandler } from "react-native-keyboard-controller";
@@ -17,6 +18,7 @@ import type { RouteProp } from "@react-navigation/core";
 import { useI18n } from "../i18n/useI18n";
 import { useThemeColors } from "../theme/useThemeColors";
 import { ScreenContainer } from "../components/ScreenContainer";
+import { Seo } from "../components/Seo";
 import { Avatar } from "../components/Avatar";
 import { MessageInput } from "../components/MessageInput";
 import {
@@ -28,7 +30,7 @@ import {
   useAddReaction,
   useRemoveReaction,
 } from "../hooks/useMessages";
-import { useMessageStore } from "../store/messageStore";
+import { useMessageStore, isUserTypingIn, isUserOnline } from "../store/messageStore";
 import { useAuthStore } from "../store/authStore";
 import { useUIStore } from "../store/uiStore";
 import type { RootStackParamList } from "../navigation/RootNavigator";
@@ -66,7 +68,7 @@ export function ChatScreen() {
     height: keyboardHeight.value,
   }));
 
-  const { data, isLoading } = useMessages(conversationId);
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useMessages(conversationId);
   const sendMutation = useSendMessage(conversationId);
   const deleteMutation = useDeleteMessage(conversationId);
   const markReadMutation = useMarkAsRead(conversationId);
@@ -85,8 +87,21 @@ export function ChatScreen() {
   const messages = useMemo(() => {
     if (!data?.pages) return [];
     const allMessages = data.pages.flatMap((p) => p.messages);
-    return allMessages;
+    const seen = new Set<string>();
+    return allMessages.filter((m) => {
+      if (seen.has(m.id)) return false;
+      seen.add(m.id);
+      return true;
+    });
   }, [data]);
+
+  const otherUserId = useMemo(() => {
+    const msg = messages.find((m) => m.senderId !== currentUserId);
+    return msg?.senderId ?? "";
+  }, [messages, currentUserId]);
+
+  const isTyping = useMessageStore((s) => isUserTypingIn(conversationId, otherUserId, s));
+  const isOnline = useMessageStore((s) => isUserOnline(otherUserId, s));
 
   const handleSend = useCallback(
     (content: string, attachments?: MessageAttachment[]) => {
@@ -344,6 +359,7 @@ export function ChatScreen() {
 
   return (
     <ScreenContainer edges={["top", "left", "right"]} fullWidth>
+        <Seo title={otherUsername} />
         <View className="flex-row items-center px-4 py-3 border-b border-border">
           <TouchableOpacity onPress={() => navigation.navigate("PublicProfile", { username: otherUsername })} activeOpacity={0.7}>
             <Avatar url={otherUserAvatarUrl} size={36} />
@@ -351,6 +367,13 @@ export function ChatScreen() {
           <TouchableOpacity onPress={() => navigation.navigate("PublicProfile", { username: otherUsername })} activeOpacity={0.7} className="flex-1 ml-3">
             <Text className="text-text font-bold text-lg" numberOfLines={1}>
               {otherUsername}
+            </Text>
+            <Text className="text-textMuted text-xs" numberOfLines={1}>
+              {isTyping
+                ? t("messages.typing")
+                : isOnline
+                  ? t("messages.online")
+                  : ""}
             </Text>
           </TouchableOpacity>
         </View>
@@ -363,15 +386,30 @@ export function ChatScreen() {
           contentContainerStyle={{ paddingVertical: 8 }}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="interactive"
+          onEndReached={() => {
+            if (hasNextPage && !isFetchingNextPage) fetchNextPage();
+          }}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={
+            isFetchingNextPage ? (
+              <View className="py-4 items-center">
+                <ActivityIndicator size="small" color={colors.primary} />
+              </View>
+            ) : null
+          }
           ListEmptyComponent={
-            !isLoading ? (
+            isLoading ? (
+              <View className="items-center justify-center flex-1" style={{ paddingTop: 120 }}>
+                <ActivityIndicator size="large" color={colors.primary} />
+              </View>
+            ) : (
               <View className="items-center justify-center flex-1" style={{ paddingTop: 120 }}>
                 <Ionicons name="chatbubble-outline" size={48} color={colors.textMuted} />
                 <Text style={{ color: colors.textMuted, fontSize: 14, marginTop: 12 }}>
                   {t("messages.noMessages")}
                 </Text>
               </View>
-            ) : null
+            )
           }
         />
       </View>

@@ -905,6 +905,7 @@ const de = {
     unmute: "Stummschaltung aufheben",
     muted: "Stummgeschaltet",
     messageDeleted: "Nachricht gelöscht",
+    lastMessageFromYou: "Du: {{content}}",
     messageEdited: "bearbeitet",
     typing: "tippt...",
     online: "Online",

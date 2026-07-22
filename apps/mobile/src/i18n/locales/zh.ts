@@ -884,6 +884,7 @@ const zh = {
     unmute: "释出",
     muted: "静音",
     messageDeleted: "信件已删除",
+    lastMessageFromYou: "你: {{content}}",
     messageEdited: "编辑",
     typing: "输入中...",
     online: "在线",

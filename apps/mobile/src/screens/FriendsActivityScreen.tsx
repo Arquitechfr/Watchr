@@ -1,9 +1,9 @@
 import { useState, useMemo } from "react";
 import { View, Text, ActivityIndicator, FlatList, RefreshControl, TouchableOpacity, ScrollView } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { SubScreenHeader } from "../components/SubScreenHeader";
 import { ActivityFeedItemCard } from "../components/ActivityFeedItem";
-import { EmptyState } from "../components/EmptyState";
 import { Seo } from "../components/Seo";
 import { useI18n } from "../i18n/useI18n";
 import { useThemeColors } from "../theme/useThemeColors";
@@ -73,15 +73,39 @@ export function FriendsActivityScreen() {
           ))}
         </ScrollView>
         {isError ? (
-          <EmptyState
-            icon="cloud-offline-outline"
-            title={t("errors.unknown")}
-          />
+          <View className="items-center px-6 pt-16">
+            <View style={{
+              width: 96,
+              height: 96,
+              borderRadius: 48,
+              backgroundColor: colors.surfaceLight,
+              alignItems: "center",
+              justifyContent: "center",
+              marginBottom: 20,
+            }}>
+              <Ionicons name="cloud-offline-outline" size={44} color={colors.primary} />
+            </View>
+            <Text style={{ fontFamily: "Outfit_700Bold", fontSize: 18, color: colors.text, textAlign: "center" }}>
+              {t("errors.unknown")}
+            </Text>
+          </View>
         ) : items.length === 0 ? (
-          <EmptyState
-            icon="people-outline"
-            title={t("screens.social.activityFeedEmpty")}
-          />
+          <View className="items-center px-6 pt-16">
+            <View style={{
+              width: 96,
+              height: 96,
+              borderRadius: 48,
+              backgroundColor: colors.surfaceLight,
+              alignItems: "center",
+              justifyContent: "center",
+              marginBottom: 20,
+            }}>
+              <Ionicons name="people-outline" size={44} color={colors.primary} />
+            </View>
+            <Text style={{ fontFamily: "Outfit_700Bold", fontSize: 18, color: colors.text, textAlign: "center" }}>
+              {t("screens.social.activityFeedEmpty")}
+            </Text>
+          </View>
         ) : (
           <FlatList
             data={items}

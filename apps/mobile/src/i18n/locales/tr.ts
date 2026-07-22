@@ -922,6 +922,7 @@ const tr = {
     unmute: "Unmute",
     muted: "Muted",
     messageDeleted: "Mesaj silindi",
+    lastMessageFromYou: "Sen: {{content}}",
     messageEdited: "Düzenlenen editör",
     typing: "Yazmak...",
     online: "Online Online Online Online",

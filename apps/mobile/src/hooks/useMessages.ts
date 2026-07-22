@@ -214,9 +214,6 @@ export function useDeleteMessage(conversationId: string) {
         });
       }
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: [MESSAGES_KEY, conversationId] });
-    },
   });
 }
 
@@ -350,8 +347,23 @@ export function useMarkAsRead(conversationId: string) {
       );
 
       if (prevUnread) {
+        let convUnreadCount = 0;
+        const convData = queryClient.getQueriesData<{ pages: { conversations: ConversationItem[] }[] }>({
+          queryKey: [CONVERSATIONS_KEY],
+        });
+        for (const [, pageData] of convData) {
+          if (!pageData?.pages) continue;
+          for (const page of pageData.pages) {
+            const conv = page.conversations.find((c) => c.id === conversationId);
+            if (conv) {
+              convUnreadCount = conv.unreadCount;
+              break;
+            }
+          }
+          if (convUnreadCount > 0) break;
+        }
         queryClient.setQueryData<{ unreadCount: number }>([UNREAD_KEY], {
-          unreadCount: Math.max(0, prevUnread.unreadCount - 1),
+          unreadCount: Math.max(0, prevUnread.unreadCount - convUnreadCount),
         });
       }
 

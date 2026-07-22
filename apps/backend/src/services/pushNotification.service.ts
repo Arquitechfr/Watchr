@@ -437,6 +437,7 @@ export const PushNotificationService = {
   async notifyNewMessage(
     recipientId: string,
     senderUsername: string,
+    senderAvatarUrl: string | undefined,
     messagePreview: string,
     conversationId: string,
     locale: SupportedLocale | string | undefined,
@@ -449,7 +450,10 @@ export const PushNotificationService = {
     const preview = messagePreview.length > 100 ? messagePreview.slice(0, 100) + "..." : messagePreview;
     const body = translateNotification("directMessageBody", resolvedLocale, { sender: senderUsername, preview });
 
-    const data = { screen: "chat", conversationId, otherUsername: senderUsername };
+    const data: Record<string, unknown> = { screen: "chat", conversationId, otherUsername: senderUsername };
+    if (senderAvatarUrl) {
+      data.otherUserAvatarUrl = senderAvatarUrl;
+    }
 
     wsEvents.emit("notification:new", {
       userId: recipientId,

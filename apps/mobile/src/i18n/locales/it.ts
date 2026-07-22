@@ -901,6 +901,7 @@ const it = {
     unmute: "Riattiva audio",
     muted: "Silenziano",
     messageDeleted: "Messaggio eliminato",
+    lastMessageFromYou: "Tu: {{content}}",
     messageEdited: "modificato",
     typing: "sta scrivendo...",
     online: "Online",

@@ -901,6 +901,7 @@ const pl = {
     unmute: "Niegłuchy",
     muted: "Wytłoczony",
     messageDeleted: "Wiadomość usunięta",
+    lastMessageFromYou: "Ty: {{content}}",
     messageEdited: "edytowany",
     typing: "Pisanie...",
     online: "Online",

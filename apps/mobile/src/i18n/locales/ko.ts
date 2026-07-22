@@ -891,6 +891,7 @@ const ko = {
     unmute: "뚱 베어",
     muted: "뚱 베어",
     messageDeleted: "메시지 삭제",
+    lastMessageFromYou: "나: {{content}}",
     messageEdited: "수정 된",
     typing: "태핑...",
     online: "- 한국어",

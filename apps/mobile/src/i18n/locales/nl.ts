@@ -901,6 +901,7 @@ const nl = {
     unmute: "Unmute",
     muted: "Gedempt",
     messageDeleted: "Bericht verwijderd",
+    lastMessageFromYou: "Jij: {{content}}",
     messageEdited: "bewerkt",
     typing: "typen...",
     online: "Online",

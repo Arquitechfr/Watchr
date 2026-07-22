@@ -904,6 +904,7 @@ const es = {
     unmute: "Activar sonido",
     muted: "Silenciado",
     messageDeleted: "Mensaje eliminado",
+    lastMessageFromYou: "Tú: {{content}}",
     messageEdited: "editado",
     typing: "escribiendo...",
     online: "En línea",

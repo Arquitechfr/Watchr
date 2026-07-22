@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useCallback } from "react";
 import { FlatList, View, Text, TouchableOpacity, RefreshControl } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -6,6 +6,8 @@ import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useI18n } from "../i18n/useI18n";
 import { useThemeColors } from "../theme/useThemeColors";
 import { useConversations, useUnreadCount } from "../hooks/useMessages";
+import { markAsRead } from "../services/message.service";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "../store/authStore";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { SubScreenHeader } from "../components/SubScreenHeader";
@@ -26,11 +28,28 @@ export function ConversationListScreen() {
 
   const { data, refetch, isRefetching } = useConversations();
   const { data: unreadData } = useUnreadCount();
+  const queryClient = useQueryClient();
 
   const conversations = useMemo(() => {
     if (!data?.pages) return [];
-    return data.pages.flatMap((p) => p.conversations);
+    const all = data.pages.flatMap((p) => p.conversations);
+    const seen = new Set<string>();
+    return all.filter((c) => {
+      if (seen.has(c.id)) return false;
+      seen.add(c.id);
+      return true;
+    });
   }, [data]);
+
+  const handleMarkAllRead = useCallback(() => {
+    const unread = conversations.filter((c) => c.unreadCount > 0);
+    Promise.all(unread.map((c) => markAsRead(c.id)))
+      .then(() => {
+        queryClient.invalidateQueries({ queryKey: ["conversations"] });
+        queryClient.invalidateQueries({ queryKey: ["unread-count"] });
+      })
+      .catch(() => {});
+  }, [conversations, queryClient]);
 
   function renderItem({ item }: { item: ConversationItem }) {
     const isLastFromMe = item.lastMessage?.senderId === currentUserId;
@@ -64,7 +83,7 @@ export function ConversationListScreen() {
               {item.lastMessage?.isDeleted
                 ? t("messages.messageDeleted")
                 : isLastFromMe
-                  ? `You: ${item.lastMessage?.content}`
+                  ? t("messages.lastMessageFromYou", { content: item.lastMessage?.content })
                   : item.lastMessage?.content ?? t("messages.noMessages")}
             </Text>
             {item.unreadCount > 0 && (
@@ -98,14 +117,11 @@ export function ConversationListScreen() {
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
       <Seo title={t("messages.title")} />
       <SubScreenHeader title={t("messages.title")} />
-      <View className="flex-row items-center justify-between py-3" style={{ borderBottomWidth: 0.5, borderBottomColor: colors.border }}>
-        <Text style={{ color: colors.text, fontSize: 20, fontWeight: "700" }}>{t("messages.title")}</Text>
+      <View className="flex-row items-center justify-end py-3" style={{ borderBottomWidth: 0.5, borderBottomColor: colors.border }}>
         <View className="flex-row items-center">
           {unreadData && unreadData.unreadCount > 0 && (
-            <TouchableOpacity onPress={() => {}} className="mr-3">
-              <Text style={{ color: colors.primary, fontSize: 14, fontWeight: "600" }}>
-                {t("messages.markAllRead")}
-              </Text>
+            <TouchableOpacity onPress={handleMarkAllRead} className="mr-3" hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+              <Ionicons name="checkmark-done-outline" size={22} color={colors.primary} />
             </TouchableOpacity>
           )}
           <TouchableOpacity

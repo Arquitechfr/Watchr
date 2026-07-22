@@ -901,6 +901,7 @@ const pt = {
     unmute: "Ativar som",
     muted: "Silenciado",
     messageDeleted: "Mensagem excluída",
+    lastMessageFromYou: "Você: {{content}}",
     messageEdited: "editado",
     typing: "digitando...",
     online: "Online",

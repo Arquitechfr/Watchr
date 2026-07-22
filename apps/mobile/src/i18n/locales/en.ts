@@ -898,6 +898,7 @@ const en = {
     unmute: "Unmute",
     muted: "Muted",
     messageDeleted: "Message deleted",
+    lastMessageFromYou: "You: {{content}}",
     messageEdited: "edited",
     typing: "typing...",
     online: "Online",

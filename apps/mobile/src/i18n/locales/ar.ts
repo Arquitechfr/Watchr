@@ -887,6 +887,7 @@ const ar = {
     unmute: "إلغاء الكتم",
     muted: "مكتوم",
     messageDeleted: "رسالة محذوفة",
+    lastMessageFromYou: "أنت: {{content}}",
     messageEdited: "معدّل",
     typing: "يكتب...",
     online: "متصل",

@@ -11,6 +11,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useI18n } from "../i18n/useI18n";
 import { useThemeColors } from "../theme/useThemeColors";
 import { useDmContacts, useCreateConversation } from "../hooks/useMessages";
@@ -29,6 +30,7 @@ export function NewConversationSheet({ visible, onClose }: NewConversationSheetP
   const { t } = useI18n();
   const colors = useThemeColors();
   const navigation = useNavigation<NavProp>();
+  const insets = useSafeAreaInsets();
   const { data, isLoading, isFetchingNextPage, fetchNextPage, hasNextPage } = useDmContacts();
   const createConversation = useCreateConversation();
   const [searchQuery, setSearchQuery] = useState("");
@@ -92,7 +94,7 @@ export function NewConversationSheet({ visible, onClose }: NewConversationSheetP
             borderTopLeftRadius: 20,
             borderTopRightRadius: 20,
             maxHeight: "80%",
-            paddingBottom: 20,
+            paddingBottom: insets.bottom + 16,
           }}
         >
           <View className="flex-row items-center justify-between px-4 py-3">

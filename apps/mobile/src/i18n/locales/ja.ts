@@ -898,6 +898,7 @@ const ja = {
     unmute: "ミュート",
     muted: "メニュー",
     messageDeleted: "メッセージ削除",
+    lastMessageFromYou: "あなた: {{content}}",
     messageEdited: "編集済み",
     typing: "タイピング...",
     online: "オンライン",

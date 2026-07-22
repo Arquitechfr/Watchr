@@ -904,6 +904,7 @@ const fr = {
     unmute: "Retirer la sourdine",
     muted: "En sourdine",
     messageDeleted: "Message supprimé",
+    lastMessageFromYou: "Vous : {{content}}",
     messageEdited: "modifié",
     typing: "écrit...",
     online: "En ligne",

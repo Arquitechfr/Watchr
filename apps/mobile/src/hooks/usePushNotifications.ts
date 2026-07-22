@@ -10,7 +10,7 @@ import { usePostHog } from "posthog-react-native";
 type NotificationSubscription = import("expo-notifications").Subscription;
 
 export function usePushNotifications(enabled: boolean) {
-  const { isAuthenticated, logout } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
   const colors = useThemeColors();
   const posthog = usePostHog();
   const notificationListener = useRef<NotificationSubscription | null>(null);
@@ -99,12 +99,16 @@ export function usePushNotifications(enabled: boolean) {
     };
   }, [isAuthenticated, enabled, posthog]);
 
+  const prevAuthRef = useRef(isAuthenticated);
+
   useEffect(() => {
-    if (!isAuthenticated) return;
-    return () => {
+    const wasAuthenticated = prevAuthRef.current;
+    prevAuthRef.current = isAuthenticated;
+
+    if (wasAuthenticated && !isAuthenticated) {
       unregisterPushToken().catch((err) =>
         log("usePushNotifications", "failed to unregister push token", { err }),
       );
-    };
-  }, [isAuthenticated, logout]);
+    }
+  }, [isAuthenticated]);
 }

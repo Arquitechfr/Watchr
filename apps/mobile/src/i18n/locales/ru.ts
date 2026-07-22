@@ -906,6 +906,7 @@ const ru = {
     unmute: "Безмятежный",
     muted: "приглушенный",
     messageDeleted: "Сообщение удалено",
+    lastMessageFromYou: "Вы: {{content}}",
     messageEdited: "отредактированный",
     typing: "печатать...",
     online: "Онлайн",

@@ -18,6 +18,16 @@ interface MessageNewPayload {
   };
 }
 
+interface MessageEventPayload {
+  recipientId: string;
+  conversationId: string;
+  messageId?: string;
+  message?: { id: string; content: string; senderId: string; senderUsername?: string; createdAt: string };
+  reactions?: Array<{ userId: string; emoji: string }>;
+  readByUserId?: string;
+  count?: number;
+}
+
 export function useMessageRealtime(): void {
   const queryClient = useQueryClient();
   const { t } = useI18n();
@@ -27,27 +37,71 @@ export function useMessageRealtime(): void {
   activeRef.current = activeConversationId;
 
   useEffect(() => {
-    const unsub = websocketService.on("message:new", (payload: unknown) => {
-      const data = payload as MessageNewPayload;
-      if (!data?.conversationId) return;
+    const unsubs: Array<() => void> = [];
 
-      log("useMessageRealtime", "message:new", { conversationId: data.conversationId });
+    unsubs.push(
+      websocketService.on("message:new", (payload: unknown) => {
+        const data = payload as MessageNewPayload;
+        if (!data?.conversationId) return;
 
-      queryClient.invalidateQueries({ queryKey: ["conversations"] });
-      queryClient.invalidateQueries({ queryKey: ["unread-count"] });
-      queryClient.invalidateQueries({ queryKey: ["messages", data.conversationId] });
+        log("useMessageRealtime", "message:new", { conversationId: data.conversationId });
 
-      if (activeRef.current !== data.conversationId) {
-        const preview = data.message.content?.length > 50
-          ? data.message.content.slice(0, 50) + "..."
-          : data.message.content;
-        showSnackbar(
-          t("messages.newMessageSnackbar", { sender: data.message.senderUsername ?? "", preview }),
-          "info",
-        );
-      }
-    });
+        queryClient.invalidateQueries({ queryKey: ["conversations"] });
+        queryClient.invalidateQueries({ queryKey: ["unread-count"] });
+        queryClient.invalidateQueries({ queryKey: ["messages", data.conversationId] });
 
-    return unsub;
+        if (activeRef.current !== data.conversationId) {
+          const preview = data.message.content?.length > 50
+            ? data.message.content.slice(0, 50) + "..."
+            : data.message.content;
+          showSnackbar(
+            t("messages.newMessageSnackbar", { sender: data.message.senderUsername ?? "", preview }),
+            "info",
+          );
+        }
+      }),
+    );
+
+    unsubs.push(
+      websocketService.on("message:deleted", (payload: unknown) => {
+        const data = payload as MessageEventPayload;
+        if (!data?.conversationId) return;
+        log("useMessageRealtime", "message:deleted", { conversationId: data.conversationId });
+        queryClient.invalidateQueries({ queryKey: ["messages", data.conversationId] });
+        queryClient.invalidateQueries({ queryKey: ["conversations"] });
+      }),
+    );
+
+    unsubs.push(
+      websocketService.on("message:updated", (payload: unknown) => {
+        const data = payload as MessageEventPayload;
+        if (!data?.conversationId) return;
+        log("useMessageRealtime", "message:updated", { conversationId: data.conversationId });
+        queryClient.invalidateQueries({ queryKey: ["messages", data.conversationId] });
+        queryClient.invalidateQueries({ queryKey: ["conversations"] });
+      }),
+    );
+
+    unsubs.push(
+      websocketService.on("message:reaction", (payload: unknown) => {
+        const data = payload as MessageEventPayload;
+        if (!data?.conversationId) return;
+        log("useMessageRealtime", "message:reaction", { conversationId: data.conversationId });
+        queryClient.invalidateQueries({ queryKey: ["messages", data.conversationId] });
+      }),
+    );
+
+    unsubs.push(
+      websocketService.on("message:read", (payload: unknown) => {
+        const data = payload as MessageEventPayload;
+        if (!data?.conversationId) return;
+        log("useMessageRealtime", "message:read", { conversationId: data.conversationId });
+        queryClient.invalidateQueries({ queryKey: ["messages", data.conversationId] });
+        queryClient.invalidateQueries({ queryKey: ["conversations"] });
+        queryClient.invalidateQueries({ queryKey: ["unread-count"] });
+      }),
+    );
+
+    return () => unsubs.forEach((u) => u());
   }, [queryClient, showSnackbar, t]);
 }

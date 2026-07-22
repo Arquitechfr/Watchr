@@ -239,11 +239,12 @@ export async function sendMessage(
   });
 
   if (!isSystemMessage) {
-    const senderUser = await User.findById(senderId).select("username preferredLanguage").lean();
+    const senderUser = await User.findById(senderId).select("username preferredLanguage avatarUrl").lean();
     if (senderUser) {
       PushNotificationService.notifyNewMessage(
         recipientId,
         senderUser.username,
+        senderUser.avatarUrl,
         content,
         conversationId,
         senderUser.preferredLanguage,

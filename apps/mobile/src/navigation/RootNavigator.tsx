@@ -134,7 +134,8 @@ export function RootNavigator() {
 
     (async () => {
       const Notifications = await import("expo-notifications");
-      subscription = Notifications.addNotificationResponseReceivedListener((response) => {
+
+      const handleResponse = (response: import("expo-notifications").NotificationResponse) => {
         const data = response.notification.request.content.data as Record<string, unknown> | undefined;
         log("RootNavigator", "push notification tapped", { data });
 
@@ -148,7 +149,14 @@ export function RootNavigator() {
         if (!data || (!data.screen && !data.url) || !navigationRef.current) return;
 
         navigateToPushTarget(navigationRef.current, data);
-      });
+      };
+
+      subscription = Notifications.addNotificationResponseReceivedListener(handleResponse);
+
+      const lastResponse = await Notifications.getLastNotificationResponseAsync();
+      if (lastResponse) {
+        handleResponse(lastResponse);
+      }
     })();
 
     return () => subscription?.remove();

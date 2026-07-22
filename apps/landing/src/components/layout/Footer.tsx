@@ -16,6 +16,7 @@ export function Footer() {
 
   const companyLinks = [
     { to: "/about", label: t("footer.links.about") },
+    { to: "/contact", label: t("footer.links.contact") },
     { to: "/privacy", label: t("footer.links.privacy") },
     { to: "/terms", label: t("footer.links.terms") },
   ];

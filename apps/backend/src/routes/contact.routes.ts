@@ -3,7 +3,7 @@ import rateLimit from "express-rate-limit";
 import { requireAuth } from "../middleware/requireAuth.middleware.js";
 import { asyncHandler } from "../lib/asyncHandler.js";
 import { validateRequest } from "../validators/validateRequest.js";
-import { createContactSchema } from "../validators/contact.validator.js";
+import { createContactSchema, createPublicContactSchema } from "../validators/contact.validator.js";
 import { ContactMessage } from "../models/contactMessage.model.js";
 import { User } from "../models/user.model.js";
 import { translate } from "../i18n/index.js";
@@ -66,6 +66,67 @@ router.post(
             refType: "contact_message",
             userId: req.userId,
             username: user.username,
+            category,
+            subject,
+            messagePreview,
+          },
+        }),
+      )
+      .catch(() => {});
+
+    res.status(201).json({
+      id: doc._id.toString(),
+      createdAt: doc.createdAt?.toISOString(),
+    });
+  }),
+);
+
+const publicContactRateLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (req, res) => {
+    const lang = req.language;
+    res.status(429).json({
+      error: {
+        code: "TOO_MANY_CONTACT_REQUESTS",
+        message: translate("TOO_MANY_CONTACT_REQUESTS", lang) ?? "Too many contact requests. Try again later.",
+      },
+    });
+  },
+});
+
+router.post(
+  "/public",
+  publicContactRateLimiter,
+  validateRequest(createPublicContactSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { name, email, category, subject, message } = req.body;
+
+    const doc = await ContactMessage.create({
+      userId: null,
+      email,
+      username: name,
+      category,
+      subject,
+      message,
+      status: "new",
+    });
+
+    const messagePreview = message.length > 80 ? message.slice(0, 80) + "…" : message;
+
+    import("../services/admin/adminFeedNotification.service.js")
+      .then(({ createNotification }) =>
+        createNotification({
+          type: "new_contact",
+          title: `New contact message: ${category}`,
+          message: `${name} — ${subject}: ${messagePreview}`,
+          severity: category === "bug" ? "warning" : "info",
+          metadata: {
+            refId: doc._id.toString(),
+            refType: "contact_message",
+            username: name,
             category,
             subject,
             messagePreview,

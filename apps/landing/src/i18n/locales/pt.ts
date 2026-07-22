@@ -1,587 +1,606 @@
 const pt = {
   nav: {
-    home: "Início",
-    features: "Recursos",
+    home: "Principal",
+    features: "Características",
     import: "Importar",
-    showcase: "Capturas de tela",
+    showcase: "Imagens",
     faq: "FAQ",
-    docs: "Docs API",
+    docs: "API Docs",
     getStarted: "Começar",
   },
   hero: {
-    badge: "Novo — Import TV Time disponível",
-    title: "Acompanhe suas séries e filmes",
-    subtitle:
-      "Watchr é um rastreador moderno para séries e filmes. Acompanhe seu status de visualização, avalie episódios, descubra novos conteúdos e importe seus dados do TV Time.",
+    badge: "Novo — TV Time importação disponível",
+    title: "Acompanhe seus programas de TV e filmes",
+    subtitle: "Watchr é um rastreador moderno para programas de TV e filmes. Monitore o status do seu relógio, rate episódios, descubra novo conteúdo e importe seu TV Time dados.",
     ctaDownload: "Baixar na Play Store",
-    ctaWeb: "Experimentar o web app",
-    statsShows: "Séries acompanhadas",
-    statsUsers: "Usuários ativos",
-    statsRatings: "Avaliações",
+    ctaWeb: "Tente a aplicação Web",
+    statsShows: "Mostra o seguimento",
+    statsUsers: "Utilizadores activos",
+    statsRatings: "Notações",
   },
   features: {
-    title: "Tudo o que você precisa para acompanhar suas séries",
-    subtitle:
-      "Uma experiência completa de rastreamento com recursos poderosos para entusiastas de séries e filmes.",
+    title: "Tudo o que você precisa para rastrear seus shows",
+    subtitle: "Uma experiência completa de rastreamento com recursos poderosos projetados para entusiastas de TV e filmes.",
     items: {
       tracking: {
-        title: "Rastrear status",
-        description:
-          "Marque séries como: assistindo, concluída, planejada ou abandonada. Acompanhe o progresso episódio por episódio com um toque.",
+        title: "Estado de observação da faixa",
+        description: "Mark mostra como assistindo, completou, planeja assistir, ou caiu. Acompanhe o progresso do episódio por episódio com um único toque.",
       },
       ratings: {
-        title: "Avaliar episódios e séries",
-        description:
-          "Dê avaliações pessoais a séries e episódios individuais. Veja as médias da comunidade e compare seus gostos.",
+        title: "Taxa de episódios e espetáculos",
+        description: "Dê avaliações pessoais para shows e episódios individuais. Veja as médias comunitárias e compare o seu gosto.",
       },
       comments: {
         title: "Comentários e reações",
-        description:
-          "Discuta episódios com uma comunidade de fãs. Reaja com emojis, marque spoilers e responda a threads.",
+        description: "Discuta episódios com uma comunidade de fãs. Reagir com emojis, spoilers tag, e responder aos threads.",
       },
       search: {
-        title: "Busca inteligente",
-        description:
-          "Powered by TMDB, encontre qualquer série ou filme instantaneamente. Receba recomendações personalizadas e títulos similares.",
+        title: "Pesquisa Inteligente",
+        description: "Alimentado por TMDB, encontrar qualquer programa ou filme instantaneamente. Obtenha recomendações personalizadas e títulos semelhantes.",
       },
       news: {
-        title: "Notícias e descoberta",
-        description:
-          "Mantenha-se atualizado com as últimas notícias sobre suas séries favoritas, lançamentos e tendências.",
+        title: "Notícias e Descoberta",
+        description: "Mantenha-se atualizado com as últimas notícias sobre seus programas favoritos, próximos lançamentos e conteúdo de tendências.",
       },
       social: {
-        title: "Atividade de amigos",
-        description:
-          "Veja o que seus amigos estão assistindo, suas avaliações e descubra novas séries através da sua rede.",
+        title: "Atividade de Amigos",
+        description: "Veja o que seus amigos estão assistindo, suas avaliações e descubra novos shows através de sua rede.",
       },
     },
   },
   importSection: {
-    title: "Importe seus dados em segundos",
-    subtitle:
-      "Vindo de outra plataforma? Watchr facilita a migração de toda sua biblioteca sem perder seu histórico.",
+    title: "Importar seus dados em segundos",
+    subtitle: "Vindo de outra plataforma? Watchr torna mais fácil migrar toda a sua biblioteca sem perder o seu histórico.",
     platforms: {
       tvtime: {
         name: "TV Time",
-        description:
-          "Importe seu arquivo zip de exportação GDPR com histórico completo e avaliações.",
+        description: "Importar seu arquivo zip de exportação GDPR com histórico completo de relógio e classificações.",
       },
       trakt: {
         name: "Trakt",
-        description:
-          "Conecte sua conta Trakt ou importe seu export JSON com sincronização automática.",
+        description: "Ligar o teu Trakt conta ou importação de sua exportação JSON com sincronização automática.",
       },
       imdb: {
         name: "IMDb",
-        description: "Importe sua watchlist e avaliações do seu export CSV.",
+        description: "Importar sua lista de vigilância e classificações de seu arquivo de exportação CSV.",
       },
       letterboxd: {
         name: "Letterboxd",
-        description: "Importe seu diário de filmes e avaliações do seu export CSV.",
+        description: "Importar seu diário de filme e classificações de sua exportação CSV.",
       },
     },
-    cta: "Importar agora",
-    note: "Seus dados permanecem privados. As importações são processadas localmente no seu dispositivo.",
+    cta: "Iniciar a importação agora",
+    note: "Os seus dados permanecem privados. As importações são processadas localmente no seu dispositivo.",
   },
   showcase: {
-    title: "Uma linda experiência em cada dispositivo",
-    subtitle:
-      "Projetado com cuidado para mobile e web. Modo escuro, animações fluidas e navegação intuitiva.",
+    title: "Uma bela experiência em cada dispositivo",
+    subtitle: "Projetado com cuidado para celular e web. Modo escuro, animações suaves e navegação intuitiva.",
     screens: {
-      library: "Sua biblioteca",
-      libraryDesc: "Todas suas séries organizadas por status com rastreamento de progresso",
-      detail: "Detalhes da série",
-      detailDesc: "Elenco, equipe, episódios, avaliações e séries similares em uma vista",
+      library: "Sua Biblioteca",
+      libraryDesc: "Todos os seus programas organizados por status com acompanhamento de progresso",
+      detail: "Mostrar os Detalhes",
+      detailDesc: "Elenco, equipe, episódios, avaliações e shows similares em uma visão",
       comments: "Comentários",
-      commentsDesc: "Discuta com fãs, reaja com emojis, marque spoilers",
-      search: "Busca inteligente",
-      searchDesc: "Encontre qualquer série ou filme com busca powered by TMDB",
+      commentsDesc: "Discuta com fãs, reaja com emojis e spoilers tag",
+      search: "Pesquisa Inteligente",
+      searchDesc: "Encontrar qualquer show ou filme com TMDB- pesquisa com força",
     },
   },
   stats: {
     title: "Confiado por milhares de espectadores",
-    subtitle: "Junte-se a uma comunidade crescente de entusiastas de séries e filmes.",
+    subtitle: "Junte-se a uma crescente comunidade de entusiastas da TV e do cinema.",
     items: {
-      shows: { value: "50K+", label: "Séries e filmes" },
-      users: { value: "12K+", label: "Usuários ativos" },
-      ratings: { value: "250K+", label: "Avaliações enviadas" },
-      languages: { value: "7", label: "Idiomas suportados" },
+      shows: {
+        value: "50K+",
+        label: "Mostra & filmes",
+      },
+      users: {
+        value: "12K+",
+        label: "Utilizadores activos",
+      },
+      ratings: {
+        value: "250K+",
+        label: "Notações apresentadas",
+      },
+      languages: {
+        value: "7",
+        label: "Línguas suportadas",
+      },
     },
   },
   testimonials: {
-    title: "Amado por fãs de séries",
-    subtitle: "Veja o que nossa comunidade diz sobre o Watchr.",
+    title: "Amado por fãs de TV",
+    subtitle: "Veja o que nossa comunidade tem a dizer Watchr.",
     items: {
       one: {
         name: "Sarah K.",
-        role: "Binge watcher",
-        quote:
-          "Finalmente um rastreador que não parece sobrecarregado. A importação do TV Time foi fluida e não perdi nenhum histórico.",
+        role: "Observação Binge",
+        quote: "Finalmente um localizador que não se sente inchado. A importação de TV Time Não perdi nada da minha história.",
       },
       two: {
         name: "Marcus T.",
-        role: "Entusiasta de filmes",
-        quote:
-          "O sistema de avaliação é exatamente o que eu queria. Poder avaliar episódios individuais e ver médias da comunidade muda tudo.",
+        role: "Entusiasta do cinema",
+        quote: "O sistema de classificação é exactamente o que eu queria. Ser capaz de avaliar episódios individuais e ver médias comunitárias é uma mudança de jogo.",
       },
       three: {
         name: "Elena R.",
-        role: "Viciada em séries",
-        quote:
-          "Interface linda, modo escuro por padrão, e a seção de comentários parece uma comunidade real. Melhor que qualquer outro rastreador.",
+        role: "Viciado em série",
+        quote: "UI bonita, modo escuro por padrão, e a seção de comentários realmente parece uma comunidade. Melhor do que qualquer outro localizador que já tentei.",
       },
     },
   },
   faq: {
-    title: "Perguntas frequentes",
-    subtitle: "Tudo o que você precisa saber sobre o Watchr.",
+    title: "Perguntas mais frequentes",
+    subtitle: "Tudo o que precisas de saber Watchr.",
     items: {
       free: {
-        question: "O Watchr é gratuito?",
-        answer:
-          "Sim, o Watchr é completamente gratuito. Todos os recursos principais incluindo rastreamento, avaliações, comentários e importações estão disponíveis sem custo.",
+        question: "É Watchr Livre?",
+        answer: "Sim. Watchr é completamente livre de usar. Todas as características principais, incluindo rastreamento, avaliações, comentários e importações, estão disponíveis sem nenhum custo.",
       },
       import: {
-        question: "Posso importar meus dados do TV Time?",
-        answer:
-          "Absolutamente. O Watchr suporta a importação do seu export GDPR do TV Time. Basta baixar seus dados do TV Time e enviar o arquivo zip no app. Seu histórico completo e avaliações serão importados automaticamente.",
+        question: "Posso importar o meu TV Time Dados?",
+        answer: "Com certeza. Watchr suporta a importação do seu TV Time Exportação do GDPR. Basta baixar seus dados de TV Time e carregar o arquivo zip no aplicativo. Seu histórico completo de relógio e classificações serão importados automaticamente.",
       },
       platforms: {
         question: "Quais plataformas são suportadas para importação?",
-        answer:
-          "Atualmente suportamos importação do TV Time, Trakt, IMDb e Letterboxd. Estamos constantemente trabalhando para adicionar mais plataformas.",
+        answer: "Atualmente apoiamos a importação de TV Time, Trakt, IMDb, e LetterboxdEstamos constantemente trabalhando em adicionar mais plataformas com base na demanda do usuário.",
       },
       privacy: {
-        question: "Meus dados são privados?",
-        answer:
-          "Sua privacidade é nossa prioridade. Arquivos de importação são processados de forma segura e nunca compartilhamos seus dados pessoais com terceiros. Você pode excluir sua conta e todos os dados associados a qualquer momento.",
+        question: "Os meus dados são privados?",
+        answer: "A sua privacidade é a nossa prioridade. Os arquivos de importação são processados de forma segura e nunca compartilhamos seus dados pessoais com terceiros. Você pode excluir sua conta e todos os dados associados a qualquer momento.",
       },
       account: {
-        question: "Preciso de uma conta para usar o Watchr?",
-        answer:
-          "Sim, é necessária uma conta para sincronizar seus dados de rastreamento entre dispositivos. Você pode se cadastrar com email ou Google. Seus dados são sincronizados com segurança em tempo real.",
+        question: "Preciso de uma conta para usar Watchr?",
+        answer: "Sim, uma conta é necessária para sincronizar seus dados de rastreamento entre dispositivos. Você pode se inscrever com e-mail ou Google. Seus dados são armazenados e sincronizados com segurança em tempo real.",
       },
       web: {
         question: "Existe uma versão web?",
-        answer:
-          "Sim! O Watchr está disponível como web app em app.watchr.me. Funciona em navegadores desktop e mobile, com paridade completa de recursos com o app mobile.",
+        answer: "Sim! Watchr está disponível como uma aplicação web no app.watchr.me. Funciona em navegadores desktop e móveis, com total paridade de recursos com o aplicativo móvel.",
       },
       languages: {
         question: "Quais idiomas são suportados?",
-        answer:
-          "O Watchr está disponível em 7 idiomas: inglês, francês, árabe, alemão, espanhol, italiano e português. O app detecta automaticamente o idioma do seu dispositivo.",
+        answer: "Watchr está disponível em 7 idiomas: inglês, francês, árabe, alemão, espanhol, italiano e português. O aplicativo detecta automaticamente o idioma do dispositivo.",
       },
     },
   },
   apiTeaser: {
-    badge: "API pública e MCP",
-    title: "Conecte sua watchlist a qualquer coisa",
-    subtitle:
-      "Watchr expõe uma API REST pública e um servidor MCP. Pesquise séries, gerencie sua watchlist programaticamente ou conecte Claude diretamente aos seus dados do Watchr.",
+    badge: "API pública & MCP",
+    title: "Conecte sua lista de vigilância a qualquer coisa",
+    subtitle: "Watchr expõe uma API REST pública e um servidor MCP. Pesquisar mostras, gerenciar sua lista de observação programática, ou conectar Claude diretamente ao seu Watchr dados.",
     features: {
       rest: "API REST",
-      restDesc: "Pesquise séries e gerencie sua watchlist com endpoints HTTP simples.",
+      restDesc: "Procure mostra e gerencie sua lista de observação com endpoints HTTP simples.",
       mcp: "Servidor MCP",
-      mcpDesc: "Conecte Claude e outros assistentes de IA diretamente aos seus dados do Watchr.",
-      apiKey: "Auth por chave de API",
-      apiKeyDesc: "Autenticação segura por token Bearer com escopos de leitura e escrita.",
+      mcpDesc: "Conecte Claude e outros assistentes de IA diretamente ao seu Watchr dados.",
+      apiKey: "Auth da chave API",
+      apiKeyDesc: "Autenticação segura do token do portador com escopos de leitura e escrita.",
     },
     cta: "Ver documentação completa",
   },
   cta: {
-    title: "Pronto para começar a rastrear?",
-    subtitle: "Junte-se a milhares de espectadores que nunca mais perdem o rastro de suas séries.",
-    button: "Começar grátis",
+    title: "Pronto para começar a seguir?",
+    subtitle: "Junte-se a milhares de espectadores que nunca mais perdem a noção dos seus programas.",
+    button: "Começar de Graça",
     secondary: "Explorar recursos",
   },
   footer: {
-    tagline: "Acompanhe suas séries e filmes com elegância.",
+    tagline: "Acompanhe seus programas de TV e filmes lindamente.",
     links: {
       product: "Produto",
-      features: "Recursos",
+      features: "Características",
       import: "Importar",
-      docs: "Docs API",
-      webApp: "Web App",
+      docs: "API Docs",
+      webApp: "Aplicativo Web",
       company: "Empresa",
       about: "Sobre",
+      contact: "Contacto",
       privacy: "Política de Privacidade",
-      terms: "Termos de Serviço",
+      terms: "Termos de serviço",
     },
-    copyright: "© {{year}} Watchr. Todos os direitos reservados.",
-    madeWith: "Feito com paixão para fãs de séries e filmes.",
+    copyright: "© {{year}} WatchrTodos os direitos reservados.",
+    madeWith: "Feita com paixão por fãs de TV e filmes.",
   },
   theme: {
-    light: "Modo claro",
+    light: "Modo de luz",
     dark: "Modo escuro",
   },
   language: {
-    label: "Idioma",
+    label: "Língua",
   },
   about: {
-    metaTitle: "Sobre o Watchr — Nossa missão e valores",
-    metaDescription:
-      "Conheça o Watchr, o rastreador moderno de séries e filmes desenvolvido pela ArquiTech.",
-    title: "Sobre o Watchr",
-    intro:
-      "Watchr é um rastreador moderno de séries e filmes, projetado e desenvolvido pela ArquiTech. Nascido da frustração com os aplicativos de rastreamento existentes — muito carregados, muito limitados ou muito desorganizados — o Watchr busca o equilíbrio perfeito entre simplicidade, poder e design bonito.",
+    metaTitle: "Sobre Watchr — Nossa missão e valores",
+    metaDescription: "Saiba sobre Watchr, o moderno programa de TV e rastreador de filmes construído pela ArquiTech.",
+    title: "Sobre Watchr",
+    intro: "Watchr é um rastreador moderno para programas de TV e filmes, projetado e desenvolvido pela ArquiTech. Nascido da frustração dos aplicativos de rastreamento existentes que estavam muito inchados, muito limitados ou muito desordenados, Watchr visa ser o equilíbrio perfeito de simplicidade, poder e belo design.",
     values: {
       mission: {
         title: "Nossa Missão",
-        description:
-          "Oferecer a melhor experiência de rastreamento para entusiastas de séries e filmes — rápida, bonita e respeitosa com sua privacidade.",
+        description: "Para proporcionar a melhor experiência de rastreamento para entusiastas de TV e filmes — rápido, bonito e respeitoso de sua privacidade.",
       },
       passion: {
-        title: "Impulsionado pela Paixão",
-        description:
-          "O Watchr é criado por fãs, para fãs. Cada recurso é projetado pensando nas necessidades reais de binge-watchers e cinéfilos.",
+        title: "Dirigido pela Paixão",
+        description: "Watchr é construído por fãs, para fãs. Cada recurso é projetado com as necessidades reais de observadores de binge e cinephiles em mente.",
       },
       simplicity: {
         title: "Simplicidade Primeiro",
-        description:
-          "Sem excesso, sem sobrecarga. Apenas uma interface limpa e intuitiva que permite rastrear suas séries sem atrapalhar.",
+        description: "Sem confusão, sem inchaço. Apenas uma interface limpa e intuitiva que permite rastrear seus shows sem atrapalhar.",
       },
       community: {
-        title: "Focado na Comunidade",
-        description:
-          "Comentários, reações e avaliações compartilhadas fazem do Watchr uma experiência social. Descubra novas séries através de seus amigos.",
+        title: "Centro Comunitário",
+        description: "Comentários, reações e avaliações compartilhadas fazem Watchr uma experiência social. Descubra novos shows através de seus amigos.",
       },
     },
     company: {
       title: "ArquiTech",
-      description:
-        "Watchr é uma marca da ArquiTech, uma empresa de tecnologia focada em construir aplicativos bonitos e centrados no usuário. A ArquiTech desenvolve e mantém o Watchr em plataformas mobile, web e backend.",
+      description: "Watchr é uma marca da ArquiTech, uma empresa de tecnologia focada na construção de belas aplicações centradas no usuário. A ArquiTech desenvolve e mantém Watchr em plataformas móveis, web e backend.",
     },
   },
   privacy: {
-    metaTitle: "Política de Privacidade — Watchr",
-    metaDescription: "Saiba como o Watchr coleta, usa e protege seus dados pessoais.",
+    metaTitle: "Política de privacidade — Watchr",
+    metaDescription: "Saiba como Watchr coleta, usa, compartilha e protege seus dados pessoais, incluindo integrações de plataformas de IA.",
     title: "Política de Privacidade",
     lastUpdated: "Última atualização: Julho 2026",
-    intro:
-      'Esta Política de Privacidade explica como a ArquiTech ("nós") coleta, usa e protege suas informações pessoais quando você usa o Watchr (o "Serviço"). Ao usar o Serviço, você concorda com as práticas descritas nesta política.',
+    intro: "Esta Política de Privacidade explica como a ArquiTech (\"nós\", \"nós\", \"nosso\") coleta, usa, compartilha e protege suas informações pessoais quando você usa Watchr (o \"Serviço\"), incluindo quando você conectar Watchr para plataformas de IA como ChatGPT (OpenAI), Claude (Anthropic), Gemini (Google), e Microsoft Copilot através do Protocolo de Contexto Modelo (MCP). Ao utilizar o Serviço, você concorda com as práticas descritas nesta política.",
     sections: {
       dataCollection: {
         title: "Dados que Coletamos",
-        content:
-          "Coletamos os seguintes dados: (1) Informações de conta — email e nome de exibição. (2) Dados de rastreamento — seu status de visualização, avaliações e comentários. (3) Dados de importação — arquivos enviados do TV Time, Trakt, IMDb ou Letterboxd. (4) Dados de uso — análises anonimizadas. Não coletamos informações de pagamento, pois o Serviço é gratuito.",
+        content: "Coletamos as seguintes categorias de dados: (1) Informações da conta — endereço de e-mail, nome de exibição e senha (hashed). (2) Dados de rastreamento — seu status de relógio, classificações, comentários e progresso de episódio. (3) Importar dados — arquivos que você envia de TV Time, Trakt, IMDb, ou Letterboxd, que são suprimidos imediatamente após o processamento. (4) Tokens OAuth - hashed acesso e atualizar tokens emitidos quando você conectar Watchr para uma plataforma de IA via MCP. (5) Chaves API — chaves hashadas que você gera para acesso programático. (6) Dados de uso — análise anônima e agregada sobre como você interage com o Serviço. Nós não coletamos informações de pagamento (o Serviço é gratuito), identificadores governamentais, informações de saúde, dados de localização ou credenciais de acesso de serviços de terceiros.",
       },
       dataUse: {
-        title: "Como Usamos Seus Dados",
-        content:
-          "Seus dados são usados para: (1) Fornecer e manter o Serviço. (2) Sincronizar seus dados de rastreamento entre dispositivos. (3) Exibir avaliações e comentários da comunidade. (4) Melhorar e otimizar o Serviço. (5) Enviar notificações importantes. Nunca vendemos seus dados pessoais a terceiros.",
-      },
-      dataStorage: {
-        title: "Armazenamento e Segurança",
-        content:
-          "Seus dados são armazenados em bancos de dados seguros hospedados por provedores confiáveis. Senhas são hashadas com algoritmos padrão da indústria. Todas as comunicações entre o app e nossos servidores são criptografadas via HTTPS. O acesso aos bancos de dados de produção é restrito ao pessoal autorizado da ArquiTech.",
+        title: "Como usamos seus dados",
+        content: "Seus dados são usados para: (1) Fornecer e manter o Serviço, incluindo sincronizar seus dados de rastreamento entre dispositivos. (2) Mostrar avaliações comunitárias e comentários em programas e episódios. (3) Execute solicitações de ferramentas de plataformas de IA (ChatGPT, Claude, Gemini, Copilot) quando você tiver autorizado uma conexão via MCP — isso inclui procurar shows, ler e atualizar sua lista de observação, postar avaliações e comentários e recuperar suas estatísticas e recomendações. (4) Melhore e otimize o Serviço usando análises anônimas e agregadas. (5) Envie notificações de serviço importantes (por exemplo, segurança da conta, status de importação de dados). Nunca vendemos os seus dados pessoais a terceiros.",
       },
       dataSharing: {
-        title: "Compartilhamento de Dados",
-        content:
-          "Não compartilhamos seus dados pessoais com terceiros, exceto: (1) Quando exigido por lei. (2) Com nossos provedores de hospedagem e análises sob acordos estritos de confidencialidade. (3) Dados agregados e anonimizados podem ser usados para fins estatísticos.",
+        title: "Compartilhamento de dados e destinatários de terceiros",
+        content: "Compartilhamos dados com as seguintes categorias de destinatários: (1) Plataformas de IA — quando você se conecta Watchr a ChatGPT (OpenAI), Claude (Antrópico), Gemini (Google), ou Microsoft Copilot via MCP, estas plataformas recebem apenas as saídas de ferramentas que eles pedem (por exemplo, mostrar metadados, sua lista de observação, classificações, comentários, estatísticas). Nunca enviamos seu registro de bate-papo, histórico de conversas ou memória de plataforma de IA para nossos servidores. Cada processo de plataforma de IA recebeu dados de acordo com sua própria política de privacidade. (2) TMDB (The Movie Database) — consultamos TMDBAPI para mostrar metadados (títulos, cartazes, listas de episódios). Nenhum dado pessoal do usuário é enviado para TMDB. (3) Prestador de hospedagem — nosso provedor de infraestrutura hospeda nossas bases de dados e servidores. Eles têm acesso apenas a dados de nível de infraestrutura, não seus dados pessoais. (4) O provedor de análise recebe apenas estatísticas de uso agregadas e anônimas. (5) Compliance legal – podemos divulgar dados quando exigido por lei. Nunca vendemos os seus dados.",
+      },
+      dataRetention: {
+        title: "Retenção de Dados",
+        content: "Nós conservamos os seus dados durante os seguintes períodos: (1) Dados da conta — até que você apague a sua conta, no momento em que todos os dados associados são excluídos permanentemente dentro de 30 dias. (2) Dados de rastreamento (lista de observação, classificações, comentários) — até que você exclua ou sua conta. (3) Tokens OAuth — tokens de acesso expiram após um TTL configurável (padrão: 1 hora); tokens de atualização são válidos até a revogação ou até a expiração (padrão: 30 dias). Os tokens renovados são imediatamente invalidados. (4) Chaves de API — até que você os revogue. Chaves revogadas são imediatamente invalidadas. (5) Importar ficheiros — suprimidos imediatamente após o tratamento. (6) Analytics — armazenado em forma anônima, agregada, sem retenção individual do usuário. (7) Registros de servidor — mantidos por um máximo de 90 dias para fins de segurança e depuração.",
+      },
+      aiIntegration: {
+        title: "Integração com a plataforma de IA (MCP)",
+        content: "Watchr integra-se às plataformas de IA — incluindo o ChatGPT (OpenAI), Claude (Anthropic), Gemini (Google), e Microsoft Copilot - através do Protocolo de Contexto Modelo (MCP). Quando você se conectar Watchr para uma plataforma de IA, o seguinte se aplica: (1) Autenticação — você autoriza a conexão via OAuth 2.0 com PKCE, escolhendo apenas leitura ou escopo de leitura-escrita. Uma tela de consentimento é exibida antes de qualquer acesso ser concedido. 2) Ferramentas — Watchr expõe 15 ferramentas (8 somente leitura, 7 escrever). Leia programas de busca de ferramentas, listar sua lista de observação, recuperar avaliações e comentários, e obter estatísticas e recomendações. As ferramentas de escrita adicionam ou removem programas da sua lista de observação, atualizam o status do relógio, marcam episódios como observados, postam avaliações e postam comentários. (3) Dados enviados para plataformas de IA — apenas os resultados da ferramenta que você solicita (por exemplo, mostrar resultados de pesquisa, conteúdo da lista de observação, classificações, comentários, estatísticas). (4) Dados recebidos de plataformas de IA — apenas os dados de ferramenta necessários para executar um pedido (por exemplo, consultas de pesquisa, TMDB IDs, valores de classificação, texto de comentários). (5) O que não coletamos — nunca acessamos, armazenamos ou processamos seu registro de bate-papo, histórico de conversas, memória de IA, resumos de conversas ou arquivos de usuários da plataforma de IA. Não coletamos dados restritos (informações de cartão de pagamento, informações de saúde, identificadores governamentais, credenciais de acesso). Nós não coletamos dados de localização. Nós não nos engajamos em vigilância, perfil comportamental ou rastreamento de metadados (tempos, IPs, padrões de consulta) além do estritamente necessário para executar a ferramenta solicitada. (6) Anotações de ferramentas — todas as ferramentas são anotadas com readOnlyHint e destrutivoHint para indicar claramente o seu comportamento. (7) Revogação — você pode revogar o acesso à plataforma IA a qualquer momento a partir das configurações de cada plataforma ou de sua Watchr conta.",
+      },
+      dataStorage: {
+        title: "Armazenamento e segurança de dados",
+        content: "Seus dados são armazenados em bases de dados seguras hospedadas por provedores de nuvem confiáveis na União Europeia. Senhas são hashed usando algoritmos padrão da indústria (bcrypt). Os tokens OAuth e as chaves API são armazenados como hashes SHA-256 — os valores do texto simples nunca são armazenados. Todas as comunicações entre o aplicativo, nossos servidores e plataformas de IA são criptografadas via HTTPS/TLS. O acesso às bases de dados de produção é restrito apenas ao pessoal autorizado da ArquiTech, com autenticação multifatorial aplicada. Realizamos revisões regulares de segurança e não armazenamos quaisquer dados sensíveis (cartões de pagamento, registros de saúde, IDs do governo) em qualquer momento.",
       },
       userRights: {
-        title: "Seus Direitos (GDPR)",
-        content:
-          "De acordo com o GDPR, você tem direito a: (1) Acessar seus dados pessoais. (2) Solicitar correção de dados imprecisos. (3) Solicitar exclusão de sua conta e todos os dados associados. (4) Exportar seus dados em um formato portátil. (5) Opor-se a certos tratamentos. Para exercer esses direitos, contate-nos em contact@arquitech.com.",
+        title: "Seus Direitos e Controles",
+        content: "De acordo com o GDPR e outras leis de privacidade aplicáveis, você tem o direito de: (1) Acesse seus dados pessoais. (2) Solicitar a correcção de dados inexactos. (3) Solicitar a exclusão de sua conta e todos os dados associados. (4) Exportar seus dados em um formato portátil. (5) Objeto a determinado processamento de seus dados. (6) Revogar o acesso à plataforma IA — desligar Watchr de qualquer plataforma de IA (ChatGPT, Claude, Gemini, Copilot) a qualquer momento a partir das configurações da plataforma ou seu Watchr conta. Os tokens OAuth são imediatamente invalidados após a revogação. (7) Revogar chaves API — excluir qualquer chave API a qualquer momento de seu Watchr configurações. (8) Retirar o consentimento para o tratamento de dados a qualquer momento. Para exercer qualquer um desses direitos, entre em contato conosco em contact@arquitech.com.",
       },
       cookies: {
         title: "Cookies e Armazenamento Local",
-        content:
-          "O Watchr usa armazenamento local para salvar suas preferências de idioma, tema e tokens de autenticação. Não usamos cookies de rastreamento para fins publicitários. As análises são coletadas de forma anônima e agregada.",
+        content: "Watchr usa armazenamento local para armazenar sua preferência de idioma, preferência de tema e tokens de autenticação. Nós não usamos cookies de rastreamento para fins publicitários. As análises são coletadas de forma anônima e agregada. Quando você usa o fluxo de consentimento MCP, um cookie de sessão temporária é usado para concluir com segurança a autorização OAuth, que é excluída imediatamente após o processo ser concluído.",
+      },
+      childrenPrivacy: {
+        title: "Privacidade das Crianças",
+        content: "Watchr não se destina a crianças com menos de 13 anos. Não coletamos informações pessoais de crianças menores de 13 anos. Se tivermos consciência de que recolhemos dados pessoais de uma criança com menos de 13 anos, tomaremos medidas para eliminar esses dados rapidamente. Se você acredita que uma criança menor de 13 anos nos forneceu dados pessoais, entre em contato conosco em contact@arquitech.com.",
+      },
+      internationalTransfers: {
+        title: "Transferências Internacionais de Dados",
+        content: "Os seus dados são armazenados em servidores localizados na União Europeia. No entanto, quando você conectar Watchr para uma plataforma de IA (ChatGPT/OpenAI, Claude/Anthropic, Gemini/Google, Copilot/Microsoft), as saídas de ferramentas enviadas para essa plataforma podem ser processadas na infraestrutura global da plataforma, que pode estar localizada fora da UE. Cada plataforma de IA processa dados de acordo com sua própria política de privacidade e acordos de transferência de dados aplicáveis. Recomendamos rever a política de privacidade de cada plataforma de IA antes de se conectar. TMDB As solicitações de API são processadas a partir de nossos servidores baseados na UE.",
       },
       contact: {
-        title: "Contate-nos",
-        content:
-          "Se você tem perguntas sobre esta Política de Privacidade, contate-nos em: ArquiTech — contact@arquitech.com.",
+        title: "Contacte-nos",
+        content: "Se você tiver dúvidas sobre esta Política de Privacidade, nossas integrações de plataforma de IA, ou deseja exercer seus direitos de proteção de dados, você pode entrar em contato conosco em: ArquiTech — contact@arquitech.com. Responderemos ao seu pedido no prazo de 30 dias.",
       },
     },
   },
   terms: {
-    metaTitle: "Termos de Serviço — Watchr",
-    metaDescription: "Os termos e condições para usar o Watchr.",
-    title: "Termos de Serviço",
+    metaTitle: "Termos de serviço — Watchr",
+    metaDescription: "Os termos e condições de utilização Watchr.",
+    title: "Termos de serviço",
     lastUpdated: "Última atualização: Julho 2026",
-    intro:
-      'Estes Termos de Serviço ("Termos") regem seu uso do Watchr (o "Serviço"), operado pela ArquiTech. Ao usar o Serviço, você concorda com estes Termos. Se não concorda, por favor não use o Serviço.',
+    intro: "Estes Termos de Serviço (\"Termos\") regem o seu uso de Watchr (o \"Serviço\"), operado pela ArquiTech. Ao usar o Serviço, você concorda com estes Termos. Se não concordar, por favor não utilize o Serviço.",
     sections: {
       acceptance: {
-        title: "Aceitação dos Termos",
-        content:
-          "Ao criar uma conta ou usar o Serviço, você reconhece que leu, entendeu e concorda em ser vinculado por estes Termos.",
+        title: "Aceitação de Termos",
+        content: "Ao criar uma conta ou usar o Serviço, você reconhece que leu, compreendeu e concorda em ficar vinculado a estes Termos.",
       },
       useOfService: {
-        title: "Uso do Serviço",
-        content:
-          "O Watchr é fornecido como um serviço gratuito para uso pessoal e não comercial. Você pode usar o Serviço para rastrear séries e filmes, avaliar conteúdo e interagir com a comunidade. Você concorda em não usar indevidamente o Serviço nem usá-lo para qualquer finalidade ilegal.",
+        title: "Utilização do Serviço",
+        content: "Watchr é fornecido como um serviço gratuito para uso pessoal, não comercial. Você pode usar o Serviço para rastrear programas de TV e filmes, avaliar conteúdo e interagir com a comunidade. Você concorda em não abusar do Serviço ou usá-lo para qualquer propósito ilegal.",
       },
       accounts: {
         title: "Contas",
-        content:
-          "Você deve fornecer informações precisas e completas ao criar uma conta. Você é responsável por manter a segurança de sua conta e senha. A ArquiTech não é responsável por perdas ou danos decorrentes de acesso não autorizado à sua conta.",
+        content: "Você deve fornecer informações precisas e completas ao criar uma conta. Você é responsável por manter a segurança de sua conta e senha. A ArquiTech não é responsável por qualquer perda ou dano devido ao acesso não autorizado à sua conta.",
       },
       intellectualProperty: {
         title: "Propriedade Intelectual",
-        content:
-          "O Serviço, incluindo seu design, código e marca, é propriedade intelectual da ArquiTech. Os metadados de séries e filmes são provenientes do TMDB conforme seus termos de uso. O conteúdo gerado pelo usuário permanece propriedade do usuário, mas você concede à ArquiTech uma licença para exibi-lo dentro do Serviço.",
+        content: "O Serviço, incluindo seu design, código e marca, é propriedade intelectual da ArquiTech. Os metadados de programas de TV e filmes são originados de TMDB (The Movie Database) sob seus termos de uso. O conteúdo gerado pelo usuário continua sendo propriedade do usuário, mas você concede à ArquiTech uma licença para exibi-lo dentro do Serviço.",
       },
       prohibitedConduct: {
         title: "Conduta Proibida",
-        content:
-          "Você concorda em não: (1) Publicar conteúdo abusivo, odioso ou spam. (2) Impersonar outra pessoa. (3) Tentar hackear, interromper ou fazer engenharia reversa do Serviço. (4) Usar bots ou scripts automatizados. (5) Compartilhar spoilers sem marcação adequada.",
+        content: "Você concorda em: (1) Publicar conteúdo abusivo, odioso ou spam. (2) Imita outra pessoa. (3) Tentativa de hackear, interromper, ou engenharia reversa do Serviço. (4) Use bots ou scripts automatizados para interagir com o Serviço. (5) Compartilhe spoilers sem marcação adequada.",
       },
       disclaimer: {
-        title: "Isenção de Garantias",
-        content:
-          'O Serviço é fornecido "como está" sem garantias de qualquer tipo. Não garantimos que o Serviço será ininterrupto, sem erros ou seguro. O uso do Serviço é por sua conta e risco.',
+        title: "Exoneração de Garantias",
+        content: "O Serviço é fornecido \"como é\" sem garantias de qualquer tipo, expresso ou implícito. Não garantimos que o Serviço será ininterrupto, isento de erros ou seguro. O seu uso do Serviço é por sua conta e risco.",
       },
       limitation: {
-        title: "Limitação de Responsabilidade",
-        content:
-          "A ArquiTech não será responsável por danos indiretos, incidentais, especiais ou consequentes decorrentes do seu uso do Serviço, incluindo mas não se limitando a perda de dados, lucros ou reputação.",
+        title: "Limitação da responsabilidade",
+        content: "A ArquiTech não será responsável por quaisquer danos indiretos, incidentais, especiais ou consequentes decorrentes do seu uso do Serviço, incluindo, mas não limitado à perda de dados, lucros ou boa vontade.",
       },
       termination: {
         title: "Rescisão",
-        content:
-          "Reservamo-nos o direito de suspender ou encerrar sua conta a qualquer momento por violação destes Termos. Você pode excluir sua conta a qualquer momento nas configurações do app.",
+        content: "Reservamo-nos o direito de suspender ou encerrar a sua conta a qualquer momento por violação destes Termos. Você pode excluir sua conta a qualquer momento das configurações do aplicativo.",
       },
       governingLaw: {
-        title: "Lei Aplicável",
-        content:
-          "Estes Termos são regidos pelas leis da França. Quaisquer disputas serão resolvidas nos tribunais da França.",
+        title: "Direito Governante",
+        content: "Estes Termos são regidos pelas leis da França. Os litígios serão resolvidos nos tribunais franceses.",
       },
       contact: {
-        title: "Contate-nos",
-        content:
-          "Se você tem perguntas sobre estes Termos, contate-nos em: ArquiTech — contact@arquitech.com.",
+        title: "Contacte-nos",
+        content: "Se tiver dúvidas sobre estes Termos, pode contactar-nos em: ArquiTech — contact@arquitech.com.",
       },
     },
   },
+  contact: {
+    metaTitle: "Contacte-nos — Watchr",
+    metaDescription: "Entre em contacto com o Watchr Equipa. Comunique erros, sugira recursos ou faça perguntas.",
+    title: "Contacte-nos",
+    intro: "Estamos aqui para ajudar e ouvir. Quer você tenha encontrado um bug, tenha uma ideia de recurso ou apenas queira conversar — solte-nos uma mensagem.",
+    name: "O seu nome",
+    namePlaceholder: "Desconhecido",
+    email: "Seu e-mail",
+    emailPlaceholder: "jane@ exemplo. com",
+    category: "Categoria",
+    categoryBug: "Erro",
+    categorySuggestion: "Sugestão",
+    categoryQuestion: "Pergunta",
+    categoryOther: "Outros",
+    subject: "Assunto",
+    subjectPlaceholder: "Selecione um assunto",
+    subjectBugAppCrash: "Falha na aplicação",
+    subjectBugDisplay: "Mostrar o problema",
+    subjectBugLogin: "Problema de login / autenticação",
+    subjectBugImport: "Questão da importação",
+    subjectBugNotification: "Problema de notificação",
+    subjectBugOther: "Outro erro",
+    subjectSuggestionFeature: "Nova ideia de recurso",
+    subjectSuggestionUi: "Melhoria da UI/UX",
+    subjectSuggestionContent: "Conteúdo / mostrar dados",
+    subjectSuggestionCommunity: "Característica comunitária",
+    subjectSuggestionOther: "Outra sugestão",
+    subjectQuestionAccount: "Conta",
+    subjectQuestionData: "Dados / privacidade",
+    subjectQuestionHowTo: "Como usar um recurso",
+    subjectQuestionBilling: "Faturação / subscrição",
+    subjectQuestionOther: "Outra questão",
+    subjectOtherPartnership: "Parceria",
+    subjectOtherPress: "Imprensa / mídia",
+    subjectOtherFeedback: "Feedback geral",
+    subjectOtherOther: "Outros",
+    message: "Mensagem",
+    messagePlaceholder: "Conta-nos mais...",
+    send: "Enviar mensagem",
+    sending: "Enviando...",
+    success: "Mensagem enviada! Voltamos a falar consigo em breve.",
+    error: "Não foi possível enviar a mensagem. Por favor, tente novamente.",
+  },
   docs: {
     metaTitle: "Documentação da API — Watchr",
-    metaDescription:
-      "Documentação completa da API pública v1 do Watchr e da integração do servidor MCP.",
+    metaDescription: "Documentação completa para o Watchr integração pública de servidores API v1 e MCP.",
     intro: {
       title: "Documentação da API",
-      description:
-        "Watchr fornece uma API REST pública (v1) e um servidor MCP que permitem pesquisar séries, gerenciar sua watchlist e integrar o Watchr com ferramentas externas como Claude.",
+      description: "Watchr fornece uma API REST pública (v1) e um servidor MCP que lhe permite pesquisar por programas, gerenciar sua lista de observação e integrar Watchr com ferramentas externas como Claude.",
       getKeyTitle: "Obtenha sua chave de API",
-      getKeyDescription:
-        "Para usar a API, você precisa de uma chave de API. Gere uma no seu perfil no app Watchr. Sua chave suporta escopos de leitura e/ou escrita dependendo do que você selecionou durante a criação.",
-      getKeyCta: "Abrir app Watchr",
+      getKeyDescription: "Para usar a API, você precisa de uma chave de API. Gerar um do seu perfil no Watchr app. Sua chave suporta leitura e/ou gravação de escopos, dependendo do que você selecionou durante a criação.",
+      getKeyCta: "Abrir Watchr app",
     },
     auth: {
-      title: "Autenticação",
-      description:
-        "Todas as requisições da API exigem uma chave de API passada no cabeçalho Authorization. As chaves têm o prefixo wtc_ e suportam dois escopos: read e write.",
-      headerTitle: "Cabeçalho Authorization",
-      headerDescription: "Passe sua chave de API como token Bearer em cada requisição:",
-      scopeReadTitle: "escopo read",
-      scopeReadDescription:
-        "Permite pesquisar séries e listar sua watchlist. Endpoints de leitura são limitados a 60 requisições por minuto.",
-      scopeWriteTitle: "escopo write",
-      scopeWriteDescription:
-        "Permite adicionar, atualizar e remover itens da sua watchlist. Endpoints de escrita são limitados a 20 requisições por minuto.",
-      exampleTitle: "Exemplo de requisição autenticada",
+      title: "autenticação",
+      description: "Todas as solicitações de API requerem uma chave API passada no cabeçalho Autorização. As chaves são prefixadas com wtc  e suportam dois escopos: ler e escrever.",
+      headerTitle: "Cabeçalho de autorização",
+      headerDescription: "Passe sua chave API como um token Bearer em cada pedido:",
+      scopeReadTitle: "âmbito de leitura",
+      scopeReadDescription: "Permite pesquisar mostras e listar sua lista de observação. Os endpoints de leitura são limitados a 60 solicitações por minuto.",
+      scopeWriteTitle: "espaço de escrita",
+      scopeWriteDescription: "Permite adicionar, atualizar e remover itens da sua lista de vigilância. Os endpoints de escrita são limitados à taxa a 20 pedidos por minuto.",
+      exampleTitle: "Exemplo pedido autenticado",
     },
     endpoints: {
-      title: "Endpoints da API pública v1",
-      description:
-        "Todos os endpoints estão disponíveis em https://api.watchr.me/api/public/v1. Cada endpoint requer um escopo específico.",
-      requestLabel: "Requisição",
+      title: "Endpoints públicos da API v1",
+      description: "Todos os parâmetros estão disponíveis em https://api.watchr.me/api/public/v1. Cada objetivo requer um escopo específico.",
+      requestLabel: "Pedido",
       responseLabel: "Resposta",
-      noContent: "Nenhum conteúdo retornado em caso de sucesso.",
+      noContent: "Nenhum conteúdo retornou com o sucesso.",
       paramsTitle: "Parâmetros",
-      bodyTitle: "Corpo da requisição",
+      bodyTitle: "Organismo de pedido",
       colParam: "Parâmetro",
       colType: "Tipo",
-      colRequired: "Obrigatório",
-      colDescription: "Descrição",
+      colRequired: "Requerido",
+      colDescription: "Designação das mercadorias",
       params: {
-        searchQ: "A string de busca (1-200 caracteres).",
-        page: "Número da página para paginação (padrão: 1).",
-        limit: "Itens por página (padrão: 20, máx: 100).",
-        status: "Filtrar por status: watching, completed, plan_to_watch ou dropped.",
-        showId: "O ObjectId do Show da watchlist.",
+        searchQ: "A string de pesquisa (1-200 caracteres).",
+        page: "Número da página para paginação (por omissão: 1).",
+        limit: "Itens por página (padrão: 20, máximo: 100).",
+        status: "Filtrar pelo estado de observação: observando, completando, plan to watch ou soltando.",
+        showId: "O Mostrar objetoId da lista de observação.",
       },
       body: {
-        tmdbId: "O ID TMDB da série ou filme.",
-        type: 'O tipo de conteúdo: "tv" ou "movie".',
-        status: "O novo status: watching, completed, plan_to_watch ou dropped.",
-        watchedEpisodes: "Array de episódios assistidos com season, episode e watchedAt.",
-        currentSeason: "O número da temporada atual.",
-        currentEpisode: "O número do episódio atual.",
+        tmdbId: "A TMDB Identificação do programa ou filme.",
+        type: "O tipo de conteúdo: \"tv\" ou \"filme\".",
+        status: "O novo status do relógio: observando, completado, plan to watch, ou deixado cair.",
+        watchedEpisodes: "Array de episódios assistidos com temporada, episódio, e assistiramAt.",
+        currentSeason: "O número atual da temporada.",
+        currentEpisode: "O número atual do episódio.",
       },
       search: {
-        title: "Pesquisar séries",
-        description:
-          "Pesquise séries de TV e filmes por título. Retorna resultados do TMDB incluindo IDs TMDB, títulos, caminhos de pôsteres e sinopses. O parâmetro q é obrigatório (1-200 caracteres).",
+        title: "Mostrar",
+        description: "Procure por programas de TV e filmes por título. Retorna resultados de TMDB incluindo TMDB IDs, títulos, caminhos de cartazes e panoramas. O parâmetro de consulta q é necessário (1-200 caracteres).",
       },
       getWatchlist: {
-        title: "Listar watchlist",
-        description:
-          "Recupera a watchlist do usuário autenticado com paginação. Parâmetros opcionais: page (padrão 1), limit (padrão 20, máx 100), status (watching, completed, plan_to_watch, dropped).",
+        title: "Listar lista de vigilância",
+        description: "Recuperar a lista de vigilância do usuário autenticado com paginação. Parâmetros de consulta opcionais: página (padrão 1), limite (padrão 20, max 100), status (observando, completando, plan to watch, queda).",
       },
       postWatchlist: {
-        title: "Adicionar à watchlist",
-        description:
-          'Adiciona uma série ou filme à watchlist por ID TMDB. A série é sincronizada automaticamente do TMDB se ainda não estiver em cache. Novas entradas têm o status padrão plan_to_watch. Corpo da requisição: { tmdbId: number, type: "tv" | "movie" }.',
+        title: "Adicionar à lista de observação",
+        description: "Adicionar um programa ou filme à lista de vigilância por TMDB Identificação. O show é sincronizado automaticamente de TMDB se já não estiver guardado. Novas entradas padrão para plan to watch status. Corpo de solicitação: { tmdbId: number, type: \"tv\" * \"movie\" }.",
       },
       patchWatchlist: {
-        title: "Atualizar status de visualização",
-        description:
-          "Atualiza o status de visualização de um item na watchlist. O parâmetro :showId é o ObjectId do Show. O corpo da requisição pode incluir: status, watchedEpisodes, currentSeason, currentEpisode.",
+        title: "Actualizar o estado da observação",
+        description: "Atualizar o estado de observação de um item na lista de observação. O parâmetro :showId é o Show ObjectId. O corpo de solicitação pode incluir: status, eyedEpisodes, atualSeason, atualEpisode.",
       },
       deleteWatchlist: {
-        title: "Remover da watchlist",
-        description:
-          "Remove permanentemente um item da watchlist. O parâmetro :showId é o ObjectId do Show. Retorna 204 No Content em caso de sucesso.",
+        title: "Remover da lista de observação",
+        description: "Remover um item da lista de vigilância permanentemente. O parâmetro :showId é o Show ObjectId. Retorna 204 Nenhum conteúdo sobre sucesso.",
       },
     },
     rateLimit: {
-      title: "Limite de taxa",
-      description:
-        "As requisições da API são limitadas por chave de API. Os limites são aplicados separadamente para operações de leitura e escrita.",
+      title: "Limitação da Taxa",
+      description: "As solicitações de API são limitadas por taxa por chave de API. Os limites são aplicados separadamente para operações de leitura e escrita.",
       readUnit: "req/min",
-      readDescription: "Endpoints GET (pesquisa, listar watchlist)",
+      readDescription: "GET endpoints (pesquisa, lista de observação)",
       writeUnit: "req/min",
-      writeDescription: "Endpoints POST, PATCH, DELETE (mutações de watchlist)",
+      writeDescription: "POST, PATCH, Endpoints DELETOS (mutações na lista de observação)",
       errorTitle: "Limite de taxa excedido",
-      errorDescription:
-        "Quando você excede o limite, a API responde com HTTP 429 e um corpo de erro. Cabeçalhos de limite (RateLimit-Limit, RateLimit-Remaining) são incluídos em todas as respostas.",
+      errorDescription: "Quando você excede o limite de taxa, a API responde com HTTP 429 e um corpo de erro. Os cabeçalhos de limite de taxa (RateLimit-Limit, RateLimit-Remaining) estão incluídos em todas as respostas.",
     },
     models: {
       title: "Modelos de dados",
-      description:
-        "As principais estruturas de dados retornadas pela API. Todas as respostas são JSON.",
-      showDesc:
-        "Uma série ou filme do TMDB, retornado em resultados de busca e incorporado em entradas da watchlist.",
-      watchEntryDesc:
-        "Uma entrada da watchlist contendo os dados de rastreamento do usuário para uma série.",
-      paginationDesc: "Metadados de paginação retornados com endpoints de lista paginados.",
-      searchResultDesc: "A estrutura de resposta de nível superior para consultas de busca.",
+      description: "As principais estruturas de dados retornadas pela API. Todas as respostas são JSON.",
+      showDesc: "Um show ou filme de TMDB, retornado em resultados de pesquisa e incorporado em entradas da lista de observação.",
+      watchEntryDesc: "Um item da lista de vigilância contendo os dados de rastreamento do usuário para um show.",
+      paginationDesc: "Os metadados de paginação retornados com os objetivos da lista paginada.",
+      searchResultDesc: "A estrutura de resposta de topo para pesquisas.",
     },
     errors: {
-      title: "Códigos de erro",
-      description:
-        "A API usa códigos de erro consistentes em todos os endpoints. Erros são retornados com um corpo JSON contendo o código de erro e uma mensagem legível.",
+      title: "Códigos de Erro",
+      description: "A API usa códigos de erro consistentes em todos os terminais. Erros são retornados com um corpo JSON contendo o código de erro e uma mensagem legível por humanos.",
       colCode: "Código de erro",
-      colStatus: "Status HTTP",
-      colDescription: "Descrição",
-      exampleTitle: "Exemplo de resposta de erro",
+      colStatus: "Estado HTTP",
+      colDescription: "Designação das mercadorias",
+      exampleTitle: "Resposta de erro de exemplo",
       codes: {
-        invalidApiKey: "A chave de API está ausente, mal formatada ou não encontrada.",
-        insufficientScope: "A chave de API não tem o escopo necessário para este endpoint.",
-        showNotFound: "A série solicitada não foi encontrada.",
-        validationError: "O corpo da requisição ou os parâmetros não passaram na validação.",
+        invalidApiKey: "A chave API está faltando, mal formada ou não encontrada.",
+        insufficientScope: "A chave API não tem o escopo necessário para este endpoint.",
+        showNotFound: "O programa solicitado não foi encontrado.",
+        validationError: "Os parâmetros do corpo ou consulta da solicitação falharam na validação.",
         tooManyRead: "Limite de taxa excedido para operações de leitura (60 req/min).",
-        tooManyWrite: "Limite de taxa excedido para operações de escrita (20 req/min).",
+        tooManyWrite: "Limite de taxa excedido para as operações de escrita (20 req/min).",
         internalError: "Ocorreu um erro inesperado no servidor.",
       },
     },
     sdk: {
-      title: "Exemplos de código",
-      description:
-        "Exemplos de início rápido em linguagens de programação populares para integrar a API do Watchr.",
+      title: "Exemplos de Código",
+      description: "Exemplos de início rápido em linguagens de programação populares para ajudá-lo a integrar o Watchr API.",
       javascript: "JavaScript",
       python: "Python",
-      go: "Go",
-      searchExample: "Pesquisar séries",
-      addExample: "Adicionar à watchlist",
+      go: "Vai.",
+      searchExample: "Procurar por programas",
+      addExample: "Adicionar à lista de observação",
     },
     toc: "Nesta página",
     mcp: {
       title: "Servidor MCP",
-      description:
-        "Watchr fornece um servidor MCP (Model Context Protocol) que permite que assistentes de IA como Claude interajam diretamente com sua watchlist. O endpoint MCP está disponível em https://api.watchr.me/mcp.",
+      description: "Watchr fornece um servidor MCP (Model Context Protocol) que permite que assistentes de IA como Claude interajam diretamente com sua lista de observação. O objectivo MCP está disponível em https://api.watchr.me/mcp.",
       setupTitle: "Configuração",
-      step1: "Gere uma chave de API no seu",
-      step1Link: "perfil do Watchr",
-      step2:
-        "Adicione o servidor MCP do Watchr ao seu arquivo de configuração do Claude (claude_desktop_config.json ou equivalente).",
-      step3:
-        "Reinicie o Claude. As ferramentas do Watchr aparecerão na lista de ferramentas disponíveis.",
+      step1: "Gerar uma chave API em seu",
+      step1Link: "Watchr perfil",
+      step2: "Adicionar o Watchr Servidor MCP para seu arquivo de configuração Claude (claude desktop config.json ou equivalente).",
+      step3: "Reinicia o Claude. A Watchr ferramentas aparecerão na lista de ferramentas disponíveis.",
       configTitle: "Configuração MCP",
       toolsTitle: "Ferramentas disponíveis",
       tools: {
-        search_show:
-          "Pesquisar séries de TV e filmes por título. Retorna resultados com IDs TMDB, títulos e metadados.",
-        "search_show.params.query": "A string de busca (1-200 caracteres).",
-        list_watchlist:
-          "Listar a watchlist do usuário com suporte à paginação. Retorna entradas de rastreamento com detalhes das séries.",
-        "list_watchlist.params.page": "Número da página (padrão: 1).",
-        "list_watchlist.params.limit": "Itens por página (padrão: 20, máx: 100).",
-        add_to_watchlist:
-          "Adicionar uma série ou filme à watchlist por ID TMDB e tipo (tv ou movie).",
-        "add_to_watchlist.params.tmdbId": "O ID TMDB da série ou filme.",
-        "add_to_watchlist.params.type": 'O tipo de conteúdo: "tv" ou "movie".',
-        update_watch_status:
-          "Atualizar o status de visualização de uma série na watchlist. Ao marcar como completed, todos os episódios são automaticamente marcados como vistos. O status pode ser watching, completed, plan_to_watch ou dropped.",
-        "update_watch_status.params.showId": "O ObjectId do Show.",
-        "update_watch_status.params.status":
-          "O novo status: watching, completed, plan_to_watch ou dropped.",
-        remove_from_watchlist: "Remover uma série da watchlist por seu ObjectId.",
-        "remove_from_watchlist.params.showId": "O ObjectId do Show.",
-        toggle_episode: "Marcar um episódio específico como visto ou não visto.",
-        "toggle_episode.params.showId": "O ObjectId do Show.",
-        "toggle_episode.params.season": "O número da temporada.",
-        "toggle_episode.params.episode": "O número do episódio.",
-        "toggle_episode.params.watched": "Marcar como visto (true) ou não visto (false).",
-        mark_episodes_up_to:
-          "Marcar todos os episódios até uma temporada/episódio específico como vistos.",
-        "mark_episodes_up_to.params.showId": "O ObjectId do Show.",
-        "mark_episodes_up_to.params.season": "O número da temporada alvo.",
-        "mark_episodes_up_to.params.episode": "O número do episódio alvo.",
-        "mark_episodes_up_to.params.includePrevious":
-          "Marcar todos os episódios anteriores de todas as temporadas (padrão: true).",
-        get_show_details:
-          "Obter informações detalhadas sobre uma série por ID TMDB, incluindo temporadas e episódios.",
-        "get_show_details.params.tmdbId": "O ID TMDB da série.",
-        rate_show:
-          "Avaliar uma série ou episódio de 1 a 5 estrelas. Opcionalmente incluir um texto de avaliação.",
-        "rate_show.params.showId": "O ObjectId do Show.",
-        "rate_show.params.value": "A avaliação de 1 a 5.",
-        "rate_show.params.season": "Número da temporada opcional para avaliações por episódio.",
-        "rate_show.params.episode": "Número do episódio opcional para avaliações por episódio.",
-        "rate_show.params.review": "Texto de avaliação opcional (máx 2000 caracteres).",
-        get_ratings: "Obter a avaliação do usuário e as avaliações da comunidade para uma série.",
-        "get_ratings.params.showId": "O ObjectId do Show.",
-        list_comments:
-          "Listar comentários públicos de uma série, opcionalmente filtrados por episódio.",
-        "list_comments.params.showId": "O ObjectId do Show.",
-        "list_comments.params.season": "Número da temporada opcional para filtrar comentários.",
-        "list_comments.params.episode": "Número do episódio opcional para filtrar comentários.",
-        "list_comments.params.page": "Número da página (padrão: 1).",
-        "list_comments.params.limit": "Itens por página (padrão: 10, máx: 50).",
-        "list_comments.params.sort": "Ordem: recent, liked, replied ou relevant (padrão: recent).",
-        add_comment: "Publicar um comentário público em uma série ou episódio.",
-        "add_comment.params.showId": "O ObjectId do Show.",
-        "add_comment.params.content": "O texto do comentário (1-2000 caracteres).",
-        "add_comment.params.season": "Número da temporada opcional para comentários de episódios.",
-        "add_comment.params.episode": "Número do episódio opcional para comentários de episódios.",
-        "add_comment.params.isSpoiler": "Indica se o comentário contém spoilers (padrão: false).",
-        get_upcoming:
-          "Obter próximos episódios para séries na watchlist do usuário, categorizados por hoje, esta semana, próxima semana e depois.",
-        get_stats:
-          "Obter as estatísticas de visualização do usuário incluindo episódios vistos, horas, sequência, divisão por gênero e atividade recente.",
-        get_recommendations:
-          "Obter recomendações personalizadas baseadas no histórico de visualização e avaliações.",
+        search_show: {
+          params: {
+            query: "A string de pesquisa (1-200 caracteres).",
+          },
+        },
+        list_watchlist: {
+          params: {
+            page: "Número da página (padrão: 1).",
+            limit: "Itens por página (padrão: 20, máximo: 100).",
+          },
+        },
+        add_to_watchlist: {
+          params: {
+            tmdbId: "A TMDB Identificação do programa ou filme.",
+            type: "O tipo de conteúdo: \"tv\" ou \"filme\".",
+          },
+        },
+        update_watch_status: {
+          params: {
+            showId: "O objeto do show.",
+            status: "O novo status do relógio: observando, completado, plan to watch, ou deixado cair.",
+          },
+        },
+        remove_from_watchlist: {
+          params: {
+            showId: "O objeto do show.",
+          },
+        },
+        toggle_episode: {
+          params: {
+            showId: "O objeto do show.",
+            season: "O número da temporada.",
+            episode: "O número do episódio.",
+            watched: "Marcar como vigiado (verdadeiro) ou não vigiado (falso).",
+          },
+        },
+        mark_episodes_up_to: {
+          params: {
+            showId: "O objeto do show.",
+            season: "O número da temporada alvo.",
+            episode: "O número do episódio alvo.",
+            includePrevious: "Se deve marcar todos os episódios anteriores através das estações (padrão: true).",
+          },
+        },
+        get_show_details: {
+          params: {
+            tmdbId: "A TMDB Identificação do programa.",
+          },
+        },
+        rate_show: {
+          params: {
+            showId: "O objeto do show.",
+            value: "O valor da notação de 1 a 5.",
+            season: "Número de temporada opcional para avaliações específicas de episódios.",
+            episode: "Número de episódio opcional para avaliações específicas de episódios.",
+            review: "Texto opcional de revisão (máx. 2000 caracteres).",
+          },
+        },
+        get_ratings: {
+          params: {
+            showId: "O objeto do show.",
+          },
+        },
+        list_comments: {
+          params: {
+            showId: "O objeto do show.",
+            season: "Número de temporada opcional para filtrar comentários.",
+            episode: "Número de episódio opcional para filtrar comentários.",
+            page: "Número da página (padrão: 1).",
+            limit: "Itens por página (padrão: 10, máx: 50).",
+            sort: "Ordem de ordenação: recente, gostou, respondeu ou relevante (padrão: recente).",
+          },
+        },
+        add_comment: {
+          params: {
+            showId: "O objeto do show.",
+            content: "O texto do comentário (1-2000 caracteres).",
+            season: "Número de temporada opcional para comentários de episódios.",
+            episode: "Número de episódio opcional para comentários de episódio.",
+            isSpoiler: "Se o comentário contém spoilers (padrão: false).",
+          },
+        },
+        get_upcoming: "Obter próximos episódios para shows na lista de vigilância do usuário, categorizado por hoje, esta semana, na próxima semana e depois.",
+        get_stats: "Obtenha estatísticas de observação do usuário, incluindo episódios observados, horas, sequência, quebra de gênero e atividade recente.",
+        get_recommendations: "Receba recomendações de show personalizadas com base no histórico e avaliações do relógio.",
       },
-      tabApiKey: "Chave API",
+      tabApiKey: "Chave de API",
       tabOAuth: "OAuth",
-      oauthTitle: "OAuth (ChatGPT, Claude e mais)",
-      oauthDescription:
-        "Conecte ChatGPT, Claude ou qualquer cliente compatível com MCP à sua conta Watchr via OAuth 2.1. Sem necessidade de chave API — autentique-se diretamente com suas credenciais Watchr.",
-      oauthSetupChatGPT:
-        "Vá em Configurações → Conectores → Criar novo conector. Cole a URL https://api.watchr.me/mcp/oauth e salve. No primeiro uso, ChatGPT pedirá que você faça login com sua conta Watchr.",
-      oauthSetupClaude:
-        "Vá em Configurações → Conectores → Adicionar conector personalizado. Cole a URL https://api.watchr.me/mcp/oauth e salve. No primeiro uso, Claude pedirá que você faça login com sua conta Watchr.",
+      oauthTitle: "OAuth (ChatGPT, Claude & more)",
+      oauthDescription: "Conecte ChatGPT, Claude ou qualquer cliente compatível com MCP Watchr conta via OAuth 2.1. Nenhuma chave API necessária — autentice-se diretamente com sua Watchr credenciais.",
+      oauthSetupChatGPT: "Acesse Configurações → Conectores → Criar novo conector. Colar o URL https://api.watchr.me/mcp/oauth e salvar. Na primeira utilização, o ChatGPT pedir-lhe-á para iniciar sessão com o seu Watchr conta.",
+      oauthSetupClaude: "Acesse Configurações → Conectores → Adicione conector personalizado. Colar o URL https://api.watchr.me/mcp/oauth e salvar. Na primeira utilização, Claude irá pedir-lhe para fazer o login com o seu Watchr conta.",
       oauthSetupGenericTitle: "Outros clientes (mcp-remote)",
-      oauthSetupGeneric:
-        "Para qualquer cliente MCP que suporte OAuth, use a URL https://api.watchr.me/mcp/oauth. Você também pode testar com: npx mcp-remote https://api.watchr.me/mcp/oauth",
-      oauthNote:
-        "No primeiro uso, você será redirecionado para fazer login com sua conta Watchr e autorizar o cliente. Após a autorização, o cliente terá acesso à sua watchlist, avaliações e comentários.",
-      oauthConfigTitle: "Configuração OAuth",
+      oauthSetupGeneric: "Para qualquer cliente MCP que suporte OAuth, use o URL https://api.watchr.me/mcp/oauth. Você também pode testá-lo com: npx mcp-remote https://api.watchr.me/mcp/oauth",
+      oauthNote: "No primeiro uso, você será redirecionado para fazer login com seu Watchr conta e autoriza o cliente. Após autorização, o cliente terá acesso à sua lista de vigilância, classificações e comentários.",
+      oauthConfigTitle: "Configuração do OAuth",
     },
   },
 };

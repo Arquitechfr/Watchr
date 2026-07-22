@@ -205,6 +205,7 @@ const fr = {
       webApp: "App web",
       company: "Entreprise",
       about: "À propos",
+      contact: "Contact",
       privacy: "Politique de confidentialité",
       terms: "Conditions d'utilisation",
     },
@@ -256,46 +257,66 @@ const fr = {
   privacy: {
     metaTitle: "Politique de Confidentialité — Watchr",
     metaDescription:
-      "Découvrez comment Watchr collecte, utilise et protège vos données personnelles.",
+      "Découvrez comment Watchr collecte, utilise, partage et protège vos données personnelles, y compris les intégrations de plateformes IA.",
     title: "Politique de Confidentialité",
     lastUpdated: "Dernière mise à jour : Juillet 2026",
     intro:
-      "Cette Politique de Confidentialité explique comment ArquiTech (« nous », « notre ») collecte, utilise et protège vos informations personnelles lorsque vous utilisez Watchr (le « Service »). En utilisant le Service, vous acceptez les pratiques décrites dans cette politique.",
+      "Cette Politique de Confidentialité explique comment ArquiTech (« nous », « notre ») collecte, utilise, partage et protège vos informations personnelles lorsque vous utilisez Watchr (le « Service »), y compris lorsque vous connectez Watchr à des plateformes IA telles que ChatGPT (OpenAI), Claude (Anthropic), Gemini (Google) et Microsoft Copilot via le Model Context Protocol (MCP). En utilisant le Service, vous acceptez les pratiques décrites dans cette politique.",
     sections: {
       dataCollection: {
         title: "Données Collectées",
         content:
-          "Nous collectons les données suivantes : (1) Informations de compte — adresse email et nom d'affichage. (2) Données de suivi — votre statut de visionnage, notes et commentaires. (3) Données d'import — fichiers importés depuis TV Time, Trakt, IMDb ou Letterboxd. (4) Données d'utilisation — analyses anonymisées sur votre interaction avec le Service. Nous ne collectons pas d'informations de paiement car le Service est gratuit.",
+          "Nous collectons les catégories de données suivantes : (1) Informations de compte — adresse email, nom d'affichage et mot de passe (haché). (2) Données de suivi — votre statut de visionnage, notes, commentaires et progression des épisodes. (3) Données d'import — fichiers importés depuis TV Time, Trakt, IMDb ou Letterboxd, supprimés immédiatement après traitement. (4) Jetons OAuth — jetons d'accès et de rafraîchissement hachés émis lorsque vous connectez Watchr à une plateforme IA via MCP. (5) Clés API — clés hachées que vous générez pour un accès programmatique. (6) Données d'utilisation — analyses anonymisées et agrégées sur votre interaction avec le Service. Nous ne collectons pas d'informations de paiement (le Service est gratuit), d'identifiants gouvernementaux, de données de santé, de données de localisation ni d'identifiants d'accès de services tiers.",
       },
       dataUse: {
         title: "Utilisation de vos Données",
         content:
-          "Vos données sont utilisées pour : (1) Fournir et maintenir le Service. (2) Synchroniser vos données de suivi entre vos appareils. (3) Afficher les notes et commentaires de la communauté. (4) Améliorer et optimiser le Service. (5) Envoyer des notifications importantes. Nous ne vendons jamais vos données personnelles à des tiers.",
+          "Vos données sont utilisées pour : (1) Fournir et maintenir le Service, y compris la synchronisation de vos données de suivi entre vos appareils. (2) Afficher les notes et commentaires de la communauté sur les séries et épisodes. (3) Exécuter les requêtes d'outils des plateformes IA (ChatGPT, Claude, Gemini, Copilot) lorsque vous avez autorisé une connexion via MCP — cela inclut la recherche de séries, la lecture et la mise à jour de votre watchlist, la publication de notes et commentaires, et la récupération de vos statistiques et recommandations. (4) Améliorer et optimiser le Service grâce à des analyses anonymisées et agrégées. (5) Envoyer des notifications importantes (sécurité du compte, statut d'import de données). Nous ne vendons jamais vos données personnelles à un tiers.",
+      },
+      dataSharing: {
+        title: "Partage de Données & Destinataires Tiers",
+        content:
+          "Nous partageons des données avec les catégories de destinataires suivantes : (1) Plateformes IA — lorsque vous connectez Watchr à ChatGPT (OpenAI), Claude (Anthropic), Gemini (Google) ou Microsoft Copilot via MCP, ces plateformes reçoivent uniquement les sorties d'outils qu'elles demandent (métadonnées de séries, votre watchlist, notes, commentaires, statistiques). Nous n'envoyons jamais votre historique de conversation ou la mémoire de la plateforme IA vers nos serveurs. Chaque plateforme IA traite les données reçues selon sa propre politique de confidentialité. (2) TMDB (The Movie Database) — nous interrogeons l'API de TMDB pour les métadonnées de séries (titres, affiches, listes d'épisodes). Aucune donnée personnelle n'est envoyée à TMDB. (3) Fournisseur d'hébergement — notre fournisseur d'infrastructure héberge nos bases de données et serveurs. Il n'a accès qu'aux données d'infrastructure, pas à vos données personnelles. (4) Fournisseur d'analyse — reçoit uniquement des statistiques d'utilisation anonymisées et agrégées. (5) Conformité légale — nous pouvons divulguer des données lorsque la loi l'exige. Nous ne vendons jamais vos données.",
+      },
+      dataRetention: {
+        title: "Conservation des Données",
+        content:
+          "Nous conservons vos données pour les durées suivantes : (1) Données de compte — jusqu'à la suppression de votre compte, après quoi toutes les données associées sont définitivement supprimées dans un délai de 30 jours. (2) Données de suivi (watchlist, notes, commentaires) — jusqu'à leur suppression par vous ou la suppression de votre compte. (3) Jetons OAuth — les jetons d'accès expirent après un TTL configurable (défaut : 1 heure) ; les jetons de rafraîchissement sont valables jusqu'à leur révocation ou expiration (défaut : 30 jours). Les jetons révoqués sont immédiatement invalidés. (4) Clés API — jusqu'à leur révocation. Les clés révoquées sont immédiatement invalidées. (5) Fichiers d'import — supprimés immédiatement après traitement. (6) Analyses — stockées sous forme anonymisée et agrégée sans rétention individuelle. (7) Logs serveur — conservés maximum 90 jours pour des raisons de sécurité et de débogage.",
+      },
+      aiIntegration: {
+        title: "Intégration de Plateformes IA (MCP)",
+        content:
+          "Watchr s'intègre aux plateformes IA — notamment ChatGPT (OpenAI), Claude (Anthropic), Gemini (Google) et Microsoft Copilot — via le Model Context Protocol (MCP). Lorsque vous connectez Watchr à une plateforme IA, les éléments suivants s'appliquent : (1) Authentification — vous autorisez la connexion via OAuth 2.0 avec PKCE, en choisissant un accès en lecture seule ou en lecture-écriture. Un écran de consentement s'affiche avant tout accès. (2) Outils — Watchr expose 15 outils (8 en lecture seule, 7 en écriture). Les outils de lecture recherchent des séries, listent votre watchlist, récupèrent notes et commentaires, et obtiennent statistiques et recommandations. Les outils d'écriture ajoutent ou suppriment des séries de votre watchlist, mettent à jour le statut de visionnage, marquent les épisodes comme vus, publient des notes et des commentaires. (3) Données envoyées aux plateformes IA — uniquement les sorties d'outils que vous demandez (résultats de recherche, contenu de la watchlist, notes, commentaires, statistiques). (4) Données reçues des plateformes IA — uniquement les entrées d'outils nécessaires à l'exécution d'une requête (requêtes de recherche, IDs TMDB, valeurs de notes, texte de commentaires). (5) Ce que nous ne collectons PAS — nous n'accédons jamais, ne stockons ni ne traitons votre historique de conversation, la mémoire de l'IA, les résumés de conversation ou les fichiers utilisateur de la plateforme IA. Nous ne collectons pas de données restreintes (informations de paiement, données de santé, identifiants gouvernementaux, identifiants d'accès). Nous ne collectons pas de données de localisation. Nous ne pratiquons pas de surveillance, de profilage comportemental ni de suivi de métadonnées (horodatages, IP, modèles de requêtes) au-delà de ce qui est strictement nécessaire pour exécuter l'outil demandé. (6) Annotations d'outils — tous les outils sont annotés avec readOnlyHint et destructiveHint pour indiquer clairement leur comportement. (7) Révocation — vous pouvez révoquer l'accès de la plateforme IA à tout moment depuis les paramètres de chaque plateforme ou depuis votre compte Watchr.",
       },
       dataStorage: {
         title: "Stockage & Sécurité",
         content:
-          "Vos données sont stockées dans des bases de données sécurisées hébergées par des fournisseurs cloud de confiance. Les mots de passe sont hachés avec des algorithmes standard de l'industrie. Toutes les communications entre l'app et nos serveurs sont chiffrées via HTTPS. L'accès aux bases de production est restreint au personnel autorisé d'ArquiTech.",
-      },
-      dataSharing: {
-        title: "Partage de Données",
-        content:
-          "Nous ne partageons pas vos données personnelles avec des tiers, sauf : (1) Si la loi l'exige. (2) Avec nos fournisseurs d'hébergement et d'analyse sous des accords stricts de confidentialité. (3) Des données agrégées et anonymisées peuvent être utilisées à des fins statistiques.",
+          "Vos données sont stockées dans des bases de données sécurisées hébergées par des fournisseurs cloud de confiance dans l'Union Européenne. Les mots de passe sont hachés avec des algorithmes standard de l'industrie (bcrypt). Les jetons OAuth et les clés API sont stockés sous forme de hachés SHA-256 — les valeurs en clair ne sont jamais stockées. Toutes les communications entre l'app, nos serveurs et les plateformes IA sont chiffrées via HTTPS/TLS. L'accès aux bases de production est restreint au personnel autorisé d'ArquiTech, avec authentification multi-facteurs obligatoire. Nous effectuons des revues de sécurité régulières et ne stockons aucune donnée sensible (cartes de paiement, dossiers médicaux, pièces d'identité) à aucun moment.",
       },
       userRights: {
-        title: "Vos Droits (RGPD)",
+        title: "Vos Droits & Contrôles",
         content:
-          "Conformément au RGPD, vous avez le droit de : (1) Accéder à vos données personnelles. (2) Demander la correction de données inexactes. (3) Demander la suppression de votre compte et de toutes les données associées. (4) Exporter vos données dans un format portable. (5) Vous opposer à certains traitements. Pour exercer ces droits, contactez-nous à contact@arquitech.com.",
+          "Conformément au RGPD et autres lois applicables sur la confidentialité, vous avez le droit de : (1) Accéder à vos données personnelles. (2) Demander la correction de données inexactes. (3) Demander la suppression de votre compte et de toutes les données associées. (4) Exporter vos données dans un format portable. (5) Vous opposer à certains traitements. (6) Révoquer l'accès des plateformes IA — déconnectez Watchr de toute plateforme IA (ChatGPT, Claude, Gemini, Copilot) à tout moment depuis les paramètres de la plateforme ou votre compte Watchr. Les jetons OAuth sont immédiatement invalidés lors de la révocation. (7) Révoquer les clés API — supprimez toute clé API à tout moment depuis vos paramètres Watchr. (8) Retirer votre consentement au traitement des données à tout moment. Pour exercer ces droits, contactez-nous à contact@arquitech.com.",
       },
       cookies: {
         title: "Cookies & Stockage Local",
         content:
-          "Watchr utilise le stockage local pour enregistrer votre préférence de langue, de thème et vos jetons d'authentification. Nous n'utilisons pas de cookies de suivi à des fins publicitaires. Les analyses sont collectées de manière anonyme et agrégée.",
+          "Watchr utilise le stockage local pour enregistrer votre préférence de langue, de thème et vos jetons d'authentification. Nous n'utilisons pas de cookies de suivi à des fins publicitaires. Les analyses sont collectées de manière anonyme et agrégée. Lorsque vous utilisez le flux de consentement MCP, un cookie de session temporaire est utilisé pour compléter sécuritairement l'autorisation OAuth, et est supprimé immédiatement après le processus.",
+      },
+      childrenPrivacy: {
+        title: "Confidentialité des Enfants",
+        content:
+          "Watchr n'est pas destiné aux enfants de moins de 13 ans. Nous ne collectons pas sciemment d'informations personnelles auprès d'enfants de moins de 13 ans. Si nous découvrons que nous avons collecté des données personnelles d'un enfant de moins de 13 ans, nous prendrons des mesures pour les supprimer rapidement. Si vous pensez qu'un enfant de moins de 13 ans nous a fourni des données personnelles, contactez-nous à contact@arquitech.com.",
+      },
+      internationalTransfers: {
+        title: "Transferts Internationaux de Données",
+        content:
+          "Vos données sont stockées sur des serveurs situés dans l'Union Européenne. Cependant, lorsque vous connectez Watchr à une plateforme IA (ChatGPT/OpenAI, Claude/Anthropic, Gemini/Google, Copilot/Microsoft), les sorties d'outils envoyées à cette plateforme peuvent être traitées sur l'infrastructure globale de la plateforme, qui peut se trouver en dehors de l'UE. Chaque plateforme IA traite les données selon sa propre politique de confidentialité et les accords de transfert de données applicables. Nous vous recommandons de consulter la politique de confidentialité de chaque plateforme IA avant de vous connecter. Les requêtes à l'API TMDB sont traitées depuis nos serveurs basés dans l'UE.",
       },
       contact: {
         title: "Nous Contacter",
         content:
-          "Si vous avez des questions sur cette Politique de Confidentialité, contactez-nous à : ArquiTech — contact@arquitech.com.",
+          "Si vous avez des questions sur cette Politique de Confidentialité, nos intégrations de plateformes IA, ou souhaitez exercer vos droits de protection des données, contactez-nous à : ArquiTech — contact@arquitech.com. Nous répondrons à votre demande dans un délai de 30 jours.",
       },
     },
   },
@@ -358,6 +379,49 @@ const fr = {
           "Si vous avez des questions sur ces Conditions, contactez-nous à : ArquiTech — contact@arquitech.com.",
       },
     },
+  },
+  contact: {
+    metaTitle: "Contactez-nous — Watchr",
+    metaDescription: "Entrez en contact avec l'équipe Watchr. Signalez des bugs, suggérez des fonctionnalités ou posez des questions.",
+    title: "Contactez-nous",
+    intro: "Nous sommes là pour vous aider et vous écouter. Que vous ayez trouvé un bug, une idée de fonctionnalité, ou juste envie de discuter — laissez-nous un message.",
+    name: "Votre nom",
+    namePlaceholder: "Jean Dupont",
+    email: "Votre email",
+    emailPlaceholder: "jean@example.com",
+    category: "Catégorie",
+    categoryBug: "Bug",
+    categorySuggestion: "Suggestion",
+    categoryQuestion: "Question",
+    categoryOther: "Autre",
+    subject: "Sujet",
+    subjectPlaceholder: "Sélectionnez un sujet",
+    subjectBugAppCrash: "Crash de l'app",
+    subjectBugDisplay: "Problème d'affichage",
+    subjectBugLogin: "Problème de connexion / authentification",
+    subjectBugImport: "Problème d'import",
+    subjectBugNotification: "Problème de notification",
+    subjectBugOther: "Autre bug",
+    subjectSuggestionFeature: "Idée de nouvelle fonctionnalité",
+    subjectSuggestionUi: "Amélioration UI / UX",
+    subjectSuggestionContent: "Contenu / données de séries",
+    subjectSuggestionCommunity: "Fonctionnalité communautaire",
+    subjectSuggestionOther: "Autre suggestion",
+    subjectQuestionAccount: "Compte",
+    subjectQuestionData: "Données / confidentialité",
+    subjectQuestionHowTo: "Comment utiliser une fonctionnalité",
+    subjectQuestionBilling: "Facturation / abonnement",
+    subjectQuestionOther: "Autre question",
+    subjectOtherPartnership: "Partenariat",
+    subjectOtherPress: "Presse / média",
+    subjectOtherFeedback: "Retour général",
+    subjectOtherOther: "Autre",
+    message: "Message",
+    messagePlaceholder: "Dites-nous en plus…",
+    send: "Envoyer le message",
+    sending: "Envoi…",
+    success: "Message envoyé ! Nous vous répondrons bientôt.",
+    error: "Échec de l'envoi du message. Veuillez réessayer.",
   },
   docs: {
     metaTitle: "Documentation API — Watchr",

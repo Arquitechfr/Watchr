@@ -11,8 +11,7 @@ const zh = {
   hero: {
     badge: "新设 TV Time 导入可用",
     title: "跟踪您的电视节目和电影( M)",
-    subtitle:
-      "Watchr 是电视剧和电影的现代追踪器. 跟踪您的监视状态、 速率、 发现新内容并导入您的 TV Time 数据。",
+    subtitle: "Watchr 是电视剧和电影的现代追踪器. 跟踪您的监视状态、 速率、 发现新内容并导入您的 TV Time 数据。",
     ctaDownload: "在游戏存储器上下载",
     ctaWeb: "尝试网络应用",
     statsShows: "跟踪显示",
@@ -136,46 +135,38 @@ const zh = {
     items: {
       free: {
         question: "这是 Watchr 免费?",
-        answer:
-          "对 Watchr 完全可以自由使用。 包括跟踪、评级、评论和进口在内的所有核心特征都是免费的。",
+        answer: "对 Watchr 完全可以自由使用。 包括跟踪、评级、评论和进口在内的所有核心特征都是免费的。",
       },
       import: {
         question: "我可以进口我的 TV Time 数据?",
-        answer:
-          "当然 Watchr 支持导入您的 TV Time GDPR出口. 简单的下载您的数据 TV Time 并上传应用程序中的zip文件. 您的完整监视历史和收视率将自动导入 。",
+        answer: "当然 Watchr 支持导入您的 TV Time GDPR出口. 简单的下载您的数据 TV Time 并上传应用程序中的zip文件. 您的完整监视历史和收视率将自动导入 。",
       },
       platforms: {
         question: "支持哪些平台导入 ?",
-        answer:
-          "目前我们支持从 TV Time, (中文(简体) ). Trakt, (中文(简体) ). IMDb,以及 Letterboxd. 我们不断致力于根据用户需求增加更多平台.",
+        answer: "目前我们支持从 TV Time, (中文(简体) ). Trakt, (中文(简体) ). IMDb,以及 Letterboxd. 我们不断致力于根据用户需求增加更多平台.",
       },
       privacy: {
         question: "我的数据是保密的吗?",
-        answer:
-          "你的隐私是我们的首要任务 导入文件是安全处理的 我们从来不和第三方分享你的个人资料 您可以在任何时候删除您的账户和所有相关数据。",
+        answer: "你的隐私是我们的首要任务 导入文件是安全处理的 我们从来不和第三方分享你的个人资料 您可以在任何时候删除您的账户和所有相关数据。",
       },
       account: {
         question: "我需要一个账户来使用 Watchr? 吗?",
-        answer:
-          "是的,需要一个账户来同步设备上的跟踪数据。 你可以用电子邮件报名或 Google。您的数据被安全存储和同步实时。",
+        answer: "是的,需要一个账户来同步设备上的跟踪数据。 你可以用电子邮件报名或 Google。您的数据被安全存储和同步实时。",
       },
       web: {
         question: "有网络版吗?",
-        answer:
-          "没错! Watchr 在 app.watcher.me 作为网络应用程序。 它在桌面和移动浏览器上工作,与移动应用程序的功能完全对等.",
+        answer: "没错! Watchr 在 app.watcher.me 作为网络应用程序。 它在桌面和移动浏览器上工作,与移动应用程序的功能完全对等.",
       },
       languages: {
         question: "支持哪些语言?",
-        answer:
-          "Watchr 现有7种语文:英文、法文、阿拉伯文、德文、西班牙文、意大利文和葡萄牙文。 应用程序自动检测您的设备语言.",
+        answer: "Watchr 现有7种语文:英文、法文、阿拉伯文、德文、西班牙文、意大利文和葡萄牙文。 应用程序自动检测您的设备语言.",
       },
     },
   },
   apiTeaser: {
     badge: "公共 API & MCP",
     title: "将监视列表连接到任何内容",
-    subtitle:
-      "Watchr 曝光一个公开的REST API和一个MCP服务器. 搜索显示, 程序管理您的监视列表, 或将克劳德直接连接到您的 Watchr 数据。",
+    subtitle: "Watchr 曝光一个公开的REST API和一个MCP服务器. 搜索显示, 程序管理您的监视列表, 或将克劳德直接连接到您的 Watchr 数据。",
     features: {
       rest: "(原始内容存档于2013-10-12) (英语). Rest API",
       restDesc: "以简单的 HTTP 端点显示和管理您的监视列表 。",
@@ -202,6 +193,7 @@ const zh = {
       webApp: "网络应用",
       company: "企业",
       about: "关于",
+      contact: "联系人",
       privacy: "隐私政策",
       terms: "服务条件",
     },
@@ -219,8 +211,7 @@ const zh = {
     metaTitle: "关于 Watchr - 我们的使命和价值",
     metaDescription: "学习 Watchr,由ArquiTech所建造的现代电视剧和电影追踪器.",
     title: "关于 Watchr",
-    intro:
-      "Watchr 由ArquiTech设计并开发的电视剧和电影的现代跟踪器. 诞生于现有追踪应用程序的挫折感,这些应用程序要么过于膨胀,要么过于有限,要么过于杂乱, Watchr 目的是在简洁、能动和优美的设计之间 取得完美的平衡",
+    intro: "Watchr 由ArquiTech设计并开发的电视剧和电影的现代跟踪器. 诞生于现有追踪应用程序的挫折感,这些应用程序要么过于膨胀,要么过于有限,要么过于杂乱, Watchr 目的是在简洁、能动和优美的设计之间 取得完美的平衡",
     values: {
       mission: {
         title: "我们的使命",
@@ -228,13 +219,11 @@ const zh = {
       },
       passion: {
         title: "激情驱动器",
-        description:
-          "Watchr 是粉丝为粉丝建造的 每个特征的设计都考虑到宾格-观察者和焚化动物的实际需要.",
+        description: "Watchr 是粉丝为粉丝建造的 每个特征的设计都考虑到宾格-观察者和焚化动物的实际需要.",
       },
       simplicity: {
         title: "先简单化",
-        description:
-          "没有杂乱无章,没有出血。 只是一个干净,直观的界面,可以让你追踪你的节目而不碍事.",
+        description: "没有杂乱无章,没有出血。 只是一个干净,直观的界面,可以让你追踪你的节目而不碍事.",
       },
       community: {
         title: "社区儿童",
@@ -243,51 +232,59 @@ const zh = {
     },
     company: {
       title: "阿基特克语Name",
-      description:
-        "Watchr 是ArquiTech的品牌,是一家专注于构建美丽,以用户为中心的应用技术公司. 开发和维护ArquiTech Watchr 跨越移动、网络和后端平台。",
+      description: "Watchr 是ArquiTech的品牌,是一家专注于构建美丽,以用户为中心的应用技术公司. 开发和维护ArquiTech Watchr 跨越移动、网络和后端平台。",
     },
   },
   privacy: {
     metaTitle: "隐私政策—— Watchr",
-    metaDescription: "学会如何 Watchr 收集、使用和保护个人资料。",
+    metaDescription: "学会如何 Watchr 收集,使用,共享,保护您的个人数据,包括AI平台集成.",
     title: "隐私政策",
     lastUpdated: "最后更新:2026年7月",
-    intro:
-      '这个隐私政策解释了ArquiTech("我们","我们","我们")如何收集,使用和保护您使用的个人信息. Watchr ("服务". 通过使用服务,您同意这项政策中描述的做法。',
+    intro: "这个隐私政策解释ArquiTech(\"我们\",\"我们\",\"我们\")如何收集,使用,分享,保护您使用时的个人信息. Watchr (\"服务\"),包括连接时 Watchr ChatGPT(OpenAI),克洛德(Anthropic),双子座(双子座)等AI平台Google),和微软副驾驶通过\"模式上下文协议\"(MCP). 通过使用服务,您同意这项政策中描述的做法。",
     sections: {
       dataCollection: {
         title: "我们收集的数据",
-        content:
-          "我们收集下列数据:(1)账户信息——电子邮件地址和显示名称。 (2)跟踪数据——你的观察状态,收视率,评论. (3)导入数据——您上传的文件 TV Time, (中文(简体) ). Trakt, (中文(简体) ). IMDb,或 Letterboxd(4)用法数据——关于你如何与服务处互动的匿名分析. 我们不收集付款信息,因为该处是免费的。",
+        content: "我们收集以下几类数据:(1) 账户信息—— 电子邮件地址、显示名称和密码(hashed)。 (2) 跟踪数据—— 观察状况、收视率、评论和节目进展。 (3)导入数据——您上传的文件 TV Time, (中文(简体) ). Trakt, (中文(简体) ). IMDb,或 Letterboxd,处理后立即删除。 (4) OAuth 令牌 — 连接时所发行的散列访问和刷新令牌 Watchr 通过 MCP. (5) API 键——将您为程序访问生成的散列键。 (6) 使用数据——关于你如何与服务处互动的匿名和汇总分析。 我们不收集付款信息(该处是免费的)、政府识别资料、卫生信息、地点数据或第三方服务的出入证。",
       },
       dataUse: {
         title: "我们如何使用您的数据",
-        content:
-          "您的数据用于:(1) 提供和维护服务。(2) 将您的跟踪数据同步到设备之间。 (3)显示社区评分和评论. (4)改进和优化服务。 (5) 发出重要的服务通知。 我们从不向第三方出售你的个人资料",
+        content: "您的数据用于:(1) 提供和维护服务,包括同步您在设备上的跟踪数据。 (2)显示社区对节目和节目的收视率和评论. (3)执行AI平台(ChatGPT,克洛德,双子座,副驾驶)在您通过MCP授权连接时提出的工具请求——这包括搜索显示,读取和更新您的监视列表,张贴收视率和评论,以及检索您的统计数据和建议. (4)利用匿名综合分析方法改进和优化服务。 (5)发送重要服务通知(如账户安全,数据导入状态). 我们从不把你的个人资料卖给任何第三方",
+      },
+      dataSharing: {
+        title: "数据共享和第三方收件人",
+        content: "我们与以下类别的接收者分享数据:(1) AI平台——当你连接时 Watchr 格洛德·克洛德(安特罗皮克)Google),或微软副驾驶通过MCP,这些平台只接收它们要求的工具输出(例如显示元数据,你的监视列表,评级,评论,统计). 我们从未将您的聊天日志,对话历史,或AI平台内存发送给我们的服务器. 每个AI平台进程都根据自己的隐私政策收到数据. (2) TMDB (电影数据库)——我们查询 TMDB用于显示元数据的API(标题,海报,插曲列表). 没有向用户发送个人数据 TMDB(3) 托管供应商——我们的基础设施供应商托管我们的数据库和服务器。 他们只能获取基础设施层面的数据 而不是你的个人数据 (4) 分析提供者——只收到匿名、汇总的使用情况统计数据。 (5) 遵守法律的情况——我们可依法公布数据。 我们从来不卖你的数据。",
+      },
+      dataRetention: {
+        title: "数据保留",
+        content: "我们保留你以下期间的数据:(1)账户数据——直到你删除你的账户,此时所有相关数据在30天内被永久删除. (2)跟踪数据(监视列表,收视率,评论)——直到删除数据或你的账户. (3) OAuth 令牌 — 访问令牌在可配置的 TTL (默认:1小时) 后失效; 刷新令牌有效至被撤销或过期(默认:30天). 被撤销的令牌立即被作废. (4) API 密钥——直到被撤销. 已撤销的密钥立即失效 。 (5)导入文件——处理后立即删除. (6) 分析——以匿名形式储存,汇总形式,不保留个人用户。 (7) 服务器日志——为安全和调试目的最多保留90天。",
+      },
+      aiIntegration: {
+        title: "AI 平台整合(MCP)",
+        content: "Watchr 与AI平台融合——包括ChatGPT(OpenAI),克洛德(Anthropic),双子座(双子座).Google——通过\"模式背景协议\"(MCP). 当连接时 Watchr 对于一个AI平台,适用如下:(1)认证——您授权通过OAuth 2.0与PKCE连接,选择只读或可读写范围. 在允许访问之前,先显示同意屏幕。 (2) 工具 - Watchr 曝光15个工具(只读8个,写出7个). 阅读工具搜索显示,列出您的监视列表,检索收视率和评论,并获得统计和建议. 写入工具会从您的监视列表中添加或删除显示,更新监视状态,将各集标为被监视,收视率,以及帖子评论. (3)发送到AI平台的数据——只有您要求的工具输出(例如显示搜索结果,监视列表内容,评分,评论,统计). (4) 从AI平台获得的数据——只有执行请求所需的工具输入(例如搜索查询, TMDB ID,评分值,评论文本) (5) 我们不收集的东西——我们从不访问,存储,或处理您的聊天日志,对话历史,AI内存,对话摘要,或AI平台的用户文件. 我们不收集限制性数据(支付卡信息、健康信息、政府识别资料、访问证书)。 我们不收集位置数据。 我们不参与监控,行为特征分析,或元数据跟踪(时间戳,IP,查询模式),超出执行所请求的工具的严格需要. (6)工具说明——所有工具都用\"只读Hint\"和\"破坏性Hint\"来注释,以明确显示其行为. (7) 撤销 – 您可以在任何时候从每个平台的设置内或从您手中取消AI平台访问 Watchr 账户。",
       },
       dataStorage: {
         title: "数据存储和安全",
-        content:
-          "您的数据被存储在信任的云提供商托管的安全数据库中 。 密码采用行业标准算法进行散列. 应用程序和我们的服务器之间的通讯都是通过HTTPS加密的. 进入生产数据库仅限于获得授权的ArquiTech人员。",
-      },
-      dataSharing: {
-        title: "数据共享",
-        content:
-          "我们不与第三方分享你的个人资料,除非:(1) 法律要求。 (2) 与根据严格的保密协定代表我们处理数据的东道主和分析提供者合作。 (3) 汇总、匿名数据可用于统计目的。",
+        content: "您的数据存储在欧盟信任的云提供商托管的安全数据库中。 密码采用行业标准算法(bcrypt)进行散列. OAuth 令牌和 API 密钥被存储为 SHA-256 散列——平文值从未被存储. 应用程序,我们的服务器,和AI平台之间的所有通信都通过HTTPS/TLS加密. 进入生产数据库仅限于经授权的ArquiTech人员,并实行多要素认证。 我们定期进行安全审查,不在任何时候储存任何敏感数据(支付卡、健康记录、政府身份证)。",
       },
       userRights: {
-        title: "您的权利( GDPR)",
-        content:
-          "根据GDPR,您有权: (1)获取您的个人数据. (2) 要求更正不准确的数据。 (3) 请求删除您的账户和所有相关数据。 (4) 以便携式格式导出您的数据。 (5) 某些数据处理对象。 为了行使这些权利,请联系@arquitech.com。",
+        title: "您的权利控件",
+        content: "根据GDPR和其他适用的隐私法,您有权: (1)获取您的个人数据. (2) 要求更正不准确的数据。 (3) 请求删除您的账户和所有相关数据。 (4) 以便携式格式导出您的数据。 (5) 某些数据处理对象。 (6) 取消AI平台访问——断开 Watchr 从任何AI平台(ChatGPT,克洛德,双子座,副驾驶)随时从平台的设置或您的设置 Watchr 账户。 OAuth 令牌被撤销后立即作废. (7) 撤销 API 密钥 — 从您的任何时候删除任何 API 密钥 Watchr 设置。 (8)随时撤销数据处理同意. 为了行使这些权利,请联系@arquitech.com。",
       },
       cookies: {
         title: "饼干和本地存储",
-        content:
-          "Watchr 使用本地存储来存储您的语言偏好,主题偏好,以及认证符. 我们不使用跟踪饼干做广告。 分析以匿名和汇总的方式收集。",
+        content: "Watchr 使用本地存储来存储您的语言偏好,主题偏好,以及认证符. 我们不使用跟踪饼干做广告。 分析以匿名和汇总的方式收集。 当您使用 MCP 同意流时,会话临时 cookie 用于安全地完成 OAuth 授权,该授权在进程完成后立即被删除.",
+      },
+      childrenPrivacy: {
+        title: "儿童隐私",
+        content: "Watchr 不适用于13岁以下的儿童。 我们不知情地从13岁以下儿童那里收集个人信息。 如果我们意识到我们已经从一个13岁以下的儿童那里收集了个人数据,我们将采取步骤,迅速删除这些数据。 若您相信13岁以下儿童已经向我们提供了个人资料,请联系@arquitech.com。",
+      },
+      internationalTransfers: {
+        title: "国际数据传输",
+        content: "您的数据存储在位于欧盟的服务器上. 然而,当你连接 Watchr 使用人工智能平台(ChatGPT/OpenAI、克洛德/安特罗皮克、双子座/Google,Copilot/Microsoft),发送给该平台的工具产出可以在该平台的全球基础设施上处理,该基础设施可能位于欧盟之外. 每个AI平台根据自己的隐私政策和可适用的数据传输协议处理数据. 我们建议在连接之前审查每个AI平台的隐私政策. TMDB 我们的欧盟服务器处理API请求.",
       },
       contact: {
         title: "联系我们",
-        content: "如果你对这项隐私政策有疑问,你可以联系我们:ArquiTech – contact@arquitech.com。",
+        content: "如果您对这项隐私政策, 我们的AI平台集成, 或希望行使数据保护权, 请联系: ArquiTech – contact@arquitech.com。 我们将在30天内答复你的请求。",
       },
     },
   },
@@ -296,8 +293,7 @@ const zh = {
     metaDescription: "使用条件 Watchr。 。 。 。",
     title: "服务条件",
     lastUpdated: "最后更新:2026年7月",
-    intro:
-      '本服务条款("术语")指导您使用 Watchr ("服务"),由ArquiTech运营. 通过使用服务,你同意这些术语。 不同意的,请不要使用该处.',
+    intro: "本服务条款(\"术语\")指导您使用 Watchr (\"服务\"),由ArquiTech运营. 通过使用服务,你同意这些术语。 不同意的,请不要使用该处.",
     sections: {
       acceptance: {
         title: "接受条款",
@@ -305,38 +301,31 @@ const zh = {
       },
       useOfService: {
         title: "该处的使用",
-        content:
-          "Watchr 为个人和非商业用途提供免费服务。 您可使用电视台追踪电视节目和电影,评分内容,并与社区互动。 您同意不滥用服务 或将其用于任何非法目的。",
+        content: "Watchr 为个人和非商业用途提供免费服务。 您可使用电视台追踪电视节目和电影,评分内容,并与社区互动。 您同意不滥用服务 或将其用于任何非法目的。",
       },
       accounts: {
         title: "账户",
-        content:
-          "您在创建账户时必须提供准确完整的信息。 您负责维护您的账户和密码的安全。 ArquiTech对未经授权进入您的账户的任何损失或损害不承担责任。",
+        content: "您在创建账户时必须提供准确完整的信息。 您负责维护您的账户和密码的安全。 ArquiTech对未经授权进入您的账户的任何损失或损害不承担责任。",
       },
       intellectualProperty: {
         title: "知识产权",
-        content:
-          "该服务,包括其设计、代码和品牌,是ArquiTech的知识产权。 电视节目和电影元数据来源于 TMDB (电影数据库)根据他们的使用条件. 用户生成的内容仍然是用户的财产,但您向ArquiTech颁发了在服务处内显示的许可证.",
+        content: "该服务,包括其设计、代码和品牌,是ArquiTech的知识产权。 电视节目和电影元数据来源于 TMDB (电影数据库)根据他们的使用条件. 用户生成的内容仍然是用户的财产,但您向ArquiTech颁发了在服务处内显示的许可证.",
       },
       prohibitedConduct: {
         title: "被禁行为",
-        content:
-          "你同意不:(1) 事后虐待、仇恨或垃圾邮件内容。 (2)冒名顶替他人. (3) 企图黑客、破坏或逆向设计服务。 (4)使用bots或自动脚本与服务进行交互. (5) 共享破坏器,没有适当的标记.",
+        content: "你同意不:(1) 事后虐待、仇恨或垃圾邮件内容。 (2)冒名顶替他人. (3) 企图黑客、破坏或逆向设计服务。 (4)使用bots或自动脚本与服务进行交互. (5) 共享破坏器,没有适当的标记.",
       },
       disclaimer: {
         title: "免责担保人",
-        content:
-          "该处“照旧”提供,没有任何种类、明示或暗示的保证。 我们不保证该处是不间断的、没有错误的或安全的。 你使用这个服务是你自己的风险。",
+        content: "该处“照旧”提供,没有任何种类、明示或暗示的保证。 我们不保证该处是不间断的、没有错误的或安全的。 你使用这个服务是你自己的风险。",
       },
       limitation: {
         title: "赔偿责任限制",
-        content:
-          "ArquiTech不应对因使用服务而造成的任何间接、附带、特殊或间接损害负责,包括但不限于数据、利润或商誉的损失。",
+        content: "ArquiTech不应对因使用服务而造成的任何间接、附带、特殊或间接损害负责,包括但不限于数据、利润或商誉的损失。",
       },
       termination: {
         title: "终止",
-        content:
-          "我们保留在任何时候暂停或终止你的账户的权利,因为违反了这些条件。 您可在任何时候从应用程序设置中删除您的账户 。",
+        content: "我们保留在任何时候暂停或终止你的账户的权利,因为违反了这些条件。 您可在任何时候从应用程序设置中删除您的账户 。",
       },
       governingLaw: {
         title: "管理法",
@@ -348,35 +337,73 @@ const zh = {
       },
     },
   },
+  contact: {
+    metaTitle: "联系我们—— Watchr",
+    metaDescription: "联系 Watchr 团队。 报告错误、建议特征或提问。",
+    title: "联系我们",
+    intro: "我们在这里帮助和倾听。 无论你找到一个错误,还是有一个特性想法,还是只想聊天——给我们留言.",
+    name: "你的名字",
+    namePlaceholder: "无名氏",
+    email: "您的电子邮件",
+    emailPlaceholder: "Jane@example.com (英语).",
+    category: "类别",
+    categoryBug: "错误",
+    categorySuggestion: "建议",
+    categoryQuestion: "问题",
+    categoryOther: "其它",
+    subject: "议题",
+    subjectPlaceholder: "选择主题",
+    subjectBugAppCrash: "应用程序崩溃",
+    subjectBugDisplay: "显示问题",
+    subjectBugLogin: "登录/ 认证问题",
+    subjectBugImport: "进口问题",
+    subjectBugNotification: "通知问题",
+    subjectBugOther: "其他错误",
+    subjectSuggestionFeature: "新功能创意",
+    subjectSuggestionUi: "UI / UX 改进",
+    subjectSuggestionContent: "内容 / 显示数据",
+    subjectSuggestionCommunity: "社区特征",
+    subjectSuggestionOther: "其他建议",
+    subjectQuestionAccount: "账户",
+    subjectQuestionData: "数据/ 隐私",
+    subjectQuestionHowTo: "如何使用特性",
+    subjectQuestionBilling: "账单/订阅",
+    subjectQuestionOther: "其他问题",
+    subjectOtherPartnership: "伙伴关系",
+    subjectOtherPress: "新闻/媒体",
+    subjectOtherFeedback: "一般反馈",
+    subjectOtherOther: "其它",
+    message: "消息",
+    messagePlaceholder: "告诉我们更多...",
+    send: "发送消息",
+    sending: "正在发送...",
+    success: "发送消息! 我们很快会回复你的",
+    error: "发送消息失败 。 请再试一次。",
+  },
   docs: {
     metaTitle: "API 文档 - Watchr",
     metaDescription: "联合国 Watchr 公共API v1和MCP服务器集成.",
     intro: {
       title: "API 文档",
-      description:
-        "Watchr 提供公共 REST API (v1) 和 MCP 服务器,允许您搜索显示、管理您的监视列表并集成 Watchr 还有克劳德等外部工具",
+      description: "Watchr 提供公共 REST API (v1) 和 MCP 服务器,允许您搜索显示、管理您的监视列表并集成 Watchr 还有克劳德等外部工具",
       getKeyTitle: "获取您的 API 密钥",
-      getKeyDescription:
-        "要使用 API, 您需要 API 密钥 。 从您的配置中生成一个 Watchr 应用。 您的密钥支持读取和( 或) 写入范围, 取决于您在创建期间所选择的内容 。",
+      getKeyDescription: "要使用 API, 您需要 API 密钥 。 从您的配置中生成一个 Watchr 应用。 您的密钥支持读取和( 或) 写入范围, 取决于您在创建期间所选择的内容 。",
       getKeyCta: "打开 Watchr 应用",
     },
     auth: {
       title: "认证",
-      description:
-        "所有 API 请求需要 API 密钥在授权头中通过 。 密钥以 wtc  为前缀并支持两个范围:读取和写取.",
+      description: "所有 API 请求需要 API 密钥在授权头中通过 。 密钥以 wtc  为前缀并支持两个范围:读取和写取.",
       headerTitle: "授权页眉",
       headerDescription: "在每次请求中将您的 API 密钥传递为 Bearer 令牌 :",
       scopeReadTitle: "读取范围",
       scopeReadDescription: "允许搜索显示并列出监视列表 。 阅读端点以每分钟60个请求限速.",
       scopeWriteTitle: "写入范围",
-      scopeWriteDescription:
-        "允许从监视列表中添加、更新和删除项目。 写出终点以每分钟20个请求的速率限制.",
+      scopeWriteDescription: "允许从监视列表中添加、更新和删除项目。 写出终点以每分钟20个请求的速率限制.",
       exampleTitle: "实例认证请求",
     },
     endpoints: {
       title: "公共 API v1 终点",
-      description:
-        "所有终点均可在https://api.watchr.me/api/public/v1下查阅. 每个端点都需要特定的范围.",
+      description: "所有终点均可在https://api.watchr.me/api/public/v1下查阅. 每个端点都需要特定的范围.",
       requestLabel: "请求",
       responseLabel: "回应",
       noContent: "成功后没有内容返回 。",
@@ -395,7 +422,7 @@ const zh = {
       },
       body: {
         tmdbId: "这个 TMDB 节目或电影的标识.",
-        type: '内容类型:"tv"或"电影".',
+        type: "内容类型:\"tv\"或\"电影\".",
         status: "新的监视状态: 监视, 完成, 计划  to  watch, 或下降 。",
         watchedEpisodes: "与季后赛,集后赛和At相接而来",
         currentSeason: "本季编号.",
@@ -403,28 +430,23 @@ const zh = {
       },
       search: {
         title: "搜索显示",
-        description:
-          "按标题搜索电视节目和电影. B. 回返的结果 TMDB 包括 TMDB 身份证、标题、海报路径和概览。 需要查询参数q(1-200字符).",
+        description: "按标题搜索电视节目和电影. B. 回返的结果 TMDB 包括 TMDB 身份证、标题、海报路径和概览。 需要查询参数q(1-200字符).",
       },
       getWatchlist: {
         title: "列表监视列表",
-        description:
-          "以 pagination 获取认证用户的监视列表 。 可选查询参数:页面(默认 1),限制(默认 20,最大 100),状态(监视,完成,计划 to watch,已丢弃).",
+        description: "以 pagination 获取认证用户的监视列表 。 可选查询参数:页面(默认 1),限制(默认 20,最大 100),状态(监视,完成,计划 to watch,已丢弃).",
       },
       postWatchlist: {
         title: "添加到监视列表",
-        description:
-          '在监视列表中添加一个节目或电影 TMDB 身份证 节目是自动同步的 TMDB 如果尚未缓存。 新建条目默认用于计划 to watch状态. 请求正文:{tmdbId:号码,类型:"tv""|""电影"}.',
+        description: "在监视列表中添加一个节目或电影 TMDB 身份证 节目是自动同步的 TMDB 如果尚未缓存。 新建条目默认用于计划 to watch状态. 请求正文:{tmdbId:号码,类型:\"tv\"\"|\"\"电影\"}.",
       },
       patchWatchlist: {
         title: "更新监视状态",
-        description:
-          '更新监视列表中项目的监视状态 。 :showId参数为"显示对象". 请求正文可以包括:状态,被观看的Episodes,当前Season,当前Episode.',
+        description: "更新监视列表中项目的监视状态 。 :showId参数为\"显示对象\". 请求正文可以包括:状态,被观看的Episodes,当前Season,当前Episode.",
       },
       deleteWatchlist: {
         title: "从监视列表中删除",
-        description:
-          '从监视列表中永久删除项目 。 :showId参数为"显示对象". 返回 204 没有关于成功的内容。',
+        description: "从监视列表中永久删除项目 。 :showId参数为\"显示对象\". 返回 204 没有关于成功的内容。",
       },
     },
     rateLimit: {
@@ -435,8 +457,7 @@ const zh = {
       writeUnit: "小学/中学",
       writeDescription: "POST, PATCH, DELETE 端点(监视列表突变)",
       errorTitle: "超过费率限额",
-      errorDescription:
-        "超过速率限制时,API会用HTTP 429和一个出错的正文响应. 速率限制头(RateLimit-Limit,RateLimit-Remaining)包含在所有回复中.",
+      errorDescription: "超过速率限制时,API会用HTTP 429和一个出错的正文响应. 速率限制头(RateLimit-Limit,RateLimit-Remaining)包含在所有回复中.",
     },
     models: {
       title: "数据模型",
@@ -448,8 +469,7 @@ const zh = {
     },
     errors: {
       title: "错误代码",
-      description:
-        "API在所有端点使用一致的错误代码. 错误用包含错误代码的JSON正文和一个可被人读取的消息返回.",
+      description: "API在所有端点使用一致的错误代码. 错误用包含错误代码的JSON正文和一个可被人读取的消息返回.",
       colCode: "错误代码",
       colStatus: "HTTP 状态",
       colDescription: "说明",
@@ -476,13 +496,11 @@ const zh = {
     toc: "在本页",
     mcp: {
       title: "MCP 服务器",
-      description:
-        "Watchr 提供一种MCP(模式上下文协议)服务器,允许克洛德等AI助手与您的监视列表直接交互. MCP端点可在https://api.watchr.me/mcp上查阅.",
+      description: "Watchr 提供一种MCP(模式上下文协议)服务器,允许克洛德等AI助手与您的监视列表直接交互. MCP端点可在https://api.watchr.me/mcp上查阅.",
       setupTitle: "设置",
       step1: "生成您的 API 密钥",
       step1Link: "Watchr 配置文件",
-      step2:
-        "添加数据 Watchr MCP 服务器到您的 Claude 配置文件( claude desktop config.json 或等同文件) 。",
+      step2: "添加数据 Watchr MCP 服务器到您的 Claude 配置文件( claude desktop config.json 或等同文件) 。",
       step3: "恢复克劳德。 这个 Watchr 工具将出现在可用的工具列表中。",
       configTitle: "MCP 配置",
       toolsTitle: "可用工具",
@@ -501,7 +519,7 @@ const zh = {
         add_to_watchlist: {
           params: {
             tmdbId: "这个 TMDB 节目或电影的标识.",
-            type: '内容类型:"tv"或"电影".',
+            type: "内容类型:\"tv\"或\"电影\".",
           },
         },
         update_watch_status: {
@@ -576,17 +594,12 @@ const zh = {
       tabApiKey: "API 密钥",
       tabOAuth: "奥奥特",
       oauthTitle: "OAuth (ChatGPT, Claude & more) (英语).",
-      oauthDescription:
-        "连接 ChatGPT, Claude 或任何 MCP 兼容客户端到您的 Watchr 账户通过OAuth 2.1。 不需要 API 密钥 — 直接用您的 API 认证 Watchr 证书。",
-      oauthSetupChatGPT:
-        "转到设置 / 连接器 / 创建新的连接器 。 粘贴 URL https://api.watcher.me/mcp/oauth并保存. 在第一次使用时, ChatGPT 将提示您登录您的 Watchr 账户。",
-      oauthSetupClaude:
-        "转到设置 / 连接器 / 添加自定义连接器 。 粘贴 URL https://api.watcher.me/mcp/oauth并保存. 首先,克劳德会促使你登录 Watchr 账户。",
+      oauthDescription: "连接 ChatGPT, Claude 或任何 MCP 兼容客户端到您的 Watchr 账户通过OAuth 2.1。 不需要 API 密钥 — 直接用您的 API 认证 Watchr 证书。",
+      oauthSetupChatGPT: "转到设置 / 连接器 / 创建新的连接器 。 粘贴 URL https://api.watcher.me/mcp/oauth并保存. 在第一次使用时, ChatGPT 将提示您登录您的 Watchr 账户。",
+      oauthSetupClaude: "转到设置 / 连接器 / 添加自定义连接器 。 粘贴 URL https://api.watcher.me/mcp/oauth并保存. 首先,克劳德会促使你登录 Watchr 账户。",
       oauthSetupGenericTitle: "其他客户端( mcp- 远程)",
-      oauthSetupGeneric:
-        "对于任何支持OAuth的MCP客户端,请使用 URL https://api.watchr.me/mcp/oauth. 也可以使用: npx mcp-remote https://api.watchr.me/mcp/oauth 测试.",
-      oauthNote:
-        "在第一次使用时,您会被重定向以登录 Watchr 账户和授权客户端。 经授权后,客户端可以访问您的监视列表,收视率,以及评论.",
+      oauthSetupGeneric: "对于任何支持OAuth的MCP客户端,请使用 URL https://api.watchr.me/mcp/oauth. 也可以使用: npx mcp-remote https://api.watchr.me/mcp/oauth 测试.",
+      oauthNote: "在第一次使用时,您会被重定向以登录 Watchr 账户和授权客户端。 经授权后,客户端可以访问您的监视列表,收视率,以及评论.",
       oauthConfigTitle: "OAuth 配置",
     },
   },

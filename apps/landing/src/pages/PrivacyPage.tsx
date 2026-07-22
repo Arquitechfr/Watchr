@@ -4,7 +4,19 @@ import { Helmet } from "react-helmet-async";
 export function PrivacyPage() {
   const { t } = useTranslation();
 
-  const sections = ["dataCollection", "dataUse", "dataStorage", "dataSharing", "userRights", "cookies", "contact"] as const;
+  const sections = [
+    "dataCollection",
+    "dataUse",
+    "dataSharing",
+    "dataRetention",
+    "aiIntegration",
+    "dataStorage",
+    "userRights",
+    "cookies",
+    "childrenPrivacy",
+    "internationalTransfers",
+    "contact",
+  ] as const;
 
   return (
     <>

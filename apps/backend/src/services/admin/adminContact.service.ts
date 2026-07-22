@@ -24,7 +24,7 @@ export interface ContactListResult {
 
 export interface ContactMessageDoc {
   id: string;
-  userId: string;
+  userId: string | null;
   email: string;
   username: string;
   category: ContactCategory;
@@ -42,7 +42,7 @@ export interface ContactMessageDoc {
 function toDoc(doc: any): ContactMessageDoc {
   return {
     id: doc._id.toString(),
-    userId: doc.userId.toString(),
+    userId: doc.userId?.toString() ?? null,
     email: doc.email,
     username: doc.username,
     category: doc.category,

@@ -6,6 +6,14 @@ export const createContactSchema = z.object({
   message: z.string().trim().min(10).max(2000),
 });
 
+export const createPublicContactSchema = z.object({
+  name: z.string().trim().min(2).max(100),
+  email: z.string().email().max(200),
+  category: z.enum(["bug", "suggestion", "question", "other"]),
+  subject: z.string().trim().min(3).max(100),
+  message: z.string().trim().min(10).max(2000),
+});
+
 export const listContactQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(20),

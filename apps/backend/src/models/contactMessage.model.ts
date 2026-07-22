@@ -22,7 +22,8 @@ const contactMessageSchema = new Schema<IContactMessage>(
   {
     userId: {
       type: Schema.Types.ObjectId,
-      required: true,
+      required: false,
+      default: null,
       index: true,
     },
     email: {

@@ -15,7 +15,7 @@ import { logError, extractApiErrorMessage } from "../lib/logger";
 
 interface ContactMessage {
   id: string;
-  userId: string;
+  userId: string | null;
   email: string;
   username: string;
   category: string;
@@ -443,7 +443,12 @@ export function ContactMessages() {
                       </TableCell>
                       <TableCell className="text-text-muted hidden md:table-cell">
                         <div>
-                          <p className="text-sm">{msg.username}</p>
+                          <div className="flex items-center gap-2">
+                            <p className="text-sm">{msg.username}</p>
+                            {!msg.userId && (
+                              <span className="rounded bg-primary/20 px-1.5 py-0.5 text-[10px] font-medium text-primary">Guest</span>
+                            )}
+                          </div>
                           <p className="text-xs text-text-muted">{msg.email}</p>
                         </div>
                       </TableCell>
@@ -539,7 +544,12 @@ export function ContactMessages() {
 
             <div className="mb-4">
               <p className="text-xs text-text-muted mb-1">From</p>
-              <p className="text-sm text-text">{selectedMessage.username} &lt;{selectedMessage.email}&gt;</p>
+              <div className="flex items-center gap-2">
+                <p className="text-sm text-text">{selectedMessage.username} &lt;{selectedMessage.email}&gt;</p>
+                {!selectedMessage.userId && (
+                  <span className="rounded bg-primary/20 px-1.5 py-0.5 text-[10px] font-medium text-primary">Guest</span>
+                )}
+              </div>
               <p className="text-xs text-text-muted mt-1">{formatDate(selectedMessage.createdAt)}</p>
             </div>
 

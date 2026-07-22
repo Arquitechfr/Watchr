@@ -477,9 +477,10 @@ export async function deleteMessage(userId: string, messageId: string): Promise<
     return { deleted: true };
   }
 
-  msg.isDeleted = true;
-  msg.content = "";
-  await msg.save();
+  await Message.updateOne(
+    { _id: messageId },
+    { $set: { isDeleted: true, content: "" } },
+  );
 
   const conv = await Conversation.findById(msg.conversationId).lean();
   const recipientId = conv ? getOtherParticipantId(conv, userId).toString() : "";

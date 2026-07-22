@@ -496,7 +496,7 @@ describe("Messaging System", () => {
 
   describe("Multiple conversations with same user (regression: multikey index bug)", () => {
     it("should allow a user to have conversations with multiple different users", async () => {
-      const { user: userA, token: tokenA } = await getAuthUser("UserA", "a@example.com");
+      const { user: _userA, token: tokenA } = await getAuthUser("UserA", "a@example.com");
       const { user: userB } = await getAuthUser("UserB", "b@example.com");
       const { user: userC } = await getAuthUser("UserC", "c@example.com");
 

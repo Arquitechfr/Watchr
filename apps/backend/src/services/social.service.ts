@@ -531,9 +531,9 @@ export async function getFriendsActivityFeed(
     Comment.countDocuments({ userId: { $in: publicFollowingIds }, isSpoiler: false, isHidden: false }),
   ]);
 
-  const results = await Rating.aggregate(pipeline as unknown as any[]);
+  const results = await Rating.aggregate(pipeline as unknown as Record<string, unknown>[]);
 
-  const rawItems: RawActivityItem[] = results.map((r: any) => ({
+  const rawItems: RawActivityItem[] = results.map((r: Record<string, unknown>) => ({
     type: r.type,
     createdAt: r.createdAt instanceof Date ? r.createdAt : new Date(r.createdAt),
     userId: r.userId,

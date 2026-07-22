@@ -3,6 +3,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Seo } from "@/components/shared/Seo";
 import { ScrollToTop } from "@/components/shared/ScrollToTop";
+import { MatomoTracker } from "@/components/shared/MatomoTracker";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { HomePage } from "@/pages/HomePage";
@@ -21,6 +22,7 @@ export default function App() {
   return (
     <HelmetProvider>
       <BrowserRouter>
+        <MatomoTracker />
         <Seo />
         <ScrollToTop />
         <div className="min-h-screen bg-background text-text">

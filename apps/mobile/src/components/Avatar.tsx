@@ -1,6 +1,7 @@
-import { View, Image } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { useThemeColors } from "../theme/useThemeColors";
+import { Image } from "react-native";
+
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const DEFAULT_AVATAR = require("../../assets/avatar_default.webp");
 
 interface AvatarProps {
   url?: string;
@@ -8,32 +9,15 @@ interface AvatarProps {
 }
 
 export function Avatar({ url, size = 48 }: AvatarProps) {
-  const colors = useThemeColors();
-  if (url) {
-    return (
-      <Image
-        source={{ uri: url }}
-        style={{
-          width: size,
-          height: size,
-          borderRadius: size / 2,
-        }}
-        resizeMode="cover"
-      />
-    );
-  }
-
   return (
-    <View
-      className="items-center justify-center"
+    <Image
+      source={url ? { uri: url } : DEFAULT_AVATAR}
       style={{
         width: size,
         height: size,
         borderRadius: size / 2,
-        backgroundColor: colors.surfaceLight,
       }}
-    >
-      <Ionicons name="person" size={size * 0.5} color={colors.textMuted} />
-    </View>
+      resizeMode="cover"
+    />
   );
 }

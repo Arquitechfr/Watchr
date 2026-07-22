@@ -10,6 +10,7 @@ import {
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getImportReviews, resolveImportReview, ImportReviewItem } from "../services/import.service";
 import { ScreenContainer } from "../components/ScreenContainer";
+import { EmptyState } from "../components/EmptyState";
 import { useUIStore } from "../store/uiStore";
 import { useErrorMessage } from "../services/api";
 import { useThemeColors } from "../theme/useThemeColors";
@@ -158,11 +159,10 @@ export function ImportReviewScreen({ route }: ImportReviewScreenProps) {
           <ActivityIndicator color={colors.primary} />
         </View>
       ) : reviews.length === 0 ? (
-        <View className="items-center py-8">
-          <Text className="text-text-muted text-center">
-            {t("screens.importReview.allResolved")}
-          </Text>
-        </View>
+        <EmptyState
+          icon="checkmark-circle-outline"
+          title={t("screens.importReview.allResolved")}
+        />
       ) : (
         <FlatList
           data={reviews}

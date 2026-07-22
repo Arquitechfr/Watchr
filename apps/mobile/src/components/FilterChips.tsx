@@ -23,6 +23,7 @@ export function FilterChips({ options, selectedValue, onSelect, allLabel }: Filt
       ref={scrollRef}
       horizontal
       showsHorizontalScrollIndicator={false}
+      contentContainerStyle={{ alignItems: "center" }}
     >
       <TouchableOpacity
         onPress={() => onSelect(undefined)}

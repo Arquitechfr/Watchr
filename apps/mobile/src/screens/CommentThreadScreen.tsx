@@ -17,6 +17,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useAuthStore } from "../store/authStore";
 import { useUIStore } from "../store/uiStore";
 import { ScreenContainer } from "../components/ScreenContainer";
+import { EmptyState } from "../components/EmptyState";
 import { CommentItem } from "../components/Comments/CommentItem";
 import { CommentInput } from "../components/Comments/CommentInput";
 import { useThemeColors } from "../theme/useThemeColors";
@@ -232,11 +233,11 @@ export function CommentThreadScreen() {
             )}
             ListEmptyComponent={
               !isLoadingReplies ? (
-                <View className="py-8 items-center">
-                  <Ionicons name="chatbubbles-outline" size={40} color={colors.textMuted} />
-                  <Text className="text-text-muted mt-2 text-center">{t("screens.comments.noReplies")}</Text>
-                  <Text className="text-text-muted mt-1 text-center text-sm">{t("screens.comments.noRepliesSubtitle")}</Text>
-                </View>
+                <EmptyState
+                  icon="chatbubbles-outline"
+                  title={t("screens.comments.noReplies")}
+                  subtitle={t("screens.comments.noRepliesSubtitle")}
+                />
               ) : null
             }
             ListFooterComponent={

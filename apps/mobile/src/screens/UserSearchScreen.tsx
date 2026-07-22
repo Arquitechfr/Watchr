@@ -6,6 +6,7 @@ import { ScreenContainer } from "../components/ScreenContainer";
 import { SubScreenHeader } from "../components/SubScreenHeader";
 import { Avatar } from "../components/Avatar";
 import { Seo } from "../components/Seo";
+import { EmptyState } from "../components/EmptyState";
 import { useI18n } from "../i18n/useI18n";
 import { useThemeColors } from "../theme/useThemeColors";
 import { useSearchUsers, useFollowing } from "../hooks/useSocial";
@@ -73,15 +74,17 @@ export function UserSearchScreen() {
         )}
 
         {query.length >= 2 && !isLoading && results.length === 0 && (
-          <View className="items-center py-8">
-            <Text className="text-text-muted">{t("screens.social.noResults")}</Text>
-          </View>
+          <EmptyState
+            icon="search-outline"
+            title={t("screens.social.noResults")}
+          />
         )}
 
         {!isSearching && followingList.length === 0 && !followingLoading && (
-          <View className="items-center py-8">
-            <Text className="text-text-muted">{t("screens.social.noFollowingYet")}</Text>
-          </View>
+          <EmptyState
+            icon="people-outline"
+            title={t("screens.social.noFollowingYet")}
+          />
         )}
 
         <FlatList

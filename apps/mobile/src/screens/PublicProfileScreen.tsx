@@ -10,6 +10,7 @@ import { Avatar } from "../components/Avatar";
 import { CoverBanner } from "../components/Profile/CoverBanner";
 import { FollowButton } from "../components/FollowButton";
 import { Seo } from "../components/Seo";
+import { EmptyState } from "../components/EmptyState";
 import { useI18n } from "../i18n/useI18n";
 import { useThemeColors } from "../theme/useThemeColors";
 import { usePublicProfile } from "../hooks/useSocial";
@@ -61,9 +62,10 @@ export function PublicProfileScreen() {
     return (
       <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
         <SubScreenHeader title={username ?? ""} />
-        <View className="items-center py-12">
-          <Text className="text-text-muted text-center">{t("screens.social.userNotFound")}</Text>
-        </View>
+        <EmptyState
+          icon="person-outline"
+          title={t("screens.social.userNotFound")}
+        />
       </ScreenContainer>
     );
   }

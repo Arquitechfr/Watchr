@@ -3,6 +3,7 @@ import { View, Text, ActivityIndicator, FlatList, RefreshControl, TouchableOpaci
 import { ScreenContainer } from "../components/ScreenContainer";
 import { SubScreenHeader } from "../components/SubScreenHeader";
 import { ActivityFeedItemCard } from "../components/ActivityFeedItem";
+import { EmptyState } from "../components/EmptyState";
 import { Seo } from "../components/Seo";
 import { useI18n } from "../i18n/useI18n";
 import { useThemeColors } from "../theme/useThemeColors";
@@ -47,7 +48,8 @@ export function FriendsActivityScreen() {
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          className="flex-row py-2"
+          contentContainerStyle={{ alignItems: "center" }}
+          className="py-2"
         >
           {filters.map((f) => (
             <TouchableOpacity
@@ -71,13 +73,15 @@ export function FriendsActivityScreen() {
           ))}
         </ScrollView>
         {isError ? (
-          <View className="items-center py-12">
-            <Text className="text-text-muted text-center">{t("errors.unknown")}</Text>
-          </View>
+          <EmptyState
+            icon="cloud-offline-outline"
+            title={t("errors.unknown")}
+          />
         ) : items.length === 0 ? (
-          <View className="items-center py-12">
-            <Text className="text-text-muted text-center">{t("screens.social.activityFeedEmpty")}</Text>
-          </View>
+          <EmptyState
+            icon="people-outline"
+            title={t("screens.social.activityFeedEmpty")}
+          />
         ) : (
           <FlatList
             data={items}

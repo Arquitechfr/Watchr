@@ -4,6 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { ScreenContainer } from "../../components/ScreenContainer";
 import { SubScreenHeader } from "../../components/SubScreenHeader";
 import { Seo } from "../../components/Seo";
+import { EmptyState } from "../../components/EmptyState";
 import { ApiKeyCard } from "../../components/ApiKeys/ApiKeyCard";
 import { CreateApiKeyModal } from "../../components/ApiKeys/CreateApiKeyModal";
 import { useApiKeysQuery } from "../../hooks/useApiKeys";
@@ -60,13 +61,12 @@ export function ApiKeysScreen() {
             <Text className="text-text-muted mt-3">{t("common.loading")}</Text>
           </View>
         ) : isError ? (
-          <View className="items-center py-12">
-            <Ionicons name="cloud-offline-outline" size={40} color={colors.textMuted} />
-            <Text className="text-text-muted mt-3 text-center">{getErrorMessage(error)}</Text>
-            <TouchableOpacity onPress={() => refetch()} className="mt-4 px-4 py-2 rounded-lg" style={{ backgroundColor: colors.surface }}>
-              <Text className="text-primary font-medium">{t("common.retry")}</Text>
-            </TouchableOpacity>
-          </View>
+          <EmptyState
+            icon="cloud-offline-outline"
+            title={getErrorMessage(error)}
+            actionLabel={t("common.retry")}
+            onAction={() => refetch()}
+          />
         ) : apiKeys && apiKeys.length > 0 ? (
           <FlatList
             data={apiKeys}
@@ -77,13 +77,11 @@ export function ApiKeysScreen() {
             ItemSeparatorComponent={() => <View style={{ height: 0 }} />}
           />
         ) : (
-          <View className="items-center py-16">
-            <View className="rounded-full items-center justify-center mb-4" style={{ width: 56, height: 56, backgroundColor: colors.surface }}>
-              <Ionicons name="key-outline" size={28} color={colors.textMuted} />
-            </View>
-            <Text className="text-text font-semibold text-base mb-1">{t("screens.profile.apiKeysEmpty")}</Text>
-            <Text className="text-text-muted text-sm text-center px-6">{t("screens.profile.apiKeysEmptyDescription")}</Text>
-          </View>
+          <EmptyState
+            icon="key-outline"
+            title={t("screens.profile.apiKeysEmpty")}
+            subtitle={t("screens.profile.apiKeysEmptyDescription")}
+          />
         )}
       </View>
 

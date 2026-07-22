@@ -286,6 +286,14 @@ const tr = {
         title: "Bize ulaşın",
         content: "Bu Gizlilik Politikası ile ilgili sorularınız varsa, AI platform entegrasyonları veya veri koruma haklarını kullanmak istiyorsanız, bizimle iletişime geçebilirsiniz: ArquiTech – contact@arquitech.com. 30 gün içinde isteğinize cevap vereceğiz.",
       },
+      legalBasis: {
+        title: "Data Processing için Yasal Basis (GDPR)",
+        content: "Aşağıdaki yasal üslerin bir veya daha fazlası altında kişisel verileri işlem yapıyoruz: (1) Bir sözleşme Performansı - talep ettiğiniz hizmeti sağlamak için gerekli işlem, hesap yönetimi, verileri takip etmek ve AI platform entegrasyonu. (2) Consent - açık rızanıza bağlı olarak işleme, bağlanmak gibi, Watchr MCP aracılığıyla AI platformlarına ve halk yorumları yayınlayın. (3) Yasal yükümlülüklere uymak - güvenlik ve dolandırıcılık önleme için sunucu loglarını korumak gibi geçerli yasalara uymak. (4) Legitimate ilgileri - Hizmeti korumak ve geliştirmek için gerekli işlem, istismar tespiti, sorun giderme ve anonim analizler dahil. Yasal çıkarlara dayanan işleme itiraz etme hakkına sahipsiniz. Bunu yapmak için bizimle iletişime geçin@arquitech.com.",
+      },
+      mcpTools: {
+        title: "MCP Tool Data Girişleri ve Çıktılar",
+        content: "Aşağıdaki tablo, 15 MCP aracının her biri için alınan verileri (inputs) ve verileri açıklar. Bu bilgiler, kullandığınız zaman hangi verilerin işlendiği hakkında şeffaflık sağlamak için sağlanmaktadır. Watchr Bir AI platformu aracılığıyla.",
+      },
     },
   },
   terms: {
@@ -505,88 +513,18 @@ const tr = {
       configTitle: "MCP yapılandırma",
       toolsTitle: "Mevcut aletler",
       tools: {
-        search_show: {
-          params: {
-            query: "Arama sorgu dizesi (1-200 karakter).",
-          },
-        },
-        list_watchlist: {
-          params: {
-            page: "Sayfa numarası (default: 1).",
-            limit: "Sayfa başına öğeler (default: 20, max: 100).",
-          },
-        },
-        add_to_watchlist: {
-          params: {
-            tmdbId: "The The The The The The The The TMDB Gösterinin veya filmin kimliği.",
-            type: "İçerik türü: \"tv\" veya \"movie\".",
-          },
-        },
-        update_watch_status: {
-          params: {
-            showId: "Show ObjectId.",
-            status: "Yeni saat durumu: izlemek, tamamlandı, plan to watch, ya da düştü.",
-          },
-        },
-        remove_from_watchlist: {
-          params: {
-            showId: "Show ObjectId.",
-          },
-        },
-        toggle_episode: {
-          params: {
-            showId: "Show ObjectId.",
-            season: "Sezon numarası.",
-            episode: "Bölüm numarası.",
-            watched: "İzlendiği gibi işaret etmek (gerçek) veya gözlemsiz (false).",
-          },
-        },
-        mark_episodes_up_to: {
-          params: {
-            showId: "Show ObjectId.",
-            season: "Hedef sezon numarası.",
-            episode: "Hedef bölüm numarası.",
-            includePrevious: "Sezonların tüm önceki bölümlerini işaretlemek (default: true).",
-          },
-        },
-        get_show_details: {
-          params: {
-            tmdbId: "The The The The The The The The TMDB Gösterinin kimliği.",
-          },
-        },
-        rate_show: {
-          params: {
-            showId: "Show ObjectId.",
-            value: "Puan değeri 1 ila 5.",
-            season: "Bölüm özel notlar için Seçmeli sezon sayısı.",
-            episode: "bölüm özel notlar için zorunlu bölüm numarası.",
-            review: "Seçmeli inceleme metni (max 2000 karakter).",
-          },
-        },
-        get_ratings: {
-          params: {
-            showId: "Show ObjectId.",
-          },
-        },
-        list_comments: {
-          params: {
-            showId: "Show ObjectId.",
-            season: "Filtre yorumları için Seçmeli sezon numarası.",
-            episode: "Seçmeli bölüm numarası filtre yorumları için.",
-            page: "Sayfa numarası (default: 1).",
-            limit: "Sayfa başına öğeler (default: 10, max: 50).",
-            sort: "Sort: Son zamanlarda, hoşlandı, ya da ilgili (default: son).",
-          },
-        },
-        add_comment: {
-          params: {
-            showId: "Show ObjectId.",
-            content: "Yorum metni (1-2000 karakter).",
-            season: "Bölüm yorumları için Seçmeli sezon sayısı.",
-            episode: "bölüm yorumları için zorunlu bölüm numarası.",
-            isSpoiler: "Yorum şımartıcılar (default: false).",
-          },
-        },
+        search_show: "TV şovları ve filmleri başlıkla arayın. Geri dönüş sonuçları ile TMDB IDs, başlıklar ve metadata.",
+        list_watchlist: "Kullanıcının pigination desteği ile saat listesi. Gösteri ayrıntılarıyla giriş giriş girişleri takip eder.",
+        add_to_watchlist: "İzleme listesine bir gösteri veya film ekleyin TMDB ID ve tip (tv veya film).",
+        update_watch_status: "Saat listesinde bir gösterinin saat durumunu güncelleyin. Tamamlandığında, tüm bölümler otomatik olarak izlenme olarak işaretlenir. Durum izlemek, tamamlanabilir, plan to watch veya düştü.",
+        remove_from_watchlist: "Show ObjectId tarafından izleyen bir şov çıkarın.",
+        toggle_episode: "Mark a specific section as watching or unwatched.",
+        mark_episodes_up_to: "Mark tüm bölümler belirli bir sezon/episode izledikçe.",
+        get_show_details: "Bir gösteri hakkında ayrıntılı bilgi alın TMDB ID, mevsimler ve bölümler dahil.",
+        rate_show: "Bir gösteri veya bölüm 1 ila 5 yıldıza katılın. Seçmeli olarak bir inceleme metni içerir.",
+        get_ratings: "Kullanıcının derecelendirme ve topluluk puanlarını bir gösteri için alın.",
+        list_comments: "Bir gösteri için halk yorumları, bölüm tarafından isteğe bağlı olarak filtrelendi.",
+        add_comment: "Bir gösteri veya bölüm hakkında bir halk yorumu.",
         get_upcoming: "Kullanıcının izleme listesindeki gösteriler için önümüzdeki hafta ve daha sonra bu hafta, kategorize edilen bölüm alın.",
         get_stats: "Kullanıcının bölümler dahil olmak üzere istatistikler izlemek, saatler, çizgi, tür arıza ve son etkinlik.",
         get_recommendations: "Tarih ve derecelendirmelere dayanan kişisel şov önerileri alın.",

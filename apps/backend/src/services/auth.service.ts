@@ -19,8 +19,8 @@ import { isEmailDomainBlocked } from "../lib/blockedEmailDomains.js";
 import { autoFollowAdmin } from "../services/autoFollowAdmin.js";
 import { sendWelcomeMessage } from "../services/welcomeMessage.service.js";
 
-const ACCESS_TOKEN_TTL_SECONDS = 15 * 60;
-const REFRESH_TOKEN_TTL_DAYS = 30;
+const ACCESS_TOKEN_TTL_SECONDS = 7 * 24 * 60 * 60;
+const REFRESH_TOKEN_TTL_DAYS = 90;
 const PASSWORD_RESET_TOKEN_TTL_SECONDS = 15 * 60;
 const EMAIL_CODE_TTL_SECONDS = 15 * 60;
 const EMAIL_CODE_MAX_ATTEMPTS = 5;

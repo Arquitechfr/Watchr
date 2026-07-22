@@ -286,6 +286,14 @@ const pt = {
         title: "Contacte-nos",
         content: "Se você tiver dúvidas sobre esta Política de Privacidade, nossas integrações de plataforma de IA, ou deseja exercer seus direitos de proteção de dados, você pode entrar em contato conosco em: ArquiTech — contact@arquitech.com. Responderemos ao seu pedido no prazo de 30 dias.",
       },
+      legalBasis: {
+        title: "Base jurídica para o processamento de dados (GDPR)",
+        content: "Processamos dados pessoais sob uma ou mais das seguintes bases legais: (1) Desempenho de um contrato — processamento necessário para fornecer o Serviço que você solicitou, incluindo gerenciamento de conta, dados de rastreamento e integrações de plataformas de IA. (2) Consentimento — processamento baseado no seu consentimento explícito, como a ligação Watchr a plataformas de IA via MCP e a publicação de comentários públicos. (3) Cumprimento das obrigações legais – processamento para cumprir as leis aplicáveis, como a retenção de registros de servidor para segurança e prevenção de fraude. (4) Interesses legítimos — processamento necessário para garantir e melhorar o Serviço, incluindo detecção de abuso, solução de problemas e análise anônima. Você tem o direito de se opor ao processamento baseado em interesses legítimos. Para isso, entre em contato conosco em contact@arquitech.com.",
+      },
+      mcpTools: {
+        title: "Entradas e Saídas de Dados da Ferramenta MCP",
+        content: "A tabela seguinte descreve os dados exatos recebidos (inputs) e os dados devolvidos (outputs) para cada uma das 15 ferramentas MCP. Esta informação é fornecida para garantir transparência sobre quais dados são processados quando você usa Watchr através de uma plataforma de IA.",
+      },
     },
   },
   terms: {
@@ -505,88 +513,18 @@ const pt = {
       configTitle: "Configuração MCP",
       toolsTitle: "Ferramentas disponíveis",
       tools: {
-        search_show: {
-          params: {
-            query: "A string de pesquisa (1-200 caracteres).",
-          },
-        },
-        list_watchlist: {
-          params: {
-            page: "Número da página (padrão: 1).",
-            limit: "Itens por página (padrão: 20, máximo: 100).",
-          },
-        },
-        add_to_watchlist: {
-          params: {
-            tmdbId: "A TMDB Identificação do programa ou filme.",
-            type: "O tipo de conteúdo: \"tv\" ou \"filme\".",
-          },
-        },
-        update_watch_status: {
-          params: {
-            showId: "O objeto do show.",
-            status: "O novo status do relógio: observando, completado, plan to watch, ou deixado cair.",
-          },
-        },
-        remove_from_watchlist: {
-          params: {
-            showId: "O objeto do show.",
-          },
-        },
-        toggle_episode: {
-          params: {
-            showId: "O objeto do show.",
-            season: "O número da temporada.",
-            episode: "O número do episódio.",
-            watched: "Marcar como vigiado (verdadeiro) ou não vigiado (falso).",
-          },
-        },
-        mark_episodes_up_to: {
-          params: {
-            showId: "O objeto do show.",
-            season: "O número da temporada alvo.",
-            episode: "O número do episódio alvo.",
-            includePrevious: "Se deve marcar todos os episódios anteriores através das estações (padrão: true).",
-          },
-        },
-        get_show_details: {
-          params: {
-            tmdbId: "A TMDB Identificação do programa.",
-          },
-        },
-        rate_show: {
-          params: {
-            showId: "O objeto do show.",
-            value: "O valor da notação de 1 a 5.",
-            season: "Número de temporada opcional para avaliações específicas de episódios.",
-            episode: "Número de episódio opcional para avaliações específicas de episódios.",
-            review: "Texto opcional de revisão (máx. 2000 caracteres).",
-          },
-        },
-        get_ratings: {
-          params: {
-            showId: "O objeto do show.",
-          },
-        },
-        list_comments: {
-          params: {
-            showId: "O objeto do show.",
-            season: "Número de temporada opcional para filtrar comentários.",
-            episode: "Número de episódio opcional para filtrar comentários.",
-            page: "Número da página (padrão: 1).",
-            limit: "Itens por página (padrão: 10, máx: 50).",
-            sort: "Ordem de ordenação: recente, gostou, respondeu ou relevante (padrão: recente).",
-          },
-        },
-        add_comment: {
-          params: {
-            showId: "O objeto do show.",
-            content: "O texto do comentário (1-2000 caracteres).",
-            season: "Número de temporada opcional para comentários de episódios.",
-            episode: "Número de episódio opcional para comentários de episódio.",
-            isSpoiler: "Se o comentário contém spoilers (padrão: false).",
-          },
-        },
+        search_show: "Procure por programas de TV e filmes por título. Retorna resultados com TMDB IDs, títulos e metadados.",
+        list_watchlist: "Listar a lista de vigilância do usuário com suporte a paginação. Retorna entradas de rastreamento com detalhes de apresentação.",
+        add_to_watchlist: "Adicionar um programa ou filme à lista de vigilância por TMDB ID e tipo (tv ou filme).",
+        update_watch_status: "Atualizar o status do relógio de um show na lista de observação. Quando a marcação é concluída, todos os episódios são automaticamente marcados como observados. O status pode ser observado, completado, plan to watch ou deixado cair.",
+        remove_from_watchlist: "Remover um show da lista de observação pelo seu Mostrar objetoId.",
+        toggle_episode: "Marque um episódio específico como assistido ou não.",
+        mark_episodes_up_to: "Marque todos os episódios até uma temporada/episódio específico como observado.",
+        get_show_details: "Obter informações detalhadas sobre um show por TMDB ID, incluindo estações e episódios.",
+        rate_show: "Rate um show ou episódio de 1 a 5 estrelas. Opcionalmente incluir um texto de revisão.",
+        get_ratings: "Obtenha a classificação do usuário e as avaliações da comunidade para um show.",
+        list_comments: "Listar comentários públicos para um show, opcionalmente filtrado por episódio.",
+        add_comment: "Publicar um comentário público sobre um show ou episódio.",
         get_upcoming: "Obter próximos episódios para shows na lista de vigilância do usuário, categorizado por hoje, esta semana, na próxima semana e depois.",
         get_stats: "Obtenha estatísticas de observação do usuário, incluindo episódios observados, horas, sequência, quebra de gênero e atividade recente.",
         get_recommendations: "Receba recomendações de show personalizadas com base no histórico e avaliações do relógio.",

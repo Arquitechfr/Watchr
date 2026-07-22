@@ -2,7 +2,7 @@ import { create } from "zustand";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getItem as secureGetItem, setItem as secureSetItem, deleteItem as secureDeleteItem } from "../utils/secureStorage";
 import { log } from "../utils/logger";
-import { refreshTokens } from "../services/tokenRefreshManager";
+import { refreshTokens, scheduleProactiveRefresh, cancelProactiveRefresh } from "../services/tokenRefreshManager";
 
 const WIDGET_AUTH_TOKEN_KEY = "widget_auth_token";
 const WIDGET_REFRESH_TOKEN_KEY = "widget_refresh_token";
@@ -78,6 +78,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     errorTracker.setUserContext({ userId: userId ?? undefined });
     const { websocketService } = await import("../services/websocket.service");
     websocketService.reconnect();
+    scheduleProactiveRefresh(accessToken);
   },
 
   logout: async () => {
@@ -89,6 +90,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       await AsyncStorage.removeItem(WIDGET_AUTH_TOKEN_KEY);
       await AsyncStorage.removeItem(WIDGET_REFRESH_TOKEN_KEY);
     } catch { /* ignore */ }
+    cancelProactiveRefresh();
     set({ accessToken: null, userId: null, isAuthenticated: false });
     const { errorTracker } = await import("../services/errorTracker");
     errorTracker.clearUserContext();
@@ -115,7 +117,7 @@ export const useAuthStore = create<AuthState>((set) => ({
           const data = await Promise.race([
             refreshTokens(),
             new Promise<never>((_, reject) =>
-              setTimeout(() => reject(new Error("Refresh timeout")), 5000),
+              setTimeout(() => reject(new Error("Refresh timeout")), 15000),
             ),
           ]);
           currentAccessToken = data.accessToken;
@@ -148,6 +150,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       const { websocketService } = await import("../services/websocket.service");
       await websocketService.loadLastEventTimestamp();
       websocketService.connect();
+      scheduleProactiveRefresh(currentAccessToken);
     } catch (err) {
       log("AuthStore", "hydrate error", err);
       set({ accessToken: null, userId: null, isAuthenticated: false, isHydrated: true });

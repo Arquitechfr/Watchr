@@ -2,8 +2,7 @@ import { useEffect, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { websocketService } from "../services/websocket.service";
 import { useMessageStore } from "../store/messageStore";
-import { useUIStore } from "../store/uiStore";
-import { useI18n } from "../i18n/useI18n";
+import { useNotificationStore } from "../store/notificationStore";
 import { log } from "../utils/logger";
 
 interface MessageNewPayload {
@@ -30,8 +29,6 @@ interface MessageEventPayload {
 
 export function useMessageRealtime(): void {
   const queryClient = useQueryClient();
-  const { t } = useI18n();
-  const showSnackbar = useUIStore((s) => s.showSnackbar);
   const activeConversationId = useMessageStore((s) => s.activeConversationId);
   const activeRef = useRef(activeConversationId);
   activeRef.current = activeConversationId;
@@ -50,14 +47,8 @@ export function useMessageRealtime(): void {
         queryClient.invalidateQueries({ queryKey: ["unread-count"] });
         queryClient.invalidateQueries({ queryKey: ["messages", data.conversationId] });
 
-        if (activeRef.current !== data.conversationId) {
-          const preview = data.message.content?.length > 50
-            ? data.message.content.slice(0, 50) + "..."
-            : data.message.content;
-          showSnackbar(
-            t("messages.newMessageSnackbar", { sender: data.message.senderUsername ?? "", preview }),
-            "info",
-          );
+        if (activeRef.current === data.conversationId) {
+          useNotificationStore.getState().markConversationAsRead(data.conversationId);
         }
       }),
     );
@@ -103,5 +94,5 @@ export function useMessageRealtime(): void {
     );
 
     return () => unsubs.forEach((u) => u());
-  }, [queryClient, showSnackbar, t]);
+  }, [queryClient]);
 }

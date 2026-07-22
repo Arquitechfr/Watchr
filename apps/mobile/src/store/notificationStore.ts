@@ -36,6 +36,7 @@ interface NotificationState {
   addNotification: (notification: Omit<InAppNotification, "id" | "read">) => void;
   markAsRead: (id: string) => void;
   markAllAsRead: () => void;
+  markConversationAsRead: (conversationId: string) => void;
   clearAll: () => void;
   hydrate: () => Promise<void>;
   setCurrentBanner: (banner: BannerNotification | null) => void;
@@ -79,6 +80,17 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
   markAllAsRead: () => {
     const notifications = get().notifications.map((n) => ({ ...n, read: true }));
     set({ notifications, unreadCount: 0 });
+    persistNotifications(notifications);
+  },
+
+  markConversationAsRead: (conversationId) => {
+    const notifications = get().notifications.map((n) =>
+      n.type === "directMessage" && (n.data as Record<string, unknown> | undefined)?.conversationId === conversationId
+        ? { ...n, read: true }
+        : n,
+    );
+    const unreadCount = notifications.filter((n) => !n.read).length;
+    set({ notifications, unreadCount });
     persistNotifications(notifications);
   },
 

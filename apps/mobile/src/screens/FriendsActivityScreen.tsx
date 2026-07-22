@@ -49,7 +49,7 @@ export function FriendsActivityScreen() {
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ alignItems: "center" }}
-          className="py-2"
+          className="flex-none py-2"
         >
           {filters.map((f) => (
             <TouchableOpacity

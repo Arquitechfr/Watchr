@@ -286,6 +286,14 @@ const nl = {
         title: "Contacteer ons",
         content: "Als u vragen heeft over dit Privacybeleid, onze AI-platformintegraties of uw rechten op gegevensbescherming wilt uitoefenen, kunt u contact met ons opnemen via: ArquiTech Contact@arquitech.com. Wij reageren binnen 30 dagen op uw verzoek.",
       },
+      legalBasis: {
+        title: "Rechtsgrondslag voor gegevensverwerking (AVG)",
+        content: "Wij verwerken persoonsgegevens onder een of meer van de volgende rechtsgrondslagen: (1) Uitvoering van een contract .. verwerking die nodig is om de door u gevraagde dienst te leveren, inclusief accountbeheer, trackinggegevens en AI-platformintegraties. (2) @info:whatsthis Watchr naar AI-platforms via MCP en het plaatsen van publieke reacties. (3) Naleving van de wettelijke verplichtingen inzake verwerking om te voldoen aan de toepasselijke wetgeving, zoals het bewaren van serverlogs voor beveiliging en fraudepreventie. (4) Legitieme interesses die nodig zijn om de dienst te beveiligen en te verbeteren, inclusief opsporing van misbruik, probleemoplossing en anonieme analyses. U heeft het recht bezwaar te maken tegen verwerking op basis van legitieme belangen. Neem hiervoor contact met ons op via contact@arquitech.com.",
+      },
+      mcpTools: {
+        title: "MCP-gegevensinvoer en -uitvoer",
+        content: "De volgende tabel beschrijft de exacte ontvangen gegevens (inputs) en gegevens (outputs) voor elk van de 15 MCP-tools. Deze informatie wordt verstrekt om transparantie te waarborgen over welke gegevens worden verwerkt wanneer u gebruik maakt van Watchr via een AI platform.",
+      },
     },
   },
   terms: {
@@ -505,88 +513,18 @@ const nl = {
       configTitle: "MCP configuratie",
       toolsTitle: "Beschikbare instrumenten",
       tools: {
-        search_show: {
-          params: {
-            query: "De zoekopdracht string (1-200 tekens).",
-          },
-        },
-        list_watchlist: {
-          params: {
-            page: "Paginanummer (standaard: 1).",
-            limit: "Artikelen per pagina (standaard: 20, max: 100).",
-          },
-        },
-        add_to_watchlist: {
-          params: {
-            tmdbId: "De TMDB ID van de show of film.",
-            type: "Het type inhoud: \"tv\" of \"film.\"",
-          },
-        },
-        update_watch_status: {
-          params: {
-            showId: "The Show ObjectId.",
-            status: "De status van het nieuwe horloge: kijken, voltooien, plannen to watch, of laten vallen.",
-          },
-        },
-        remove_from_watchlist: {
-          params: {
-            showId: "The Show ObjectId.",
-          },
-        },
-        toggle_episode: {
-          params: {
-            showId: "The Show ObjectId.",
-            season: "Het seizoennummer.",
-            episode: "Het afleveringsnummer.",
-            watched: "Of het nu om te markeren als bekeken (waar) of ongezien (onwaar).",
-          },
-        },
-        mark_episodes_up_to: {
-          params: {
-            showId: "The Show ObjectId.",
-            season: "Het doelseizoen nummer.",
-            episode: "Het doelwit episode nummer.",
-            includePrevious: "Of alle vorige afleveringen tussen seizoenen gemarkeerd moeten worden (standaard: waar).",
-          },
-        },
-        get_show_details: {
-          params: {
-            tmdbId: "De TMDB ID van de show.",
-          },
-        },
-        rate_show: {
-          params: {
-            showId: "The Show ObjectId.",
-            value: "De ratingwaarde van 1 tot en met 5.",
-            season: "Facultatief seizoennummer voor episode-specifieke ratings.",
-            episode: "Facultatief episodenummer voor episodespecifieke ratings.",
-            review: "Optionele herzieningstekst (max 2000 tekens).",
-          },
-        },
-        get_ratings: {
-          params: {
-            showId: "The Show ObjectId.",
-          },
-        },
-        list_comments: {
-          params: {
-            showId: "The Show ObjectId.",
-            season: "Facultatief seizoennummer om opmerkingen te filteren.",
-            episode: "Optioneel episodenummer om opmerkingen te filteren.",
-            page: "Paginanummer (standaard: 1).",
-            limit: "Artikelen per pagina (standaard: 10, max: 50).",
-            sort: "Sorteervolgorde: recent, graag, beantwoord, of relevant (standaard: recent).",
-          },
-        },
-        add_comment: {
-          params: {
-            showId: "The Show ObjectId.",
-            content: "De commentaartekst (1-2000 tekens).",
-            season: "Facultatief seizoennummer voor commentaar op aflevering.",
-            episode: "Facultatief episodenummer voor commentaar bij aflevering.",
-            isSpoiler: "Of het commentaar spoilers bevat (standaard: false).",
-          },
-        },
+        search_show: "Zoek naar tv-shows en films op titel. Geeft resultaten terug met TMDB ID's, titels en metadata.",
+        list_watchlist: "De gebruikerswachtlijst tonen met paginatieondersteuning. Geeft tracking items terug met show details.",
+        add_to_watchlist: "Voeg een show of film toe aan de watchlist door TMDB ID en type (tv of film).",
+        update_watch_status: "Update de status van een show in de watchlist. Bij het markeren als voltooid worden alle afleveringen automatisch gemarkeerd als bekeken. Status kan worden bekeken, voltooid, plan to watch, of laten vallen.",
+        remove_from_watchlist: "Verwijder een show uit de watchlist door zijn Show ObjectId.",
+        toggle_episode: "Markeer een specifieke aflevering als bekeken of niet bekeken.",
+        mark_episodes_up_to: "Alle afleveringen markeren tot een bepaald seizoen/episode als bekeken.",
+        get_show_details: "Ontvang gedetailleerde informatie over een show door TMDB ID, inclusief seizoenen en afleveringen.",
+        rate_show: "Beoordeel een show of aflevering van 1 tot 5 sterren. Optioneel een herzieningstekst.",
+        get_ratings: "Krijg de beoordeling van de gebruiker en community ratings voor een show.",
+        list_comments: "Lijst publieke opmerkingen voor een show, eventueel gefilterd door aflevering.",
+        add_comment: "Plaats een publieke reactie op een show of aflevering.",
         get_upcoming: "Krijg komende afleveringen voor shows in de gebruikerswachtlijst, gecategoriseerd door vandaag, deze week, volgende week, en later.",
         get_stats: "Krijg de gebruiker kijken statistieken met inbegrip van afleveringen bekeken, uren, streak, genre breakdown, en recente activiteit.",
         get_recommendations: "Krijg gepersonaliseerde show aanbevelingen op basis van horloge geschiedenis en ratings.",

@@ -5,6 +5,7 @@ import {
   useQuery,
 } from "@tanstack/react-query";
 import { useAuthStore } from "../store/authStore";
+import { useNotificationStore } from "../store/notificationStore";
 import {
   getConversations,
   getMessages,
@@ -325,6 +326,8 @@ export function useMarkAsRead(conversationId: string) {
   return useMutation({
     mutationFn: () => markAsRead(conversationId),
     onMutate: async () => {
+      useNotificationStore.getState().markConversationAsRead(conversationId);
+
       const prevConversations = queryClient.getQueriesData<{ pages: { conversations: ConversationItem[] }[] }>({
         queryKey: [CONVERSATIONS_KEY],
       });

@@ -286,6 +286,14 @@ const ko = {
         title: "기타 제품",
         content: "이 개인 정보 보호 정책, 우리의 AI 플랫폼 통합에 대한 질문이 있거나 데이터 보호 권리를 행사하고자하는 경우, ArquiTech - contact@arquitech.com으로 문의하십시오. 우리는 30 일 안에 당신의 요구에 반응할 것입니다.",
       },
+      legalBasis: {
+        title: "데이터 처리에 대한 법적 근거 (GDPR)",
+        content: "당사는 다음과 같은 법적 근거 중 하나 이상의 개인 데이터를 처리합니다. (1) 계약의 성능 - 계정 관리, 추적 데이터 및 AI 플랫폼 통합을 포함하여 요청한 서비스를 제공하기 위해 필요한 처리. (2) Consent - 연결과 같은 명시된 동의를 기반으로 처리 Watchr 에 AI platform via MCP 과 게시 공공의 의견. (3) 법적 의무 준수 - 보안 및 사기 방지에 대한 서버 로그 유지와 같은 적용 가능한 법률에 따라 처리. (4) Legitimate Interest - 학대 탐지, 문제 해결 및 익명 분석 등 보안 및 개선에 필요한 처리. 당신은 합법적 인 관심사를 기반으로 처리 할 수있는 대상이 있습니다. 이메일: contact@arquitech.com",
+      },
+      mcpTools: {
+        title: "MCP Tool Data 입력 및 출력",
+        content: "다음 표는 15 MCP 도구의 각각에 대한 정확한 데이터 수신 (입력) 및 데이터 반환 (출력)을 설명합니다. 이 정보는 이용시 어떤 데이터가 처리되는지에 대한 투명성을 보장하는 것입니다. Watchr AI 플랫폼을 통해.",
+      },
     },
   },
   terms: {
@@ -505,88 +513,18 @@ const ko = {
       configTitle: "MCP 구성",
       toolsTitle: "사용 가능한 도구",
       tools: {
-        search_show: {
-          params: {
-            query: "검색 쿼리 문자열 (1-200 문자).",
-          },
-        },
-        list_watchlist: {
-          params: {
-            page: "페이지 번호 (과태: 1).",
-            limit: "페이지 당 품목 (과태: 20, 최대: 100).",
-          },
-        },
-        add_to_watchlist: {
-          params: {
-            tmdbId: "더 보기 TMDB 쇼 또는 영화의 ID.",
-            type: "내용의 유형 : \"tv\"또는 \"movie\".",
-          },
-        },
-        update_watch_status: {
-          params: {
-            showId: "표시 ObjectId.",
-            status: "새로운 시계 상태: 보고, 완료, plan to watch, 또는 떨어졌다.",
-          },
-        },
-        remove_from_watchlist: {
-          params: {
-            showId: "표시 ObjectId.",
-          },
-        },
-        toggle_episode: {
-          params: {
-            showId: "표시 ObjectId.",
-            season: "계절 번호.",
-            episode: "에피소드 번호.",
-            watched: "watched (true) 또는 unwatched (false)로 표시 할 수 있습니다.",
-          },
-        },
-        mark_episodes_up_to: {
-          params: {
-            showId: "표시 ObjectId.",
-            season: "대상 시즌 번호.",
-            episode: "대상 에피소드 번호.",
-            includePrevious: "계절에 걸쳐 모든 이전 에피소드를 표시 여부 (기본: true).",
-          },
-        },
-        get_show_details: {
-          params: {
-            tmdbId: "더 보기 TMDB 쇼의 ID.",
-          },
-        },
-        rate_show: {
-          params: {
-            showId: "표시 ObjectId.",
-            value: "1에서 5.까지의 등급 값",
-            season: "선택 시즌 번호 에피소드 별 등급.",
-            episode: "에피소드 별 등급에 대한 선택 에피소드 번호.",
-            review: "옵션 검토 텍스트 (최대 2000 문자).",
-          },
-        },
-        get_ratings: {
-          params: {
-            showId: "표시 ObjectId.",
-          },
-        },
-        list_comments: {
-          params: {
-            showId: "표시 ObjectId.",
-            season: "필터 댓글에 선택적인 시즌 번호.",
-            episode: "선택적 에피소드 번호 필터 코멘트.",
-            page: "페이지 번호 (과태: 1).",
-            limit: "페이지 당 품목 (과태: 10, 최대: 50).",
-            sort: "정렬 순서: 최근, liked, 대답, 또는 관련 (과태: 최근).",
-          },
-        },
-        add_comment: {
-          params: {
-            showId: "표시 ObjectId.",
-            content: "댓글 텍스트 (1-2000 문자).",
-            season: "선택 시즌 번호 에피소드 의견.",
-            episode: "에피소드 의견에 대한 선택 에피소드 번호.",
-            isSpoiler: "댓글이 스포일러 포함 여부 (기본값: false).",
-          },
-        },
+        search_show: "TV 쇼 및 영화 검색 제목으로. 결과 반환 TMDB ID, 제목 및 메타데이터.",
+        list_watchlist: "pagination 지원으로 사용자의 시계 목록을 나열합니다. 반환 추적 항목 표시 세부 사항.",
+        add_to_watchlist: "시계에 쇼 또는 영화 추가 TMDB ID 및 유형 (tv 또는 영화).",
+        update_watch_status: "시계 목록에 표시의 시계 상태를 업데이트합니다. 완료되면 모든 에피소드가 자동으로 표시됩니다. 상태는 보고, 완료, plan to watch, 또는 떨어질 수 있습니다.",
+        remove_from_watchlist: "Show ObjectId의 watchlist에서 쇼를 제거하십시오.",
+        toggle_episode: "watched 또는 unwatched로 특정 에피소드를 표시합니다.",
+        mark_episodes_up_to: "모든 에피소드를 특정 시즌/episode 시계로 표시합니다.",
+        get_show_details: "본문 바로가기 TMDB 계절과 에피소드를 포함한 ID.",
+        rate_show: "1에서 5까지의 쇼 또는 에피소드를 평가하십시오. 선택적으로 리뷰 텍스트가 포함되어 있습니다.",
+        get_ratings: "사용자의 평가 및 커뮤니티 등급을 보여줍니다.",
+        list_comments: "쇼에 대한 공개 의견 목록, 선택적으로 에피소드에 의해 필터링.",
+        add_comment: "쇼 또는 에피소드에 대한 공개 코멘트를 게시하십시오.",
         get_upcoming: "오늘, 이번 주, 다음 주, 그리고 나중에에 의해 분류된 사용자의 시계 목록에서 쇼를 위한 다가오는 에피소드를 얻으십시오.",
         get_stats: "에피소드 시계, 시간, streak, 장르 고장 및 최근 활동을 포함한 사용자의 통계를 얻으십시오.",
         get_recommendations: "시계 역사와 평가에 근거한 개인화한 쇼 권고를 얻으십시오.",

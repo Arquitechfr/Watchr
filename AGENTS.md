@@ -93,7 +93,8 @@ watchr/
 ├── packages/
 │   └── i18n-languages/            # package partagé (langues supportées, drapeaux, date-fns loaders)
 │       ├── src/index.ts            # source of truth: 14 langues, labels, flags, normalizeLocale
-│       ├── scripts/translate.ts    # script de traduction auto (LibreTranslate)
+│       ├── scripts/translate.ts    # script de traduction auto (LibreTranslate) — création from scratch
+│       ├── scripts/sync-translations.ts  # sync incrémental (missing/obsolete keys)
 │       └── .env                    # LIBRETRANSLATE_URL + LIBRETRANSLATE_KEY
 ├── pnpm-workspace.yaml
 └── AGENTS.md
@@ -117,6 +118,7 @@ watchr/
 - `pnpm --filter backend promote-admin <email>` : promouvoir un user admin
 - `pnpm --filter @watchr/i18n-languages translate --app <mobile|backend|landing> --target <lang1,lang2,...>` : traduire les locales via LibreTranslate (ex: `--target nl,pl,tr,ru,ja,ko,zh`)
 - `pnpm --filter @watchr/i18n-languages translate --app <app> --target <langs> --force` : forcer la re-traduction (ignore le cache)
+- `pnpm --filter @watchr/i18n-languages sync --app <mobile|backend|landing> [--target <langs>] [--dry-run]` : sync incrémental des locales (détecte missing/obsolete, traduit le delta via LibreTranslate)
 
 ## URLs de production
 
@@ -131,7 +133,9 @@ watchr/
 2. **pnpm uniquement** : jamais npm/yarn/bun dans les commandes ou la doc.
 3. **Sources de données** : TMDB est la source principale. Le parser TV Time GDPR est tolérant (détection par header) et produit un rapport d'erreurs ligne par ligne.
 4. **Planification obligatoire** : toute feature ou changement architectural > 2 fichiers ou intégration externe fait l'objet d'un plan validé avant implémentation.
-5. **Internationalisation** : 14 langues (`en`, `fr`, `es`, `pt`, `de`, `it`, `ar`, `nl`, `pl`, `tr`, `ru`, `ja`, `ko`, `zh`). Tout texte UI mobile passe par `useI18n`/`t()`. Dates via `date-fns` + `dateFnsLocale`. Messages d'erreur API via `useErrorMessage`. Traductions dans `apps/mobile/src/i18n/locales/<lang>.ts` (mobile), `apps/backend/src/i18n/locales/<lang>.ts` (backend) et `apps/landing/src/i18n/locales/<lang>.ts` (landing). Toute clé/modification doit être répercutée dans **tous** les fichiers de locale des trois apps — parfaite parité obligatoire. Le package `@watchr/i18n-languages` est la source de vérité pour la liste des langues, labels, drapeaux et loaders date-fns. Voir section **Procédure de traduction** ci-dessous pour l'ajout de nouvelles langues ou clés.
+5. **Internationalisation** : 14 langues (`en`, `fr`, `es`, `pt`, `de`, `it`, `ar`, `nl`, `pl`, `tr`, `ru`, `ja`, `ko`, `zh`). Tout texte UI mobile passe par `useI18n`/`t()`. Dates via `date-fns` + `dateFnsLocale`. Messages d'erreur API via `useErrorMessage`. Traductions dans `apps/mobile/src/i18n/locales/<lang>.ts` (mobile), `apps/backend/src/i18n/locales/<lang>.ts` (backend) et `apps/landing/src/i18n/locales/<lang>.ts` (landing). Le package `@watchr/i18n-languages` est la source de vérité pour la liste des langues, labels, drapeaux et loaders date-fns.
+
+   **Règle stricte pour l'IA** : `en.ts` est la **seule** source of truth. L'IA ne modifie **JAMAIS** manuellement les fichiers `fr.ts`, `es.ts`, `pt.ts`, `de.ts`, `it.ts`, `ar.ts`, `nl.ts`, `pl.ts`, `tr.ts`, `ru.ts`, `ja.ts`, `ko.ts`, `zh.ts`. L'IA modifie uniquement `en.ts` puis lance `pnpm --filter @watchr/i18n-languages sync --app <app>`. **INTERDIT** d'éditer manuellement un fichier de locale non-anglais. Voir section **Procédure de traduction** ci-dessous.
 6. **Compatibilité Web** : l'app Expo est aussi une web app desktop. Tout code doit être compatible web.
    - Guards `Platform.OS` pour les modules natifs (`expo-notifications`, `expo-secure-store`, `expo-file-system`, `expo-sharing`, etc.).
    - Layout responsive via Tailwind breakpoints (`md:`, `lg:`) ou `useWindowDimensions()`.
@@ -220,14 +224,26 @@ Le script protège automatiquement avant traduction :
 6. Vérifier : 0 tag `<x>` résiduel, variables `{{}}` préservées, brand names intacts.
 7. Build : `pnpm --filter landing build` et `pnpm --filter backend build` doivent passer sans erreur.
 
-### Ajouter de nouvelles clés de traduction
+### Ajouter / modifier / supprimer des clés de traduction
 
-1. Ajouter la clé dans `apps/mobile/src/i18n/locales/en.ts` (source of truth).
-2. Ajouter la clé dans `apps/mobile/src/i18n/locales/fr.ts` (traduction manuelle FR).
-3. Pour les autres langues : soit traduire manuellement, soit re-lancer le script `translate --app mobile --target <lang>` (le script ne traduit que les clés manquantes, utilise le cache pour les existantes).
-4. Répercuter dans `apps/backend/src/i18n/locales/` et `apps/landing/src/i18n/locales/` si applicable.
-5. Si la clé contient un brand name ou une variable `{{}}`, vérifier que le script la protège correctement.
-6. Si la clé ne doit **pas** être traduite (nom d'app, format technique, etc.), l'ajouter à `DO_NOT_TRANSLATE_KEYS` dans `packages/i18n-languages/scripts/translate.ts`.
+> **⚠️ RÈGLE ABSOLUE** : L'IA ne modifie **JAMAIS** manuellement un fichier de locale autre que `en.ts`.
+> Les 13 autres langues sont gérées **exclusivement** par le script `sync`.
+> Ne pas traduire manuellement. Ne pas copier-coller des traductions. Ne pas éditer `fr.ts`, `es.ts`, etc.
+
+**Procédure obligatoire étape par étape** :
+
+1. **Modifier `en.ts` uniquement** — ajouter, modifier ou supprimer la clé dans `apps/<app>/src/i18n/locales/en.ts` pour chaque app concernée (mobile, backend, landing selon le scope).
+2. **Lancer le sync** — `pnpm --filter @watchr/i18n-languages sync --app <app>` (sync les 13 langues) ou `--target fr,es` (langues spécifiques).
+3. **Vérifier le résumé** — le script affiche `+N missing, -M obsolete, K preserved`. Si `0 missing, 0 obsolete` → rien à faire, les langues sont déjà à jour.
+4. **Optionnel : `--dry-run`** — pour preview le diff avant d'appliquer.
+5. **Clés non-traduisibles** — si la clé ne doit **pas** être traduite (nom d'app, format technique, etc.), l'ajouter à `DO_NOT_TRANSLATE_KEYS` dans **les deux** scripts : `packages/i18n-languages/scripts/translate.ts` **et** `packages/i18n-languages/scripts/sync-translations.ts`.
+6. **Brand names / variables `{{}}`** — le script protège automatiquement `Watchr`, `TMDB`, `Google`, etc. et les variables `{{count}}`. Vérifier après sync qu'aucun tag `<x>` résiduel n'est présent.
+
+**Erreurs fréquentes à éviter** :
+- ❌ Éditer manuellement `fr.ts` ou un autre locale non-anglais → utiliser le sync
+- ❌ Oublier de lancer le sync après avoir modifié `en.ts` → les autres langues sont désynchronisées
+- ❌ Lancer le sync sur la mauvaise app (ex: `--app mobile` alors que la clé est dans `backend`)
+- ❌ Modifier `en.ts` dans une app sans modifier dans les autres apps concernées → parité obligatoire entre apps
 
 ### Re-traduire entièrement une langue
 
@@ -239,7 +255,8 @@ Le script protège automatiquement avant traduction :
 ### Fichiers clés
 
 - `packages/i18n-languages/src/index.ts` : source of truth (langues, labels, flags, date-fns)
-- `packages/i18n-languages/scripts/translate.ts` : script de traduction (LibreTranslate, protection placeholders)
+- `packages/i18n-languages/scripts/translate.ts` : script de traduction from scratch (LibreTranslate, protection placeholders)
+- `packages/i18n-languages/scripts/sync-translations.ts` : script de sync incrémental (détecte missing/obsolete, traduit le delta)
 - `packages/i18n-languages/.env` : configuration API
 - `apps/mobile/src/i18n/translations.ts` : imports + exports des locales mobile
 - `apps/backend/src/i18n/translations.ts` : imports + exports des locales backend
@@ -275,7 +292,7 @@ Le script protège automatiquement avant traduction :
 - [ ] Admin : si touché, `pnpm --filter admin dev` sans crash, routes validées Zod, pas de régression backend.
 - [ ] Landing : si touché, `pnpm --filter landing dev` sans crash, i18n parité 14 langues, SEO meta à jour.
 - [ ] Mobile : pas de régression iOS/Android.
-- [ ] Translations : tous les fichiers de locale mobile (14), backend (14) et landing (14) restent en parité. 0 tag `<x>` résiduel, variables `{{}}` préservées, brand names intacts, clés `DO_NOT_TRANSLATE_KEYS` = valeur EN.
+- [ ] Translations : `en.ts` modifié uniquement, sync lancé pour chaque app concernée. 0 tag `<x>` résiduel, variables `{{}}` préservées, brand names intacts, clés `DO_NOT_TRANSLATE_KEYS` = valeur EN. **Aucun fichier de locale non-anglais édité manuellement par l'IA.**
 - [ ] Pas d'usage de `Alert.alert()` / `Alert.prompt()` natif — utiliser `CustomAlert` via `useUIStore.showAlert()`.
 - [ ] Clavier mobile : tout `TextInput` a une gestion clavier explicite (`KeyboardAwareScrollView`, `useKeyboardHandler` + spacer, ou `keyboardShouldPersistTaps`/`keyboardDismissMode` sur ScrollView/FlatList parent).
 - [ ] Mobile = source of truth.

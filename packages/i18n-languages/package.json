@@ -14,7 +14,8 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "translate": "tsx scripts/translate.ts"
+    "translate": "tsx scripts/translate.ts",
+    "sync": "tsx scripts/sync-translations.ts"
   },
   "dependencies": {
     "date-fns": "*"

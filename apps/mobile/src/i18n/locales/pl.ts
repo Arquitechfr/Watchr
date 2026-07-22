@@ -266,6 +266,11 @@ const pl = {
       aboutLegalStatusValue: "Autoprzedsiębiorca",
       aboutLegalHost: "Hosting provider",
       aboutLegalHostTBD: "Do zdefiniowania",
+      aboutUsefulLinks: "Przydatne linki",
+      aboutLinkPrivacy: "Polityka prywatności",
+      aboutLinkTerms: "Regulamin usługi",
+      aboutLinkContact: "Skontaktuj się z nami",
+      aboutLinkDocs: "Dokumentacja",
       contact: "Skontaktuj się z nami",
       contactCompanyIntro:
         "Twój ulubiony program telewizyjny i nadajnik filmów. Jesteśmy tu, by pomóc i słuchać.",

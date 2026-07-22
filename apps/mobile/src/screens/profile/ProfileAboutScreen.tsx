@@ -1,10 +1,26 @@
 import { View, Text, Linking, TouchableOpacity, ScrollView, Image } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { ScreenContainer } from "../../components/ScreenContainer";
 import { SubScreenHeader } from "../../components/SubScreenHeader";
 import { useI18n } from "../../i18n/useI18n";
 import { useThemeColors } from "../../theme/useThemeColors";
 import { Seo } from "../../components/Seo";
 import Constants from "expo-constants";
+
+type IconName = keyof typeof Ionicons.glyphMap;
+
+interface UsefulLink {
+  icon: IconName;
+  labelKey: string;
+  url: string;
+}
+
+const USEFUL_LINKS: UsefulLink[] = [
+  { icon: "shield-checkmark-outline", labelKey: "screens.profile.aboutLinkPrivacy", url: "https://watchr.me/privacy" },
+  { icon: "document-text-outline", labelKey: "screens.profile.aboutLinkTerms", url: "https://watchr.me/terms" },
+  { icon: "mail-outline", labelKey: "screens.profile.aboutLinkContact", url: "https://watchr.me/contact" },
+  { icon: "book-outline", labelKey: "screens.profile.aboutLinkDocs", url: "https://watchr.me/docs" },
+];
 
 export function ProfileAboutScreen() {
   const { t } = useI18n();
@@ -79,7 +95,7 @@ export function ProfileAboutScreen() {
         <Text className="text-text text-lg font-bold mb-3 mt-2">
           {t("screens.profile.aboutLegalHost")}
         </Text>
-        <View className="rounded-lg p-4 mb-10" style={{ backgroundColor: colors.surface }}>
+        <View className="rounded-lg p-4 mb-4" style={{ backgroundColor: colors.surface }}>
           <View>
             <Text className="text-text-muted text-xs mb-1">
               {t("screens.profile.aboutLegalCompanyName")}
@@ -92,6 +108,30 @@ export function ProfileAboutScreen() {
             </Text>
             <Text className="text-text text-sm">8 rue de la Ville L'Évêque, 75008 Paris, France</Text>
           </View>
+        </View>
+
+        <Text className="text-text text-lg font-bold mb-3 mt-2">
+          {t("screens.profile.aboutUsefulLinks")}
+        </Text>
+        <View className="rounded-lg mb-10" style={{ backgroundColor: colors.surface }}>
+          {USEFUL_LINKS.map((link, index) => (
+            <TouchableOpacity
+              key={link.labelKey}
+              onPress={() => Linking.openURL(link.url)}
+              className="flex-row items-center px-4 py-3.5"
+              style={index < USEFUL_LINKS.length - 1 ? {
+                borderBottomWidth: 1,
+                borderBottomColor: colors.border,
+              } : undefined}
+              activeOpacity={0.7}
+            >
+              <Ionicons name={link.icon} size={20} color={colors.primary} />
+              <Text className="text-text text-base flex-1 ml-3">
+                {t(link.labelKey)}
+              </Text>
+              <Ionicons name="open-outline" size={16} color={colors.textMuted} />
+            </TouchableOpacity>
+          ))}
         </View>
       </ScrollView>
       </View>

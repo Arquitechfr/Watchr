@@ -265,6 +265,11 @@ const pt = {
       aboutLegalStatusValue: "Autônomo",
       aboutLegalHost: "Provedor de hospedagem",
       aboutLegalHostTBD: "A definir",
+      aboutUsefulLinks: "Links úteis",
+      aboutLinkPrivacy: "Política de privacidade",
+      aboutLinkTerms: "Termos de serviço",
+      aboutLinkContact: "Fale conosco",
+      aboutLinkDocs: "Documentação",
       contact: "Fale conosco",
       contactCompanyIntro:
         "Seu tracker de séries e filmes favorito. Estamos aqui para ajudar e ouvir.",

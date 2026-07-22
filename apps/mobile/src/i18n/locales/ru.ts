@@ -266,6 +266,11 @@ const ru = {
       aboutLegalStatusValue: "Автопредприниматель",
       aboutLegalHost: "Хостинг провайдер",
       aboutLegalHostTBD: "Чтобы определить",
+      aboutUsefulLinks: "Полезные ссылки",
+      aboutLinkPrivacy: "Политика конфиденциальности",
+      aboutLinkTerms: "Условия использования",
+      aboutLinkContact: "Свяжитесь с нами",
+      aboutLinkDocs: "Документация",
       contact: "Свяжитесь с нами",
       contactCompanyIntro:
         "Ваш любимый телевизионный сериал и кинотрекер. Мы здесь, чтобы помочь и послушать.",

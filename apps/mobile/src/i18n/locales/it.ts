@@ -264,6 +264,11 @@ const it = {
       aboutLegalStatusValue: "Autonomo",
       aboutLegalHost: "Provider di hosting",
       aboutLegalHostTBD: "Da definire",
+      aboutUsefulLinks: "Link utili",
+      aboutLinkPrivacy: "Informativa sulla privacy",
+      aboutLinkTerms: "Termini di servizio",
+      aboutLinkContact: "Contattaci",
+      aboutLinkDocs: "Documentazione",
       contact: "Contattaci",
       contactCompanyIntro:
         "Il tuo tracker di serie e film preferito. Siamo qui per aiutare e ascoltare.",

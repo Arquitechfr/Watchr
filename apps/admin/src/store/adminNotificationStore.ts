@@ -74,6 +74,7 @@ export const useAdminNotificationStore = create<AdminNotificationState>((set, ge
       await api.patch("/admin/feed-notifications/read-all");
     } catch {
       get().fetchUnreadCount();
+      get().fetchNotifications();
     }
   },
 

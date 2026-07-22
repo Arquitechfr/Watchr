@@ -266,6 +266,11 @@ const es = {
       aboutLegalStatusValue: "Autónomo",
       aboutLegalHost: "Proveedor de alojamiento",
       aboutLegalHostTBD: "Por determinar",
+      aboutUsefulLinks: "Enlaces útiles",
+      aboutLinkPrivacy: "Política de privacidad",
+      aboutLinkTerms: "Términos de servicio",
+      aboutLinkContact: "Contáctanos",
+      aboutLinkDocs: "Documentación",
       contact: "Contáctanos",
       contactCompanyIntro:
         "Tu tracker de series y películas favorito. Estamos aquí para ayudarte y escucharte.",

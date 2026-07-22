@@ -1,5 +1,4 @@
 import { View, Image, TouchableOpacity, ActivityIndicator } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { useThemeColors } from "../../theme/useThemeColors";
 
 interface CoverBannerProps {
@@ -81,27 +80,25 @@ export function CoverBanner({ url, onPress, isUploading }: CoverBannerProps) {
               zIndex: 10,
             }}
           />
-          <View
-            pointerEvents="none"
-            style={{
-              position: "absolute",
-              bottom: 8,
-              right: 8,
-              width: 32,
-              height: 32,
-              borderRadius: 16,
-              backgroundColor: colors.primary,
-              alignItems: "center",
-              justifyContent: "center",
-              zIndex: 20,
-            }}
-          >
-            {isUploading ? (
+          {isUploading && (
+            <View
+              pointerEvents="none"
+              style={{
+                position: "absolute",
+                bottom: 8,
+                right: 8,
+                width: 32,
+                height: 32,
+                borderRadius: 16,
+                backgroundColor: colors.primary,
+                alignItems: "center",
+                justifyContent: "center",
+                zIndex: 20,
+              }}
+            >
               <ActivityIndicator size="small" color={colors.background} />
-            ) : (
-              <Ionicons name="camera" size={18} color={colors.background} />
-            )}
-          </View>
+            </View>
+          )}
         </>
       )}
     </View>

@@ -266,6 +266,11 @@ const de = {
       aboutLegalStatusValue: "Auto-Unternehmer",
       aboutLegalHost: "Hosting-Anbieter",
       aboutLegalHostTBD: "Noch festzulegen",
+      aboutUsefulLinks: "Nützliche Links",
+      aboutLinkPrivacy: "Datenschutzrichtlinie",
+      aboutLinkTerms: "Nutzungsbedingungen",
+      aboutLinkContact: "Kontakt",
+      aboutLinkDocs: "Dokumentation",
       contact: "Kontakt",
       contactCompanyIntro:
         "Dein Lieblings-Tracker für Serien und Filme. Wir sind hier, um zu helfen und zuzuhören.",

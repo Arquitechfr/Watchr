@@ -268,6 +268,11 @@ const tr = {
       aboutLegalStatusValue: "Auto-entrepreneur",
       aboutLegalHost: "Hosting sağlayıcı",
       aboutLegalHostTBD: "Tanımlanmak için",
+      aboutUsefulLinks: "Faydalı bağlantılar",
+      aboutLinkPrivacy: "Gizlilik Politikası",
+      aboutLinkTerms: "Hizmet Şartları",
+      aboutLinkContact: "Bize ulaşın",
+      aboutLinkDocs: "Dokümantasyon",
       contact: "Bize ulaşın",
       contactCompanyIntro:
         "En sevdiğiniz TV şovu ve film pisti. Yardım etmek ve dinlemek için buradayız.",

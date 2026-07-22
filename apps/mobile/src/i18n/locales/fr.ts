@@ -266,6 +266,11 @@ const fr = {
       aboutLegalStatusValue: "Auto-entrepreneur",
       aboutLegalHost: "Hébergeur",
       aboutLegalHostTBD: "À définir",
+      aboutUsefulLinks: "Liens utiles",
+      aboutLinkPrivacy: "Politique de confidentialité",
+      aboutLinkTerms: "Conditions d'utilisation",
+      aboutLinkContact: "Nous contacter",
+      aboutLinkDocs: "Documentation",
       contact: "Nous contacter",
       contactCompanyIntro:
         "Votre tracker de séries et de films préféré. Nous sommes là pour vous aider et vous écouter.",

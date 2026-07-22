@@ -94,6 +94,7 @@ export function NotificationBell() {
             <span className="text-sm font-semibold text-text">Notifications</span>
             {unreadCount > 0 && (
               <button
+                onMouseDown={(e) => e.stopPropagation()}
                 onClick={() => markAllAsRead()}
                 className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors"
               >

@@ -138,7 +138,7 @@ export function EditProfileScreen() {
       <SubScreenHeader title={t("screens.profile.editProfile")} />
       <Animated.View className="flex-1 md:max-w-lg md:mx-auto w-full" style={containerAnimatedStyle}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerClassName="pb-8" keyboardShouldPersistTaps="handled" keyboardDismissMode="interactive">
-      <View style={isDesktopWeb ? { marginBottom: 8 } : { marginHorizontal: -16, marginBottom: 8 }}>
+      <View style={{ marginBottom: 8 }}>
         <CoverBanner url={me?.bannerUrl} onPress={pickBanner} isUploading={isBannerUploading} />
       </View>
       <View className="items-center mb-8">

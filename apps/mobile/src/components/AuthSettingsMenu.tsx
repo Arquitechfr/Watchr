@@ -46,7 +46,7 @@ export function AuthSettingsMenu() {
                     <Ionicons name="globe-outline" size={16} color={colors.text} />
                     <Text className="text-text font-semibold ml-2">Language</Text>
                   </View>
-                  <View className="flex-row gap-2">
+                  <View className="flex-row flex-wrap gap-2 justify-center">
                     {SUPPORTED_LOCALES.map((lang) => (
                       <TouchableOpacity
                         key={lang}
@@ -54,7 +54,7 @@ export function AuthSettingsMenu() {
                           changeLocale(lang);
                           setIsOpen(false);
                         }}
-                        className={`flex-1 py-2 rounded-md items-center ${
+                        className={`w-16 py-2 rounded-md items-center ${
                           locale === lang ? "bg-primary" : "bg-surface-light"
                         }`}
                         activeOpacity={0.7}

@@ -79,7 +79,7 @@ export function PublicProfileScreen() {
       <Seo title={profile.username} />
       <SubScreenHeader title={profile.username} />
       <ScrollView showsVerticalScrollIndicator={false} contentContainerClassName="pb-24">
-        <View style={{ marginHorizontal: -16, marginBottom: 8 }}>
+        <View style={{ marginBottom: 8 }}>
           <CoverBanner url={profile.bannerUrl} />
         </View>
         <View className="items-center mb-6" style={{ marginTop: -40 }}>

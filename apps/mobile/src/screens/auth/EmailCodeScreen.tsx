@@ -124,6 +124,9 @@ export function EmailCodeScreen() {
   return (
     <ScreenContainer className="px-6" fullWidth>
       <Seo title={t("seo.emailCode")} />
+      <View style={{ top: insets.top + 8, zIndex: 50 }} className="absolute right-4">
+        <AuthSettingsMenu />
+      </View>
       <KeyboardAwareScrollView
         mode="layout"
         keyboardShouldPersistTaps="handled"
@@ -132,10 +135,6 @@ export function EmailCodeScreen() {
         showsVerticalScrollIndicator={false}
       >
       <View style={Platform.OS === "web" ? undefined : { width: "100%" }}>
-        <View style={{ top: insets.top + 8, zIndex: 50 }} className="absolute right-4">
-          <AuthSettingsMenu />
-        </View>
-
         <View className="items-center mb-10">
           <Image
             // eslint-disable-next-line @typescript-eslint/no-require-imports

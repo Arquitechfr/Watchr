@@ -67,3 +67,5 @@ apps/backend/src/i18n/locales/.translate-cache-*.json
 apps/mobile/src/i18n/locales/.translate-cache-*.json
 apps/mobile/src/i18n/locales/.translate-cache-*.json
 chatgpt-app-submission.json
+apps/backend/test_out.txt
+apps/backend/test_output.txt

@@ -1,7 +1,7 @@
-import { Text, TouchableOpacity, ActivityIndicator, View, ScrollView, Platform, useWindowDimensions } from "react-native";
+import { Text, TouchableOpacity, ActivityIndicator, View, ScrollView, Platform, useWindowDimensions, TextInput } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useScrollToTop } from "@react-navigation/native";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { MainHeader } from "../components/MainHeader";
@@ -19,7 +19,7 @@ import { AiInsights } from "../components/Profile/AiInsights";
 import { YearInReviewModal } from "../components/Profile/YearInReviewModal";
 import { BioGenresCard } from "../components/Profile/BioGenresCard";
 import { Skeleton } from "../components/Skeleton";
-import { getMe } from "../services/auth.service";
+import { getMe, updateUsername } from "../services/auth.service";
 import { useThemeColors } from "../theme/useThemeColors";
 import { useRef, useState } from "react";
 import { useI18n } from "../i18n/useI18n";
@@ -30,20 +30,52 @@ import { useFavorites } from "../hooks/useFavorites";
 import { useAvatarUpload } from "../hooks/useAvatarUpload";
 import { useBannerUpload } from "../hooks/useBannerUpload";
 import { useFadeIn } from "../hooks/useFadeIn";
+import { useUIStore } from "../store/uiStore";
+import { useErrorMessage } from "../services/api";
 import Animated from "react-native-reanimated";
 
 export function ProfileScreen() {
   const { t, dateFnsLocale } = useI18n();
   const colors = useThemeColors();
+  const { showSnackbar } = useUIStore();
+  const getErrorMessage = useErrorMessage();
+  const queryClient = useQueryClient();
   const scrollRef = useRef<ScrollView>(null);
   useScrollToTop(scrollRef);
   const [showYearInReview, setShowYearInReview] = useState(false);
+  const [editingUsername, setEditingUsername] = useState(false);
+  const [usernameInput, setUsernameInput] = useState("");
   const { width } = useWindowDimensions();
   const isDesktopWeb = Platform.OS === "web" && width >= 768;
   const { pickAvatar, isUploading: isAvatarUploading } = useAvatarUpload();
   const { pickBanner, isUploading: isBannerUploading } = useBannerUpload();
 
   const { data: me, isLoading: meLoading } = useQuery({ queryKey: ["me"], queryFn: getMe });
+
+  const usernameMutation = useMutation({
+    mutationFn: (username: string) => updateUsername(username),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["me"] });
+      setEditingUsername(false);
+      showSnackbar(t("screens.profile.usernameUpdated"), "success");
+    },
+    onError: (error) => {
+      showSnackbar(getErrorMessage(error), "error");
+    },
+  });
+
+  function submitUsername() {
+    const trimmed = usernameInput.trim();
+    if (trimmed.length < 3 || trimmed.length > 20) {
+      showSnackbar(t("screens.profile.usernameInvalid"), "error");
+      return;
+    }
+    if (!/^[a-zA-Z0-9_]+$/.test(trimmed)) {
+      showSnackbar(t("screens.profile.usernameInvalid"), "error");
+      return;
+    }
+    usernameMutation.mutate(trimmed);
+  }
   const { data: stats, isLoading: statsLoading } = useUserStats();
   const { data: yearInReview, isLoading: yearInReviewLoading } = useYearInReview();
   const tvFavoritesQuery = useFavorites("tv");
@@ -72,7 +104,7 @@ export function ProfileScreen() {
       <InAppNotificationBanner />
       <ScrollView ref={scrollRef} showsVerticalScrollIndicator={false} contentContainerClassName="pb-24">
         <Animated.View style={containerAnimatedStyle}>
-        <View style={isDesktopWeb ? undefined : { marginHorizontal: -16 }}>
+        <View>
           <CoverBanner url={me?.bannerUrl} onPress={pickBanner} isUploading={isBannerUploading} />
         </View>
         <View className="items-center mb-6" style={{ marginTop: -40 }}>
@@ -107,7 +139,50 @@ export function ProfileScreen() {
             </View>
           ) : (
             <>
-              <Text className="text-text text-lg font-bold mt-3">{me?.username ?? "..."}</Text>
+              {editingUsername ? (
+                <View className="flex-row items-center gap-2 mt-3">
+                  <TextInput
+                    value={usernameInput}
+                    onChangeText={setUsernameInput}
+                    placeholder={me?.username}
+                    placeholderTextColor={colors.textMuted}
+                    maxLength={20}
+                    className="text-text text-lg font-bold border-b border-border pb-1"
+                    style={{ minWidth: 120 }}
+                    autoFocus
+                  />
+                  <TouchableOpacity
+                    onPress={submitUsername}
+                    disabled={usernameMutation.isPending}
+                    className="px-3 py-1 rounded-md"
+                    style={{ backgroundColor: colors.primary }}
+                  >
+                    {usernameMutation.isPending ? (
+                      <ActivityIndicator size="small" color={colors.background} />
+                    ) : (
+                      <Text className="text-background font-semibold text-sm">{t("common.save")}</Text>
+                    )}
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => setEditingUsername(false)}>
+                    <Text className="text-text-muted text-sm">{t("common.cancel")}</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <View className="flex-row items-center gap-1.5 mt-3">
+                  <Text className="text-text text-lg font-bold">{me?.username ?? "..."}</Text>
+                  {!me?.usernameChanged && (
+                    <TouchableOpacity
+                      onPress={() => {
+                        setUsernameInput(me?.username ?? "");
+                        setEditingUsername(true);
+                      }}
+                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                    >
+                      <Ionicons name="pencil" size={14} color={colors.textMuted} />
+                    </TouchableOpacity>
+                  )}
+                </View>
+              )}
               <Text className="text-text-muted text-sm">{me?.email}</Text>
               {memberSinceFormatted && (
                 <Text className="text-text-muted text-xs mt-1">

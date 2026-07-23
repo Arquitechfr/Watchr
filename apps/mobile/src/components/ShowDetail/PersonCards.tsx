@@ -14,7 +14,7 @@ export function CastMemberCard({ member }: { member: CastMember }) {
       {profileUrl ? (
         <Image
           source={{ uri: profileUrl }}
-          className="w-20 h-20 rounded-full bg-surface-light mb-2"
+          style={{ width: 80, height: 80, borderRadius: 40, backgroundColor: colors.surfaceLight, marginBottom: 8 }}
         />
       ) : (
         <View className="w-20 h-20 rounded-full bg-surface-light items-center justify-center mb-2">
@@ -42,7 +42,7 @@ export function CrewMemberCard({ member }: { member: CrewMember }) {
       {profileUrl ? (
         <Image
           source={{ uri: profileUrl }}
-          className="w-20 h-20 rounded-full bg-surface-light mb-2"
+          style={{ width: 80, height: 80, borderRadius: 40, backgroundColor: colors.surfaceLight, marginBottom: 8 }}
         />
       ) : (
         <View className="w-20 h-20 rounded-full bg-surface-light items-center justify-center mb-2">

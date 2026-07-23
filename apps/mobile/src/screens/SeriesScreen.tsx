@@ -1,9 +1,9 @@
-import { View, Text, FlatList, TouchableOpacity, useWindowDimensions, Platform } from "react-native";
+import { View, Text, FlatList, TouchableOpacity, useWindowDimensions, Platform, Animated, type NativeSyntheticEvent, type NativeScrollEvent } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useScrollToTop, CompositeNavigationProp } from "@react-navigation/native";
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { SegmentedControl } from "../components/SegmentedControl";
 import { NetworkError } from "../components/NetworkError";
@@ -59,6 +59,20 @@ export function SeriesScreen() {
   const [activeTab, setActiveTab] = useState<TopTab>("unwatched");
   const [isSearchVisible, setIsSearchVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [hasScrolled, setHasScrolled] = useState(false);
+  const viewAllAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.timing(viewAllAnim, {
+      toValue: hasScrolled ? 1 : 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  }, [hasScrolled, viewAllAnim]);
+
+  const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    setHasScrolled(event.nativeEvent.contentOffset.y > 10);
+  }, []);
 
   useEffect(() => {
     hydrateLibraryViewMode();
@@ -207,6 +221,7 @@ export function SeriesScreen() {
               searchQuery={searchQuery}
               listRef={flatListRef}
               onAddPress={() => navigation.navigate("Search")}
+              onScroll={handleScroll}
             />
           )}
         </View>
@@ -229,16 +244,32 @@ export function SeriesScreen() {
             searchQuery={searchQuery}
             listRef={flatListRef}
             onAddPress={() => navigation.navigate("Search")}
+            onScroll={handleScroll}
           />
         </View>
       )}
 
-      <TouchableOpacity
-        onPress={handleViewLibrary}
-        className="bg-card rounded-lg p-4 mb-4 items-center"
+      <Animated.View
+        pointerEvents={hasScrolled ? "auto" : "none"}
+        style={{
+          opacity: viewAllAnim,
+          transform: [
+            {
+              translateY: viewAllAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [20, 0],
+              }),
+            },
+          ],
+        }}
       >
-        <Text className="text-primary font-semibold">{t("screens.series.viewAll")}</Text>
-      </TouchableOpacity>
+        <TouchableOpacity
+          onPress={handleViewLibrary}
+          className="bg-card rounded-lg p-4 mb-4 items-center"
+        >
+          <Text className="text-primary font-semibold">{t("screens.series.viewAll")}</Text>
+        </TouchableOpacity>
+      </Animated.View>
     </ScreenContainer>
   );
 }

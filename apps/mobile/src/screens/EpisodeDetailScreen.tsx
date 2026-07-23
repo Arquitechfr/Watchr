@@ -331,7 +331,7 @@ export function EpisodeDetailScreen() {
       >
         <Animated.View className="relative" style={[isDesktopWeb ? { width: "100%", alignItems: "center" } : undefined, containerAnimatedStyle]}>
           {stillUrl ? (
-            <AnimatedCachedImage source={{ uri: stillUrl }} className="bg-surface-light" style={isDesktopWeb ? { width: "100%", maxWidth: 800, height: 320, borderRadius: 12 } : { width: "100%", height: 256 }} />
+            <AnimatedCachedImage source={{ uri: stillUrl }} style={isDesktopWeb ? { width: "100%", maxWidth: 800, height: 320, borderRadius: 12, backgroundColor: colors.surfaceLight } : { width: "100%", height: 256, backgroundColor: colors.surfaceLight }} />
           ) : (
             <View className="bg-surface-light items-center justify-center" style={isDesktopWeb ? { width: "100%", maxWidth: 800, height: 320, borderRadius: 12 } : { width: "100%", height: 256 }}>
               <Ionicons name="image-outline" size={64} color={colors.textMuted} />

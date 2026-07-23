@@ -41,8 +41,7 @@ export function EpisodeTriviaCard({ trivia }: EpisodeTriviaCardProps) {
                   {profileUrl ? (
                     <Image
                       source={{ uri: profileUrl }}
-                      className="rounded-full mb-2"
-                      style={{ width: 56, height: 56 }}
+                      style={{ width: 56, height: 56, borderRadius: 28, marginBottom: 8 }}
                     />
                   ) : (
                     <View

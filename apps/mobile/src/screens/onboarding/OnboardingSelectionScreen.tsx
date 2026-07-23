@@ -241,7 +241,7 @@ export function OnboardingSelectionScreen({ onComplete, onSkip }: OnboardingSele
                         {item.posterPath ? (
                           <Image
                             source={{ uri: `https://image.tmdb.org/t/p/w200${item.posterPath}` }}
-                            className="w-full h-[180px] rounded-lg mb-1"
+                            style={{ width: 120, height: 180, borderRadius: 8, marginBottom: 4 }}
                           />
                         ) : (
                           <View className="w-full h-[180px] rounded-lg bg-surface-light items-center justify-center mb-1">

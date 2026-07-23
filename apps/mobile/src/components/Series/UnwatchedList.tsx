@@ -1,4 +1,4 @@
-import { View, FlatList, RefreshControl } from "react-native";
+import { View, FlatList, RefreshControl, type NativeSyntheticEvent, type NativeScrollEvent } from "react-native";
 import { useMemo } from "react";
 import { EmptyState } from "../EmptyState";
 import { EpisodeCard } from "../EpisodeCard";
@@ -32,6 +32,7 @@ interface UnwatchedListProps {
   searchQuery: string;
   listRef: React.RefObject<FlatList | null>;
   onAddPress: () => void;
+  onScroll?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void;
 }
 
 export function UnwatchedList({
@@ -48,6 +49,7 @@ export function UnwatchedList({
   searchQuery,
   listRef,
   onAddPress,
+  onScroll,
 }: UnwatchedListProps) {
   const { t } = useI18n();
   const colors = useThemeColors();
@@ -122,6 +124,7 @@ export function UnwatchedList({
             </View>
           );
         }}
+        onScroll={onScroll}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={() => refetch()} tintColor={colors.primary} />}
         contentContainerStyle={{ paddingTop: 12, paddingBottom: 24 }}
       />
@@ -134,6 +137,7 @@ export function UnwatchedList({
       ref={listRef}
       data={episodes}
       keyExtractor={(item, index) => `${item.showId}-${item.episode.season}-${item.episode.episode}-${index}`}
+      onScroll={onScroll}
       renderItem={({ item }) => {
         const epKey = `${item.showId}-${item.episode.season}-${item.episode.episode}`;
         return (

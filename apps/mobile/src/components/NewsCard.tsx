@@ -6,6 +6,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { NewsArticle } from "../services/news.service";
 import { RootStackParamList } from "../navigation/RootNavigator";
 import { useI18n } from "../i18n/useI18n";
+import { useThemeColors } from "../theme/useThemeColors";
 
 type NewsCardNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -16,6 +17,7 @@ interface NewsCardProps {
 
 export function NewsCard({ article, compact = false }: NewsCardProps) {
   const { dateFnsLocale } = useI18n();
+  const colors = useThemeColors();
   const navigation = useNavigation<NewsCardNavigationProp>();
 
   function handlePress() {
@@ -34,7 +36,7 @@ export function NewsCard({ article, compact = false }: NewsCardProps) {
       {article.image ? (
         <Image
           source={{ uri: article.image }}
-          className={compact ? "w-full h-32 bg-surface-light" : "w-full h-40 bg-surface-light"}
+          style={compact ? { width: "100%", height: 128, backgroundColor: colors.surfaceLight } : { width: "100%", height: 160, backgroundColor: colors.surfaceLight }}
         />
       ) : null}
       <View className={compact ? "p-3" : "p-4"}>

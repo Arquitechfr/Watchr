@@ -68,7 +68,7 @@ export function EpisodeGrid({
         {stillUrl ? (
           <Image
             source={{ uri: stillUrl }}
-            className="w-20 h-12 rounded bg-surface-light mr-3"
+            style={{ width: 80, height: 48, borderRadius: 8, backgroundColor: colors.surfaceLight, marginRight: 12 }}
           />
         ) : (
           <View className="w-20 h-12 rounded bg-surface-light items-center justify-center mr-3">

@@ -1,9 +1,9 @@
-import { Text, FlatList, RefreshControl, TouchableOpacity, View, useWindowDimensions, Platform } from "react-native";
+import { Text, FlatList, RefreshControl, TouchableOpacity, View, useWindowDimensions, Platform, Animated, type NativeSyntheticEvent, type NativeScrollEvent } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useScrollToTop, CompositeNavigationProp } from "@react-navigation/native";
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { ScreenContainer } from "../components/ScreenContainer";
 import { EmptyState } from "../components/EmptyState";
 import { NetworkError } from "../components/NetworkError";
@@ -57,6 +57,20 @@ export function MoviesScreen() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedGenre, setSelectedGenre] = useState<number | undefined>(undefined);
   const [selectedYear, setSelectedYear] = useState<number | undefined>(undefined);
+  const [hasScrolled, setHasScrolled] = useState(false);
+  const viewAllAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.timing(viewAllAnim, {
+      toValue: hasScrolled ? 1 : 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  }, [hasScrolled, viewAllAnim]);
+
+  const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    setHasScrolled(event.nativeEvent.contentOffset.y > 10);
+  }, []);
 
   useEffect(() => {
     hydrateLibraryViewMode();
@@ -242,6 +256,7 @@ export function MoviesScreen() {
               </View>
               );
             }}
+            onScroll={handleScroll}
             refreshControl={<RefreshControl refreshing={isLoading} onRefresh={() => throttledRefresh(refetch)} tintColor={colors.primary} />}
             contentContainerStyle={filteredMovies.length === 0 ? { flexGrow: 1, justifyContent: "center", alignItems: "center", paddingBottom: 24 } : { paddingBottom: 24 }}
             ListEmptyComponent={
@@ -267,6 +282,7 @@ export function MoviesScreen() {
             ref={flatListRef}
             data={filteredMovies}
             keyExtractor={(item) => item.showId}
+            onScroll={handleScroll}
             keyboardShouldPersistTaps="handled"
             keyboardDismissMode="interactive"
             renderItem={({ item }) => (
@@ -302,12 +318,27 @@ export function MoviesScreen() {
         )}
       </View>
 
-      <TouchableOpacity
-        onPress={handleViewLibrary}
-        className="bg-card rounded-lg p-4 mb-4 items-center"
+      <Animated.View
+        pointerEvents={hasScrolled ? "auto" : "none"}
+        style={{
+          opacity: viewAllAnim,
+          transform: [
+            {
+              translateY: viewAllAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [20, 0],
+              }),
+            },
+          ],
+        }}
       >
-        <Text className="text-primary font-semibold">{t("screens.movies.viewAll")}</Text>
-      </TouchableOpacity>
+        <TouchableOpacity
+          onPress={handleViewLibrary}
+          className="bg-card rounded-lg p-4 mb-4 items-center"
+        >
+          <Text className="text-primary font-semibold">{t("screens.movies.viewAll")}</Text>
+        </TouchableOpacity>
+      </Animated.View>
     </ScreenContainer>
   );
 }

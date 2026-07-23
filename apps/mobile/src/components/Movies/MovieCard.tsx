@@ -50,7 +50,7 @@ export function MovieCard({ movie, onPress, onMarkWatched, isMarking }: MovieCar
       {posterUrl ? (
         <Image
           source={{ uri: posterUrl }}
-          className="w-16 h-24 rounded"
+          style={{ width: 64, height: 96, borderRadius: 8 }}
         />
       ) : (
         <View className="w-16 h-24 rounded bg-muted items-center justify-center">

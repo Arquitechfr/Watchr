@@ -427,8 +427,7 @@ export function ShowDetailScreen() {
             {posterUrl ? (
               <Image
                 source={{ uri: posterUrl }}
-                className="w-full"
-                style={{ aspectRatio: 2 / 3 }}
+                style={{ width: "100%", aspectRatio: 2 / 3 }}
               />
             ) : (
               <View className="w-full h-full bg-surface-light items-center justify-center">

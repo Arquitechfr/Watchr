@@ -93,7 +93,7 @@ export function ImportReviewScreen({ route }: ImportReviewScreenProps) {
                 {candidate.posterPath ? (
                   <Image
                     source={{ uri: `${TMDB_IMG_BASE}${candidate.posterPath}` }}
-                    className="w-12 h-18 rounded mr-3"
+                    style={{ width: 48, height: 72, borderRadius: 8, marginRight: 12 }}
                   />
                 ) : (
                   <View

@@ -59,7 +59,7 @@ export function NextEpisodeCard({
       {posterUrl ? (
         <Image
           source={{ uri: posterUrl }}
-          className="w-14 h-20 rounded-lg bg-surface-light"
+          style={{ width: 56, height: 80, borderRadius: 8, backgroundColor: colors.surfaceLight }}
         />
       ) : (
         <View className="w-14 h-20 rounded-lg bg-surface-light items-center justify-center">

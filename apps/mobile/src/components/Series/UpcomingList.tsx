@@ -1,4 +1,4 @@
-import { View, FlatList, RefreshControl } from "react-native";
+import { View, FlatList, RefreshControl, type NativeSyntheticEvent, type NativeScrollEvent } from "react-native";
 import { EmptyState } from "../EmptyState";
 import { NetworkError } from "../NetworkError";
 import { Skeleton } from "../Skeleton";
@@ -25,6 +25,7 @@ interface UpcomingListProps {
   searchQuery: string;
   listRef: React.RefObject<FlatList | null>;
   onAddPress: () => void;
+  onScroll?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void;
 }
 
 export function UpcomingList({
@@ -42,6 +43,7 @@ export function UpcomingList({
   searchQuery,
   listRef,
   onAddPress,
+  onScroll,
 }: UpcomingListProps) {
   const { t } = useI18n();
   const colors = useThemeColors();
@@ -121,6 +123,7 @@ export function UpcomingList({
             </View>
           );
         }}
+        onScroll={onScroll}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={() => refetch()} tintColor={colors.primary} />}
         contentContainerStyle={{ paddingTop: 12, paddingBottom: 24 }}
       />
@@ -185,6 +188,7 @@ export function UpcomingList({
           />
         );
       }}
+      onScroll={onScroll}
       refreshControl={<RefreshControl refreshing={isLoading} onRefresh={() => refetch()} tintColor={colors.primary} />}
       contentContainerStyle={{ paddingTop: 12, paddingBottom: 24 }}
     />

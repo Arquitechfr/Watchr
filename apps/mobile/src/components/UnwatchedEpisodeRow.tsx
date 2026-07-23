@@ -50,6 +50,8 @@ export function UnwatchedEpisodeRow({
     : null;
 
   const panGesture = Gesture.Pan()
+    .activeOffsetX([-15, 15])
+    .failOffsetY([-10, 10])
     .onUpdate((e) => {
       translateX.value = Math.max(-120, Math.min(120, e.translationX));
     })
@@ -86,7 +88,7 @@ export function UnwatchedEpisodeRow({
       {posterUrl ? (
         <Image
           source={{ uri: posterUrl }}
-          className="w-14 h-20 rounded-lg bg-surface-light"
+          style={{ width: 56, height: 80, borderRadius: 8, backgroundColor: colors.surfaceLight }}
         />
       ) : (
         <View className="w-14 h-20 rounded-lg bg-surface-light items-center justify-center">

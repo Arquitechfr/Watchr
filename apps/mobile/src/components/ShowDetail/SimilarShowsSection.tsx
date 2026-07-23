@@ -59,7 +59,7 @@ export function SimilarShowsSection({ shows, source, isLoading, navigation }: Si
               {item.posterPath ? (
                 <Image
                   source={{ uri: getPosterUrl(item.posterPath, 200) }}
-                  className="w-full h-[210px] rounded-lg mb-2"
+                  style={{ width: 140, height: 210, borderRadius: 8, marginBottom: 8 }}
                 />
               ) : (
                 <View className="w-full h-[210px] rounded-lg bg-surface-light items-center justify-center mb-2">

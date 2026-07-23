@@ -23,7 +23,10 @@ import {
 } from './widgetHelpers';
 import { remoteConfigService } from '../services/remoteConfig';
 
-const nameToWidget: Record<string, React.FC<any>> = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type WidgetComponent = React.ComponentType<any>;
+
+const nameToWidget: Record<string, WidgetComponent> = {
   UpNext: UpNextWidget,
   Stats: StatsWidget,
   Today: TodayWidget,
@@ -121,7 +124,7 @@ function getFriendsI18nProps(): Pick<FriendsActivityWidgetProps, 'title' | 'empt
   }
 }
 
-async function renderUpNextWidget(props: WidgetTaskHandlerProps, Widget: React.FC<any>) {
+async function renderUpNextWidget(props: WidgetTaskHandlerProps, Widget: WidgetComponent) {
   const activeTab = await getWidgetActiveTab();
   const data = await fetchWidgetData();
   const i18nProps = getUpNextI18nProps();
@@ -129,27 +132,27 @@ async function renderUpNextWidget(props: WidgetTaskHandlerProps, Widget: React.F
   props.renderWidget(<Widget activeTab={activeTab} episodes={episodes} {...i18nProps} />);
 }
 
-async function renderStatsWidget(props: WidgetTaskHandlerProps, Widget: React.FC<any>) {
+async function renderStatsWidget(props: WidgetTaskHandlerProps, Widget: WidgetComponent) {
   const data = await fetchStatsWidgetData();
   props.renderWidget(<Widget data={data} {...getStatsI18nProps()} />);
 }
 
-async function renderTodayWidget(props: WidgetTaskHandlerProps, Widget: React.FC<any>) {
+async function renderTodayWidget(props: WidgetTaskHandlerProps, Widget: WidgetComponent) {
   const data = await fetchTodayWidgetData();
   props.renderWidget(<Widget data={data} {...getTodayI18nProps()} />);
 }
 
-async function renderFavoritesWidget(props: WidgetTaskHandlerProps, Widget: React.FC<any>) {
+async function renderFavoritesWidget(props: WidgetTaskHandlerProps, Widget: WidgetComponent) {
   const data = await fetchFavoritesWidgetData();
   props.renderWidget(<Widget data={data} {...getFavoritesI18nProps()} />);
 }
 
-async function renderFriendsWidget(props: WidgetTaskHandlerProps, Widget: React.FC<any>) {
+async function renderFriendsWidget(props: WidgetTaskHandlerProps, Widget: WidgetComponent) {
   const data = await fetchFriendsWidgetData();
   props.renderWidget(<Widget data={data} {...getFriendsI18nProps()} />);
 }
 
-const widgetRenderers: Record<string, (props: WidgetTaskHandlerProps, Widget: React.FC<any>) => Promise<void>> = {
+const widgetRenderers: Record<string, (props: WidgetTaskHandlerProps, Widget: WidgetComponent) => Promise<void>> = {
   UpNext: renderUpNextWidget,
   Stats: renderStatsWidget,
   Today: renderTodayWidget,

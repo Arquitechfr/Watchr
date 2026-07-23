@@ -196,6 +196,7 @@ const it = {
       contact: "Contatto",
       privacy: "Informativa sulla privacy",
       terms: "Termini di servizio",
+      status: "Stato",
     },
     copyright: "© © {{year}} Watchr. Tutti i diritti riservati.",
     madeWith: "Realizzato con passione per gli appassionati di TV e cinema.",
@@ -513,88 +514,18 @@ const it = {
       configTitle: "Configurazione MCP",
       toolsTitle: "Strumenti disponibili",
       tools: {
-        search_show: {
-          params: {
-            query: "La stringa di query di ricerca (1-200 caratteri).",
-          },
-        },
-        list_watchlist: {
-          params: {
-            page: "Numero di pagina (default: 1).",
-            limit: "Articoli per pagina (default: 20, max: 100).",
-          },
-        },
-        add_to_watchlist: {
-          params: {
-            tmdbId: "The TMDB ID dello spettacolo o del film.",
-            type: "Il tipo di contenuto: \"tv\" o \"movie\".",
-          },
-        },
-        update_watch_status: {
-          params: {
-            showId: "Lo Show ObjectId.",
-            status: "Il nuovo stato dell'orologio: guardare, completare, plan to watch, o cadere.",
-          },
-        },
-        remove_from_watchlist: {
-          params: {
-            showId: "Lo Show ObjectId.",
-          },
-        },
-        toggle_episode: {
-          params: {
-            showId: "Lo Show ObjectId.",
-            season: "Il numero di stagione.",
-            episode: "Il numero dell'episodio.",
-            watched: "Se segnare come guardato (vero) o non guardato (falso).",
-          },
-        },
-        mark_episodes_up_to: {
-          params: {
-            showId: "Lo Show ObjectId.",
-            season: "Il numero di stagione target.",
-            episode: "Il numero di episodio di destinazione.",
-            includePrevious: "Se segnare tutti gli episodi precedenti in tutte le stagioni (default: true).",
-          },
-        },
-        get_show_details: {
-          params: {
-            tmdbId: "The TMDB ID dello spettacolo.",
-          },
-        },
-        rate_show: {
-          params: {
-            showId: "Lo Show ObjectId.",
-            value: "Il valore di valutazione da 1 a 5.",
-            season: "Numero di stagione opzionale per le valutazioni specifiche degli episodi.",
-            episode: "Numero di episodio opzionale per le valutazioni specifiche degli episodi.",
-            review: "Testo di recensione opzionale (max 2000 caratteri).",
-          },
-        },
-        get_ratings: {
-          params: {
-            showId: "Lo Show ObjectId.",
-          },
-        },
-        list_comments: {
-          params: {
-            showId: "Lo Show ObjectId.",
-            season: "Numero di stagione opzionale per filtrare i commenti.",
-            episode: "Numero di episodio opzionale per filtrare i commenti.",
-            page: "Numero di pagina (default: 1).",
-            limit: "Articoli per pagina (default: 10, max: 50).",
-            sort: "Ordinare ordine: recente, gradito, risposto, o pertinente (default: recente).",
-          },
-        },
-        add_comment: {
-          params: {
-            showId: "Lo Show ObjectId.",
-            content: "Il testo del commento (1-2000 caratteri).",
-            season: "Numero di stagione opzionale per i commenti degli episodi.",
-            episode: "Numero di episodio opzionale per i commenti degli episodi.",
-            isSpoiler: "Se il commento contiene spoiler (default: false).",
-          },
-        },
+        search_show: "Cerca spettacoli televisivi e film per titolo. Risultati con TMDB ID, titoli e metadati.",
+        list_watchlist: "Elenca la lista di orologi dell'utente con supporto paginazione. Restituisce le voci di tracciamento con i dettagli dello spettacolo.",
+        add_to_watchlist: "Aggiungi uno spettacolo o un film alla lista di orologi da TMDB ID e tipo (tv o film).",
+        update_watch_status: "Aggiorna lo stato dell'orologio di uno spettacolo nella lista degli orologi. Quando si marca come completato, tutti gli episodi vengono contrassegnati automaticamente come osservati. Lo stato può essere guardando, completato, plan to watch, o caduto.",
+        remove_from_watchlist: "Rimuovere uno spettacolo dalla lista di orologi dal suo Show ObjectId.",
+        toggle_episode: "Segna un episodio specifico come guardato o non guardato.",
+        mark_episodes_up_to: "Segna tutti gli episodi fino a una specifica stagione/episode come guardato.",
+        get_show_details: "Ottieni informazioni dettagliate su uno spettacolo da TMDB ID, incluse stagioni e episodi.",
+        rate_show: "Vota uno spettacolo o un episodio da 1 a 5 stelle. Opzionalmente includere un testo di revisione.",
+        get_ratings: "Ottenere la valutazione dell'utente e le valutazioni della comunità per uno spettacolo.",
+        list_comments: "Elenca commenti pubblici per uno spettacolo, facoltativamente filtrato per episodio.",
+        add_comment: "Pubblica un commento pubblico su uno spettacolo o un episodio.",
         get_upcoming: "Ricevi i prossimi episodi per spettacoli nella lista degli utenti, classificato da oggi, questa settimana, la prossima settimana, e più tardi.",
         get_stats: "Ottenere l'utente sta guardando le statistiche, tra cui episodi guardati, ore, striature, ripartizione del genere e attività recente.",
         get_recommendations: "Ottieni consigli personalizzati sulla mostra in base alla cronologia degli orologi e alle valutazioni.",
@@ -610,6 +541,24 @@ const it = {
       oauthNote: "Al primo utilizzo, sarete reindirizzati per accedere con il vostro Watchr account e autorizzare il cliente. Dopo l'autorizzazione, il cliente avrà accesso alla vostra lista di orologi, valutazioni e commenti.",
       oauthConfigTitle: "Configurazione OAuth",
     },
+  },
+  status: {
+    title: "Stato di sistema",
+    subtitle: "Stato in tempo reale di Watchr servizi",
+    overall: {
+      operational: "Tutti i sistemi operativi",
+      degraded: "Alcuni sistemi degradati",
+      down: "Alcuni sistemi giù",
+    },
+    services: {
+      mongodb: "Database",
+      redis: "Cache",
+      tmdb: "TMDB API",
+      websocket: "In tempo reale",
+    },
+    lastUpdated: "Ultimo aggiornamento",
+    loading: "Stato di caricamento...",
+    error: "Non ha caricato lo stato. Per favore riprovate.",
   },
 };
 

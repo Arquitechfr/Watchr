@@ -11,6 +11,7 @@ export function Footer() {
     { href: "/#features", label: t("footer.links.features") },
     { href: "/#import", label: t("footer.links.import") },
     { to: "/docs", label: t("footer.links.docs") },
+    { to: "/status", label: t("footer.links.status") },
     { href: "https://app.watchr.me", label: t("footer.links.webApp") },
   ];
 

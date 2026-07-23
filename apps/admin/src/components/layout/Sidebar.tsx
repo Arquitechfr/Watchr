@@ -22,6 +22,7 @@ import {
   KeyRound,
   CalendarClock,
   TrendingUp,
+  HeartPulse,
 } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
 import { useNewUsersStore } from "../../store/newUsersStore";
@@ -83,6 +84,7 @@ const navGroups: NavGroup[] = [
       { to: "/admin-feed", label: "Activity Feed", icon: Activity },
       { to: "/errors", label: "Error Tracking", icon: AlertTriangle },
       { to: "/api-keys", label: "API Keys", icon: KeyRound },
+      { to: "/status", label: "Status", icon: HeartPulse },
     ],
   },
 ];

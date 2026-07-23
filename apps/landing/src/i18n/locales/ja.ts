@@ -196,6 +196,7 @@ const ja = {
       contact: "お問い合わせ",
       privacy: "プライバシーポリシー",
       terms: "サービス利用規約",
+      status: "ステータス",
     },
     copyright: "2018年12月12日 {{year}} Watchrお問い合わせ",
     madeWith: "テレビ・映画ファンに情熱を注いでいます。",
@@ -513,88 +514,18 @@ const ja = {
       configTitle: "MCPの設定",
       toolsTitle: "利用可能なツール",
       tools: {
-        search_show: {
-          params: {
-            query: "検索クエリ文字列(1-200文字)。",
-          },
-        },
-        list_watchlist: {
-          params: {
-            page: "ページ番号(デフォルト: 1)。",
-            limit: "ページごとの項目(デフォルト:20、最大100)。",
-          },
-        },
-        add_to_watchlist: {
-          params: {
-            tmdbId: "ザ・オブ・ザ・ TMDB ショーや映画のID。",
-            type: "コンテンツの種類:「テレビ」または「映画」。",
-          },
-        },
-        update_watch_status: {
-          params: {
-            showId: "ショーオブジェクト。",
-            status: "新しいウォッチの状態:監視、完了、プラン to watch、または削除。",
-          },
-        },
-        remove_from_watchlist: {
-          params: {
-            showId: "ショーオブジェクト。",
-          },
-        },
-        toggle_episode: {
-          params: {
-            showId: "ショーオブジェクト。",
-            season: "季節番号。",
-            episode: "エピソード番号。",
-            watched: "見ていない(true)や見ていない(false)のようにマークするかどうか。",
-          },
-        },
-        mark_episodes_up_to: {
-          params: {
-            showId: "ショーオブジェクト。",
-            season: "対象の季節番号",
-            episode: "ターゲットのエピソード番号。",
-            includePrevious: "季節ごとに前のエピソードをすべてマークするかどうか(デフォルト:true)。",
-          },
-        },
-        get_show_details: {
-          params: {
-            tmdbId: "ザ・オブ・ザ・ TMDB ショーのID。",
-          },
-        },
-        rate_show: {
-          params: {
-            showId: "ショーオブジェクト。",
-            value: "1から5までの評価値",
-            season: "エピソード固有の評価のためのオプションの季節番号。",
-            episode: "エピソード固有の評価のためのオプションのエピソード番号。",
-            review: "任意レビューテキスト(最大2000文字)。",
-          },
-        },
-        get_ratings: {
-          params: {
-            showId: "ショーオブジェクト。",
-          },
-        },
-        list_comments: {
-          params: {
-            showId: "ショーオブジェクト。",
-            season: "コメントをフィルタリングするためのオプションの季節番号。",
-            episode: "コメントをフィルタリングするためのオプションのエピソード番号。",
-            page: "ページ番号(デフォルト: 1)。",
-            limit: "1ページあたりのアイテム(デフォルト: 10、最大:50)。",
-            sort: "並び替え: 最近, 好き, 応答, または関連 (デフォルト: 最近).",
-          },
-        },
-        add_comment: {
-          params: {
-            showId: "ショーオブジェクト。",
-            content: "コメントテキスト(1-2000文字)。",
-            season: "エピソードコメントのオプションシーズン番号。",
-            episode: "エピソードコメントのオプションのエピソード番号。",
-            isSpoiler: "コメントにスポーラー(デフォルト: false)が含まれているかどうか。",
-          },
-        },
+        search_show: "タイトルでテレビ番組や映画を検索します。 結果を返す TMDB ID、タイトル、メタデータ。",
+        list_watchlist: "ユーザーのウォッチリストをページネーションサポートで一覧表示します。 ショーの詳細でエントリの追跡を返します。",
+        add_to_watchlist: "ショーや映画をウォッチリストに追加 TMDB IDおよびタイプ(テレビまたは映画)。",
+        update_watch_status: "ウォッチリストのショーの時計ステータスを更新します。 完了すると、すべてのエピソードが自動的に表示されます。 ステータスは監視、完了、プラン to watch、またはドロップできます。",
+        remove_from_watchlist: "show ObjectId で watchlist からショーを削除します。",
+        toggle_episode: "時計や見ていないように特定のエピソードをマークします。",
+        mark_episodes_up_to: "すべてのエピソードを特定の季節/エピソードまで時計としてマークします。",
+        get_show_details: "ショーに関する詳細情報を入手 TMDB 季節やエピソードを含むID。",
+        rate_show: "ショーやエピソードを1から5星にレートします。 オプションには、レビューテキストが含まれます。",
+        get_ratings: "ユーザーの評価とコミュニティの評価をショーに取得します。",
+        list_comments: "ショーのパブリックコメントをリストします。, 任意にエピソードによってフィルタリング.",
+        add_comment: "ショーやエピソードにパブリックコメントを投稿します。",
         get_upcoming: "ユーザーのウォッチリストで次のエピソードを入手し、今日までに分類、今週、次の週、そして後で。",
         get_stats: "エピソード、時間、ストリーク、ジャンルの破壊、最近の活動を含むユーザーの監視統計を取得します。",
         get_recommendations: "時計の歴史と評価に基づいてパーソナライズされたショーの推奨事項を入手してください。",
@@ -610,6 +541,24 @@ const ja = {
       oauthNote: "最初の使用時に、ログインにリダイレクトされます Watchr クライアントのアカウントと認証 承認後、クライアントはウォッチリスト、評価、コメントへのアクセス権を持っています。",
       oauthConfigTitle: "OAuth の設定",
     },
+  },
+  status: {
+    title: "システムステータス",
+    subtitle: "リアルタイムステータス Watchr サービス",
+    overall: {
+      operational: "すべてのシステム運用",
+      degraded: "一部のシステムが劣化",
+      down: "いくつかのシステムダウン",
+    },
+    services: {
+      mongodb: "データベース",
+      redis: "キャッシュ",
+      tmdb: "TMDB APIサービス",
+      websocket: "リアルタイム",
+    },
+    lastUpdated: "更新履歴",
+    loading: "ローディングの状態...",
+    error: "ステータスをロードできません。 お問い合わせ",
   },
 };
 

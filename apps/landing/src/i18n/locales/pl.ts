@@ -196,6 +196,7 @@ const pl = {
       contact: "Kontakt",
       privacy: "Polityka prywatności",
       terms: "Warunki świadczenia usług",
+      status: "Stan",
     },
     copyright: "© {{year}} WatchrWszystkie prawa zastrzeżone.",
     madeWith: "Wykonane z pasją dla fanów TV i filmów.",
@@ -513,88 +514,18 @@ const pl = {
       configTitle: "Konfiguracja MCP",
       toolsTitle: "Dostępne narzędzia",
       tools: {
-        search_show: {
-          params: {
-            query: "Łańcuch zapytań wyszukiwania (1-200 znaków).",
-          },
-        },
-        list_watchlist: {
-          params: {
-            page: "Numer strony (domyślnie: 1).",
-            limit: "Pozycje na stronę (domyślnie: 20, max: 100).",
-          },
-        },
-        add_to_watchlist: {
-          params: {
-            tmdbId: "W TMDB Identyfikator programu lub filmu.",
-            type: "Rodzaj treści: \"tv\" lub \"film\".",
-          },
-        },
-        update_watch_status: {
-          params: {
-            showId: "Przedstawienie.",
-            status: "Nowy status zegarka: oglądanie, uzupełnianie, planowanie _ to _ watch lub upuszczanie.",
-          },
-        },
-        remove_from_watchlist: {
-          params: {
-            showId: "Przedstawienie.",
-          },
-        },
-        toggle_episode: {
-          params: {
-            showId: "Przedstawienie.",
-            season: "Numer sezonu.",
-            episode: "Numer odcinka.",
-            watched: "Czy zaznaczyć jako oglądane (prawdziwe) czy nieoglądane (fałszywe).",
-          },
-        },
-        mark_episodes_up_to: {
-          params: {
-            showId: "Przedstawienie.",
-            season: "Numer sezonu docelowego.",
-            episode: "Numer odcinka docelowego.",
-            includePrevious: "Czy zaznaczać wszystkie poprzednie odcinki w sezonach (domyślnie: true).",
-          },
-        },
-        get_show_details: {
-          params: {
-            tmdbId: "W TMDB Identyfikator programu.",
-          },
-        },
-        rate_show: {
-          params: {
-            showId: "Przedstawienie.",
-            value: "Wartość ratingowa od 1 do 5.",
-            season: "Opcjonalny numer sezonu dla ratingów specyficznych dla epizodu.",
-            episode: "Opcjonalny numer odcinka dla ratingów specyficznych dla epizodu.",
-            review: "Opcjonalny tekst przeglądu (maks. 2000 znaków).",
-          },
-        },
-        get_ratings: {
-          params: {
-            showId: "Przedstawienie.",
-          },
-        },
-        list_comments: {
-          params: {
-            showId: "Przedstawienie.",
-            season: "Opcjonalny numer sezonu filtrowania komentarzy.",
-            episode: "Opcjonalny numer odcinka do filtrowania komentarzy.",
-            page: "Numer strony (domyślnie: 1).",
-            limit: "Pozycje na stronę (domyślnie: 10, max: 50).",
-            sort: "Sortuj kolejność: ostatni, lubiany, odpowiadający lub odpowiedni (domyślnie: ostatni).",
-          },
-        },
-        add_comment: {
-          params: {
-            showId: "Przedstawienie.",
-            content: "Tekst komentarza (1-2000 znaków).",
-            season: "Opcjonalny numer sezonu dla komentarzy epizodu.",
-            episode: "Opcjonalny numer odcinka dla komentarzy odcinka.",
-            isSpoiler: "Czy komentarz zawiera spoilery (domyślnie: false).",
-          },
-        },
+        search_show: "Szukaj programów telewizyjnych i filmów według tytułu. Zwraca wyniki za pomocą TMDB Identyfikatory, tytuły i metadane.",
+        list_watchlist: "Lista obserwowanych użytkowników z obsługą strony. Zwraca wpisy śledzące ze szczegółami.",
+        add_to_watchlist: "Dodaj show lub film do listy obserwacyjnej TMDB ID i typ (tv lub film).",
+        update_watch_status: "Aktualizuj status oglądania programu na liście obserwowanych. Podczas zaznaczania jako zakończone, wszystkie odcinki są automatycznie oznaczone jako oglądane. Status może być obserwowany, uzupełniany, planowany _ to _ watch lub upuszczony.",
+        remove_from_watchlist: "Usunięcie programu z listy obserwacyjnej przez Pokaż obiekt.",
+        toggle_episode: "Zaznacz konkretny odcinek jako obserwowany lub nieobserwowany.",
+        mark_episodes_up_to: "Zaznacz wszystkie odcinki do określonego sezonu / epizodu, jak oglądane.",
+        get_show_details: "Pobierz szczegółowe informacje o pokazie przez TMDB ID, w tym pory roku i epizody.",
+        rate_show: "Oceń show lub odcinek od 1 do 5 gwiazd. Opcjonalnie zawiera tekst przeglądu.",
+        get_ratings: "Pobierz ocenę użytkownika i ocen społeczności dla programu.",
+        list_comments: "Lista komentarzy publicznych do programu, opcjonalnie filtrowane przez odcinek.",
+        add_comment: "Publiczny komentarz na temat serialu lub odcinka.",
         get_upcoming: "Uzyskaj nadchodzące odcinki dla pokazów na liście obserwowanych użytkowników, sklasyfikowanych przez dzisiaj, w tym tygodniu, w przyszłym tygodniu i później.",
         get_stats: "Pobierz statystyki oglądania użytkownika, w tym odcinki oglądane, godziny, passa, podział gatunków, i ostatnia aktywność.",
         get_recommendations: "Pobierz spersonalizowane rekomendacje show na podstawie historii oglądania i ocen.",
@@ -610,6 +541,24 @@ const pl = {
       oauthNote: "Po pierwszym użyciu, zostaniesz przekierowany do logowania się Watchr konta i autoryzacji klienta. Po uzyskaniu autoryzacji klient będzie miał dostęp do listy obserwacyjnej, ocen i komentarzy.",
       oauthConfigTitle: "Konfiguracja OAuth",
     },
+  },
+  status: {
+    title: "Status systemu",
+    subtitle: "Stan rzeczywisty Watchr usługi",
+    overall: {
+      operational: "Wszystkie systemy operacyjne",
+      degraded: "Niektóre systemy zdegradowane",
+      down: "Niektóre systemy w dół",
+    },
+    services: {
+      mongodb: "Baza danych",
+      redis: "Cache",
+      tmdb: "TMDB API",
+      websocket: "Real- time",
+    },
+    lastUpdated: "Ostatnia aktualizacja",
+    loading: "Wczytywanie statusu...",
+    error: "Nie udało się załadować statusu. Proszę spróbować jeszcze raz.",
   },
 };
 

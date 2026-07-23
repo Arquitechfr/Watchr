@@ -21,6 +21,7 @@ import { listFeedNotificationsQuerySchema, feedNotificationIdParamSchema } from 
 import { listErrorsQuerySchema, errorIdParamSchema, updateErrorStatusSchema, listErrorEventsQuerySchema } from "../../validators/admin/adminError.validator.js";
 import { createInAppNotificationSchema, listInAppNotificationsQuerySchema, inAppNotificationIdParamSchema } from "../../validators/inAppNotification.validator.js";
 import { tmdbSearchQuerySchema, tmdbSeasonParamSchema } from "../../validators/admin/adminTmdb.validator.js";
+import { statusHistoryQuerySchema, toggleMonitorSchema, publicServicesSchema } from "../../validators/admin/adminStatus.validator.js";
 import { listNotifications, getUnreadCount, markAsRead, markAllAsRead, deleteNotification } from "../../services/admin/adminFeedNotification.service.js";
 import { mistralService } from "../../services/mistral.service.js";
 import { getAdminStats, getUserGrowth, getCommentActivity, getShowTypeBreakdown } from "../../services/admin/adminStats.service.js";
@@ -53,6 +54,8 @@ import { createInAppNotification, listAdminInAppNotifications, deleteAdminInAppN
 import { listIssues, getIssueDetail, listIssueEvents, updateIssueStatus, deleteIssue, getErrorStats } from "../../services/errorTracking.service.js";
 import apiKeysRouter from "./apiKeys.js";
 import messageAdminRouter from "./messages.routes.js";
+import { runAllChecks, saveStatusSnapshot, getStatusHistory, getUptimeStats, clearStatusHistory, isMonitorEnabled, getPublicServices, setMonitorEnabled, setPublicServices, ALL_SERVICE_NAMES } from "../../services/status.service.js";
+import { invalidateStatusCache } from "../../routes/internal/status.routes.js";
 
 const router: Router = Router();
 
@@ -1291,5 +1294,91 @@ router.delete(
 );
 router.use("/messages", messageAdminRouter);
 
+// Status
+router.get(
+  "/status",
+  validateRequest(undefined, statusHistoryQuerySchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const query = req.query as unknown as { days: number };
+    const [results, history, uptime, monitorEnabled, publicServices] = await Promise.all([
+      runAllChecks(),
+      getStatusHistory(query.days),
+      getUptimeStats(query.days),
+      isMonitorEnabled(),
+      getPublicServices(),
+    ]);
+    const overallStatus = results.every((s) => s.status === "operational")
+      ? "operational"
+      : results.some((s) => s.status === "down")
+        ? "down"
+        : "degraded";
+    res.json({
+      current: {
+        overallStatus,
+        timestamp: new Date().toISOString(),
+        services: results,
+      },
+      history: history.map((h) => ({
+        timestamp: h.createdAt,
+        overallStatus: h.overallStatus,
+        services: h.services,
+      })),
+      uptime,
+      monitorEnabled,
+      publicServices,
+      allServiceNames: ALL_SERVICE_NAMES,
+    });
+  }),
+);
+
+router.post(
+  "/status/check",
+  asyncHandler(async (_req: Request, res: Response) => {
+    const results = await runAllChecks();
+    await saveStatusSnapshot(results);
+    invalidateStatusCache();
+    const overallStatus = results.every((s) => s.status === "operational")
+      ? "operational"
+      : results.some((s) => s.status === "down")
+        ? "down"
+        : "degraded";
+    res.json({
+      current: {
+        overallStatus,
+        timestamp: new Date().toISOString(),
+        services: results,
+      },
+    });
+  }),
+);
+
+router.delete(
+  "/status/history",
+  asyncHandler(async (_req: Request, res: Response) => {
+    const deletedCount = await clearStatusHistory();
+    res.json({ success: true, deletedCount });
+  }),
+);
+
+router.patch(
+  "/status/monitor",
+  validateRequest(toggleMonitorSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { enabled } = req.body as { enabled: boolean };
+    await setMonitorEnabled(enabled);
+    res.json({ monitorEnabled: enabled });
+  }),
+);
+
+router.patch(
+  "/status/public-services",
+  validateRequest(publicServicesSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { services } = req.body as { services: string[] };
+    await setPublicServices(services);
+    invalidateStatusCache();
+    res.json({ publicServices: services });
+  }),
+);
 
 export default router;

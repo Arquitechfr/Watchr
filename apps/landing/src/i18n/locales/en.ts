@@ -199,6 +199,7 @@ const en = {
       features: "Features",
       import: "Import",
       docs: "API Docs",
+      status: "Status",
       webApp: "Web App",
       company: "Company",
       about: "About",
@@ -648,6 +649,24 @@ const en = {
         "On first use, you'll be redirected to log in with your Watchr account and authorize the client. After authorization, the client will have access to your watchlist, ratings, and comments.",
       oauthConfigTitle: "OAuth configuration",
     },
+  },
+  status: {
+    title: "System Status",
+    subtitle: "Real-time status of Watchr services",
+    overall: {
+      operational: "All systems operational",
+      degraded: "Some systems degraded",
+      down: "Some systems down",
+    },
+    services: {
+      mongodb: "Database",
+      redis: "Cache",
+      tmdb: "TMDB API",
+      websocket: "Real-time",
+    },
+    lastUpdated: "Last updated",
+    loading: "Loading status...",
+    error: "Failed to load status. Please try again.",
   },
 };
 

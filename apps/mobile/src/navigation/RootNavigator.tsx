@@ -88,6 +88,8 @@ export function RootNavigator() {
   const config = useRemoteConfig();
   const navigationRef = useRef<import("@react-navigation/native").NavigationContainerRef<RootStackParamList>>(null);
   const routeNameRef = useRef<string | undefined>(undefined);
+  const isNavigationReadyRef = useRef(false);
+  const pendingNotificationRef = useRef<Record<string, unknown> | null>(null);
   const posthog = usePostHog();
   const queryClient = useQueryClient();
   const { width } = useWindowDimensions();
@@ -146,7 +148,12 @@ export function RootNavigator() {
           notificationType: (data?.type as string) ?? null,
         });
 
-        if (!data || (!data.screen && !data.url) || !navigationRef.current) return;
+        if (!data || (!data.screen && !data.url)) return;
+
+        if (!navigationRef.current || !isNavigationReadyRef.current) {
+          pendingNotificationRef.current = data;
+          return;
+        }
 
         navigateToPushTarget(navigationRef.current, data);
       };
@@ -333,7 +340,12 @@ export function RootNavigator() {
       linking={linking}
       ref={navigationRef}
       onReady={() => {
+        isNavigationReadyRef.current = true;
         routeNameRef.current = navigationRef.current?.getCurrentRoute()?.name;
+        if (pendingNotificationRef.current && navigationRef.current) {
+          navigateToPushTarget(navigationRef.current, pendingNotificationRef.current);
+          pendingNotificationRef.current = null;
+        }
       }}
       onStateChange={() => {
         const previousRouteName = routeNameRef.current;

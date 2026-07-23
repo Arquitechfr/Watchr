@@ -13,6 +13,7 @@ const AboutPage = lazy(() => import("@/pages/AboutPage").then((m) => ({ default:
 const PrivacyPage = lazy(() => import("@/pages/PrivacyPage").then((m) => ({ default: m.PrivacyPage })));
 const TermsPage = lazy(() => import("@/pages/TermsPage").then((m) => ({ default: m.TermsPage })));
 const ContactPage = lazy(() => import("@/pages/ContactPage").then((m) => ({ default: m.ContactPage })));
+const StatusPage = lazy(() => import("@/pages/StatusPage").then((m) => ({ default: m.StatusPage })));
 
 function PageFallback() {
   return <div className="min-h-[50vh]" />;
@@ -36,6 +37,7 @@ export default function App() {
                 <Route path="/privacy" element={<PrivacyPage />} />
                 <Route path="/terms" element={<TermsPage />} />
                 <Route path="/contact" element={<ContactPage />} />
+                <Route path="/status" element={<StatusPage />} />
               </Routes>
             </Suspense>
           </main>

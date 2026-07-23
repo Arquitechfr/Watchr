@@ -23,6 +23,7 @@ const ApiKeys = lazy(() => import("./pages/ApiKeys").then((m) => ({ default: m.A
 const ScheduledJobs = lazy(() => import("./pages/ScheduledJobs").then((m) => ({ default: m.ScheduledJobs })));
 const Messages = lazy(() => import("./pages/Messages").then((m) => ({ default: m.Messages })));
 const Engagement = lazy(() => import("./pages/Engagement").then((m) => ({ default: m.Engagement })));
+const Status = lazy(() => import("./pages/Status").then((m) => ({ default: m.Status })));
 
 function PageLoader() {
   return (
@@ -72,6 +73,7 @@ export default function App() {
             <Route path="/errors" element={<ErrorTracking />} />
             <Route path="/api-keys" element={<ApiKeys />} />
             <Route path="/engagement" element={<Engagement />} />
+            <Route path="/status" element={<Status />} />
             <Route path="/messages" element={<Messages />} />
             <Route path="*" element={<NotFound />} />
           </Route>

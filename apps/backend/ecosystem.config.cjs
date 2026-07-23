@@ -277,5 +277,26 @@ module.exports = {
       min_uptime: '10s',
       restart_delay: 4500,
     },
+    {
+      name: 'watchr-status-monitor-worker',
+      script: 'dist/workers/startStatusMonitorWorker.js',
+      instances: 1,
+      env: {
+        NODE_ENV: 'production',
+      },
+      env_development: {
+        NODE_ENV: 'development',
+      },
+      error_file: './logs/status-monitor-worker-error.log',
+      out_file: './logs/status-monitor-worker-out.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+      merge_logs: true,
+      autorestart: true,
+      max_memory_restart: '500M',
+      watch: false,
+      max_restarts: 10,
+      min_uptime: '10s',
+      restart_delay: 4500,
+    },
   ],
 };

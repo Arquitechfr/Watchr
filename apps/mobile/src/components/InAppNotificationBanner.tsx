@@ -16,6 +16,7 @@ import { useNotificationStore, type BannerNotification } from "../store/notifica
 import { useDismissBanner } from "../hooks/useInAppNotifications";
 import { useThemeColors } from "../theme/useThemeColors";
 import { RootStackParamList } from "../navigation/RootNavigator";
+import { navigateToDeepLink } from "../services/deepLinkHandler";
 import { log } from "../utils/logger";
 
 export function InAppNotificationBanner() {
@@ -53,15 +54,7 @@ export function InAppNotificationBanner() {
         log("InAppNotificationBanner", "failed to open URL", err);
       });
     } else if (banner.data?.screen) {
-      const screen = banner.data.screen as string;
-      const params = { ...banner.data };
-      delete params.screen;
-      try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (navigation.navigate as any)(screen, params);
-      } catch (err) {
-        log("InAppNotificationBanner", "navigation failed", err);
-      }
+      navigateToDeepLink(navigation, banner.data as Record<string, unknown>);
     }
     dismiss(banner.serverId);
   }, [banner, dismiss, navigation]);

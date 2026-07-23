@@ -6,6 +6,7 @@ import { connectRedis } from "./lib/redis.js";
 import { createWsServer } from "./lib/wsServer.js";
 import { posthogClient } from "./lib/posthog.js";
 import { captureBackendError } from "./services/errorTracking.service.js";
+import { setWsServerRef } from "./services/status.service.js";
 
 const app = createApp();
 
@@ -33,6 +34,8 @@ async function startServer() {
 
     const io = createWsServer(server);
     console.log("WebSocket server initialized");
+
+    setWsServerRef(io.of("/"));
 
     const { createWsHealthcheckRouter } = await import("./lib/wsHealthcheck.js");
     app.use("/health", createWsHealthcheckRouter(io));

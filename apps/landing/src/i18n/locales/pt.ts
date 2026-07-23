@@ -196,6 +196,7 @@ const pt = {
       contact: "Contacto",
       privacy: "Política de Privacidade",
       terms: "Termos de serviço",
+      status: "Estado",
     },
     copyright: "© {{year}} WatchrTodos os direitos reservados.",
     madeWith: "Feita com paixão por fãs de TV e filmes.",
@@ -513,88 +514,18 @@ const pt = {
       configTitle: "Configuração MCP",
       toolsTitle: "Ferramentas disponíveis",
       tools: {
-        search_show: {
-          params: {
-            query: "A string de pesquisa (1-200 caracteres).",
-          },
-        },
-        list_watchlist: {
-          params: {
-            page: "Número da página (padrão: 1).",
-            limit: "Itens por página (padrão: 20, máximo: 100).",
-          },
-        },
-        add_to_watchlist: {
-          params: {
-            tmdbId: "A TMDB Identificação do programa ou filme.",
-            type: "O tipo de conteúdo: \"tv\" ou \"filme\".",
-          },
-        },
-        update_watch_status: {
-          params: {
-            showId: "O objeto do show.",
-            status: "O novo status do relógio: observando, completado, plan to watch, ou deixado cair.",
-          },
-        },
-        remove_from_watchlist: {
-          params: {
-            showId: "O objeto do show.",
-          },
-        },
-        toggle_episode: {
-          params: {
-            showId: "O objeto do show.",
-            season: "O número da temporada.",
-            episode: "O número do episódio.",
-            watched: "Marcar como vigiado (verdadeiro) ou não vigiado (falso).",
-          },
-        },
-        mark_episodes_up_to: {
-          params: {
-            showId: "O objeto do show.",
-            season: "O número da temporada alvo.",
-            episode: "O número do episódio alvo.",
-            includePrevious: "Se deve marcar todos os episódios anteriores através das estações (padrão: true).",
-          },
-        },
-        get_show_details: {
-          params: {
-            tmdbId: "A TMDB Identificação do programa.",
-          },
-        },
-        rate_show: {
-          params: {
-            showId: "O objeto do show.",
-            value: "O valor da notação de 1 a 5.",
-            season: "Número de temporada opcional para avaliações específicas de episódios.",
-            episode: "Número de episódio opcional para avaliações específicas de episódios.",
-            review: "Texto opcional de revisão (máx. 2000 caracteres).",
-          },
-        },
-        get_ratings: {
-          params: {
-            showId: "O objeto do show.",
-          },
-        },
-        list_comments: {
-          params: {
-            showId: "O objeto do show.",
-            season: "Número de temporada opcional para filtrar comentários.",
-            episode: "Número de episódio opcional para filtrar comentários.",
-            page: "Número da página (padrão: 1).",
-            limit: "Itens por página (padrão: 10, máx: 50).",
-            sort: "Ordem de ordenação: recente, gostou, respondeu ou relevante (padrão: recente).",
-          },
-        },
-        add_comment: {
-          params: {
-            showId: "O objeto do show.",
-            content: "O texto do comentário (1-2000 caracteres).",
-            season: "Número de temporada opcional para comentários de episódios.",
-            episode: "Número de episódio opcional para comentários de episódio.",
-            isSpoiler: "Se o comentário contém spoilers (padrão: false).",
-          },
-        },
+        search_show: "Procure por programas de TV e filmes por título. Retorna resultados com TMDB IDs, títulos e metadados.",
+        list_watchlist: "Listar a lista de vigilância do usuário com suporte a paginação. Retorna entradas de rastreamento com detalhes de apresentação.",
+        add_to_watchlist: "Adicionar um programa ou filme à lista de vigilância por TMDB ID e tipo (tv ou filme).",
+        update_watch_status: "Atualizar o status do relógio de um show na lista de observação. Quando a marcação é concluída, todos os episódios são automaticamente marcados como observados. O status pode ser observado, completado, plan to watch ou deixado cair.",
+        remove_from_watchlist: "Remover um show da lista de observação pelo seu Mostrar objetoId.",
+        toggle_episode: "Marque um episódio específico como assistido ou não.",
+        mark_episodes_up_to: "Marque todos os episódios até uma temporada/episódio específico como observado.",
+        get_show_details: "Obter informações detalhadas sobre um show por TMDB ID, incluindo estações e episódios.",
+        rate_show: "Rate um show ou episódio de 1 a 5 estrelas. Opcionalmente incluir um texto de revisão.",
+        get_ratings: "Obtenha a classificação do usuário e as avaliações da comunidade para um show.",
+        list_comments: "Listar comentários públicos para um show, opcionalmente filtrado por episódio.",
+        add_comment: "Publicar um comentário público sobre um show ou episódio.",
         get_upcoming: "Obter próximos episódios para shows na lista de vigilância do usuário, categorizado por hoje, esta semana, na próxima semana e depois.",
         get_stats: "Obtenha estatísticas de observação do usuário, incluindo episódios observados, horas, sequência, quebra de gênero e atividade recente.",
         get_recommendations: "Receba recomendações de show personalizadas com base no histórico e avaliações do relógio.",
@@ -610,6 +541,24 @@ const pt = {
       oauthNote: "No primeiro uso, você será redirecionado para fazer login com seu Watchr conta e autoriza o cliente. Após autorização, o cliente terá acesso à sua lista de vigilância, classificações e comentários.",
       oauthConfigTitle: "Configuração do OAuth",
     },
+  },
+  status: {
+    title: "Estado do sistema",
+    subtitle: "Estado em tempo real de Watchr serviços",
+    overall: {
+      operational: "Todos os sistemas operacionais",
+      degraded: "Alguns sistemas degradados",
+      down: "Alguns sistemas desligados",
+    },
+    services: {
+      mongodb: "Base de dados",
+      redis: "Cache",
+      tmdb: "TMDB API",
+      websocket: "Tempo real",
+    },
+    lastUpdated: "Última atualização",
+    loading: "A carregar o estado...",
+    error: "Não foi possível carregar o estado. Por favor, tente novamente.",
   },
 };
 

@@ -196,6 +196,7 @@ const zh = {
       contact: "联系人",
       privacy: "隐私政策",
       terms: "服务条件",
+      status: "状态",
     },
     copyright: "©. {{year}} Watchr版权所有。",
     madeWith: "以激情为电视和电影粉丝制作.",
@@ -513,88 +514,18 @@ const zh = {
       configTitle: "MCP 配置",
       toolsTitle: "可用工具",
       tools: {
-        search_show: {
-          params: {
-            query: "搜索查询字符串(1-200个字符).",
-          },
-        },
-        list_watchlist: {
-          params: {
-            page: "页号( 默认 :1).",
-            limit: "每页项目( 默认: 20, 最大: 100) 。",
-          },
-        },
-        add_to_watchlist: {
-          params: {
-            tmdbId: "这个 TMDB 节目或电影的标识.",
-            type: "内容类型:\"tv\"或\"电影\".",
-          },
-        },
-        update_watch_status: {
-          params: {
-            showId: "显示对象 。",
-            status: "新的监视状态: 监视, 完成, 计划  to  watch, 或下降 。",
-          },
-        },
-        remove_from_watchlist: {
-          params: {
-            showId: "显示对象 。",
-          },
-        },
-        toggle_episode: {
-          params: {
-            showId: "显示对象 。",
-            season: "季号.",
-            episode: "剧集编号.",
-            watched: "究竟是以观察为记号呢?还是以未观察为记号呢?",
-          },
-        },
-        mark_episodes_up_to: {
-          params: {
-            showId: "显示对象 。",
-            season: "目标赛季号.",
-            episode: "目标剧集编号.",
-            includePrevious: "是否标出各季之前的所有剧集( 默认: true) 。",
-          },
-        },
-        get_show_details: {
-          params: {
-            tmdbId: "这个 TMDB 节目的ID。",
-          },
-        },
-        rate_show: {
-          params: {
-            showId: "显示对象 。",
-            value: "评级值从1到5.",
-            season: "专辑特有收视率的可选季号.",
-            episode: "专辑特定收视率的可选分集编号.",
-            review: "可选审查文本(最大2000个字符).",
-          },
-        },
-        get_ratings: {
-          params: {
-            showId: "显示对象 。",
-          },
-        },
-        list_comments: {
-          params: {
-            showId: "显示对象 。",
-            season: "可供选择的季号来过滤注释.",
-            episode: "可选的集号来过滤评论.",
-            page: "页号( 默认 :1).",
-            limit: "每页项目(默认:10,最大:50).",
-            sort: "排序顺序:最近、喜欢、答复或相关(默认:最近)。",
-          },
-        },
-        add_comment: {
-          params: {
-            showId: "显示对象 。",
-            content: "注释文本(1-2000个字符).",
-            season: "集评论的可选季号.",
-            episode: "集评论的可选集号.",
-            isSpoiler: "注释中是否包含破坏者( 默认: 假) 。",
-          },
-        },
+        search_show: "按标题搜索电视节目和电影. 返回结果 TMDB 身份证、标题和元数据。",
+        list_watchlist: "以 pagination 支持列出用户的监视列表 。 带有显示细节的返回跟踪条目 。",
+        add_to_watchlist: "在监视列表中添加一个节目或电影 TMDB 身份证和类型(tv或电影).",
+        update_watch_status: "更新监视列表中显示的监视状态 。 当标记完成时,所有事件都会被自动标记为被监视. 状态可以被监视,完成,计划 to watch,或被丢弃.",
+        remove_from_watchlist: "从监视列表中以显示对象删除一个显示 。",
+        toggle_episode: "将特定剧集标为已观看或未观看.",
+        mark_episodes_up_to: "将所有剧集标为特定季/集观看.",
+        get_show_details: "获取有关节目的详细信息 TMDB 身份证,包括季节和事件。",
+        rate_show: "将一出秀或一集评分从一星到五星. 可选包括审查案文。",
+        get_ratings: "获得节目用户的评分和社区评分.",
+        list_comments: "列出一个节目的公开评论,可选择通过插曲过滤.",
+        add_comment: "在节目或插曲上发表公众评论.",
         get_upcoming: "在用户监视列表中获取即将到来的节目, 分类为今天, 本周, 下周, 以及以后 。",
         get_stats: "获取用户的观察数据,包括所观察的事件,时数,花序,流派分解,以及最近的活动.",
         get_recommendations: "根据观看历史和收视率获得个性化节目推荐.",
@@ -610,6 +541,24 @@ const zh = {
       oauthNote: "在第一次使用时,您会被重定向以登录 Watchr 账户和授权客户端。 经授权后,客户端可以访问您的监视列表,收视率,以及评论.",
       oauthConfigTitle: "OAuth 配置",
     },
+  },
+  status: {
+    title: "系统状态",
+    subtitle: "实时状况 Watchr 服务",
+    overall: {
+      operational: "所有系统都开始运作",
+      degraded: "一些系统退化",
+      down: "一些系统关闭",
+    },
+    services: {
+      mongodb: "数据库",
+      redis: "缓存",
+      tmdb: "TMDB API 密码",
+      websocket: "实时",
+    },
+    lastUpdated: "上次更新",
+    loading: "正在装入状态...",
+    error: "装入状态失败 。 请再试一次。",
   },
 };
 

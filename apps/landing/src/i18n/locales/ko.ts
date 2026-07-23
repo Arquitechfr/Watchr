@@ -196,6 +196,7 @@ const ko = {
       contact: "제품정보",
       privacy: "회사 소개",
       terms: "이용 약관",
+      status: "주요연혁",
     },
     copyright: "· {{year}} Watchr. 모든 권리 보유",
     madeWith: "TV & 영화 팬들의 열정으로 만들어졌습니다.",
@@ -513,88 +514,18 @@ const ko = {
       configTitle: "MCP 구성",
       toolsTitle: "사용 가능한 도구",
       tools: {
-        search_show: {
-          params: {
-            query: "검색 쿼리 문자열 (1-200 문자).",
-          },
-        },
-        list_watchlist: {
-          params: {
-            page: "페이지 번호 (과태: 1).",
-            limit: "페이지 당 품목 (과태: 20, 최대: 100).",
-          },
-        },
-        add_to_watchlist: {
-          params: {
-            tmdbId: "더 보기 TMDB 쇼 또는 영화의 ID.",
-            type: "내용의 유형 : \"tv\"또는 \"movie\".",
-          },
-        },
-        update_watch_status: {
-          params: {
-            showId: "표시 ObjectId.",
-            status: "새로운 시계 상태: 보고, 완료, plan to watch, 또는 떨어졌다.",
-          },
-        },
-        remove_from_watchlist: {
-          params: {
-            showId: "표시 ObjectId.",
-          },
-        },
-        toggle_episode: {
-          params: {
-            showId: "표시 ObjectId.",
-            season: "계절 번호.",
-            episode: "에피소드 번호.",
-            watched: "watched (true) 또는 unwatched (false)로 표시 할 수 있습니다.",
-          },
-        },
-        mark_episodes_up_to: {
-          params: {
-            showId: "표시 ObjectId.",
-            season: "대상 시즌 번호.",
-            episode: "대상 에피소드 번호.",
-            includePrevious: "계절에 걸쳐 모든 이전 에피소드를 표시 여부 (기본: true).",
-          },
-        },
-        get_show_details: {
-          params: {
-            tmdbId: "더 보기 TMDB 쇼의 ID.",
-          },
-        },
-        rate_show: {
-          params: {
-            showId: "표시 ObjectId.",
-            value: "1에서 5.까지의 등급 값",
-            season: "선택 시즌 번호 에피소드 별 등급.",
-            episode: "에피소드 별 등급에 대한 선택 에피소드 번호.",
-            review: "옵션 검토 텍스트 (최대 2000 문자).",
-          },
-        },
-        get_ratings: {
-          params: {
-            showId: "표시 ObjectId.",
-          },
-        },
-        list_comments: {
-          params: {
-            showId: "표시 ObjectId.",
-            season: "필터 댓글에 선택적인 시즌 번호.",
-            episode: "선택적 에피소드 번호 필터 코멘트.",
-            page: "페이지 번호 (과태: 1).",
-            limit: "페이지 당 품목 (과태: 10, 최대: 50).",
-            sort: "정렬 순서: 최근, liked, 대답, 또는 관련 (과태: 최근).",
-          },
-        },
-        add_comment: {
-          params: {
-            showId: "표시 ObjectId.",
-            content: "댓글 텍스트 (1-2000 문자).",
-            season: "선택 시즌 번호 에피소드 의견.",
-            episode: "에피소드 의견에 대한 선택 에피소드 번호.",
-            isSpoiler: "댓글이 스포일러 포함 여부 (기본값: false).",
-          },
-        },
+        search_show: "TV 쇼 및 영화 검색 제목으로. 결과 반환 TMDB ID, 제목 및 메타데이터.",
+        list_watchlist: "pagination 지원으로 사용자의 시계 목록을 나열합니다. 반환 추적 항목 표시 세부 사항.",
+        add_to_watchlist: "시계에 쇼 또는 영화 추가 TMDB ID 및 유형 (tv 또는 영화).",
+        update_watch_status: "시계 목록에 표시의 시계 상태를 업데이트합니다. 완료되면 모든 에피소드가 자동으로 표시됩니다. 상태는 보고, 완료, plan to watch, 또는 떨어질 수 있습니다.",
+        remove_from_watchlist: "Show ObjectId의 watchlist에서 쇼를 제거하십시오.",
+        toggle_episode: "watched 또는 unwatched로 특정 에피소드를 표시합니다.",
+        mark_episodes_up_to: "모든 에피소드를 특정 시즌/episode 시계로 표시합니다.",
+        get_show_details: "본문 바로가기 TMDB 계절과 에피소드를 포함한 ID.",
+        rate_show: "1에서 5까지의 쇼 또는 에피소드를 평가하십시오. 선택적으로 리뷰 텍스트가 포함되어 있습니다.",
+        get_ratings: "사용자의 평가 및 커뮤니티 등급을 보여줍니다.",
+        list_comments: "쇼에 대한 공개 의견 목록, 선택적으로 에피소드에 의해 필터링.",
+        add_comment: "쇼 또는 에피소드에 대한 공개 코멘트를 게시하십시오.",
         get_upcoming: "오늘, 이번 주, 다음 주, 그리고 나중에에 의해 분류된 사용자의 시계 목록에서 쇼를 위한 다가오는 에피소드를 얻으십시오.",
         get_stats: "에피소드 시계, 시간, streak, 장르 고장 및 최근 활동을 포함한 사용자의 통계를 얻으십시오.",
         get_recommendations: "시계 역사와 평가에 근거한 개인화한 쇼 권고를 얻으십시오.",
@@ -610,6 +541,24 @@ const ko = {
       oauthNote: "첫 번째 사용으로 로그인 할 수 있습니다. Watchr 계정 및 클라이언트를 승인. 인증 후 고객은 시계 목록, 등급 및 의견에 액세스 할 수 있습니다.",
       oauthConfigTitle: "OAuth 구성",
     },
+  },
+  status: {
+    title: "시스템 상태",
+    subtitle: "실시간 상태 Watchr (주)",
+    overall: {
+      operational: "모든 시스템 운영",
+      degraded: "몇몇 체계 degraded",
+      down: "일부 시스템 다운",
+    },
+    services: {
+      mongodb: "관련 기사",
+      redis: "스낵 바",
+      tmdb: "TMDB API 지원",
+      websocket: "실시간 채팅",
+    },
+    lastUpdated: "최근 업데이트",
+    loading: "선적 상태...",
+    error: "로드 상태에 실패. 다시 시도하십시오.",
   },
 };
 

@@ -1,4 +1,5 @@
-import { View, Text, Image, Platform, useWindowDimensions } from "react-native";
+import { View, Text, Platform, useWindowDimensions } from "react-native";
+import { CachedImage as Image } from "./CachedImage";
 
 interface MainHeaderProps {
   rightElement?: React.ReactNode;
@@ -18,7 +19,7 @@ export function MainHeader({ rightElement }: MainHeaderProps) {
             // eslint-disable-next-line @typescript-eslint/no-require-imports
             source={require("../../assets/splash-icon.webp")}
             style={{ width: 40, height: 40 }}
-            resizeMode="contain"
+            contentFit="contain"
           />
           <Text
             style={{ fontFamily: "Outfit_700Bold", fontSize: 20 }}

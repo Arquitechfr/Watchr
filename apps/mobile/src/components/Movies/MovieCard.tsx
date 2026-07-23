@@ -1,4 +1,5 @@
-import { View, Text, Image, TouchableOpacity, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
+import { CachedImage as Image } from "../CachedImage";
 import { Ionicons } from "@expo/vector-icons";
 import { useI18n } from "../../i18n/useI18n";
 import { useThemeColors } from "../../theme/useThemeColors";
@@ -50,7 +51,6 @@ export function MovieCard({ movie, onPress, onMarkWatched, isMarking }: MovieCar
         <Image
           source={{ uri: posterUrl }}
           className="w-16 h-24 rounded"
-          resizeMode="cover"
         />
       ) : (
         <View className="w-16 h-24 rounded bg-muted items-center justify-center">

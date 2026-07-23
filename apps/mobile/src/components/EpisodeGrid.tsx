@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { View, Text, Image, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
+import { CachedImage as Image } from "./CachedImage";
 import { Ionicons } from "@expo/vector-icons";
 import { format } from "date-fns";
 import { Season, Episode } from "../services/shows.service";
@@ -68,7 +69,6 @@ export function EpisodeGrid({
           <Image
             source={{ uri: stillUrl }}
             className="w-20 h-12 rounded bg-surface-light mr-3"
-            resizeMode="cover"
           />
         ) : (
           <View className="w-20 h-12 rounded bg-surface-light items-center justify-center mr-3">

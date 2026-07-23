@@ -1,4 +1,4 @@
-import { Image } from "react-native";
+import { CachedImage as Image } from "./CachedImage";
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const DEFAULT_AVATAR = require("../../assets/avatar_default.webp");
@@ -17,7 +17,6 @@ export function Avatar({ url, size = 48 }: AvatarProps) {
         height: size,
         borderRadius: size / 2,
       }}
-      resizeMode="cover"
     />
   );
 }

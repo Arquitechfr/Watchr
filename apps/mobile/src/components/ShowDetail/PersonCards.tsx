@@ -1,4 +1,5 @@
-import { View, Text, Image } from "react-native";
+import { View, Text } from "react-native";
+import { CachedImage as Image } from "../CachedImage";
 import { Ionicons } from "@expo/vector-icons";
 import { useI18n } from "../../i18n/useI18n";
 import { useThemeColors } from "../../theme/useThemeColors";
@@ -14,7 +15,6 @@ export function CastMemberCard({ member }: { member: CastMember }) {
         <Image
           source={{ uri: profileUrl }}
           className="w-20 h-20 rounded-full bg-surface-light mb-2"
-          resizeMode="cover"
         />
       ) : (
         <View className="w-20 h-20 rounded-full bg-surface-light items-center justify-center mb-2">
@@ -43,7 +43,6 @@ export function CrewMemberCard({ member }: { member: CrewMember }) {
         <Image
           source={{ uri: profileUrl }}
           className="w-20 h-20 rounded-full bg-surface-light mb-2"
-          resizeMode="cover"
         />
       ) : (
         <View className="w-20 h-20 rounded-full bg-surface-light items-center justify-center mb-2">

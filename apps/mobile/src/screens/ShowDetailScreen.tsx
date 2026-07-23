@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
-import { View, Text, Image, ScrollView, TouchableOpacity, RefreshControl, Platform, useWindowDimensions } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, RefreshControl, Platform, useWindowDimensions } from "react-native";
+import { CachedImage as Image } from "../components/CachedImage";
 import { useRoute, useNavigation, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useShowDetails } from "../hooks/useShowDetails";
@@ -428,7 +429,6 @@ export function ShowDetailScreen() {
                 source={{ uri: posterUrl }}
                 className="w-full"
                 style={{ aspectRatio: 2 / 3 }}
-                resizeMode="cover"
               />
             ) : (
               <View className="w-full h-full bg-surface-light items-center justify-center">

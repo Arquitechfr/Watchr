@@ -1,4 +1,5 @@
-import { View, Text, Image, Platform } from "react-native";
+import { View, Text, Platform } from "react-native";
+import { CachedImage as Image } from "../components/CachedImage";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useI18n } from "../i18n/useI18n";
 import { useThemeColors } from "../theme/useThemeColors";
@@ -32,7 +33,7 @@ export function MaintenanceScreen() {
           // eslint-disable-next-line @typescript-eslint/no-require-imports
           source={require("../../assets/splash-icon.webp")}
           style={{ width: 80, height: 80 }}
-          resizeMode="contain"
+          contentFit="contain"
         />
         <Text
           style={{

@@ -1,4 +1,5 @@
-import { View, Text, TouchableOpacity, Image } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
+import { CachedImage as Image } from "../CachedImage";
 import { Ionicons } from "@expo/vector-icons";
 import { differenceInCalendarDays, format } from "date-fns";
 import { useI18n } from "../../i18n/useI18n";
@@ -59,7 +60,6 @@ export function NextEpisodeCard({
         <Image
           source={{ uri: posterUrl }}
           className="w-14 h-20 rounded-lg bg-surface-light"
-          resizeMode="cover"
         />
       ) : (
         <View className="w-14 h-20 rounded-lg bg-surface-light items-center justify-center">

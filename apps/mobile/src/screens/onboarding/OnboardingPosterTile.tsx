@@ -1,4 +1,5 @@
-import { View, Text, Image, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
+import { CachedImage as Image } from "../../components/CachedImage";
 import { Ionicons } from "@expo/vector-icons";
 import { SearchResultItem, getPosterUrl } from "../../services/shows.service";
 import { useThemeColors } from "../../theme/useThemeColors";
@@ -34,7 +35,6 @@ export function OnboardingPosterTile({ show, selected, onToggle }: OnboardingPos
         <Image
           source={{ uri: posterUrl }}
           style={{ width: TILE_SIZE, height: TILE_SIZE * 1.5 }}
-          resizeMode="cover"
         />
       ) : (
         <View

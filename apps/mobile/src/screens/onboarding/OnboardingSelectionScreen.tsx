@@ -1,5 +1,6 @@
 import { useState, useCallback, useMemo } from "react";
-import { View, Text, TextInput, FlatList, ActivityIndicator, TouchableOpacity, ScrollView, Image, Platform, useWindowDimensions } from "react-native";
+import { View, Text, TextInput, FlatList, ActivityIndicator, TouchableOpacity, ScrollView, Platform, useWindowDimensions } from "react-native";
+import { CachedImage as Image } from "../../components/CachedImage";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ScreenContainer } from "../../components/ScreenContainer";
 import { NetworkError } from "../../components/NetworkError";
@@ -241,7 +242,6 @@ export function OnboardingSelectionScreen({ onComplete, onSkip }: OnboardingSele
                           <Image
                             source={{ uri: `https://image.tmdb.org/t/p/w200${item.posterPath}` }}
                             className="w-full h-[180px] rounded-lg mb-1"
-                            resizeMode="cover"
                           />
                         ) : (
                           <View className="w-full h-[180px] rounded-lg bg-surface-light items-center justify-center mb-1">

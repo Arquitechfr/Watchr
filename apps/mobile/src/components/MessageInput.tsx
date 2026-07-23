@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
-import { View, Text, TextInput, TouchableOpacity, Image, ActivityIndicator } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator } from "react-native";
+import { CachedImage as Image } from "./CachedImage";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useThemeColors } from "../theme/useThemeColors";
@@ -92,7 +93,6 @@ export function MessageInput({ onSend, isPending }: MessageInputProps) {
                 <Image
                   source={{ uri: att.imageUrl }}
                   style={{ width: 70, height: 70, borderRadius: 10 }}
-                  resizeMode="cover"
                 />
               ) : null}
               <TouchableOpacity

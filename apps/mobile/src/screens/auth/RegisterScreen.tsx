@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Text, TextInput, TouchableOpacity, ActivityIndicator, Image, View, Platform } from "react-native";
+import { Text, TextInput, TouchableOpacity, ActivityIndicator, View, Platform } from "react-native";
+import { CachedImage as Image } from "../../components/CachedImage";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
@@ -98,7 +99,7 @@ export function RegisterScreen() {
           // eslint-disable-next-line @typescript-eslint/no-require-imports
           source={require("../../../assets/splash-icon.webp")}
           style={{ width: 80, height: 80 }}
-          resizeMode="contain"
+          contentFit="contain"
         />
         <Text
           style={{ fontFamily: "Outfit_700Bold", fontSize: 32 }}

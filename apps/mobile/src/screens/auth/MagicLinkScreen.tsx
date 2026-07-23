@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Text, ActivityIndicator, Image, View, Platform } from "react-native";
+import { Text, ActivityIndicator, View, Platform } from "react-native";
+import { CachedImage as Image } from "../../components/CachedImage";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useQueryClient } from "@tanstack/react-query";
@@ -79,7 +80,7 @@ export function MagicLinkScreen({ route }: { route: { params: { token: string } 
           // eslint-disable-next-line @typescript-eslint/no-require-imports
           source={require("../../../assets/splash-icon.webp")}
           style={{ width: 80, height: 80 }}
-          resizeMode="contain"
+          contentFit="contain"
         />
         {status === "verifying" && (
           <>

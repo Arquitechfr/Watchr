@@ -5,9 +5,9 @@ import {
   TouchableOpacity,
   FlatList,
   Platform,
-  Image,
   ActivityIndicator,
 } from "react-native";
+import { CachedImage as Image } from "../components/CachedImage";
 import Animated, { useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 import { useKeyboardHandler } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -174,7 +174,6 @@ export function ChatScreen() {
         <Image
           source={{ uri: att.imageUrl }}
           style={{ width: 200, height: 200, borderRadius: 12, marginTop: 4 }}
-          resizeMode="cover"
         />
       );
     }

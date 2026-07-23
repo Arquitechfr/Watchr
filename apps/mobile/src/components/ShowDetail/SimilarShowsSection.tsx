@@ -1,4 +1,5 @@
-import { View, Text, ScrollView, TouchableOpacity, Image } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity } from "react-native";
+import { CachedImage as Image } from "../CachedImage";
 import { Ionicons } from "@expo/vector-icons";
 import { useI18n } from "../../i18n/useI18n";
 import { useThemeColors } from "../../theme/useThemeColors";
@@ -59,7 +60,6 @@ export function SimilarShowsSection({ shows, source, isLoading, navigation }: Si
                 <Image
                   source={{ uri: getPosterUrl(item.posterPath, 200) }}
                   className="w-full h-[210px] rounded-lg mb-2"
-                  resizeMode="cover"
                 />
               ) : (
                 <View className="w-full h-[210px] rounded-lg bg-surface-light items-center justify-center mb-2">

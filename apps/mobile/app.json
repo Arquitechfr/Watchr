@@ -4,7 +4,7 @@
     "slug": "watchr",
     "scheme": "watchr",
     "version": "0.1.0",
-    "orientation": "portrait",
+    "orientation": "default",
     "userInterfaceStyle": "dark",
     "assetBundlePatterns": [
       "**/*"
@@ -133,10 +133,13 @@
           }
         }
       ],
+      "./plugins/withR8Optimization",
       "expo-sharing",
       "expo-status-bar",
+      "./plugins/withEdgeToEdge",
       "expo-web-browser",
-      "expo-background-task"
+      "expo-background-task",
+      "expo-image"
     ],
     "owner": "arquitech"
   }

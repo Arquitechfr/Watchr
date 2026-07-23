@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
-import { Text, TouchableOpacity, Image, Platform, Linking } from "react-native";
+import { Text, TouchableOpacity, Platform, Linking } from "react-native";
+import { CachedImage as Image } from "./CachedImage";
 import { Ionicons } from "@expo/vector-icons";
 import Animated, {
   useSharedValue,
@@ -114,7 +115,6 @@ export function InAppNotificationBanner() {
             borderRadius: 8,
             marginRight: 12,
           }}
-          resizeMode="cover"
         />
       )}
       <TouchableOpacity

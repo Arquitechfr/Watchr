@@ -6,9 +6,9 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
-  Image,
   Platform,
 } from "react-native";
+import { CachedImage as Image } from "../../components/CachedImage";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { ScreenContainer } from "../../components/ScreenContainer";
@@ -144,7 +144,7 @@ export function ProfileContactScreen() {
             // eslint-disable-next-line @typescript-eslint/no-require-imports
             source={require("../../../assets/adaptive-icon.png")}
             style={{ width: 64, height: 64, borderRadius: 16, marginBottom: 12 }}
-            resizeMode="contain"
+            contentFit="contain"
           />
           <Text className="text-text text-xl font-bold mb-1">Watchr</Text>
           <Text className="text-text-muted text-sm text-center px-4 mb-3">

@@ -1,5 +1,6 @@
 import { useState, useMemo, useRef } from "react";
-import { View, Text, Image, TouchableOpacity, ScrollView, Modal, FlatList, ActivityIndicator, TextInput } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, Modal, FlatList, ActivityIndicator, TextInput } from "react-native";
+import { CachedImage as Image } from "../CachedImage";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -93,7 +94,6 @@ export function FavoriteCarousel({ items, type, onRefetch }: FavoriteCarouselPro
                     <Image
                       source={{ uri: getPosterUrl(item.posterPath, 200) }}
                       style={{ width: 100, height: 150 }}
-                      resizeMode="cover"
                     />
                   ) : (
                     <View
@@ -243,7 +243,6 @@ function AddFavoriteModal({ visible, onClose, type, title }: AddFavoriteModalPro
                     <Image
                       source={{ uri: getPosterUrl(item.show.posterPath, 92) }}
                       style={{ width: 40, height: 60, borderRadius: 4 }}
-                      resizeMode="cover"
                     />
                   ) : (
                     <View

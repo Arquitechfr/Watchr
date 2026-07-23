@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { View, Text, TouchableOpacity, Image, Pressable, Platform } from "react-native";
+import { View, Text, TouchableOpacity, Pressable, Platform } from "react-native";
+import { CachedImage as Image } from "../CachedImage";
 import Animated, { useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 import { useKeyboardHandler } from "react-native-keyboard-controller";
 import { Ionicons } from "@expo/vector-icons";
@@ -272,7 +273,6 @@ export function CommentItem({
                             height: comment.images.length === 1 ? 200 : 90,
                             borderRadius: 12,
                           }}
-                          resizeMode="cover"
                         />
                       </Pressable>
                     ))}

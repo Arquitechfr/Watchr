@@ -1,4 +1,5 @@
-import { View, Image, TouchableOpacity, ActivityIndicator, Text } from "react-native";
+import { View, TouchableOpacity, ActivityIndicator, Text } from "react-native";
+import { CachedImage as Image } from "../CachedImage";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useThemeColors } from "../../theme/useThemeColors";
@@ -28,7 +29,6 @@ export function CoverBanner({ url, onPress, isUploading }: CoverBannerProps) {
         <Image
           source={{ uri: url }}
           style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}
-          resizeMode="cover"
         />
       ) : (
         <LinearGradient

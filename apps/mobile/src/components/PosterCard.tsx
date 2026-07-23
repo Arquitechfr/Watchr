@@ -1,4 +1,5 @@
-import { View, Text, Image, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
+import { CachedImage as Image } from "./CachedImage";
 import { Ionicons } from "@expo/vector-icons";
 import { SearchResultItem, getPosterUrl } from "../services/shows.service";
 import { useThemeColors } from "../theme/useThemeColors";
@@ -54,7 +55,6 @@ export function PosterCard({ show, onPress, onAdd, isAdding, isAdded, watched, t
           <Image
             source={{ uri: posterUrl }}
             style={{ width: cardWidth, height: cardHeight }}
-            resizeMode="cover"
           />
         ) : (
           <View style={{ width: cardWidth, height: cardHeight, alignItems: "center", justifyContent: "center" }}>

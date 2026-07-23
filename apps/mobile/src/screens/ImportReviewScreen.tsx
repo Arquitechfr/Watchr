@@ -5,8 +5,8 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   FlatList,
-  Image,
 } from "react-native";
+import { CachedImage as Image } from "../components/CachedImage";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getImportReviews, resolveImportReview, ImportReviewItem } from "../services/import.service";
 import { ScreenContainer } from "../components/ScreenContainer";
@@ -94,7 +94,6 @@ export function ImportReviewScreen({ route }: ImportReviewScreenProps) {
                   <Image
                     source={{ uri: `${TMDB_IMG_BASE}${candidate.posterPath}` }}
                     className="w-12 h-18 rounded mr-3"
-                    resizeMode="cover"
                   />
                 ) : (
                   <View

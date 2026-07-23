@@ -1,4 +1,5 @@
-import { Pressable, View, Text, Image, Platform } from "react-native";
+import { Pressable, View, Text, Platform } from "react-native";
+import { CachedImage as Image } from "./CachedImage";
 import { Ionicons } from "@expo/vector-icons";
 import { useThemeColors } from "../theme/useThemeColors";
 import { useI18n } from "../i18n/useI18n";
@@ -57,7 +58,7 @@ export function DesktopSidebar({ activeTab, onTabPress, onNavigate }: DesktopSid
           // eslint-disable-next-line @typescript-eslint/no-require-imports
           source={require("../../assets/splash-icon.webp")}
           style={{ width: 28, height: 28 }}
-          resizeMode="contain"
+          contentFit="contain"
         />
         <Text style={{ fontFamily: "Outfit_700Bold", fontSize: 20 }} className="text-text">
           Watchr

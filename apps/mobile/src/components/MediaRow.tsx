@@ -1,4 +1,5 @@
-import { View, Text, Image, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
+import { CachedImage as Image } from "./CachedImage";
 import { getPosterUrl } from "../services/shows.service";
 import { useThemeColors } from "../theme/useThemeColors";
 import { useI18n } from "../i18n/useI18n";
@@ -48,7 +49,6 @@ export function MediaRow({
         <Image
           source={{ uri: posterUrl }}
           style={{ width: posterWidth, height: posterHeight, borderRadius: 8 }}
-          resizeMode="cover"
         />
       ) : (
         <View

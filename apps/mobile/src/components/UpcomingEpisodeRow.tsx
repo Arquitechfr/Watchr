@@ -1,4 +1,5 @@
-import { View, Text, Image, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
+import { CachedImage as Image } from "./CachedImage";
 import { differenceInCalendarDays, format } from "date-fns";
 import { UpcomingEpisode } from "../services/upcoming.service";
 import { getPosterUrl } from "../services/shows.service";
@@ -45,7 +46,6 @@ export function UpcomingEpisodeRow({ episode, isNew, onPress, onTitlePress, onMa
         <Image
           source={{ uri: posterUrl }}
           className="w-14 h-20 rounded-lg bg-surface-light"
-          resizeMode="cover"
         />
       ) : (
         <View className="w-14 h-20 rounded-lg bg-surface-light items-center justify-center">

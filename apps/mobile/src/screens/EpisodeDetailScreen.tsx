@@ -53,6 +53,7 @@ import { EpisodeTriviaCard } from "../components/EpisodeDetail/EpisodeTriviaCard
 import { useEpisodeCommunity } from "../hooks/useEpisodeCommunity";
 import { useFadeIn } from "../hooks/useFadeIn";
 import Animated from "react-native-reanimated";
+import { AnimatedCachedImage } from "../components/AnimatedCachedImage";
 
 type EpisodeDetailRouteProp = RouteProp<RootStackParamList, "EpisodeDetail">;
 type EpisodeDetailNavigationProp = NativeStackNavigationProp<RootStackParamList, "EpisodeDetail">;
@@ -330,7 +331,7 @@ export function EpisodeDetailScreen() {
       >
         <Animated.View className="relative" style={[isDesktopWeb ? { width: "100%", alignItems: "center" } : undefined, containerAnimatedStyle]}>
           {stillUrl ? (
-            <Animated.Image source={{ uri: stillUrl }} className="bg-surface-light" style={isDesktopWeb ? { width: "100%", maxWidth: 800, height: 320, borderRadius: 12 } : { width: "100%", height: 256 }} resizeMode="cover" />
+            <AnimatedCachedImage source={{ uri: stillUrl }} className="bg-surface-light" style={isDesktopWeb ? { width: "100%", maxWidth: 800, height: 320, borderRadius: 12 } : { width: "100%", height: 256 }} />
           ) : (
             <View className="bg-surface-light items-center justify-center" style={isDesktopWeb ? { width: "100%", maxWidth: 800, height: 320, borderRadius: 12 } : { width: "100%", height: 256 }}>
               <Ionicons name="image-outline" size={64} color={colors.textMuted} />

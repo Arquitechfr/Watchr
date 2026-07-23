@@ -1,4 +1,5 @@
-import { View, Text, FlatList, RefreshControl, TouchableOpacity, Image, useWindowDimensions, Platform, TextInput } from "react-native";
+import { View, Text, FlatList, RefreshControl, TouchableOpacity, useWindowDimensions, Platform, TextInput } from "react-native";
+import { CachedImage as Image } from "../components/CachedImage";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -58,7 +59,6 @@ function LibraryItemCard({ item, onPress }: { item: LibraryItem; onPress: () => 
         <Image
           source={{ uri: posterUrl }}
           className="w-16 h-24 rounded"
-          resizeMode="cover"
         />
       ) : (
         <View className="w-16 h-24 rounded bg-muted items-center justify-center">

@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { View, TextInput, TouchableOpacity, Text, Image, ActivityIndicator } from "react-native";
+import { View, TextInput, TouchableOpacity, Text, ActivityIndicator } from "react-native";
+import { CachedImage as Image } from "../CachedImage";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useThemeColors } from "../../theme/useThemeColors";
@@ -119,7 +120,6 @@ export function CommentInput({
               <Image
                 source={{ uri: img }}
                 style={{ width: 70, height: 70, borderRadius: 10 }}
-                resizeMode="cover"
               />
               <TouchableOpacity
                 onPress={() => removeImage(idx)}

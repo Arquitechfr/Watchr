@@ -1,4 +1,5 @@
-import { Modal, View, TouchableOpacity, Image, ScrollView, useWindowDimensions, Text } from "react-native";
+import { Modal, View, TouchableOpacity, ScrollView, useWindowDimensions, Text } from "react-native";
+import { CachedImage as Image } from "../../components/CachedImage";
 import { Ionicons } from "@expo/vector-icons";
 import { useI18n } from "../../i18n/useI18n";
 
@@ -33,7 +34,7 @@ export function CommentImageViewer({ visible, imageUri, onClose }: CommentImageV
           <Image
             source={{ uri: imageUri }}
             style={{ width: imageSize, height: imageSize }}
-            resizeMode="contain"
+            contentFit="contain"
           />
         </ScrollView>
       </View>

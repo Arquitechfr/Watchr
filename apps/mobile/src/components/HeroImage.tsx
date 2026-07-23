@@ -1,5 +1,6 @@
 import { View, Text, Platform, type ViewStyle } from "react-native";
 import Animated, { type AnimatedStyle } from "react-native-reanimated";
+import { AnimatedCachedImage } from "./AnimatedCachedImage";
 import { LinearGradient } from "expo-linear-gradient";
 import { getBackdropUrl, getPosterUrl } from "../services/shows.service";
 import { useThemeColors } from "../theme/useThemeColors";
@@ -26,10 +27,9 @@ export function HeroImage({ posterPath, backdropPath, title, subtitle, children,
   return (
     <Animated.View style={[{ width: "100%", height: heroHeight, position: "relative" }, animatedStyle]}>
       {heroUrl ? (
-        <Animated.Image
+        <AnimatedCachedImage
           source={{ uri: heroUrl }}
           style={{ width: "100%", height: heroHeight }}
-          resizeMode="cover"
         />
       ) : (
         <View

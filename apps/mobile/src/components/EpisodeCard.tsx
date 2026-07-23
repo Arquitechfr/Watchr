@@ -1,4 +1,5 @@
-import { View, Text, Image, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
+import { CachedImage as Image } from "./CachedImage";
 import { differenceInCalendarDays, format } from "date-fns";
 import { getPosterUrl } from "../services/shows.service";
 import { useThemeColors } from "../theme/useThemeColors";
@@ -80,7 +81,6 @@ export function EpisodeCard({
           <Image
             source={{ uri: posterUrl }}
             style={{ width: cardWidth, height: cardHeight }}
-            resizeMode="cover"
           />
         ) : (
           <View style={{ width: cardWidth, height: cardHeight, alignItems: "center", justifyContent: "center" }}>

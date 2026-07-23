@@ -1,4 +1,5 @@
-import { View, Text, Linking, TouchableOpacity, ScrollView, Image } from "react-native";
+import { View, Text, Linking, TouchableOpacity, ScrollView } from "react-native";
+import { CachedImage as Image } from "../../components/CachedImage";
 import { Ionicons } from "@expo/vector-icons";
 import { ScreenContainer } from "../../components/ScreenContainer";
 import { SubScreenHeader } from "../../components/SubScreenHeader";
@@ -47,7 +48,7 @@ export function ProfileAboutScreen() {
             // eslint-disable-next-line @typescript-eslint/no-require-imports
             source={require("../../../assets/adaptive-icon.png")}
             style={{ width: 72, height: 72, borderRadius: 18, marginBottom: 12 }}
-            resizeMode="contain"
+            contentFit="contain"
           />
           <Text className="text-2xl font-bold text-primary mb-2">Watchr</Text>
           <Text className="text-text-muted text-sm">

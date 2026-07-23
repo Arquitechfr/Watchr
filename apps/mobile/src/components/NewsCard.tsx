@@ -1,4 +1,5 @@
-import { View, Text, Image, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
+import { CachedImage as Image } from "./CachedImage";
 import { format } from "date-fns";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -34,7 +35,6 @@ export function NewsCard({ article, compact = false }: NewsCardProps) {
         <Image
           source={{ uri: article.image }}
           className={compact ? "w-full h-32 bg-surface-light" : "w-full h-40 bg-surface-light"}
-          resizeMode="cover"
         />
       ) : null}
       <View className={compact ? "p-3" : "p-4"}>

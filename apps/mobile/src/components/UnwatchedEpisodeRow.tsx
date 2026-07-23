@@ -1,4 +1,5 @@
-import { View, Text, Image, TouchableOpacity, Platform } from "react-native";
+import { View, Text, TouchableOpacity, Platform } from "react-native";
+import { CachedImage as Image } from "./CachedImage";
 import { formatDistanceToNow } from "date-fns";
 import { getPosterUrl } from "../services/shows.service";
 import { UnwatchedEpisode } from "../services/unwatched.service";
@@ -86,7 +87,6 @@ export function UnwatchedEpisodeRow({
         <Image
           source={{ uri: posterUrl }}
           className="w-14 h-20 rounded-lg bg-surface-light"
-          resizeMode="cover"
         />
       ) : (
         <View className="w-14 h-20 rounded-lg bg-surface-light items-center justify-center">

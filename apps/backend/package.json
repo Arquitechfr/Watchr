@@ -39,7 +39,7 @@
     "@react-email/render": "^1.1.0",
     "@socket.io/redis-adapter": "^8.3.0",
     "@watchr/i18n-languages": "file:./watchr-i18n-languages-1.0.0.tgz",
-    "adm-zip": "^0.5.12",
+    "adm-zip": "^0.6.0",
     "axios": "^1.7.2",
     "bcryptjs": "^2.4.3",
     "bullmq": "^5.8.2",

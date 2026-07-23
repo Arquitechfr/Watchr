@@ -33,6 +33,7 @@ import { useThemeColors } from "../theme/useThemeColors";
 import { useI18n } from "../i18n/useI18n";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Seo } from "../components/Seo";
+import { SubScreenHeader } from "../components/SubScreenHeader";
 
 const SOURCE_ICONS: Record<string, string> = {
   tvtime: "📺",
@@ -233,9 +234,8 @@ export function ImportScreen() {
   return (
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
       <Seo title={t("seo.import")} />
-      <View className="flex-1 md:max-w-lg md:mx-auto w-full">
-      <ScrollView className="flex-1 bg-background">
-        <Text className="text-2xl font-bold text-text mb-2">{t("screens.import.title")}</Text>
+      <SubScreenHeader title={t("screens.import.title")} />
+      <ScrollView className="md:max-w-lg md:mx-auto w-full" showsVerticalScrollIndicator={false} contentContainerClassName="pb-8">
         <Text className="text-text-muted mb-6">{t("screens.import.description")}</Text>
 
         <View className="flex-row items-center justify-between mb-3">
@@ -442,7 +442,6 @@ export function ImportScreen() {
           </View>
         )}
       </ScrollView>
-      </View>
     </ScreenContainer>
   );
 }

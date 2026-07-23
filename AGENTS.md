@@ -196,6 +196,14 @@ watchr/
    - **Nouveau worker** : créer `*.worker.ts` + `start*.ts`, ajouter l'entry dans `ecosystem.config.cjs`.
    - **Fichiers de référence** : `apps/backend/src/workers/episodeSync.worker.ts`, `apps/backend/src/workers/startEpisodeSyncWorker.ts`.
    - **Workers existants** : import, episodeSync, notification, traktSync, usernameFix, newsSync, reengagement, activationNudge, banScheduler, scheduledSend, email, moderation, statusMonitor.
+16. **Scrollabilité (mobile & web)** : toute page ou composant doit être vérifié pour la scrollabilité, surtout s'il traite des données dynamiques (listes, contenu variable, états de chargement/erreur).
+   - **Screens avec contenu dynamique** : utiliser `ScrollView`, `FlatList` ou `SectionList` comme conteneur principal pour permettre le scroll quand le contenu dépasse l'écran.
+   - **Screens avec contenu fixe court** : si le contenu est statique et tient toujours dans l'écran, un `ScrollView` est optionnel mais recommandé par sécurité (changement de langue, rotation, accessibilité).
+   - **Composants internes scrollables** : si un composant peut recevoir des données dynamiques (liste d'éléments, commentaires, etc.), s'assurer qu'il a son propre scroll ou qu'il s'intègre dans le scroll du parent.
+   - **Web** : sur desktop, vérifier que le contenu ne déborde pas sans scroll possible. Le `ScrollView` natif se comporte comme un `div` scrollable sur web — pas de régression.
+   - **Checklist** : à la création ou modification d'une page/composant, vérifier : (1) le contenu peut-il dépasser la hauteur disponible ? (2) si oui, y a-t-il un conteneur scrollable ? (3) tester avec beaucoup de données et avec peu de données.
+   - Fichiers de référence : `apps/mobile/src/screens/SeriesScreen.tsx` (FlatList), `apps/mobile/src/screens/ShowDetailScreen.tsx` (ScrollView), `apps/mobile/src/screens/SearchScreen.tsx` (FlatList).
+
 15. **Sécurité & fiabilité** :
    - Toute route `POST`/`PATCH`/`DELETE` validée avec Zod.
    - JWT : access 15 min, refresh 7-30 j stocké en DB avec révocation possible.
@@ -305,6 +313,7 @@ Le script protège automatiquement avant traduction :
 - [ ] Translations : `en.ts` modifié uniquement, sync lancé pour chaque app concernée. 0 tag `<x>` résiduel, variables `{{}}` préservées, brand names intacts, clés `DO_NOT_TRANSLATE_KEYS` = valeur EN. **Aucun fichier de locale non-anglais édité manuellement par l'IA.**
 - [ ] Pas d'usage de `Alert.alert()` / `Alert.prompt()` natif — utiliser `CustomAlert` via `useUIStore.showAlert()`.
 - [ ] Clavier mobile : tout `TextInput` a une gestion clavier explicite (`KeyboardAwareScrollView`, `useKeyboardHandler` + spacer, ou `keyboardShouldPersistTaps`/`keyboardDismissMode` sur ScrollView/FlatList parent).
+- [ ] Scrollabilité : toute page/composant avec données dynamiques a un conteneur scrollable (`ScrollView`/`FlatList`/`SectionList`). Vérifié avec beaucoup et peu de données.
 - [ ] Mobile = source of truth.
 - [ ] Workers : toute tâche planifiée utilise BullMQ (pas de `node-cron`/`setInterval`). Nouveau worker = `*.worker.ts` + `start*.ts` + entry dans `ecosystem.config.cjs`.
 - [ ] MCP pertinents utilisés.

@@ -8,6 +8,7 @@ import { useI18n } from "../i18n/useI18n";
 import { log } from "../utils/logger";
 import { downloadAndShareExport, ExportFormat } from "../services/export.service";
 import { Seo } from "../components/Seo";
+import { SubScreenHeader } from "../components/SubScreenHeader";
 
 interface ExportOptionProps {
   icon: string;
@@ -61,9 +62,8 @@ export function ExportScreen() {
   return (
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
       <Seo title={t("seo.export")} />
-      <View className="flex-1 md:max-w-lg md:mx-auto w-full">
-      <ScrollView className="flex-1 bg-background">
-        <Text className="text-2xl font-bold text-text mb-2">{t("screens.export.title")}</Text>
+      <SubScreenHeader title={t("screens.export.title")} />
+      <ScrollView className="md:max-w-lg md:mx-auto w-full" showsVerticalScrollIndicator={false} contentContainerClassName="pb-8">
         <Text className="text-text-muted mb-6">{t("screens.export.description")}</Text>
 
         <ExportOption
@@ -113,7 +113,6 @@ export function ExportScreen() {
           </View>
         )}
       </ScrollView>
-      </View>
     </ScreenContainer>
   );
 }

@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity, ActivityIndicator, ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useQueryClient } from "@tanstack/react-query";
 import { ScreenContainer } from "../../components/ScreenContainer";
@@ -46,7 +46,7 @@ export function ProfileAppearanceScreen() {
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
       <Seo title={t("seo.profileAppearance")} />
       <SubScreenHeader title={t("screens.profile.appearance")} />
-      <View className="md:max-w-lg md:mx-auto w-full">
+      <ScrollView className="md:max-w-lg md:mx-auto w-full" showsVerticalScrollIndicator={false} contentContainerClassName="pb-8">
       <View className="gap-3">
         {OPTIONS.map((opt) => (
           <TouchableOpacity
@@ -66,7 +66,7 @@ export function ProfileAppearanceScreen() {
           </TouchableOpacity>
         ))}
       </View>
-      </View>
+      </ScrollView>
     </ScreenContainer>
   );
 }

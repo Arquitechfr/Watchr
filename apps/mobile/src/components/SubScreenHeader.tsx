@@ -24,7 +24,7 @@ export function SubScreenHeader({ title, onBack }: SubScreenHeaderProps) {
       >
         <Ionicons name="arrow-back" size={24} color={colors.text} />
       </TouchableOpacity>
-      <Text className="text-text text-xl font-bold flex-1 text-center">{title}</Text>
+      <Text className="text-text text-lg font-bold flex-1 text-center pl-8" numberOfLines={2}>{title}</Text>
     </View>
   );
 }

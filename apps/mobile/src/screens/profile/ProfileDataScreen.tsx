@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, Switch, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity, Switch, ActivityIndicator, ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -49,7 +49,7 @@ export function ProfileDataScreen() {
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
       <Seo title={t("seo.profileData")} />
       <SubScreenHeader title={t("screens.profile.myData")} />
-      <View className="md:max-w-lg md:mx-auto w-full">
+      <ScrollView className="md:max-w-lg md:mx-auto w-full" showsVerticalScrollIndicator={false} contentContainerClassName="pb-8">
       <MenuCard
         icon="download"
         label={t("screens.profile.importData")}
@@ -87,7 +87,7 @@ export function ProfileDataScreen() {
           )}
         </View>
       </View>
-      </View>
+      </ScrollView>
     </ScreenContainer>
   );
 }

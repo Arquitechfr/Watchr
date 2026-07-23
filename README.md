@@ -1,17 +1,22 @@
 # Watchr
 
-Tracker personnel de séries et films (MVP sans social).
+Tracker personnel de séries et films — tracking, notes, commentaires et import d'exports TV Time.
 
-## Structure
+## Structure du repo
 
-- `apps/backend` : API Express/Mongoose
-- `apps/mobile` : app Expo (hors scope de ce backend)
+| Package | Description |
+|---|---|
+| `apps/backend` | API Express + MongoDB |
+| `apps/mobile` | App mobile + web (Expo / React Native) |
+| `apps/admin` | Backoffice (Vite + React) |
+| `apps/landing` | Site vitrine (Vite + React) |
+| `packages/i18n-languages` | Package partagé i18n (14 langues) |
 
 ## Prérequis
 
 - Node.js >= 20
 - pnpm
-- MongoDB et Redis en local (ou adapter `.env`)
+- MongoDB en local (ou adapter `.env`)
 
 ## Installation
 
@@ -22,14 +27,18 @@ pnpm install
 ## Démarrage
 
 ```bash
-# API
+# Backend
 pnpm --filter backend dev
 
-# Worker d'import
-pnpm --filter backend worker
+# Mobile / Web
+pnpm --filter mobile start
+pnpm --filter mobile web
 
-# Worker de sync des épisodes
-pnpm --filter backend sync
+# Admin
+pnpm --filter admin dev
+
+# Landing
+pnpm --filter landing dev
 ```
 
 ## Tests
@@ -38,9 +47,9 @@ pnpm --filter backend sync
 pnpm --filter backend test
 ```
 
-## Lint / Typecheck
+## Lint
 
 ```bash
 pnpm --filter backend lint
-pnpm --filter backend typecheck
+pnpm --filter mobile lint
 ```

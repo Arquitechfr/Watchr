@@ -33,7 +33,8 @@ MVP : tracking watch-status + notes/ratings + commentaires publics sur shows/ép
 | Landing i18n | react-i18next (14 langues) |
 | i18n tooling | `@watchr/i18n-languages` (package partagé) + LibreTranslate self-hosted |
 | Landing SEO | react-helmet-async + JSON-LD |
-| Emails | React Email (@react-email/components + @react-email/render) |
+| Emails | React Email (@react-email/components + @@react-email/render) |
+| Workers | BullMQ + Redis (processus séparés via PM2) |
 
 ## Structure du repo
 
@@ -49,6 +50,7 @@ watchr/
 │   │   │   ├── validators/       # schémas Zod
 │   │   │   ├── config/           # dotenv + validation au démarrage
 │   │   │   ├── emails/           # templates React Email (.tsx) + composants partagés
+│   │   │   ├── workers/          # workers BullMQ (1 fichier *.worker.ts + 1 start*.ts par worker)
 │   │   │   └── app.ts
 │   │   └── package.json
 │   ├── mobile/
@@ -186,7 +188,15 @@ watchr/
    - **Formulaires centrés** (auth, onboarding) : `KeyboardAwareScrollView` de `react-native-keyboard-controller` en mode `layout` avec `keyboardShouldPersistTaps="handled"` + `keyboardDismissMode="interactive"` (référence : `LoginScreen.tsx`, `RegisterScreen.tsx`).
    - **Web** : `KeyboardAwareScrollView` est inerte sur web (pas de clavier natif), le `Platform.OS` guard sur `contentContainerStyle` préserve le layout desktop.
    - Fichiers de référence : `apps/mobile/src/screens/ShowCommentsScreen.tsx`, `apps/mobile/src/screens/auth/LoginScreen.tsx`, `apps/mobile/src/screens/profile/EditProfileScreen.tsx`.
-14. **Sécurité & fiabilité** :
+14. **Workers (pas de crons)** : toute tâche planifiée ou asynchrone récurrente doit être implémentée comme un worker BullMQ, jamais comme un cron natif (`node-cron`, `setInterval`, etc.).
+   - **Pattern** : 1 fichier `*.worker.ts` (Queue + Worker + `schedule*()`) + 1 fichier `start*.ts` (entry point : connect DB/Redis, schedule, start worker, SIGTERM).
+   - **Orchestration** : PM2 via `ecosystem.config.cjs` — chaque worker est un processus séparé (`instances: 1`, `autorestart: true`).
+   - **Repeat** : utiliser `repeat: { pattern: "..." }` de BullMQ (syntaxe cron) pour les tâches récurrentes.
+   - **Redis** : connexion partagée via `redisConnection` depuis `config/env.js`.
+   - **Nouveau worker** : créer `*.worker.ts` + `start*.ts`, ajouter l'entry dans `ecosystem.config.cjs`.
+   - **Fichiers de référence** : `apps/backend/src/workers/episodeSync.worker.ts`, `apps/backend/src/workers/startEpisodeSyncWorker.ts`.
+   - **Workers existants** : import, episodeSync, notification, traktSync, usernameFix, newsSync, reengagement, activationNudge, banScheduler, scheduledSend, email, moderation, statusMonitor.
+15. **Sécurité & fiabilité** :
    - Toute route `POST`/`PATCH`/`DELETE` validée avec Zod.
    - JWT : access 15 min, refresh 7-30 j stocké en DB avec révocation possible.
    - Pas de secret en dur : `.env` obligatoire, crash au démarrage si variable manquante.
@@ -296,5 +306,6 @@ Le script protège automatiquement avant traduction :
 - [ ] Pas d'usage de `Alert.alert()` / `Alert.prompt()` natif — utiliser `CustomAlert` via `useUIStore.showAlert()`.
 - [ ] Clavier mobile : tout `TextInput` a une gestion clavier explicite (`KeyboardAwareScrollView`, `useKeyboardHandler` + spacer, ou `keyboardShouldPersistTaps`/`keyboardDismissMode` sur ScrollView/FlatList parent).
 - [ ] Mobile = source of truth.
+- [ ] Workers : toute tâche planifiée utilise BullMQ (pas de `node-cron`/`setInterval`). Nouveau worker = `*.worker.ts` + `start*.ts` + entry dans `ecosystem.config.cjs`.
 - [ ] MCP pertinents utilisés.
 - [ ] Logiques optimistic UI/UX mises en place.

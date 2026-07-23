@@ -26,6 +26,7 @@ export interface ConversationItem {
   unreadCount: number;
   archived: boolean;
   muted: boolean;
+  deleted: boolean;
   lastMessageAt: string;
 }
 
@@ -144,6 +145,18 @@ export async function archiveConversation(conversationId: string, archived: bool
 export async function muteConversation(conversationId: string, muted: boolean): Promise<void> {
   log("MessageService", "muteConversation", { conversationId, muted });
   await api.patch(`/messages/conversations/${conversationId}/mute`, { muted });
+}
+
+export async function deleteConversation(conversationId: string): Promise<{ deleted: boolean }> {
+  log("MessageService", "deleteConversation", { conversationId });
+  const res = await api.delete<{ deleted: boolean }>(`/messages/conversations/${conversationId}`);
+  return res.data;
+}
+
+export async function restoreConversation(conversationId: string): Promise<{ restored: boolean }> {
+  log("MessageService", "restoreConversation", { conversationId });
+  const res = await api.patch<{ restored: boolean }>(`/messages/conversations/${conversationId}/restore`);
+  return res.data;
 }
 
 export async function getUnreadCount(): Promise<{ unreadCount: number }> {

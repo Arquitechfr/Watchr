@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { I18n } from "i18n-js";
 import { useLocaleStore } from "../store/localeStore";
 import { translations, SupportedLocale } from "./translations";
@@ -27,8 +27,17 @@ export function getDateFnsLocaleSync(locale: SupportedLocale): Locale {
 
 export function useI18n() {
   const locale = useLocaleStore((state) => state.locale);
+  const [localeLoaded, setLocaleLoaded] = useState(0);
 
   i18n.locale = locale;
+
+  useEffect(() => {
+    let cancelled = false;
+    getDateFnsLocale(locale).then(() => {
+      if (!cancelled) setLocaleLoaded((n) => n + 1);
+    });
+    return () => { cancelled = true; };
+  }, [locale]);
 
   return useMemo(
     () => ({
@@ -36,7 +45,7 @@ export function useI18n() {
       t: i18n.t.bind(i18n),
       dateFnsLocale: getDateFnsLocaleSync(locale),
     }),
-    [locale],
+    [locale, localeLoaded],
   );
 }
 

@@ -20,6 +20,7 @@ import { remoteConfigService } from "../services/remoteConfig";
 import { prefetchSeriesData } from "../utils/prefetch";
 import { log } from "../utils/logger";
 import { registerWidgetBackgroundTask, unregisterWidgetBackgroundTask } from "../widgets/widgetBackgroundTask";
+import { getDateFnsLocale } from "../i18n/useI18n";
 
 const BOOTSTRAP_TIMEOUT_MS = 6000;
 
@@ -59,6 +60,9 @@ export function useAppBootstrap(queryClient: QueryClient) {
           useThemeStore.getState().hydrate(),
           useAuthStore.getState().hydrate(),
         ]);
+
+        const locale = useLocaleStore.getState().locale;
+        await getDateFnsLocale(locale);
 
         const { isAuthenticated } = useAuthStore.getState();
         if (isAuthenticated) {

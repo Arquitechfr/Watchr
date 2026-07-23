@@ -9,8 +9,10 @@ interface StreakHeatmapProps {
   weeks?: number;
 }
 
-const DAY_LABELS = ["", "Mon", "", "Wed", "", "Fri", ""];
 const DEFAULT_WEEKS = 52;
+
+const DAY_LABEL_INDICES = [0, 1, 2, 3, 4, 5, 6];
+const VISIBLE_DAYS = new Set([1, 3, 5]);
 
 function getIntensityColor(count: number, colors: ReturnType<typeof useThemeColors>): string {
   if (count === 0) return colors.surface;
@@ -59,6 +61,16 @@ export function StreakHeatmap({ watchedDates, weeks = DEFAULT_WEEKS }: StreakHea
 
   const columns = useMemo(() => buildHeatmapData(watchedDates, weeks), [watchedDates, weeks]);
 
+  const dayLabels = useMemo(() => {
+    const sunday = new Date(2024, 0, 7);
+    return DAY_LABEL_INDICES.map((i) => {
+      if (!VISIBLE_DAYS.has(i)) return "";
+      const d = new Date(sunday);
+      d.setDate(sunday.getDate() + i);
+      return format(d, "EEE", { locale: dateFnsLocale });
+    });
+  }, [dateFnsLocale]);
+
   const cellSize = Platform.OS === "web" ? 12 : 11;
   const cellGap = 3;
   const colWidth = cellSize + cellGap;
@@ -71,7 +83,7 @@ export function StreakHeatmap({ watchedDates, weeks = DEFAULT_WEEKS }: StreakHea
 
       <View className="flex-row" style={{ gap: cellGap }}>
         <View style={{ width: 24, gap: cellGap }}>
-          {DAY_LABELS.map((label, i) => (
+          {dayLabels.map((label, i) => (
             <View key={i} style={{ height: cellSize, justifyContent: "center" }}>
               {label ? (
                 <Text style={{ fontSize: 9, color: colors.textMuted }}>{label}</Text>

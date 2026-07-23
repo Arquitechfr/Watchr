@@ -930,6 +930,13 @@ const en = {
     mutualFriend: "Mutual friend",
     newMessageSnackbar: "{{sender}}: {{preview}}",
     maxImages: "Maximum 4 images per message",
+    deleteConversation: "Delete conversation",
+    deleteConversationConfirm: "Delete this conversation?",
+    deleteConversationConfirmDesc: "This conversation will be removed from your list. The other participant will still have it.",
+    conversationDeleted: "Conversation deleted",
+    conversationRestored: "Conversation restored",
+    markAsRead: "Mark as read",
+    restore: "Restore",
   },
   updates: {
     title: "Update available",

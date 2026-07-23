@@ -7,6 +7,7 @@ export interface IConversation extends Document {
   lastMessageAt: Date;
   archivedBy: Types.ObjectId[];
   mutedBy: Types.ObjectId[];
+  deletedBy: Types.ObjectId[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -42,6 +43,11 @@ const conversationSchema = new Schema<IConversation>(
       default: [],
     },
     mutedBy: {
+      type: [Schema.Types.ObjectId],
+      ref: "User",
+      default: [],
+    },
+    deletedBy: {
       type: [Schema.Types.ObjectId],
       ref: "User",
       default: [],

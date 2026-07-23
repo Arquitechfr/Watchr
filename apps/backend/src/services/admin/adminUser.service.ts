@@ -1,4 +1,4 @@
-import { FilterQuery } from "mongoose";
+import { FilterQuery, Types } from "mongoose";
 import { User } from "../../models/user.model.js";
 import { BanAction } from "../../models/banAction.model.js";
 import { Comment } from "../../models/comment.model.js";
@@ -11,6 +11,15 @@ import { CommentReaction } from "../../models/commentReaction.model.js";
 import { PendingImportReview } from "../../models/pendingImportReview.model.js";
 import { TraktLink } from "../../models/traktLink.model.js";
 import { Report } from "../../models/report.model.js";
+import { Message } from "../../models/message.model.js";
+import { Conversation } from "../../models/conversation.model.js";
+import { Follow } from "../../models/follow.model.js";
+import { UserBlock } from "../../models/userBlock.model.js";
+import { MessageReport } from "../../models/messageReport.model.js";
+import { InAppNotificationDismiss } from "../../models/inAppNotificationDismiss.model.js";
+import { ContactMessage } from "../../models/contactMessage.model.js";
+import { ApiKey } from "../../models/ApiKey.js";
+import { McpOAuthToken } from "../../models/McpOAuthToken.js";
 import { ApiError } from "../../middleware/error.middleware.js";
 import { invalidateUserBanCache } from "../../middleware/requireAuth.middleware.js";
 import { getUserStats } from "../stats.service.js";
@@ -410,6 +419,20 @@ export async function deleteUser(userId: string): Promise<void> {
     throw new ApiError(403, "CANNOT_DELETE_ADMIN", "Cannot delete an admin user");
   }
 
+  const userObjectId = new Types.ObjectId(userId);
+
+  const conversations = await Conversation.find({
+    participantIds: userObjectId,
+  })
+    .select("_id")
+    .lean();
+  const conversationIds = conversations.map((c) => c._id);
+
+  if (conversationIds.length > 0) {
+    await Message.deleteMany({ conversationId: { $in: conversationIds } });
+    await Conversation.deleteMany({ _id: { $in: conversationIds } });
+  }
+
   await Promise.all([
     Comment.deleteMany({ userId }),
     CommentLike.deleteMany({ userId }),
@@ -422,6 +445,14 @@ export async function deleteUser(userId: string): Promise<void> {
     TraktLink.deleteMany({ userId }),
     BanAction.deleteMany({ userId }),
     Report.deleteMany({ reporterId: userId }),
+    Message.deleteMany({ senderId: userObjectId }),
+    Follow.deleteMany({ $or: [{ followerId: userId }, { followingId: userId }] }),
+    UserBlock.deleteMany({ $or: [{ blockerId: userId }, { blockedId: userId }] }),
+    MessageReport.deleteMany({ reporterId: userId }),
+    InAppNotificationDismiss.deleteMany({ userId: userObjectId }),
+    ContactMessage.deleteMany({ userId }),
+    ApiKey.deleteMany({ userId }),
+    McpOAuthToken.deleteMany({ userId }),
     User.deleteOne({ _id: userId }),
   ]);
 }

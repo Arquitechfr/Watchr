@@ -50,6 +50,7 @@ export interface ConversationItem {
   unreadCount: number;
   archived: boolean;
   muted: boolean;
+  deleted: boolean;
   lastMessageAt: string;
 }
 
@@ -157,7 +158,7 @@ export async function createConversation(
   if (existing) {
     await Conversation.updateOne(
       { _id: existing._id },
-      { $pull: { archivedBy: new Types.ObjectId(userId) } },
+      { $pull: { archivedBy: new Types.ObjectId(userId), deletedBy: new Types.ObjectId(userId) } },
     );
     return { id: existing._id.toString(), isNew: false };
   }
@@ -272,6 +273,7 @@ export async function getConversations(
   } else {
     filter.archivedBy = { $ne: userObjectId };
   }
+  filter.deletedBy = { $ne: userObjectId };
 
   const [conversations, total] = await Promise.all([
     Conversation.find(filter)
@@ -329,6 +331,7 @@ export async function getConversations(
       unreadCount: unreadMap.get(c._id.toString()) ?? 0,
       archived: c.archivedBy.some((id) => id.toString() === userId),
       muted: c.mutedBy.some((id) => id.toString() === userId),
+      deleted: c.deletedBy.some((id) => id.toString() === userId),
       lastMessageAt: c.lastMessageAt.toISOString(),
     };
   });
@@ -585,6 +588,22 @@ export async function unmuteConversation(userId: string, conversationId: string)
     { $pull: { mutedBy: new Types.ObjectId(userId) } },
   );
   return { unmuted: true };
+}
+
+export async function deleteConversation(userId: string, conversationId: string): Promise<{ deleted: boolean }> {
+  await Conversation.updateOne(
+    { _id: conversationId, participantIds: new Types.ObjectId(userId) },
+    { $addToSet: { deletedBy: new Types.ObjectId(userId) } },
+  );
+  return { deleted: true };
+}
+
+export async function undeleteConversation(userId: string, conversationId: string): Promise<{ restored: boolean }> {
+  await Conversation.updateOne(
+    { _id: conversationId, participantIds: new Types.ObjectId(userId) },
+    { $pull: { deletedBy: new Types.ObjectId(userId) } },
+  );
+  return { restored: true };
 }
 
 export async function reportMessage(

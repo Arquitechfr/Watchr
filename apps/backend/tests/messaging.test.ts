@@ -479,6 +479,63 @@ describe("Messaging System", () => {
       expect(unmuteRes.status).toBe(200);
       expect(unmuteRes.body.unmuted).toBe(true);
     });
+
+    it("should delete and restore a conversation (soft delete)", async () => {
+      const { token: tokenA } = await getAuthUser("UserA", "a@example.com");
+      const { user: userB } = await getAuthUser("UserB", "b@example.com");
+
+      const convRes = await request(app)
+        .post(`/api/messages/conversations/${userB._id}`)
+        .set("Authorization", `Bearer ${tokenA}`);
+
+      const deleteRes = await request(app)
+        .delete(`/api/messages/conversations/${convRes.body.id}`)
+        .set("Authorization", `Bearer ${tokenA}`);
+
+      expect(deleteRes.status).toBe(200);
+      expect(deleteRes.body.deleted).toBe(true);
+
+      const listRes = await request(app)
+        .get(`/api/messages/conversations`)
+        .set("Authorization", `Bearer ${tokenA}`);
+
+      expect(listRes.status).toBe(200);
+      expect(listRes.body.conversations.find((c: { id: string }) => c.id === convRes.body.id)).toBeUndefined();
+
+      const restoreRes = await request(app)
+        .patch(`/api/messages/conversations/${convRes.body.id}/restore`)
+        .set("Authorization", `Bearer ${tokenA}`);
+
+      expect(restoreRes.status).toBe(200);
+      expect(restoreRes.body.restored).toBe(true);
+
+      const listRes2 = await request(app)
+        .get(`/api/messages/conversations`)
+        .set("Authorization", `Bearer ${tokenA}`);
+
+      expect(listRes2.status).toBe(200);
+      expect(listRes2.body.conversations.find((c: { id: string }) => c.id === convRes.body.id)).toBeTruthy();
+    });
+
+    it("should not affect the other participant when one deletes a conversation", async () => {
+      const { token: tokenA } = await getAuthUser("UserA", "a@example.com");
+      const { token: tokenB, user: userA } = await getAuthUser("UserB", "b@example.com");
+
+      const convRes = await request(app)
+        .post(`/api/messages/conversations/${userA._id}`)
+        .set("Authorization", `Bearer ${tokenB}`);
+
+      await request(app)
+        .delete(`/api/messages/conversations/${convRes.body.id}`)
+        .set("Authorization", `Bearer ${tokenA}`);
+
+      const listB = await request(app)
+        .get(`/api/messages/conversations`)
+        .set("Authorization", `Bearer ${tokenB}`);
+
+      expect(listB.status).toBe(200);
+      expect(listB.body.conversations.find((c: { id: string }) => c.id === convRes.body.id)).toBeTruthy();
+    });
   });
 
   describe("Welcome message", () => {

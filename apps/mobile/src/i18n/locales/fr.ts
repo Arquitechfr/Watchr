@@ -907,6 +907,13 @@ const fr = {
     mutualFriend: "Ami mutuel",
     newMessageSnackbar: "{{sender}} : {{preview}}",
     maxImages: "Maximum 4 images par message",
+    deleteConversation: "Supprimer la conversation",
+    deleteConversationConfirm: "Supprimer cette conversation ?",
+    deleteConversationConfirmDesc: "Cette conversation sera supprimée de votre liste. L'autre participant l'aura encore.",
+    conversationDeleted: "Conversation supprimée",
+    conversationRestored: "Conversation restaurée",
+    markAsRead: "Marquer comme suit:",
+    restore: "Restauration",
   },
   updates: {
     title: "Mise à jour disponible",

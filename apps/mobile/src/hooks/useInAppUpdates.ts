@@ -14,6 +14,7 @@ export function useInAppUpdates(isAuthenticated: boolean) {
     if (__DEV__ || Platform.OS === "web") return;
 
     let cancelledUnsubscribe: (() => void) | null = null;
+    let updateCheckTimer: ReturnType<typeof setTimeout> | undefined;
 
     const checkForUpdates = async () => {
       try {
@@ -76,9 +77,12 @@ export function useInAppUpdates(isAuthenticated: boolean) {
       }
     };
 
-    checkForUpdates();
+    updateCheckTimer = setTimeout(() => {
+      checkForUpdates();
+    }, 2000);
 
     return () => {
+      if (updateCheckTimer) clearTimeout(updateCheckTimer);
       cancelledUnsubscribe?.();
     };
   }, [isAuthenticated]);

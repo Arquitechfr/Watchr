@@ -33,6 +33,8 @@ import {
   unarchiveConversation,
   muteConversation,
   unmuteConversation,
+  deleteConversation,
+  undeleteConversation,
   reportMessage,
   getUnreadCount,
   getDmContacts,
@@ -202,6 +204,26 @@ router.patch(
     const result = muted
       ? await muteConversation(req.userId!, conversationId)
       : await unmuteConversation(req.userId!, conversationId);
+    res.json(result);
+  }),
+);
+
+router.delete(
+  "/conversations/:conversationId",
+  validateRequest(undefined, undefined, conversationIdParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { conversationId } = req.params;
+    const result = await deleteConversation(req.userId!, conversationId);
+    res.json(result);
+  }),
+);
+
+router.patch(
+  "/conversations/:conversationId/restore",
+  validateRequest(undefined, undefined, conversationIdParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { conversationId } = req.params;
+    const result = await undeleteConversation(req.userId!, conversationId);
     res.json(result);
   }),
 );

@@ -183,8 +183,7 @@ const pt = {
     },
     library: {
       emptyTitle: "Sem séries ou filmes",
-      emptySubtitle:
-        "Sua biblioteca está tão vazia quanto a geladeira de um estudante. Vai encher isso!",
+      emptySubtitle: "Sua biblioteca está tão vazia quanto a geladeira de um estudante. Vai encher isso!",
       addBtn: "Adicionar uma série ou filme",
       gridView: "Grade",
       listView: "Lista",
@@ -253,8 +252,7 @@ const pt = {
       themeDark: "Escuro",
       about: "Sobre",
       aboutVersion: "Versão",
-      aboutDescription:
-        "Watchr é um tracker de séries e filmes. Acompanhe seu progresso, avalie seus episódios favoritos e converse com a comunidade.",
+      aboutDescription: "Watchr é um tracker de séries e filmes. Acompanhe seu progresso, avalie seus episódios favoritos e converse com a comunidade.",
       aboutCredits: "Dados fornecidos pelo TMDB. Watchr é um projeto open-source.",
       aboutLegalEditor: "Editor",
       aboutLegalCompanyName: "Razão social",
@@ -271,8 +269,7 @@ const pt = {
       aboutLinkContact: "Fale conosco",
       aboutLinkDocs: "Documentação",
       contact: "Fale conosco",
-      contactCompanyIntro:
-        "Seu tracker de séries e filmes favorito. Estamos aqui para ajudar e ouvir.",
+      contactCompanyIntro: "Seu tracker de séries e filmes favorito. Estamos aqui para ajudar e ouvir.",
       contactLearnMore: "Saiba mais sobre nós",
       contactCategory: "Categoria",
       contactCategoryBug: "Erro",
@@ -312,10 +309,8 @@ const pt = {
       apiKeysDescription: "Gerencie suas chaves de API para acessar o Watchr programaticamente.",
       apiKeysCreate: "Criar uma chave",
       apiKeysEmpty: "Sem chaves de API",
-      apiKeysEmptyDescription:
-        "Crie uma chave de API para acessar seus dados do Watchr de outros aplicativos.",
-      apiKeysLimitReached:
-        "Você atingiu o limite de 10 chaves de API ativas. Revogue ou exclua uma para criar uma nova.",
+      apiKeysEmptyDescription: "Crie uma chave de API para acessar seus dados do Watchr de outros aplicativos.",
+      apiKeysLimitReached: "Você atingiu o limite de 10 chaves de API ativas. Revogue ou exclua uma para criar uma nova.",
       apiKeyName: "Nome da chave",
       apiKeyNamePlaceholder: "ex. Meu script",
       apiKeyNameRequired: "Por favor, insira um nome para sua chave.",
@@ -331,16 +326,13 @@ const pt = {
       apiKeysRenamed: "Chave de API renomeada.",
       apiKeysRevoke: "Revogar",
       apiKeysRevokeConfirmTitle: "Revogar chave de API?",
-      apiKeysRevokeConfirmMessage:
-        "Esta chave deixará de funcionar imediatamente. Esta ação não pode ser desfeita.",
+      apiKeysRevokeConfirmMessage: "Esta chave deixará de funcionar imediatamente. Esta ação não pode ser desfeita.",
       apiKeysRevokedSuccess: "Chave de API revogada.",
       apiKeysDeleteConfirmTitle: "Excluir chave de API?",
-      apiKeysDeleteConfirmMessage:
-        "A chave será excluída permanentemente. Esta ação é irreversível.",
+      apiKeysDeleteConfirmMessage: "A chave será excluída permanentemente. Esta ação é irreversível.",
       apiKeysDeletedSuccess: "Chave de API excluída.",
       apiKeysTokenWarning: "Este token não será exibido novamente",
-      apiKeysTokenWarningDescription:
-        "Copie-o agora e guarde-o com segurança. Você não poderá vê-lo novamente.",
+      apiKeysTokenWarningDescription: "Copie-o agora e guarde-o com segurança. Você não poderá vê-lo novamente.",
       apiKeysTokenLabel: "Seu token de API",
       apiKeysCopy: "Copiar token",
       apiKeysCopied: "Copiado para a área de transferência",
@@ -415,8 +407,7 @@ const pt = {
       following: "Seguindo",
       friendsActivity: "Atividade de amigos",
       findFriends: "Encontrar amigos",
-      activityFeedEmpty:
-        "Nenhuma atividade ainda. Siga usuários que compartilham sua atividade para ver as atualizações aqui.",
+      activityFeedEmpty: "Nenhuma atividade ainda. Siga usuários que compartilham sua atividade para ver as atualizações aqui.",
       filter_all: "Tudo",
       filter_rating: "Avaliações",
       filter_watchlist_add: "Lista",
@@ -425,8 +416,7 @@ const pt = {
       privateProfile: "A atividade deste usuário é privada.",
       publicProfileActivity: "Este usuário compartilha sua atividade publicamente.",
       shareActivityTitle: "Compartilhar minha atividade",
-      shareActivityDescription:
-        "Quando ativado, os usuários que te seguem podem ver suas avaliações, adições à sua lista e comentários no feed de atividades.",
+      shareActivityDescription: "Quando ativado, os usuários que te seguem podem ver suas avaliações, adições à sua lista e comentários no feed de atividades.",
       activityPublic: "Público",
       activityPrivate: "Privado",
       ratedShow: "avaliou {{title}} ({{value}}/10)",
@@ -481,8 +471,7 @@ const pt = {
       dropShow: "Interromper série",
       resumeShow: "Retomar série",
       dropConfirmTitle: "Interromper série?",
-      dropConfirmMessage:
-        "A série será removida da sua lista. Você pode adicioná-la novamente a qualquer momento.",
+      dropConfirmMessage: "A série será removida da sua lista. Você pode adicioná-la novamente a qualquer momento.",
       updateProgressError: "Não foi possível atualizar o progresso",
       updateTrackingError: "Não foi possível atualizar o acompanhamento",
       droppedStatus: "Série removida da sua lista",
@@ -491,14 +480,12 @@ const pt = {
       episodesWatched: "{{count}} episódios vistos",
       markAllAired: "Marcar exibidos",
       markAllAiredConfirmTitle: "Marcar todos os exibidos?",
-      markAllAiredConfirmMessage:
-        "Todos os episódios exibidos serão marcados como vistos. Os não exibidos serão ignorados.",
+      markAllAiredConfirmMessage: "Todos os episódios exibidos serão marcados como vistos. Os não exibidos serão ignorados.",
       markAllAiredSuccess: "Episódios exibidos marcados como vistos",
       markAllAiredError: "Não foi possível marcar",
       markAllAiredAlreadyUpToDate: "Todos os exibidos já estão marcados",
       markSeasonAiredConfirmTitle: "Marcar exibidos de T{{season}}?",
-      markSeasonAiredConfirmMessage:
-        "Os episódios exibidos desta temporada serão marcados como vistos.",
+      markSeasonAiredConfirmMessage: "Os episódios exibidos desta temporada serão marcados como vistos.",
       nextEpisodeAired: "Disponível agora",
     },
     comments: {
@@ -517,11 +504,9 @@ const pt = {
       rejectedHate: "Seu comentário contém conteúdo de ódio. Seja respeitoso.",
       rejectedHarassment: "Seu comentário contém assédio. Seja respeitoso.",
       rejectedSpam: "Seu comentário parece ser spam. Escreva conteúdo significativo.",
-      rejectedSelfHarm:
-        "Se você está passando por dificuldades, procure ajuda. Este conteúdo não é permitido.",
+      rejectedSelfHarm: "Se você está passando por dificuldades, procure ajuda. Este conteúdo não é permitido.",
       rejectedViolence: "Seu comentário contém conteúdo violento. Seja respeitoso.",
-      rejectedOther:
-        "Seu comentário foi sinalizado como inadequado. Revise nossas diretrizes da comunidade.",
+      rejectedOther: "Seu comentário foi sinalizado como inadequado. Revise nossas diretrizes da comunidade.",
       spoilerAutoDetected: "Spoiler detectado — seu comentário foi marcado automaticamente.",
       aiSummary: "Resumo IA",
       aiSummaryLoading: "Gerando resumo…",
@@ -536,8 +521,7 @@ const pt = {
       sortLiked: "Mais curtidos",
       sortReplied: "Mais respondidos",
       spoilerWarningTitle: "Atenção — spoilers",
-      spoilerWarningMessage:
-        'Você ainda não viu "{{title}}". Os comentários podem conter spoilers.',
+      spoilerWarningMessage: "Você ainda não viu \"{{title}}\". Os comentários podem conter spoilers.",
       proceedAnyway: "Ver mesmo assim",
       markWatchedAndProceed: "Marcar como visto e ler",
       reactionError: "Não foi possível reagir",
@@ -671,8 +655,7 @@ const pt = {
       ratingError: "Não foi possível avaliar",
       markSeasonAired: "Marcar exibidos",
       markSeasonAiredConfirmTitle: "Marcar exibidos de T{{season}}?",
-      markSeasonAiredConfirmMessage:
-        "Os episódios exibidos desta temporada serão marcados como vistos.",
+      markSeasonAiredConfirmMessage: "Os episódios exibidos desta temporada serão marcados como vistos.",
       aiSummaryLoading: "Gerando resumo IA…",
       aiSummaryTitle: "Resumo IA",
       communityStats: "Comunidade",
@@ -697,29 +680,22 @@ const pt = {
       title: "Ajuda",
       subtitle: "Guias para importar e exportar seus dados.",
       importTvTime: "Importar do TV Time",
-      importTvTimeDesc:
-        "O TV Time fecha em 15 de julho de 2026. Para importar seus dados, solicite uma exportação GDPR pelo app (Ajustes → Privacidade → Baixar meus dados). Você receberá um .zip com seu histórico. Envie-o aqui e associaremos suas séries automaticamente.",
+      importTvTimeDesc: "O TV Time fecha em 15 de julho de 2026. Para importar seus dados, solicite uma exportação GDPR pelo app (Ajustes → Privacidade → Baixar meus dados). Você receberá um .zip com seu histórico. Envie-o aqui e associaremos suas séries automaticamente.",
       importTrakt: "Importar do Trakt",
-      importTraktDesc:
-        "Exporte seus dados do Trakt em Ajustes → Exportar dados. Isso baixará um JSON com seu histórico, avaliações e watchlist. Envie o arquivo aqui para importar no Watchr.",
+      importTraktDesc: "Exporte seus dados do Trakt em Ajustes → Exportar dados. Isso baixará um JSON com seu histórico, avaliações e watchlist. Envie o arquivo aqui para importar no Watchr.",
       importImdb: "Importar do IMDb",
-      importImdbDesc:
-        "Exporte suas avaliações e watchlist do IMDb em imdb.com (Sua atividade → Baixar seus dados). O CSV conterá seus títulos avaliados. Envie-o aqui e os associaremos ao TMDB.",
+      importImdbDesc: "Exporte suas avaliações e watchlist do IMDb em imdb.com (Sua atividade → Baixar seus dados). O CSV conterá seus títulos avaliados. Envie-o aqui e os associaremos ao TMDB.",
       importLetterboxd: "Importar do Letterboxd",
-      importLetterboxdDesc:
-        "Exporte seu diário do Letterboxd em letterboxd.com (Ajustes → Privacidade → Exportar). O CSV conterá seus filmes vistos com datas. Envie-o aqui para importar seu histórico.",
+      importLetterboxdDesc: "Exporte seu diário do Letterboxd em letterboxd.com (Ajustes → Privacidade → Exportar). O CSV conterá seus filmes vistos com datas. Envie-o aqui para importar seu histórico.",
       exportFormats: "Formatos de exportação",
-      exportFormatsDesc:
-        "O Watchr suporta vários formatos. O formato nativo Watchr JSON é recomendado para backups e reimport. Os demais são compatíveis com suas plataformas.",
+      exportFormatsDesc: "O Watchr suporta vários formatos. O formato nativo Watchr JSON é recomendado para backups e reimport. Os demais são compatíveis com suas plataformas.",
       reviewMatches: "Revisar correspondências",
-      reviewMatchesDesc:
-        "Ao importar, associamos automaticamente suas séries ao TMDB. Se uma correspondência for incerta, será marcada para revisão. Você pode confirmar ou pular. Os pulados podem ser buscados manualmente depois.",
+      reviewMatchesDesc: "Ao importar, associamos automaticamente suas séries ao TMDB. Se uma correspondência for incerta, será marcada para revisão. Você pode confirmar ou pular. Os pulados podem ser buscados manualmente depois.",
       backToDashboard: "Voltar ao painel",
     },
     onboarding: {
       welcomeTitle: "Bem-vindo ao Watchr",
-      welcomeSubtitle:
-        "Acompanhe suas séries e filmes, avalie seus episódios favoritos e converse com a comunidade.",
+      welcomeSubtitle: "Acompanhe suas séries e filmes, avalie seus episódios favoritos e converse com a comunidade.",
       welcomeStart: "Começar",
       skip: "Pular",
       importTitle: "Importe seus dados",
@@ -826,8 +802,7 @@ const pt = {
     },
   },
   trafficNotice: {
-    message:
-      "Nossos serviços estão enfrentando lentidão. Estamos trabalhando para resolver o problema. Obrigado pela sua paciência.",
+    message: "Nossos serviços estão enfrentando lentidão. Estamos trabalhando para resolver o problema. Obrigado pela sua paciência.",
   },
   maintenance: {
     title: "Watchr",
@@ -838,8 +813,8 @@ const pt = {
   },
   seo: {
     defaultTitle: "Watchr — Acompanhe suas séries e filmes",
-    defaultDescription:
-      "Acompanhe seu status, avalie episódios, descubra novos conteúdos e importe seus dados do TV Time.",
+    contact: "Fale Conosco",
+    defaultDescription: "Acompanhe seu status, avalie episódios, descubra novos conteúdos e importe seus dados do TV Time.",
     library: "Minha biblioteca",
     search: "Buscar",
     series: "Minhas séries",
@@ -853,7 +828,6 @@ const pt = {
     importReview: "Revisão de importação",
     editProfile: "Editar perfil",
     profileAbout: "Sobre",
-    contact: "Fale Conosco",
     profileAppearance: "Aparência",
     profileData: "Gestão de dados",
     profileLanguage: "Idioma",
@@ -933,13 +907,18 @@ const pt = {
     mutualFriend: "Amigo mútuo",
     newMessageSnackbar: "{{sender}}: {{preview}}",
     maxImages: "Máximo 4 imagens por mensagem",
+    deleteConversation: "Apagar conversa",
+    deleteConversationConfirm: "Apagar esta conversa?",
+    deleteConversationConfirmDesc: "Esta conversa será removida da sua lista. O outro participante ainda o terá.",
+    conversationDeleted: "Conversa suprimida",
+    conversationRestored: "A conversa foi restaurada",
+    markAsRead: "Marcar como lido",
+    restore: "Restaurar",
   },
   updates: {
     title: "Atualização disponível",
-    message:
-      "Uma nova versão do Watchr está disponível com melhorias e correções. Deseja atualizar agora?",
-    degradedWarning:
-      "Se não atualizar, algumas funções podem não funcionar corretamente ou podem estar indisponíveis.",
+    message: "Uma nova versão do Watchr está disponível com melhorias e correções. Deseja atualizar agora?",
+    degradedWarning: "Se não atualizar, algumas funções podem não funcionar corretamente ou podem estar indisponíveis.",
     updateNow: "Atualizar",
     later: "Mais tarde",
     ok: "OK",

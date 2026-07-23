@@ -18,6 +18,8 @@ import {
   markAsRead,
   archiveConversation,
   muteConversation,
+  deleteConversation,
+  restoreConversation,
   createConversation,
   getUnreadCount,
   blockUser,
@@ -406,6 +408,27 @@ export function useMuteConversation() {
   return useMutation({
     mutationFn: ({ conversationId, muted }: { conversationId: string; muted: boolean }) =>
       muteConversation(conversationId, muted),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [CONVERSATIONS_KEY] });
+    },
+  });
+}
+
+export function useDeleteConversation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (conversationId: string) => deleteConversation(conversationId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [CONVERSATIONS_KEY] });
+      queryClient.invalidateQueries({ queryKey: [UNREAD_KEY] });
+    },
+  });
+}
+
+export function useRestoreConversation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (conversationId: string) => restoreConversation(conversationId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [CONVERSATIONS_KEY] });
     },

@@ -81,8 +81,7 @@ const ar = {
     networkError: "تحقق من اتصالك بالإنترنت.",
     accountBanned: "تم حظر هذا الحساب.",
     accountSuspended: "هذا الحساب موقوف.",
-    emailDomainBlocked:
-      "هذا النطاق للبريد الإلكتروني غير مسموح. يرجى استخدام عنوان بريد إلكتروني صالح.",
+    emailDomainBlocked: "هذا النطاق للبريد الإلكتروني غير مسموح. يرجى استخدام عنوان بريد إلكتروني صالح.",
     genericError: "حدث خطأ. حاول مجددًا.",
     forgotPassword: "نسيت كلمة المرور؟",
     forgotPasswordTitle: "نسيت كلمة المرور",
@@ -253,8 +252,7 @@ const ar = {
       themeDark: "داكن",
       about: "حول",
       aboutVersion: "الإصدار",
-      aboutDescription:
-        "Watchr هو متتبع مسلسلات وأفلام. تابع تقدمك، قيّم حلقاتك المفضلة وتواصل مع المجتمع.",
+      aboutDescription: "Watchr هو متتبع مسلسلات وأفلام. تابع تقدمك، قيّم حلقاتك المفضلة وتواصل مع المجتمع.",
       aboutCredits: "البيانات من TMDB. Watchr مشروع مفتوح المصدر.",
       aboutLegalEditor: "الناشر",
       aboutLegalCompanyName: "الاسم التجاري",
@@ -312,8 +310,7 @@ const ar = {
       apiKeysCreate: "إنشاء مفتاح",
       apiKeysEmpty: "لا توجد مفاتيح API",
       apiKeysEmptyDescription: "أنشئ مفتاح API للوصول إلى بيانات Watchr من تطبيقات أخرى.",
-      apiKeysLimitReached:
-        "لقد وصلت إلى الحد الأقصى من 10 مفاتيح API نشطة. أبطِل أو احذف واحداً لإنشاء مفتاح جديد.",
+      apiKeysLimitReached: "لقد وصلت إلى الحد الأقصى من 10 مفاتيح API نشطة. أبطِل أو احذف واحداً لإنشاء مفتاح جديد.",
       apiKeyName: "اسم المفتاح",
       apiKeyNamePlaceholder: "مثال: السكريبت الخاص بي",
       apiKeyNameRequired: "يرجى إدخال اسم للمفتاح.",
@@ -329,8 +326,7 @@ const ar = {
       apiKeysRenamed: "تمت إعادة تسمية مفتاح API.",
       apiKeysRevoke: "إبطال",
       apiKeysRevokeConfirmTitle: "إبطال مفتاح API؟",
-      apiKeysRevokeConfirmMessage:
-        "سيتوقف هذا المفتاح عن العمل فوراً. لا يمكن التراجع عن هذا الإجراء.",
+      apiKeysRevokeConfirmMessage: "سيتوقف هذا المفتاح عن العمل فوراً. لا يمكن التراجع عن هذا الإجراء.",
       apiKeysRevokedSuccess: "تم إبطال مفتاح API.",
       apiKeysDeleteConfirmTitle: "حذف مفتاح API؟",
       apiKeysDeleteConfirmMessage: "سيتم حذف المفتاح نهائياً. هذا الإجراء لا يمكن التراجع عنه.",
@@ -420,8 +416,7 @@ const ar = {
       privateProfile: "نشاط هذا المستخدم خاص.",
       publicProfileActivity: "هذا المستخدم يشارك نشاطه بشكل عام.",
       shareActivityTitle: "مشاركة نشاطي",
-      shareActivityDescription:
-        "عند التفعيل، يمكن للمستخدمين الذين يتابعونك رؤية تقييماتك وإضافاتك لقائمتك وتعليقاتك في موجز النشاط الخاص بهم.",
+      shareActivityDescription: "عند التفعيل، يمكن للمستخدمين الذين يتابعونك رؤية تقييماتك وإضافاتك لقائمتك وتعليقاتك في موجز النشاط الخاص بهم.",
       activityPublic: "عام",
       activityPrivate: "خاص",
       ratedShow: "قيّم {{title}} ({{value}}/10)",
@@ -526,7 +521,7 @@ const ar = {
       sortLiked: "الأكثر إعجابًا",
       sortReplied: "الأكثر ردودًا",
       spoilerWarningTitle: "تنبيه — حرق",
-      spoilerWarningMessage: 'لم تشاهد "{{title}}" بعد. التعليقات قد تحتوي على حرق.',
+      spoilerWarningMessage: "لم تشاهد \"{{title}}\" بعد. التعليقات قد تحتوي على حرق.",
       proceedAnyway: "عرض على أي حال",
       markWatchedAndProceed: "تحديد كمشاهد وقراءة",
       reactionError: "تعذر التفاعل",
@@ -685,23 +680,17 @@ const ar = {
       title: "مساعدة",
       subtitle: "أدلة لاستيراد وتصدير بياناتك.",
       importTvTime: "استيراد من TV Time",
-      importTvTimeDesc:
-        "يغلق TV Time في 15 يوليو 2026. لاستيراد بياناتك، اطلب تصدير GDPR من التطبيق (الإعدادات → الخصوصية → تنزيل بياناتي). ستصلك ملف .zip بسجلك. ارفعه هنا وسنطابق مسلسلاتك تلقائيًا.",
+      importTvTimeDesc: "يغلق TV Time في 15 يوليو 2026. لاستيراد بياناتك، اطلب تصدير GDPR من التطبيق (الإعدادات → الخصوصية → تنزيل بياناتي). ستصلك ملف .zip بسجلك. ارفعه هنا وسنطابق مسلسلاتك تلقائيًا.",
       importTrakt: "استيراد من Trakt",
-      importTraktDesc:
-        "صدّر بياناتك من Trakt في الإعدادات → تصدير البيانات. سيُنزّل ملف JSON بسجلك وتقييماتك وقائمتك. ارفعه هنا لاستيراده إلى Watchr.",
+      importTraktDesc: "صدّر بياناتك من Trakt في الإعدادات → تصدير البيانات. سيُنزّل ملف JSON بسجلك وتقييماتك وقائمتك. ارفعه هنا لاستيراده إلى Watchr.",
       importImdb: "استيراد من IMDb",
-      importImdbDesc:
-        "صدّر تقييماتك وقائمتك من IMDb عبر imdb.com (نشاطك → تنزيل بياناتك). سيحتوي CSV على عناوينك المقيّمة. ارفعه هنا وسنطابقها مع TMDB.",
+      importImdbDesc: "صدّر تقييماتك وقائمتك من IMDb عبر imdb.com (نشاطك → تنزيل بياناتك). سيحتوي CSV على عناوينك المقيّمة. ارفعه هنا وسنطابقها مع TMDB.",
       importLetterboxd: "استيراد من Letterboxd",
-      importLetterboxdDesc:
-        "صدّر يومياتك من Letterboxd عبر letterboxd.com (الإعدادات → الخصوصية → تصدير). سيحتوي CSV على أفلامك مع التواريخ. ارفعه هنا لاستيراد سجلك.",
+      importLetterboxdDesc: "صدّر يومياتك من Letterboxd عبر letterboxd.com (الإعدادات → الخصوصية → تصدير). سيحتوي CSV على أفلامك مع التواريخ. ارفعه هنا لاستيراد سجلك.",
       exportFormats: "صيغ التصدير",
-      exportFormatsDesc:
-        "يدعم Watchr عدة صيغ. صيغة Watchr JSON الأصلية موصى بها للنسخ الاحتياطي وإعادة الاستيراد. البقية متوافقة مع منصاتها.",
+      exportFormatsDesc: "يدعم Watchr عدة صيغ. صيغة Watchr JSON الأصلية موصى بها للنسخ الاحتياطي وإعادة الاستيراد. البقية متوافقة مع منصاتها.",
       reviewMatches: "مراجعة المطابقات",
-      reviewMatchesDesc:
-        "عند الاستيراد، نطابق مسلسلاتك تلقائيًا مع TMDB. إذا كانت المطابقة غير مؤكدة، تُعلّم للمراجعة. يمكنك تأكيدها أو تخطّيها. يمكن البحث عن المتخطاة يدويًا لاحقًا.",
+      reviewMatchesDesc: "عند الاستيراد، نطابق مسلسلاتك تلقائيًا مع TMDB. إذا كانت المطابقة غير مؤكدة، تُعلّم للمراجعة. يمكنك تأكيدها أو تخطّيها. يمكن البحث عن المتخطاة يدويًا لاحقًا.",
       backToDashboard: "رجوع للوحة",
     },
     onboarding: {
@@ -824,8 +813,8 @@ const ar = {
   },
   seo: {
     defaultTitle: "Watchr — تتبع مسلسلاتك وأفلامك",
-    defaultDescription:
-      "تتبع حالة المشاهدة، قيّم الحلقات، اكتشف محتوى جديد، واستورد بياناتك من TV Time.",
+    contact: "تواصل معنا",
+    defaultDescription: "تتبع حالة المشاهدة، قيّم الحلقات، اكتشف محتوى جديد، واستورد بياناتك من TV Time.",
     library: "مكتبتي",
     search: "بحث",
     series: "مسلسلاتي",
@@ -839,7 +828,6 @@ const ar = {
     importReview: "مراجعة الاستيراد",
     editProfile: "تعديل الملف الشخصي",
     profileAbout: "حول",
-    contact: "تواصل معنا",
     profileAppearance: "المظهر",
     profileData: "إدارة البيانات",
     profileLanguage: "اللغة",
@@ -919,6 +907,13 @@ const ar = {
     mutualFriend: "صديق مشترك",
     newMessageSnackbar: "{{sender}}: {{preview}}",
     maxImages: "حد أقصى 4 صور لكل رسالة",
+    deleteConversation: "المناقشة",
+    deleteConversationConfirm: "تحذف هذه المحادثة؟",
+    deleteConversationConfirmDesc: "هذه المحادثة ستحذف من قائمتك المشارك الآخر سيحتفظ به",
+    conversationDeleted: "حذفت المناقشة",
+    conversationRestored: "استعادة الحوار",
+    markAsRead: "علامة على النحو التالي:",
+    restore: "Restore",
   },
   updates: {
     title: "تحديث متاح",

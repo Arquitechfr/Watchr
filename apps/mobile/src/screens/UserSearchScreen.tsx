@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo } from "react";
-import { View, Text, TextInput, FlatList, TouchableOpacity, ActivityIndicator } from "react-native";
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { ScreenContainer } from "../components/ScreenContainer";
@@ -7,6 +7,7 @@ import { SubScreenHeader } from "../components/SubScreenHeader";
 import { Avatar } from "../components/Avatar";
 import { Seo } from "../components/Seo";
 import { EmptyState } from "../components/EmptyState";
+import { SearchBar } from "../components/SearchBar";
 import { useI18n } from "../i18n/useI18n";
 import { useThemeColors } from "../theme/useThemeColors";
 import { useSearchUsers, useFollowing } from "../hooks/useSocial";
@@ -43,31 +44,20 @@ export function UserSearchScreen() {
   );
   const results = isSearching ? searchResults : followingList;
   const isLoading = isSearching ? searchLoading : followingLoading;
-  const showMinCharsHint = query.length > 0 && query.length < 2;
 
   return (
     <ScreenContainer className="px-4 pt-4" edges={["top", "left", "right"]} fullWidth>
       <Seo title={t("screens.social.findFriends")} />
       <SubScreenHeader title={t("screens.social.findFriends")} />
       <View className="md:max-w-lg md:mx-auto w-full flex-1">
-        <View
-          className="flex-row items-center rounded-lg px-4 py-3 mb-4"
-          style={{ backgroundColor: colors.surface }}
-        >
-          <TextInput
-            className="flex-1 text-text text-base"
-            placeholder={t("screens.social.searchUsersPlaceholder")}
-            placeholderTextColor={colors.textMuted}
-            value={query}
-            onChangeText={setQuery}
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
-        </View>
-
-        {showMinCharsHint && (
-          <Text className="text-text-muted text-xs mb-3">{t("screens.social.minCharsTip")}</Text>
-        )}
+        <SearchBar
+          value={query}
+          onChangeText={setQuery}
+          placeholder={t("screens.social.searchUsersPlaceholder")}
+          onClose={() => setQuery("")}
+          minChars={2}
+          minCharsTip={t("screens.social.minCharsTip")}
+        />
 
         {isLoading && query.length >= 2 && (
           <ActivityIndicator size="small" color={colors.primary} className="py-4" />

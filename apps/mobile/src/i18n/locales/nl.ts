@@ -88,8 +88,7 @@ const nl = {
     forgotPasswordBody: "Voer uw e-mail in om een reset-link te ontvangen.",
     sendResetLink: "Reset-link versturen",
     resetEmailSent: "E-mail verzonden!",
-    resetEmailSentDescription:
-      "Als er een account bestaat met deze e-mail, ontvangt u een resetlink.",
+    resetEmailSentDescription: "Als er een account bestaat met deze e-mail, ontvangt u een resetlink.",
     backToLogin: "Terug naar aanmelding",
     resetPasswordTitle: "Wachtwoord resetten",
     resetPasswordBody: "Kies een nieuw wachtwoord voor uw account.",
@@ -253,8 +252,7 @@ const nl = {
       themeDark: "Donker",
       about: "Info",
       aboutVersion: "Versie",
-      aboutDescription:
-        "Watchr is een tv-show en film tracker. Volg je vooruitgang, beoordeel je favoriete afleveringen en praat met de gemeenschap.",
+      aboutDescription: "Watchr is een tv-show en film tracker. Volg je vooruitgang, beoordeel je favoriete afleveringen en praat met de gemeenschap.",
       aboutCredits: "Gegevens verstrekt door TMDB. Watchr is een open-source project.",
       aboutLegalEditor: "Editor",
       aboutLegalCompanyName: "Bedrijfsnaam",
@@ -311,10 +309,8 @@ const nl = {
       apiKeysDescription: "Beheer uw API-sleutels om toegang te krijgen Watchr programmatisch.",
       apiKeysCreate: "Een sleutel aanmaken",
       apiKeysEmpty: "Nog geen API-sleutels",
-      apiKeysEmptyDescription:
-        "Maak een API sleutel om toegang te krijgen tot uw Watchr gegevens van andere apps.",
-      apiKeysLimitReached:
-        "Je hebt de limiet van 10 actieve API sleutels bereikt. Herroepen of verwijderen om een nieuwe sleutel te maken.",
+      apiKeysEmptyDescription: "Maak een API sleutel om toegang te krijgen tot uw Watchr gegevens van andere apps.",
+      apiKeysLimitReached: "Je hebt de limiet van 10 actieve API sleutels bereikt. Herroepen of verwijderen om een nieuwe sleutel te maken.",
       apiKeyName: "Sleutelnaam",
       apiKeyNamePlaceholder: "Bijvoorbeeld mijn script",
       apiKeyNameRequired: "Voer een naam in voor uw sleutel.",
@@ -330,16 +326,13 @@ const nl = {
       apiKeysRenamed: "API sleutel hernoemd.",
       apiKeysRevoke: "Omkeren",
       apiKeysRevokeConfirmTitle: "API-sleutel herroepen?",
-      apiKeysRevokeConfirmMessage:
-        "Deze sleutel zal onmiddellijk stoppen met werken. Deze actie kan niet ongedaan worden gemaakt.",
+      apiKeysRevokeConfirmMessage: "Deze sleutel zal onmiddellijk stoppen met werken. Deze actie kan niet ongedaan worden gemaakt.",
       apiKeysRevokedSuccess: "API sleutel ingetrokken.",
       apiKeysDeleteConfirmTitle: "API-sleutel verwijderen?",
-      apiKeysDeleteConfirmMessage:
-        "Dit zal de sleutel definitief verwijderen. Deze actie is onomkeerbaar.",
+      apiKeysDeleteConfirmMessage: "Dit zal de sleutel definitief verwijderen. Deze actie is onomkeerbaar.",
       apiKeysDeletedSuccess: "API sleutel verwijderd.",
       apiKeysTokenWarning: "Dit token zal nooit meer getoond worden",
-      apiKeysTokenWarningDescription:
-        "Kopieer het nu en bewaar het veilig. Je zult het niet meer kunnen zien.",
+      apiKeysTokenWarningDescription: "Kopieer het nu en bewaar het veilig. Je zult het niet meer kunnen zien.",
       apiKeysTokenLabel: "Uw API token",
       apiKeysCopy: "Token kopiëren",
       apiKeysCopied: "Naar klembord gekopieerd",
@@ -414,8 +407,7 @@ const nl = {
       following: "Volgende",
       friendsActivity: "Vriendenactiviteit",
       findFriends: "Vind vrienden",
-      activityFeedEmpty:
-        "Nog geen activiteit. Volg gebruikers die hun activiteit delen om hun updates hier te zien.",
+      activityFeedEmpty: "Nog geen activiteit. Volg gebruikers die hun activiteit delen om hun updates hier te zien.",
       filter_all: "Alles",
       filter_rating: "Beoordelingen",
       filter_watchlist_add: "Lijst",
@@ -424,8 +416,7 @@ const nl = {
       privateProfile: "De activiteit van deze gebruiker is privé.",
       publicProfileActivity: "Deze gebruiker deelt zijn activiteiten publiekelijk.",
       shareActivityTitle: "Deel mijn activiteit",
-      shareActivityDescription:
-        "Wanneer ingeschakeld, kunnen gebruikers die u volgen uw ratings te zien, watchlist toevoegingen, en opmerkingen in hun activiteit feed.",
+      shareActivityDescription: "Wanneer ingeschakeld, kunnen gebruikers die u volgen uw ratings te zien, watchlist toevoegingen, en opmerkingen in hun activiteit feed.",
       activityPublic: "Openbaar",
       activityPrivate: "Privé",
       ratedShow: "nominaal {{title}} ({{value}}/10)",
@@ -480,8 +471,7 @@ const nl = {
       dropShow: "Stop show",
       resumeShow: "Show hervatten",
       dropConfirmTitle: "Stop de show?",
-      dropConfirmMessage:
-        "Deze show wordt verwijderd van uw lijst. Je kunt het op elk moment terugtellen.",
+      dropConfirmMessage: "Deze show wordt verwijderd van uw lijst. Je kunt het op elk moment terugtellen.",
       updateProgressError: "Kan voortgang niet bijwerken",
       updateTrackingError: "Kon tracking niet bijwerken",
       droppedStatus: "Uit uw lijst verwijderde tonen",
@@ -490,14 +480,12 @@ const nl = {
       episodesWatched: "{{count}} afleveringen bekeken",
       markAllAired: "Mark uitgezonden",
       markAllAiredConfirmTitle: "Alle uitgezonden afleveringen markeren?",
-      markAllAiredConfirmMessage:
-        "Alle uitgezonden afleveringen worden gemarkeerd als bekeken. Die zijn overgeslagen.",
+      markAllAiredConfirmMessage: "Alle uitgezonden afleveringen worden gemarkeerd als bekeken. Die zijn overgeslagen.",
       markAllAiredSuccess: "Alle uitgezonden afleveringen gemarkeerd als bekeken",
       markAllAiredError: "Kan afleveringen niet markeren",
       markAllAiredAlreadyUpToDate: "Alle uitgezonden afleveringen zijn al gemarkeerd als bekeken",
       markSeasonAiredConfirmTitle: "Mark uitgezonden afleveringen van S{{season}}?",
-      markSeasonAiredConfirmMessage:
-        "Alle uitgezonden afleveringen van dit seizoen zullen worden gemarkeerd als bekeken.",
+      markSeasonAiredConfirmMessage: "Alle uitgezonden afleveringen van dit seizoen zullen worden gemarkeerd als bekeken.",
       nextEpisodeAired: "Nu beschikbaar",
     },
     comments: {
@@ -516,11 +504,9 @@ const nl = {
       rejectedHate: "Uw commentaar bevat haatdragende inhoud. Wees respectvol.",
       rejectedHarassment: "Je commentaar bevat intimidatie. Wees respectvol.",
       rejectedSpam: "Je reactie lijkt op spam. Schrijf betekenisvolle inhoud.",
-      rejectedSelfHarm:
-        "Als je het moeilijk hebt, vraag dan om hulp. Deze inhoud is niet toegestaan.",
+      rejectedSelfHarm: "Als je het moeilijk hebt, vraag dan om hulp. Deze inhoud is niet toegestaan.",
       rejectedViolence: "Uw commentaar bevat gewelddadige inhoud. Wees respectvol.",
-      rejectedOther:
-        "Je commentaar werd gemarkeerd als ongepast. Bekijk onze community richtlijnen.",
+      rejectedOther: "Je commentaar werd gemarkeerd als ongepast. Bekijk onze community richtlijnen.",
       spoilerAutoDetected: "Spoiler gedetecteerde uw reactie werd automatisch getagd.",
       aiSummary: "AI-overzicht",
       aiSummaryLoading: "Samenvatting aanmaken...",
@@ -535,8 +521,7 @@ const nl = {
       sortLiked: "Gevonden",
       sortReplied: "De meeste antwoorden",
       spoilerWarningTitle: "Waarschuwing: spoilers",
-      spoilerWarningMessage:
-        'Je hebt niet gekeken "{{title}}"nog niet. Opmerkingen kunnen spoilers bevatten.',
+      spoilerWarningMessage: "Je hebt niet gekeken \"{{title}}\"nog niet. Opmerkingen kunnen spoilers bevatten.",
       proceedAnyway: "Toch weergeven",
       markWatchedAndProceed: "Markeren als bekeken en lezen",
       reactionError: "Kan niet reageren",
@@ -605,8 +590,7 @@ const nl = {
       reviewPending: "Evaluatie {{count}} in behandeling zijnde overeenkomsten",
       recentImports: "Recente invoer",
       noRecentImports: "Geen recente invoer",
-      importDisclaimer:
-        "De invoer kan per platform verschillen. Sommige gegevens komen misschien niet overeen of kunnen vertraagd worden.",
+      importDisclaimer: "De invoer kan per platform verschillen. Sommige gegevens komen misschien niet overeen of kunnen vertraagd worden.",
       bannerProcessing: "Importeren... {{processed}}'{{total}}",
       bannerCompleted: "Import voltooid {{matched}} geïmporteerd",
       bannerFailed: "Importeren mislukt",
@@ -671,8 +655,7 @@ const nl = {
       ratingError: "Kan episode niet beoordelen",
       markSeasonAired: "Mark uitgezonden",
       markSeasonAiredConfirmTitle: "Mark uitgezonden afleveringen van S{{season}}?",
-      markSeasonAiredConfirmMessage:
-        "Alle uitgezonden afleveringen van dit seizoen zullen worden gemarkeerd als bekeken. Die zijn overgeslagen.",
+      markSeasonAiredConfirmMessage: "Alle uitgezonden afleveringen van dit seizoen zullen worden gemarkeerd als bekeken. Die zijn overgeslagen.",
       aiSummaryLoading: "AI-samenvatting wordt aangemaakt...",
       aiSummaryTitle: "AI-overzicht",
       communityStats: "Gemeenschap",
@@ -697,29 +680,22 @@ const nl = {
       title: "Hulp",
       subtitle: "Gidsen voor het importeren en exporteren van uw gegevens.",
       importTvTime: "Importeren uit TV Time",
-      importTvTimeDesc:
-        "TV Time Het sluit op 15 juli 2026. Om uw gegevens te importeren, vraag een GDPR export uit de TV Time app (Settings → Privacy → Download mijn gegevens). U ontvangt een .zip-bestand met uw horlogegeschiedenis. Upload het hier en we zullen automatisch overeenkomen met uw shows.",
+      importTvTimeDesc: "TV Time Het sluit op 15 juli 2026. Om uw gegevens te importeren, vraag een GDPR export uit de TV Time app (Settings → Privacy → Download mijn gegevens). U ontvangt een .zip-bestand met uw horlogegeschiedenis. Upload het hier en we zullen automatisch overeenkomen met uw shows.",
       importTrakt: "Importeren uit Trakt",
-      importTraktDesc:
-        "Uw gegevens exporteren van Trakt door naar Instellingen → Gegevens exporteren. Dit zal een JSON-bestand downloaden met uw bekeken geschiedenis, ratings en watchlist. Upload het bestand hier om het te importeren Watchr.",
+      importTraktDesc: "Uw gegevens exporteren van Trakt door naar Instellingen → Gegevens exporteren. Dit zal een JSON-bestand downloaden met uw bekeken geschiedenis, ratings en watchlist. Upload het bestand hier om het te importeren Watchr.",
       importImdb: "Importeren uit IMDb",
-      importImdbDesc:
-        "Exporteer uw IMDb ratings en watchlist van imdb.com (Uw activiteit → Download uw gegevens). Het CSV-bestand bevat uw beoordeelde titels. Upload het hier en we zullen ze vergelijken met TMDB.",
+      importImdbDesc: "Exporteer uw IMDb ratings en watchlist van imdb.com (Uw activiteit → Download uw gegevens). Het CSV-bestand bevat uw beoordeelde titels. Upload het hier en we zullen ze vergelijken met TMDB.",
       importLetterboxd: "Importeren uit Letterboxd",
-      importLetterboxdDesc:
-        "Exporteer uw Letterboxd dagboek van letterboxd.com (Instellingen → Privacy → Exporteren). Het CSV-bestand bevat uw bekeken films met data. Upload het hier om je filmgeschiedenis te importeren.",
+      importLetterboxdDesc: "Exporteer uw Letterboxd dagboek van letterboxd.com (Instellingen → Privacy → Exporteren). Het CSV-bestand bevat uw bekeken films met data. Upload het hier om je filmgeschiedenis te importeren.",
       exportFormats: "Uitvoerformaten",
-      exportFormatsDesc:
-        "Watchr ondersteunt meerdere exportformaten. De inheemse Watchr JSON formaat wordt aanbevolen voor back-ups en opnieuw importeren. Andere formaten zijn compatibel met hun respectieve platforms.",
+      exportFormatsDesc: "Watchr ondersteunt meerdere exportformaten. De inheemse Watchr JSON formaat wordt aanbevolen voor back-ups en opnieuw importeren. Andere formaten zijn compatibel met hun respectieve platforms.",
       reviewMatches: "Beoordeling van overeenkomsten",
-      reviewMatchesDesc:
-        "Bij het importeren passen wij automatisch uw shows aan TMDB. Als een wedstrijd onzeker is, zal het worden gemarkeerd voor beoordeling. U kunt dan de juiste overeenkomst bevestigen of overslaan. Overgeslagen items kunnen later handmatig worden doorzocht.",
+      reviewMatchesDesc: "Bij het importeren passen wij automatisch uw shows aan TMDB. Als een wedstrijd onzeker is, zal het worden gemarkeerd voor beoordeling. U kunt dan de juiste overeenkomst bevestigen of overslaan. Overgeslagen items kunnen later handmatig worden doorzocht.",
       backToDashboard: "Terug naar dashboard",
     },
     onboarding: {
       welcomeTitle: "Welkom bij Watchr",
-      welcomeSubtitle:
-        "Volg je shows en films, beoordeel je favoriete afleveringen en praat met de gemeenschap.",
+      welcomeSubtitle: "Volg je shows en films, beoordeel je favoriete afleveringen en praat met de gemeenschap.",
       welcomeStart: "Beginnen",
       skip: "Overslaan",
       importTitle: "Uw gegevens importeren",
@@ -826,8 +802,7 @@ const nl = {
     },
   },
   trafficNotice: {
-    message:
-      "Onze diensten ondervinden vertraging. We werken aan een oplossing. Bedankt voor je geduld.",
+    message: "Onze diensten ondervinden vertraging. We werken aan een oplossing. Bedankt voor je geduld.",
   },
   maintenance: {
     title: "Watchr",
@@ -839,8 +814,7 @@ const nl = {
   seo: {
     defaultTitle: "Watchr Volg je tv-programma's en films",
     contact: "Contacteer ons",
-    defaultDescription:
-      "Volg uw status van het horloge, tarief afleveringen, ontdek nieuwe inhoud, en importeer uw TV Time gegevens.",
+    defaultDescription: "Volg uw status van het horloge, tarief afleveringen, ontdek nieuwe inhoud, en importeer uw TV Time gegevens.",
     library: "Mijn bibliotheek",
     search: "Zoeken",
     series: "Mijn serie",
@@ -933,13 +907,18 @@ const nl = {
     mutualFriend: "Wederzijdse vriend",
     newMessageSnackbar: "{{sender}}: {{preview}}",
     maxImages: "Maximaal 4 afbeeldingen per bericht",
+    deleteConversation: "Gesprek verwijderen",
+    deleteConversationConfirm: "Dit gesprek verwijderen?",
+    deleteConversationConfirmDesc: "Dit gesprek wordt verwijderd van uw lijst. De andere deelnemer zal het nog steeds hebben.",
+    conversationDeleted: "Gesprek verwijderd",
+    conversationRestored: "Gesprek hersteld",
+    markAsRead: "Markeren als gelezen",
+    restore: "Herstellen",
   },
   updates: {
     title: "Update beschikbaar",
-    message:
-      "Een nieuwe versie van Watchr is beschikbaar met verbeteringen en bug fixes. Wil je het nu bijwerken?",
-    degradedWarning:
-      "Als u niet updaten, sommige functies kunnen niet correct werken of kunnen niet beschikbaar zijn.",
+    message: "Een nieuwe versie van Watchr is beschikbaar met verbeteringen en bug fixes. Wil je het nu bijwerken?",
+    degradedWarning: "Als u niet updaten, sommige functies kunnen niet correct werken of kunnen niet beschikbaar zijn.",
     updateNow: "Bijwerken",
     later: "Misschien later.",
     ok: "OK",

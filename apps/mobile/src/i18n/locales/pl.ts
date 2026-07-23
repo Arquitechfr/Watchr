@@ -81,8 +81,7 @@ const pl = {
     networkError: "Sprawdź połączenie internetowe.",
     accountBanned: "To konto zostało zakazane.",
     accountSuspended: "To konto jest zawieszone.",
-    emailDomainBlocked:
-      "Ta domena e-mail nie jest dozwolona. Proszę użyć poprawnego adresu e-mail.",
+    emailDomainBlocked: "Ta domena e-mail nie jest dozwolona. Proszę użyć poprawnego adresu e-mail.",
     genericError: "Coś poszło nie tak. Proszę spróbować jeszcze raz.",
     forgotPassword: "Zapomniałeś hasła?",
     forgotPasswordTitle: "Zapomniałeś hasła",
@@ -168,8 +167,7 @@ const pl = {
     movies: {
       viewAll: "Zobacz wszystkie moje filmy",
       empty: "Żadnych filmów.",
-      addFromSearch:
-        "Żadnych filmów... Nawet Leonardo DiCaprio nie odważył się tu jeszcze spojrzeć.",
+      addFromSearch: "Żadnych filmów... Nawet Leonardo DiCaprio nie odważył się tu jeszcze spojrzeć.",
       addBtn: "Dodaj film",
       markedWatched: "Film oznaczony jako oglądany",
       markError: "Nie można zaznaczyć filmu",
@@ -254,8 +252,7 @@ const pl = {
       themeDark: "Ciemny",
       about: "O",
       aboutVersion: "Wersja",
-      aboutDescription:
-        "Watchr to program telewizyjny i nadajnik filmowy. Śledź postępy, oceniaj swoje ulubione odcinki i czatuj ze społecznością.",
+      aboutDescription: "Watchr to program telewizyjny i nadajnik filmowy. Śledź postępy, oceniaj swoje ulubione odcinki i czatuj ze społecznością.",
       aboutCredits: "Dane dostarczone przez TMDB. Watchr jest projektem open- source.",
       aboutLegalEditor: "Edytor",
       aboutLegalCompanyName: "Nazwa przedsiębiorstwa",
@@ -272,8 +269,7 @@ const pl = {
       aboutLinkContact: "Skontaktuj się z nami",
       aboutLinkDocs: "Dokumentacja",
       contact: "Skontaktuj się z nami",
-      contactCompanyIntro:
-        "Twój ulubiony program telewizyjny i nadajnik filmów. Jesteśmy tu, by pomóc i słuchać.",
+      contactCompanyIntro: "Twój ulubiony program telewizyjny i nadajnik filmów. Jesteśmy tu, by pomóc i słuchać.",
       contactLearnMore: "Dowiedz się więcej o nas",
       contactCategory: "Kategoria",
       contactCategoryBug: "Błąd",
@@ -313,10 +309,8 @@ const pl = {
       apiKeysDescription: "Zarządzanie kluczami API do dostępu Watchr programowo.",
       apiKeysCreate: "Utwórz klucz",
       apiKeysEmpty: "Brak jeszcze kluczy API",
-      apiKeysEmptyDescription:
-        "Utwórz klucz API, aby uzyskać dostęp Watchr dane z innych aplikacji.",
-      apiKeysLimitReached:
-        "Osiągnąłeś limit 10 aktywnych kluczy API. Przywróć lub usuń jeden, aby utworzyć nowy klucz.",
+      apiKeysEmptyDescription: "Utwórz klucz API, aby uzyskać dostęp Watchr dane z innych aplikacji.",
+      apiKeysLimitReached: "Osiągnąłeś limit 10 aktywnych kluczy API. Przywróć lub usuń jeden, aby utworzyć nowy klucz.",
       apiKeyName: "Nazwa klucza",
       apiKeyNamePlaceholder: "np. mój skrypt",
       apiKeyNameRequired: "Proszę podać nazwę klucza.",
@@ -332,15 +326,13 @@ const pl = {
       apiKeysRenamed: "Klucz API zmienił nazwę.",
       apiKeysRevoke: "Revoke",
       apiKeysRevokeConfirmTitle: "Otworzyć klucz API?",
-      apiKeysRevokeConfirmMessage:
-        "Ten klucz natychmiast przestanie działać. Tego działania nie można cofnąć.",
+      apiKeysRevokeConfirmMessage: "Ten klucz natychmiast przestanie działać. Tego działania nie można cofnąć.",
       apiKeysRevokedSuccess: "Klucz API odwołany.",
       apiKeysDeleteConfirmTitle: "Usuń klucz API?",
       apiKeysDeleteConfirmMessage: "To na stałe usunie klucz. To działanie jest nieodwracalne.",
       apiKeysDeletedSuccess: "Klucz API usunięty.",
       apiKeysTokenWarning: "Ten token już nigdy nie zostanie pokazany",
-      apiKeysTokenWarningDescription:
-        "Kopiuj i przechowuj bezpiecznie. Nie będziesz mógł tego zobaczyć.",
+      apiKeysTokenWarningDescription: "Kopiuj i przechowuj bezpiecznie. Nie będziesz mógł tego zobaczyć.",
       apiKeysTokenLabel: "Twój żeton API",
       apiKeysCopy: "Kopiuj",
       apiKeysCopied: "Skopiowane do schowka",
@@ -415,8 +407,7 @@ const pl = {
       following: "Po",
       friendsActivity: "Aktywność przyjaciół",
       findFriends: "Znajdź przyjaciół",
-      activityFeedEmpty:
-        "Brak aktywności. Śledź użytkowników, którzy udostępniają swoje działania, aby zobaczyć ich aktualizacje tutaj.",
+      activityFeedEmpty: "Brak aktywności. Śledź użytkowników, którzy udostępniają swoje działania, aby zobaczyć ich aktualizacje tutaj.",
       filter_all: "Wszystko",
       filter_rating: "Oceny",
       filter_watchlist_add: "Lista",
@@ -425,8 +416,7 @@ const pl = {
       privateProfile: "Aktywność tego użytkownika jest prywatna.",
       publicProfileActivity: "Użytkownik ten dzieli swoją działalność publicznie.",
       shareActivityTitle: "Podziel się moją działalnością.",
-      shareActivityDescription:
-        "Po włączeniu, użytkownicy, którzy podążają za Tobą mogą zobaczyć swoje oceny, uzupełnienia listy obserwacyjnej i komentarze w ich aktywności karmić.",
+      shareActivityDescription: "Po włączeniu, użytkownicy, którzy podążają za Tobą mogą zobaczyć swoje oceny, uzupełnienia listy obserwacyjnej i komentarze w ich aktywności karmić.",
       activityPublic: "Publiczny",
       activityPrivate: "Prywatne",
       ratedShow: "oceniany {{title}} ({{value}}/ 10)",
@@ -490,14 +480,12 @@ const pl = {
       episodesWatched: "{{count}} oglądane odcinki",
       markAllAired: "Mark emitowany",
       markAllAiredConfirmTitle: "Oznaczyć wszystkie odcinki?",
-      markAllAiredConfirmMessage:
-        "Wszystkie emitowane odcinki będą oznaczone jako oglądane. Nieustraszeni są pomijani.",
+      markAllAiredConfirmMessage: "Wszystkie emitowane odcinki będą oznaczone jako oglądane. Nieustraszeni są pomijani.",
       markAllAiredSuccess: "Wszystkie emitowane odcinki oznaczone jako oglądane",
       markAllAiredError: "Nie można zaznaczyć odcinków",
       markAllAiredAlreadyUpToDate: "Wszystkie emitowane odcinki są już oznaczone jako oglądane",
       markSeasonAiredConfirmTitle: "Oznacz emitowane odcinki S{{season}}?",
-      markSeasonAiredConfirmMessage:
-        "Wszystkie emitowane odcinki tego sezonu będą oznaczone jako oglądane.",
+      markSeasonAiredConfirmMessage: "Wszystkie emitowane odcinki tego sezonu będą oznaczone jako oglądane.",
       nextEpisodeAired: "Dostępne teraz",
     },
     comments: {
@@ -518,8 +506,7 @@ const pl = {
       rejectedSpam: "Twój komentarz wygląda jak spam. Proszę napisać znaczącą treść.",
       rejectedSelfHarm: "Jeśli masz problemy, proszę o pomoc. Ta zawartość nie jest dozwolona.",
       rejectedViolence: "Twój komentarz zawiera brutalną treść. Proszę o szacunek.",
-      rejectedOther:
-        "Twój komentarz został uznany za niestosowny. Proszę przejrzeć nasze wytyczne społeczne.",
+      rejectedOther: "Twój komentarz został uznany za niestosowny. Proszę przejrzeć nasze wytyczne społeczne.",
       spoilerAutoDetected: "Spoiler wykryty - Twój komentarz został automatycznie oznaczony.",
       aiSummary: "Podsumowanie AI",
       aiSummaryLoading: "Generowanie podsumowania...",
@@ -534,7 +521,7 @@ const pl = {
       sortLiked: "Lubione",
       sortReplied: "Większość odpowiedzi",
       spoilerWarningTitle: "Ostrzeżenie - spoilery",
-      spoilerWarningMessage: 'Nie oglądałeś "{{title}}"jeszcze. Uwagi mogą zawierać spoilery.',
+      spoilerWarningMessage: "Nie oglądałeś \"{{title}}\"jeszcze. Uwagi mogą zawierać spoilery.",
       proceedAnyway: "Widok w każdym razie",
       markWatchedAndProceed: "Zaznacz jako obserwowany i przeczytany",
       reactionError: "Nie można reagować",
@@ -603,8 +590,7 @@ const pl = {
       reviewPending: "Przegląd {{count}} oczekujące mecze",
       recentImports: "Niedawny przywóz",
       noRecentImports: "Niedawny przywóz",
-      importDisclaimer:
-        "Przywóz może różnić się w zależności od platformy. Niektóre dane mogą nie być dopasowane lub mogą być opóźnione.",
+      importDisclaimer: "Przywóz może różnić się w zależności od platformy. Niektóre dane mogą nie być dopasowane lub mogą być opóźnione.",
       bannerProcessing: "Importowanie... {{processed}}/{{total}}",
       bannerCompleted: "Import zakończony - {{matched}} importowane",
       bannerFailed: "Importuj nieudany",
@@ -663,15 +649,13 @@ const pl = {
       watched: "Obserwowane",
       unwatched: "Nieobserwowany",
       markPreviousTitle: "Zaznaczysz poprzednie odcinki?",
-      markPreviousMessage:
-        "{{count}} poprzednie epizody nieobserwowane. Oznaczyć ich jako obserwowanych?",
+      markPreviousMessage: "{{count}} poprzednie epizody nieobserwowane. Oznaczyć ich jako obserwowanych?",
       markError: "Nie można zaznaczyć odcinków",
       seasonError: "Nie można oznaczyć sezonu",
       ratingError: "Nie można ocenić epizodu",
       markSeasonAired: "Mark emitowany",
       markSeasonAiredConfirmTitle: "Oznacz emitowane odcinki S{{season}}?",
-      markSeasonAiredConfirmMessage:
-        "Wszystkie emitowane odcinki tego sezonu będą oznaczone jako oglądane. Nieustraszeni są pomijani.",
+      markSeasonAiredConfirmMessage: "Wszystkie emitowane odcinki tego sezonu będą oznaczone jako oglądane. Nieustraszeni są pomijani.",
       aiSummaryLoading: "Generowanie podsumowania AI...",
       aiSummaryTitle: "Podsumowanie AI",
       communityStats: "Wspólnota",
@@ -696,29 +680,22 @@ const pl = {
       title: "Pomoc",
       subtitle: "Przewodniki do importu i eksportu danych.",
       importTvTime: "Przywóz z TV Time",
-      importTvTimeDesc:
-        "TV Time Zamykam 15 lipca 2026 roku. Aby zaimportować dane, poproś o eksport GDPR z TV Time aplikacja (Ustawienia → Prywatność → Pobierz moje dane). Otrzymasz plik .zip zawierający historię zegarka. Wyślij go tutaj, a automatycznie dopasujemy twoje programy.",
+      importTvTimeDesc: "TV Time Zamykam 15 lipca 2026 roku. Aby zaimportować dane, poproś o eksport GDPR z TV Time aplikacja (Ustawienia → Prywatność → Pobierz moje dane). Otrzymasz plik .zip zawierający historię zegarka. Wyślij go tutaj, a automatycznie dopasujemy twoje programy.",
       importTrakt: "Przywóz z Trakt",
-      importTraktDesc:
-        "Eksportuj dane z Trakt przez przejście do Ustawienia → Eksportuj dane. To pobierze plik JSON z oglądanej historii, ratingów i listy obserwacyjnej. Wyślij plik tutaj, aby go zaimportować Watchr.",
+      importTraktDesc: "Eksportuj dane z Trakt przez przejście do Ustawienia → Eksportuj dane. To pobierze plik JSON z oglądanej historii, ratingów i listy obserwacyjnej. Wyślij plik tutaj, aby go zaimportować Watchr.",
       importImdb: "Przywóz z IMDb",
-      importImdbDesc:
-        "Eksportuj IMDb oceny i lista obserwacyjna z imdb.com (Twoje działanie → Pobierz dane). Plik CSV będzie zawierał twoje ratingi. Wyślij to tutaj, a my dopasujemy je do TMDB.",
+      importImdbDesc: "Eksportuj IMDb oceny i lista obserwacyjna z imdb.com (Twoje działanie → Pobierz dane). Plik CSV będzie zawierał twoje ratingi. Wyślij to tutaj, a my dopasujemy je do TMDB.",
       importLetterboxd: "Przywóz z Letterboxd",
-      importLetterboxdDesc:
-        "Eksportuj Letterboxd dziennik z letterboxd.com (Ustawienia → Prywatność → Eksport). Plik CSV zawiera twoje oglądane filmy z datami. Wyślij go tutaj, aby zaimportować historię filmu.",
+      importLetterboxdDesc: "Eksportuj Letterboxd dziennik z letterboxd.com (Ustawienia → Prywatność → Eksport). Plik CSV zawiera twoje oglądane filmy z datami. Wyślij go tutaj, aby zaimportować historię filmu.",
       exportFormats: "Formaty eksportu",
-      exportFormatsDesc:
-        "Watchr obsługuje wiele formatów eksportu. Native Watchr Format JSON jest zalecany do tworzenia kopii zapasowych i ponownego importowania. Inne formaty są kompatybilne ze swoimi platformami.",
+      exportFormatsDesc: "Watchr obsługuje wiele formatów eksportu. Native Watchr Format JSON jest zalecany do tworzenia kopii zapasowych i ponownego importowania. Inne formaty są kompatybilne ze swoimi platformami.",
       reviewMatches: "Przeglądanie meczów",
-      reviewMatchesDesc:
-        "Podczas importowania automatycznie dopasowujemy twoje programy do TMDB. Jeśli mecz jest niepewny, zostanie oznaczony do przeglądu. Następnie można potwierdzić prawidłową zgodność lub pominąć ją. Pominięte przedmioty mogą być przeszukiwane ręcznie później.",
+      reviewMatchesDesc: "Podczas importowania automatycznie dopasowujemy twoje programy do TMDB. Jeśli mecz jest niepewny, zostanie oznaczony do przeglądu. Następnie można potwierdzić prawidłową zgodność lub pominąć ją. Pominięte przedmioty mogą być przeszukiwane ręcznie później.",
       backToDashboard: "Powrót do deski rozdzielczej",
     },
     onboarding: {
       welcomeTitle: "Witamy w Watchr",
-      welcomeSubtitle:
-        "Śledź swoje programy i filmy, oceniaj swoje ulubione odcinki i czatuj ze społecznością.",
+      welcomeSubtitle: "Śledź swoje programy i filmy, oceniaj swoje ulubione odcinki i czatuj ze społecznością.",
       welcomeStart: "Zaczynajcie.",
       skip: "Pomiń",
       importTitle: "Importuj dane",
@@ -776,8 +753,7 @@ const pl = {
     serverError: "Coś poszło nie tak.",
     serverErrorSubtitle: "Serwer napotkał błąd. Proszę spróbować ponownie za chwilę.",
     sessionExpired: "Sesja wygasła",
-    sessionExpiredSubtitle:
-      "Twoja sesja dobiegła końca. Proszę połączyć się ponownie, aby kontynuować.",
+    sessionExpiredSubtitle: "Twoja sesja dobiegła końca. Proszę połączyć się ponownie, aby kontynuować.",
   },
   websocket: {
     reconnecting: "Rozpoczynam...",
@@ -826,8 +802,7 @@ const pl = {
     },
   },
   trafficNotice: {
-    message:
-      "Nasze służby doświadczają spowolnienia. Pracujemy nad rozwiązaniem tej kwestii. Dziękuję za cierpliwość.",
+    message: "Nasze służby doświadczają spowolnienia. Pracujemy nad rozwiązaniem tej kwestii. Dziękuję za cierpliwość.",
   },
   maintenance: {
     title: "Watchr",
@@ -839,8 +814,7 @@ const pl = {
   seo: {
     defaultTitle: "Watchr - Śledź swoje programy telewizyjne i filmy",
     contact: "Skontaktuj się z nami",
-    defaultDescription:
-      "Śledź status zegarka, oceniaj odcinki, odkrywaj nowe treści i importuj TV Time dane.",
+    defaultDescription: "Śledź status zegarka, oceniaj odcinki, odkrywaj nowe treści i importuj TV Time dane.",
     library: "Moja biblioteka",
     search: "Szukaj",
     series: "Moja seria",
@@ -933,13 +907,18 @@ const pl = {
     mutualFriend: "Wspólny znajomy",
     newMessageSnackbar: "{{sender}}: {{preview}}",
     maxImages: "Maksymalnie 4 obrazy na wiadomość",
+    deleteConversation: "Usuń rozmowę",
+    deleteConversationConfirm: "Skreślić tę rozmowę?",
+    deleteConversationConfirmDesc: "Ta rozmowa zostanie usunięta z twojej listy. Drugi uczestnik nadal będzie go miał.",
+    conversationDeleted: "Rozmowa usunięta",
+    conversationRestored: "Odnowiona rozmowa",
+    markAsRead: "Zaznacz jako przeczytany",
+    restore: "Przywróć",
   },
   updates: {
     title: "Aktualizacja dostępna",
-    message:
-      "Nowa wersja Watchr jest dostępny z poprawkami i poprawkami błędów. Chciałby pan zaktualizować?",
-    degradedWarning:
-      "Jeśli nie uaktualnisz, niektóre funkcje mogą nie działać prawidłowo lub mogą być niedostępne.",
+    message: "Nowa wersja Watchr jest dostępny z poprawkami i poprawkami błędów. Chciałby pan zaktualizować?",
+    degradedWarning: "Jeśli nie uaktualnisz, niektóre funkcje mogą nie działać prawidłowo lub mogą być niedostępne.",
     updateNow: "Aktualizacja",
     later: "Może później.",
     ok: "OK",

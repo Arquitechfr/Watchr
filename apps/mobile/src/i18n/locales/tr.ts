@@ -19,8 +19,7 @@ const tr = {
     yes: "Evet Evet Evet",
     no: "Hayır hayır hayır",
     share: "Share Share Share",
-    previous:
-      "Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki",
+    previous: "Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki Önceki",
     next: "Sonraki Sonraki Sonraki Sonraki Sonraki Sonraki Sonraki Sonraki",
     seeAll: "Hepsini gör",
     noResults: "Sonuçlar yok",
@@ -82,8 +81,7 @@ const tr = {
     networkError: "İnternet bağlantınızı kontrol edin.",
     accountBanned: "Bu hesap yasaklanmıştır.",
     accountSuspended: "Bu hesap askıya alındı.",
-    emailDomainBlocked:
-      "Bu e-posta domaini izin verilmez. Lütfen geçerli bir e-posta adresi kullanın.",
+    emailDomainBlocked: "Bu e-posta domaini izin verilmez. Lütfen geçerli bir e-posta adresi kullanın.",
     genericError: "Bir şey yanlış gitti. Lütfen tekrar deneyin.",
     forgotPassword: "Şifreyi mi unuttunuz?",
     forgotPasswordTitle: "Şifre Şifre Şifreyi Unut Şifre",
@@ -242,8 +240,7 @@ const tr = {
       commentLikes: "Benim yorumlarımda",
       notificationOffset: "Bildirim zamanlama",
       notificationOffsetBefore: "{{hours}}h {{minutes}} Daha önce daha önce",
-      notificationOffsetAfter:
-        "{{hours}}h {{minutes}} After after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after",
+      notificationOffsetAfter: "{{hours}}h {{minutes}} After after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after after",
       notificationOffsetAtAir: "Hava zamanında",
       notificationOffsetMinutesShort: "{{minutes}} min",
       appearance: "Görünüm görünümü",
@@ -253,11 +250,9 @@ const tr = {
       themeSystem: "Sistem Sistem Sistemi",
       themeLight: "Işık Işığı",
       themeDark: "Dark Dark",
-      about:
-        "About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About",
+      about: "About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About",
       aboutVersion: "Version Version Version",
-      aboutDescription:
-        "Watchr Bir TV şovu ve film pisti. İlerlemenizi takip edin, en sevdiğiniz bölümlerinizi alın ve toplulukla sohbet edin.",
+      aboutDescription: "Watchr Bir TV şovu ve film pisti. İlerlemenizi takip edin, en sevdiğiniz bölümlerinizi alın ve toplulukla sohbet edin.",
       aboutCredits: "Data tarafından sağlanan TMDB. Watchr Açık kaynak projesidir.",
       aboutLegalEditor: "Editor Editor Editor",
       aboutLegalCompanyName: "Şirket adı",
@@ -274,8 +269,7 @@ const tr = {
       aboutLinkContact: "Bize ulaşın",
       aboutLinkDocs: "Dokümantasyon",
       contact: "Bize ulaşın",
-      contactCompanyIntro:
-        "En sevdiğiniz TV şovu ve film pisti. Yardım etmek ve dinlemek için buradayız.",
+      contactCompanyIntro: "En sevdiğiniz TV şovu ve film pisti. Yardım etmek ve dinlemek için buradayız.",
       contactLearnMore: "Bizimle ilgili daha fazla bilgi edinin",
       contactCategory: "Kategori Kategori",
       contactCategoryBug: "Bug",
@@ -315,10 +309,8 @@ const tr = {
       apiKeysDescription: "API anahtarlarınızı erişmek için yönetin Watchr Programmatically.",
       apiKeysCreate: "Bir anahtar oluşturun",
       apiKeysEmpty: "API anahtarları henüz",
-      apiKeysEmptyDescription:
-        "Bir API anahtarı oluşturmak için Watchr Diğer uygulamalardan gelen veriler.",
-      apiKeysLimitReached:
-        "10 aktif API anahtarına ulaştınız. Revoke veya yeni bir anahtar oluşturmak için birini sil.",
+      apiKeysEmptyDescription: "Bir API anahtarı oluşturmak için Watchr Diğer uygulamalardan gelen veriler.",
+      apiKeysLimitReached: "10 aktif API anahtarına ulaştınız. Revoke veya yeni bir anahtar oluşturmak için birini sil.",
       apiKeyName: "Anahtar adı",
       apiKeyNamePlaceholder: "E.g. My script",
       apiKeyNameRequired: "Lütfen anahtarınız için bir isim girin.",
@@ -334,16 +326,13 @@ const tr = {
       apiKeysRenamed: "API anahtar adı verildi.",
       apiKeysRevoke: "Revoke",
       apiKeysRevokeConfirmTitle: "Revoke API anahtarı?",
-      apiKeysRevokeConfirmMessage:
-        "Bu anahtar hemen çalışmayı durduracaktır. Bu eylem geri alınamaz.",
+      apiKeysRevokeConfirmMessage: "Bu anahtar hemen çalışmayı durduracaktır. Bu eylem geri alınamaz.",
       apiKeysRevokedSuccess: "API anahtarı iptal edildi.",
       apiKeysDeleteConfirmTitle: "Delete API anahtarı?",
-      apiKeysDeleteConfirmMessage:
-        "Bu, anahtarı kalıcı olarak silecektir. Bu eylem geri dönüşümlüdür.",
+      apiKeysDeleteConfirmMessage: "Bu, anahtarı kalıcı olarak silecektir. Bu eylem geri dönüşümlüdür.",
       apiKeysDeletedSuccess: "API anahtarı silindi.",
       apiKeysTokenWarning: "Bu token asla tekrar göstermeyecek",
-      apiKeysTokenWarningDescription:
-        "Şimdi kopyalayın ve güvenli bir şekilde saklayın. Tekrar görebileceksiniz.",
+      apiKeysTokenWarningDescription: "Şimdi kopyalayın ve güvenli bir şekilde saklayın. Tekrar görebileceksiniz.",
       apiKeysTokenLabel: "API token",
       apiKeysCopy: "Kopyalama",
       apiKeysCopied: "Copied to klibi",
@@ -374,10 +363,8 @@ const tr = {
       favoritesAddHint: "Kütüphanenizden eklemek için",
       favoritesNoLibraryItems: "Kütüphanenizde henüz ürün yok",
       favoritesNoLibraryItemsSubtitle: "Hiç favori yok... Siz seçicisiniz, bunun gibiyiz.",
-      favoritesAlready:
-        "Eklenmiş eklenmiş eklenmiş eklenmiş eklenmiş eklenmiş eklenmiş eklenmiş eklenmiş eklenmiş eklenmiş eklenmiş eklenmiş eklenmiş eklenmiş eklenmiş eklenmiş eklenmiş eklenmiş eklenmiş ek eklendi",
-      favoritesAddBtn:
-        "Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add",
+      favoritesAlready: "Eklenmiş eklenmiş eklenmiş eklenmiş eklenmiş eklenmiş eklenmiş eklenmiş eklenmiş eklenmiş eklenmiş eklenmiş eklenmiş eklenmiş eklenmiş eklenmiş eklenmiş eklenmiş eklenmiş eklenmiş ek eklendi",
+      favoritesAddBtn: "Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add Add",
       favoritesAdded: "Favorilere eklendi",
       favoritesRemoved: "Favorilerden kaldırıldı",
       activityTitle: "Son etkinlik etkinliği",
@@ -402,8 +389,7 @@ const tr = {
       yearInReviewTopShows: "Top şovları",
       yearInReviewFavGenre: "Favori türü",
       yearInReviewAvgRating: "Ortalama Puan Ortalama",
-      aboutMe:
-        "About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About",
+      aboutMe: "About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About",
       bio: "Bio Bio Bio Bio Bio",
       editBio: "Edit bio Edit",
       bioPlaceholder: "Bize kendiniz hakkında söyle...",
@@ -421,8 +407,7 @@ const tr = {
       following: "Takip",
       friendsActivity: "Arkadaşlar aktivitesi",
       findFriends: "Arkadaş bul",
-      activityFeedEmpty:
-        "Henüz aktivite yok. Faaliyetlerini burada güncellemelerini görmek için paylaşan kullanıcıları takip edin.",
+      activityFeedEmpty: "Henüz aktivite yok. Faaliyetlerini burada güncellemelerini görmek için paylaşan kullanıcıları takip edin.",
       filter_all: "Tümü",
       filter_rating: "Puanlar",
       filter_watchlist_add: "Liste",
@@ -431,15 +416,12 @@ const tr = {
       privateProfile: "Bu kullanıcının aktivitesi özeldir.",
       publicProfileActivity: "Bu kullanıcı faaliyetlerini halka açık bir şekilde paylaşıyor.",
       shareActivityTitle: "aktivitemi paylaşın",
-      shareActivityDescription:
-        "Mümkün olduğunda, takip eden kullanıcılar puanlarınızı, saat liste eklemelerini ve etkinlik beslenmelerindeki yorumları görebilir.",
+      shareActivityDescription: "Mümkün olduğunda, takip eden kullanıcılar puanlarınızı, saat liste eklemelerini ve etkinlik beslenmelerindeki yorumları görebilir.",
       activityPublic: "Public Public Public",
       activityPrivate: "Özel Özel Özel Özel Özel Özel Özel Özel",
       ratedShow: "Kazanılan derece saygın bir değerlendirme {{title}} ({{value}}/10)",
-      addedToWatchlist:
-        "ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek {{title}} Onların listesine",
-      addedToWatchlistMultiple:
-        "ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek {{count}} Onların listesine gösterir",
+      addedToWatchlist: "ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek {{title}} Onların listesine",
+      addedToWatchlistMultiple: "ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek {{count}} Onların listesine gösterir",
       commentedOn: "yorum üzerine yorum {{title}}",
       viewComment: "View comment",
       viewShow: "View Show",
@@ -452,8 +434,7 @@ const tr = {
       synopsis: "Synopsis",
       similarShows: "Benzer gösteriler",
       noOverview: "Hiçbir genel bakış mevcut değildir.",
-      tabOverview:
-        "Genel Bakış Genel Bakış Genel Bakış Genel Bakış Genel Bakış Genel Bakış Genel Bakış Genel Bakış Genel Bakış Genel Bakış Genel Bakış",
+      tabOverview: "Genel Bakış Genel Bakış Genel Bakış Genel Bakış Genel Bakış Genel Bakış Genel Bakış Genel Bakış Genel Bakış Genel Bakış Genel Bakış",
       tabEpisodes: "Bölümler",
       tabCast: "Cast Cast Cast",
       tabComments: "Yorumlar",
@@ -490,8 +471,7 @@ const tr = {
       dropShow: "stop show",
       resumeShow: "Resume show",
       dropConfirmTitle: "Gösteriyi durdurun?",
-      dropConfirmMessage:
-        "Bu gösteri listenizden kaldırılacaktır. Onu herhangi bir zamanda geri ekleyebilirsiniz.",
+      dropConfirmMessage: "Bu gösteri listenizden kaldırılacaktır. Onu herhangi bir zamanda geri ekleyebilirsiniz.",
       updateProgressError: "İlerlemeyi güncellemek için kullanılamaz",
       updateTrackingError: "Takip Edilemez",
       droppedStatus: "Show removed from your list",
@@ -500,14 +480,12 @@ const tr = {
       episodesWatched: "{{count}} Bölümler izledi",
       markAllAired: "Mark havalandı",
       markAllAiredConfirmTitle: "Mark all aired partition?",
-      markAllAiredConfirmMessage:
-        "Tüm havalı bölümler izledikçe işaretlenecek. Havasız olanlar atılır.",
+      markAllAiredConfirmMessage: "Tüm havalı bölümler izledikçe işaretlenecek. Havasız olanlar atılır.",
       markAllAiredSuccess: "Tüm havalı bölümler izledikçe işaretlendi",
       markAllAiredError: "Tartışmalar",
       markAllAiredAlreadyUpToDate: "Tüm havalı bölümler zaten izlenildiği gibi işaretleniyor",
       markSeasonAiredConfirmTitle: "Mark Sığınmış Bölümleri{{season}}??",
-      markSeasonAiredConfirmMessage:
-        "Bu sezonun tüm havalı bölümleri izlenildiği gibi işaretlenecek.",
+      markSeasonAiredConfirmMessage: "Bu sezonun tüm havalı bölümleri izlenildiği gibi işaretlenecek.",
       nextEpisodeAired: "Şimdi kullanılabilir",
     },
     comments: {
@@ -526,11 +504,9 @@ const tr = {
       rejectedHate: "Yorumunuz nefretli içerik içeriyor. Lütfen saygılı olun.",
       rejectedHarassment: "Yorumunuz taciz içeriyor. Lütfen saygılı olun.",
       rejectedSpam: "Yorumunuz spam gibi görünüyor. Lütfen anlamlı içerik yazın.",
-      rejectedSelfHarm:
-        "Eğer mücadele ediyorsanız lütfen yardım için dışarı çık. Bu içerik izin verilmez.",
+      rejectedSelfHarm: "Eğer mücadele ediyorsanız lütfen yardım için dışarı çık. Bu içerik izin verilmez.",
       rejectedViolence: "Yorumunuz şiddetli içerik içerir. Lütfen saygılı olun.",
-      rejectedOther:
-        "Yorumunuz uygunsuz olarak bayraklandı. Lütfen topluluk yönergelerimizi gözden geçirin.",
+      rejectedOther: "Yorumunuz uygunsuz olarak bayraklandı. Lütfen topluluk yönergelerimizi gözden geçirin.",
       spoilerAutoDetected: "Spoiler tespit edildi - yorumunuz otomatik olarak etiketlendi.",
       aiSummary: "AI Özeti",
       aiSummaryLoading: "Gening summary...",
@@ -545,8 +521,7 @@ const tr = {
       sortLiked: "Liked Liked",
       sortReplied: "Çoğu cevap yanıtladı",
       spoilerWarningTitle: "Uyarı - spoiler",
-      spoilerWarningMessage:
-        'You haven\'t watching "{{title}}" henüz. Yorumlar spoiler içerebilir.',
+      spoilerWarningMessage: "You haven't watching \"{{title}}\" henüz. Yorumlar spoiler içerebilir.",
       proceedAnyway: "Her neyse görüntüle",
       markWatchedAndProceed: "Mark izledikçe ve oku",
       reactionError: "Tepkisiz tepki verme",
@@ -593,13 +568,10 @@ const tr = {
       pending: "Pending Pending",
       status: "Durum:",
       started: "İthalat başladı",
-      viewErrors:
-        "View View View View {{count}} Hata hataları hataları hataları hataları hataları hataları",
+      viewErrors: "View View View View {{count}} Hata hataları hataları hataları hataları hataları hataları",
       total: "Toplam toplam toplam toplam toplam",
-      imported:
-        "ithal edilen ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal",
-      failures:
-        "başarısızlık başarısızlık başarısızlık başarısızlık başarısızlık başarısızlık başarısızlık",
+      imported: "ithal edilen ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal",
+      failures: "başarısızlık başarısızlık başarısızlık başarısızlık başarısızlık başarısızlık başarısızlık",
       line: "Line Line Line",
       connectTrakt: "Connect your your Connect your Trakt Hesap hesabı",
       traktConnected: "Trakt account bağlantılı",
@@ -618,11 +590,9 @@ const tr = {
       reviewPending: "İnceleme {{count}} Beklenmeyen maçları",
       recentImports: "Son zamanlarda ithalat son",
       noRecentImports: "Son zamanlarda ithalat yok",
-      importDisclaimer:
-        "İthalatlar platform tarafından değişebilir. Bazı veriler maçlanamaz veya gecikebilir.",
+      importDisclaimer: "İthalatlar platform tarafından değişebilir. Bazı veriler maçlanamaz veya gecikebilir.",
       bannerProcessing: "İthalat... {{processed}}/{{total}}",
-      bannerCompleted:
-        "Tamamlandı - {{matched}} ithal edilen ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal",
+      bannerCompleted: "Tamamlandı - {{matched}} ithal edilen ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal ithal",
       bannerFailed: "İthalat başarısız oldu",
       bannerCollapse: "Collap",
       bannerExpand: "Genişletilmiş Genişleme",
@@ -630,8 +600,7 @@ const tr = {
     },
     importReview: {
       title: "İnceleme maçları",
-      remaining:
-        "Kalan kalan kalan geri kalan geri kalan geri kalan geri kalan geri kalan kalan geri kalan geri kalan geri kalan kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan kalan geri kalan geri kalan geri kalan geri kalan geri kalan kalan geri kalan geri kalan geri kalan geri kalan kalan geri kalan kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan kalan kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan kalan kalan kalan kalan kalan kalan kalan kalan kalan kalan kalan kalan kalan kalan kalan kalan kalan kalan kalan kalan kalan kalan kalan kalan kalan kalan",
+      remaining: "Kalan kalan kalan geri kalan geri kalan geri kalan geri kalan geri kalan kalan geri kalan geri kalan geri kalan kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan kalan geri kalan geri kalan geri kalan geri kalan geri kalan kalan geri kalan geri kalan geri kalan geri kalan kalan geri kalan kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan kalan kalan geri kalan geri kalan geri kalan geri kalan geri kalan geri kalan kalan kalan kalan kalan kalan kalan kalan kalan kalan kalan kalan kalan kalan kalan kalan kalan kalan kalan kalan kalan kalan kalan kalan kalan kalan kalan",
       matchScore: "Maç",
       select: "Select Select Select Select",
       skip: "Bu öğeyi Skip this item",
@@ -659,8 +628,7 @@ const tr = {
     upcoming: {
       today: "Bugün Bugün Bugün Bugün Bugün Bugün Bugün Bugün",
       tomorrow: "Yarın Yarın Yarın Yarın",
-      inDays:
-        "In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In {{count}} günler günler günler günler",
+      inDays: "In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In In {{count}} günler günler günler günler",
       thisWeek: "Bu hafta",
       nextWeek: "Sonraki hafta",
       later: "Daha sonra daha sonra",
@@ -687,8 +655,7 @@ const tr = {
       ratingError: "Hız bölüm için kullanılamaz",
       markSeasonAired: "Mark havalandı",
       markSeasonAiredConfirmTitle: "Mark Sığınmış Bölümleri{{season}}??",
-      markSeasonAiredConfirmMessage:
-        "Bu sezonun tüm havalı bölümleri izlenildiği gibi işaretlenecek. Havasız olanlar atılır.",
+      markSeasonAiredConfirmMessage: "Bu sezonun tüm havalı bölümleri izlenildiği gibi işaretlenecek. Havasız olanlar atılır.",
       aiSummaryLoading: "AI Özeti Gening...",
       aiSummaryTitle: "AI Özeti",
       communityStats: "Topluluk Topluluğu",
@@ -710,34 +677,25 @@ const tr = {
       filteredActive: "Filtrelenmiş",
     },
     help: {
-      title:
-        "Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım",
+      title: "Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım Yardım",
       subtitle: "Verilerinizi ithal etmek ve ihraç etmek için kılavuzlar.",
       importTvTime: "İthalattan TV Time",
-      importTvTimeDesc:
-        "TV Time 15 Temmuz 2026'da kapanıyor. Verilerinizi ithal etmek için, bir GDPR ihracat talep edin TV Time Uygulama (Settings → Privacy → Verilerimi İndir). Saat tarihinizi içeren bir .zip dosyası alacaksınız. Burada yükler ve şovlarınızı otomatik olarak eşleştireceğiz.",
+      importTvTimeDesc: "TV Time 15 Temmuz 2026'da kapanıyor. Verilerinizi ithal etmek için, bir GDPR ihracat talep edin TV Time Uygulama (Settings → Privacy → Verilerimi İndir). Saat tarihinizi içeren bir .zip dosyası alacaksınız. Burada yükler ve şovlarınızı otomatik olarak eşleştireceğiz.",
       importTrakt: "İthalattan Trakt",
-      importTraktDesc:
-        "verilerinizi sizden ihracat Trakt Ayarlara geçerek → Export Data. Bu, izlediğiniz tarih, notlar ve saat listenizle bir JSON dosyasını indirecektir. Dosyayı buraya ithal etmek için Watchr.",
+      importTraktDesc: "verilerinizi sizden ihracat Trakt Ayarlara geçerek → Export Data. Bu, izlediğiniz tarih, notlar ve saat listenizle bir JSON dosyasını indirecektir. Dosyayı buraya ithal etmek için Watchr.",
       importImdb: "İthalattan IMDb",
-      importImdbDesc:
-        "ihracatınızı ihracatlarınızı IMDb Notlar ve imdb.com'dan listeleyin (Operalarınız → Verilerinizi İndir). CSV dosyası, puanlanmış başlıklarınızı içerecektir. Burada yükle ve onları eşleştireceğiz TMDB.",
+      importImdbDesc: "ihracatınızı ihracatlarınızı IMDb Notlar ve imdb.com'dan listeleyin (Operalarınız → Verilerinizi İndir). CSV dosyası, puanlanmış başlıklarınızı içerecektir. Burada yükle ve onları eşleştireceğiz TMDB.",
       importLetterboxd: "İthalattan Letterboxd",
-      importLetterboxdDesc:
-        "ihracatınızı ihracatlarınızı Letterboxd Mektupboxd.com (Settings → Privacy → Export). CSV dosyası, tarihlerle izlenen filmlerinizi içerecektir. Film tarihini ithal etmek için buraya yazın.",
+      importLetterboxdDesc: "ihracatınızı ihracatlarınızı Letterboxd Mektupboxd.com (Settings → Privacy → Export). CSV dosyası, tarihlerle izlenen filmlerinizi içerecektir. Film tarihini ithal etmek için buraya yazın.",
       exportFormats: "İhracat formatları",
-      exportFormatsDesc:
-        "Watchr Birden fazla ihracat biçimini destekler. Yerli Watchr JSON formatı yedeklemeler ve yeniden rezervasyon için önerilir. Diğer formatlar ilgili platformları ile uyumludur.",
+      exportFormatsDesc: "Watchr Birden fazla ihracat biçimini destekler. Yerli Watchr JSON formatı yedeklemeler ve yeniden rezervasyon için önerilir. Diğer formatlar ilgili platformları ile uyumludur.",
       reviewMatches: "İnceleme maçları",
-      reviewMatchesDesc:
-        "Ne zaman ithalat yaparken, şovlarınızı otomatik olarak eşleştiriyoruz TMDBBir maç belirsizse, inceleme için işaretlenecek. Daha sonra doğru maçı onaylayabilir veya atlayabilirsiniz. Kayaklı eşyalar manuel olarak daha sonra araılabilir.",
+      reviewMatchesDesc: "Ne zaman ithalat yaparken, şovlarınızı otomatik olarak eşleştiriyoruz TMDBBir maç belirsizse, inceleme için işaretlenecek. Daha sonra doğru maçı onaylayabilir veya atlayabilirsiniz. Kayaklı eşyalar manuel olarak daha sonra araılabilir.",
       backToDashboard: "Panoya Geri Döndü",
     },
     onboarding: {
-      welcomeTitle:
-        "Hoş geldiniz to Welcome to Welcome to Welcome to Welcome to Welcome to Welcome to Watchr",
-      welcomeSubtitle:
-        "Gösterilerinizi ve filmlerinizi izleyin, en sevdiğiniz bölümlerinizi alın ve toplulukla sohbet edin.",
+      welcomeTitle: "Hoş geldiniz to Welcome to Welcome to Welcome to Welcome to Welcome to Welcome to Watchr",
+      welcomeSubtitle: "Gösterilerinizi ve filmlerinizi izleyin, en sevdiğiniz bölümlerinizi alın ve toplulukla sohbet edin.",
       welcomeStart: "Get started start Get started Get start Get start Get start Get start",
       skip: "Skip Skip Skip Skip Skip Skip",
       importTitle: "Verilerinizi ithal edin",
@@ -754,14 +712,12 @@ const tr = {
       loadingMore: "Daha fazla yükleniyor...",
       selectionSearchPlaceholder: "Arama...",
       selectionNoResults: "Sonuçlar yok",
-      selectedCount:
-        "{{count}} Seçilen seçilen seçilmiş seçilmiş seçilmiş seçilmiş seçilmiş seçilmiş seçilmiş seçilmiş",
+      selectedCount: "{{count}} Seçilen seçilen seçilmiş seçilmiş seçilmiş seçilmiş seçilmiş seçilmiş seçilmiş seçilmiş",
       confirmationTitle: "Hemen hemen hemen yapıldı",
       confirmationSubtitle: "İşte seçiminiz. Daha sonra daha fazla gösteri ekleyebilirsiniz.",
       confirmationFinish: "bitirin",
       confirmationEmpty: "Seçim yok. Daha sonra gösterebilirsin.",
-      batchPartialSuccess:
-        "{{added}} eklendi, {{failed}} Başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız",
+      batchPartialSuccess: "{{added}} eklendi, {{failed}} Başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız başarısız",
       batchError: "Seçim eklemek için kullanılamaz. bağlantınızı kontrol edin ve tekrar deneyin.",
       onboardingError: "Tamamlamak için güvenilmez. Lütfen tekrar deneyin.",
       loadingProfile: "Yükleme profili...",
@@ -842,8 +798,7 @@ const tr = {
       empty: "Son etkinlik yok",
       rated: "Kazanılan derece saygın bir değerlendirme",
       commented: "yorum üzerine yorum",
-      added:
-        "ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek",
+      added: "ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek ek",
     },
   },
   trafficNotice: {
@@ -859,8 +814,7 @@ const tr = {
   seo: {
     defaultTitle: "Watchr - TV şovlarınızı ve filmlerinizi izleyin",
     contact: "Bize ulaşın",
-    defaultDescription:
-      "Saat durumunuzu takip edin, hız bölümlerini, yeni içeriği keşfedin ve ihracat TV Time Veriler.",
+    defaultDescription: "Saat durumunuzu takip edin, hız bölümlerini, yeni içeriği keşfedin ve ihracat TV Time Veriler.",
     library: "Kütüphanem",
     search: "Arama Arama",
     series: "My Series",
@@ -873,8 +827,7 @@ const tr = {
     import: "İthalat Data",
     importReview: "Import Review",
     editProfile: "Edit Profile",
-    profileAbout:
-      "About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About",
+    profileAbout: "About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About About",
     profileAppearance: "Görünüm görünümü",
     profileData: "Data Management",
     profileLanguage: "Dil Dili",
@@ -935,8 +888,7 @@ const tr = {
     unread: "Unread",
     markAllRead: "Mark all as read",
     reactions: "Reaksiyonlar",
-    welcomeTitle:
-      "Hoş geldiniz to Welcome to Welcome to Welcome to Welcome to Welcome to Welcome to Watchr!",
+    welcomeTitle: "Hoş geldiniz to Welcome to Welcome to Welcome to Welcome to Welcome to Welcome to Watchr!",
     cannotMessageSelf: "Kendinize mesaj gönderemezsiniz",
     dmNotAllowed: "Bu kullanıcı sadece arkadaşlardan mesajları kabul eder",
     userBlocked: "Kullanıcı engelledi",
@@ -955,13 +907,18 @@ const tr = {
     mutualFriend: "Ortak arkadaş",
     newMessageSnackbar: "{{sender}}: {{preview}}",
     maxImages: "Mesaj başına en fazla 4 görsel",
+    deleteConversation: "Konuşma",
+    deleteConversationConfirm: "Bu konuşmayı delete?",
+    deleteConversationConfirmDesc: "Bu konuşma listenizden kaldırılacaktır. Diğer katılımcı hala buna sahip olacak.",
+    conversationDeleted: "Konuşma silindi",
+    conversationRestored: "Konuşma yeniden restore edildi",
+    markAsRead: "Mark as read reading",
+    restore: "geri yükleme geri yükleme",
   },
   updates: {
     title: "Güncellemeler mevcut Güncellemeler",
-    message:
-      "Yeni bir versiyon Watchr Geliştirmeler ve otobüsler ile kullanılabilir. Şimdi güncellemek ister misiniz?",
-    degradedWarning:
-      "Güncelleme yapmazsanız, bazı özellikler doğru şekilde çalışmayabilir veya kullanılamaz.",
+    message: "Yeni bir versiyon Watchr Geliştirmeler ve otobüsler ile kullanılabilir. Şimdi güncellemek ister misiniz?",
+    degradedWarning: "Güncelleme yapmazsanız, bazı özellikler doğru şekilde çalışmayabilir veya kullanılamaz.",
     updateNow: "Update Update Update Update Update Update Update",
     later: "Belki daha sonra",
     ok: "Tamam tamam",

@@ -11,9 +11,10 @@ interface SearchBarProps {
   onClose: () => void;
   minChars?: number;
   autoFocus?: boolean;
+  minCharsTip?: string;
 }
 
-export function SearchBar({ value, onChangeText, placeholder, onClose, minChars = 3, autoFocus = true }: SearchBarProps) {
+export function SearchBar({ value, onChangeText, placeholder, onClose, minChars = 3, autoFocus = true, minCharsTip }: SearchBarProps) {
   const colors = useThemeColors();
   const { t } = useI18n();
   const [localValue, setLocalValue] = useState(value);
@@ -51,7 +52,7 @@ export function SearchBar({ value, onChangeText, placeholder, onClose, minChars 
       </View>
       {showTip && (
         <View className="mt-1.5 px-1">
-          <Text className="text-text-muted text-xs">{t("screens.movies.minCharsTip")}</Text>
+          <Text className="text-text-muted text-xs">{minCharsTip ?? t("screens.movies.minCharsTip")}</Text>
         </View>
       )}
     </View>

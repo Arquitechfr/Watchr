@@ -252,8 +252,7 @@ const ko = {
       themeDark: "한국어",
       about: "제품정보",
       aboutVersion: "이름 *",
-      aboutDescription:
-        "Watchr TV 쇼와 영화 트래커입니다. 진행 상황을 추적하고, 좋아하는 에피소드를 평가하고, 커뮤니티와 채팅하십시오.",
+      aboutDescription: "Watchr TV 쇼와 영화 트래커입니다. 진행 상황을 추적하고, 좋아하는 에피소드를 평가하고, 커뮤니티와 채팅하십시오.",
       aboutCredits: "데이터 제공 TMDB· Watchr 오픈 소스 프로젝트입니다.",
       aboutLegalEditor: "한국어",
       aboutLegalCompanyName: "회사명",
@@ -311,8 +310,7 @@ const ko = {
       apiKeysCreate: "키 만들기",
       apiKeysEmpty: "API 키가 아직 없습니다",
       apiKeysEmptyDescription: "API 키 만들기 Watchr 다른 앱의 데이터.",
-      apiKeysLimitReached:
-        "10 활성 API 키의 한계에 도달했습니다. 새로운 키를 생성하기 위해 하나 수정 또는 삭제.",
+      apiKeysLimitReached: "10 활성 API 키의 한계에 도달했습니다. 새로운 키를 생성하기 위해 하나 수정 또는 삭제.",
       apiKeyName: "키 이름",
       apiKeyNamePlaceholder: "e.g. 내 스크립트",
       apiKeyNameRequired: "당신의 열쇠를 위한 이름을 입력하십시오.",
@@ -328,8 +326,7 @@ const ko = {
       apiKeysRenamed: "API 키 이름을 변경.",
       apiKeysRevoke: "팟캐스트",
       apiKeysRevokeConfirmTitle: "API 키가 되죠?",
-      apiKeysRevokeConfirmMessage:
-        "이 열쇠는 즉시 일 중지할 것입니다. 이 동작은 undone일 수 없습니다.",
+      apiKeysRevokeConfirmMessage: "이 열쇠는 즉시 일 중지할 것입니다. 이 동작은 undone일 수 없습니다.",
       apiKeysRevokedSuccess: "API 키가 수정되었습니다.",
       apiKeysDeleteConfirmTitle: "API 키 삭제?",
       apiKeysDeleteConfirmMessage: "이것은 영구적으로 열쇠를 삭제합니다. 이 행동은 불가능합니다.",
@@ -419,8 +416,7 @@ const ko = {
       privateProfile: "이 사용자의 활동은 개인입니다.",
       publicProfileActivity: "이 사용자는 공개적으로 활동을 공유합니다.",
       shareActivityTitle: "내 활동",
-      shareActivityDescription:
-        "활성화 할 때, 당신은 당신의 평가를 볼 수있는 사용자, 시계 목록 추가, 그들의 활동 피드에 대한 의견.",
+      shareActivityDescription: "활성화 할 때, 당신은 당신의 평가를 볼 수있는 사용자, 시계 목록 추가, 그들의 활동 피드에 대한 의견.",
       activityPublic: "한국어",
       activityPrivate: "한국어",
       ratedShow: "이름 * {{title}} (주){{value}}/10) ·",
@@ -484,8 +480,7 @@ const ko = {
       episodesWatched: "{{count}} 에피소드 watched",
       markAllAired: "연락처",
       markAllAiredConfirmTitle: "모든 공개 에피소드를 표시?",
-      markAllAiredConfirmMessage:
-        "모든 공방 에피소드는 시계로 표시됩니다. 비어 있는 것은 건너뛰고 있습니다.",
+      markAllAiredConfirmMessage: "모든 공방 에피소드는 시계로 표시됩니다. 비어 있는 것은 건너뛰고 있습니다.",
       markAllAiredSuccess: "모든 aired episode 표시 로 watched",
       markAllAiredError: "에피소드를 표시 할 수 없습니다.",
       markAllAiredAlreadyUpToDate: "모든 공상 에피소드는 이미 시계로 표시",
@@ -526,8 +521,7 @@ const ko = {
       sortLiked: "이름 *",
       sortReplied: "가장 대답",
       spoilerWarningTitle: "경고 - 스포일러",
-      spoilerWarningMessage:
-        '당신은 볼 수 없습니다 "{{title}}"하지만. 댓글은 스포일러를 포함 할 수 있습니다.',
+      spoilerWarningMessage: "당신은 볼 수 없습니다 \"{{title}}\"하지만. 댓글은 스포일러를 포함 할 수 있습니다.",
       proceedAnyway: "오시는 길",
       markWatchedAndProceed: "표시 로 watched 과 읽음",
       reactionError: "반응할 수 없음",
@@ -596,8 +590,7 @@ const ko = {
       reviewPending: "(주) {{count}} 관련 상품",
       recentImports: "최근 수입",
       noRecentImports: "최근 수입 없음",
-      importDisclaimer:
-        "수입은 플랫폼에 따라 다를 수 있습니다. 일부 데이터는 일치하거나 지연 될 수 없습니다.",
+      importDisclaimer: "수입은 플랫폼에 따라 다를 수 있습니다. 일부 데이터는 일치하거나 지연 될 수 없습니다.",
       bannerProcessing: "수입 ... {{processed}}/ 한국어{{total}}",
       bannerCompleted: "수입 완료 — {{matched}} 제품 설명",
       bannerFailed: "수입 실패",
@@ -662,8 +655,7 @@ const ko = {
       ratingError: "Unable 에 율 episode",
       markSeasonAired: "연락처",
       markSeasonAiredConfirmTitle: "Mark aired 에피소드 의 S{{season}}·",
-      markSeasonAiredConfirmMessage:
-        "이 시즌의 모든 공기 에피소드는 시계로 표시됩니다. 비어 있는 것은 건너뛰고 있습니다.",
+      markSeasonAiredConfirmMessage: "이 시즌의 모든 공기 에피소드는 시계로 표시됩니다. 비어 있는 것은 건너뛰고 있습니다.",
       aiSummaryLoading: "AI 요약 생성 ...",
       aiSummaryTitle: "AI 요약",
       communityStats: "- 연혁",
@@ -688,23 +680,17 @@ const ko = {
       title: "지원하다",
       subtitle: "수입 및 수출에 대한 가이드.",
       importTvTime: "구매하기 TV Time",
-      importTvTimeDesc:
-        "TV Time 휴관일 7월 15일, 2026일 데이터를 가져 오기 위해 GDPR 수출을 요청하십시오. TV Time 앱 (설정 → 개인 정보 보호 → 내 데이터를 다운로드). 시계 기록을 포함하는 .zip 파일을 받게 됩니다. 여기에서 업로드하고 우리는 당신의 쇼를 자동적으로 일치할 것입니다.",
+      importTvTimeDesc: "TV Time 휴관일 7월 15일, 2026일 데이터를 가져 오기 위해 GDPR 수출을 요청하십시오. TV Time 앱 (설정 → 개인 정보 보호 → 내 데이터를 다운로드). 시계 기록을 포함하는 .zip 파일을 받게 됩니다. 여기에서 업로드하고 우리는 당신의 쇼를 자동적으로 일치할 것입니다.",
       importTrakt: "구매하기 Trakt",
-      importTraktDesc:
-        "데이터 내보내기 Trakt 설정 → 내보내기 데이터로 이동합니다. watched history, ratings, watchlist로 JSON 파일을 다운로드합니다. 파일 업로드 Watchr·",
+      importTraktDesc: "데이터 내보내기 Trakt 설정 → 내보내기 데이터로 이동합니다. watched history, ratings, watchlist로 JSON 파일을 다운로드합니다. 파일 업로드 Watchr·",
       importImdb: "구매하기 IMDb",
-      importImdbDesc:
-        "수출하기 IMDb imdb.com (Your Activity → 데이터 다운로드)의 등급 및 시계 목록. CSV 파일은 정격 제목을 포함합니다. 여기에 업로드하고 우리는 그들과 일치합니다. TMDB·",
+      importImdbDesc: "수출하기 IMDb imdb.com (Your Activity → 데이터 다운로드)의 등급 및 시계 목록. CSV 파일은 정격 제목을 포함합니다. 여기에 업로드하고 우리는 그들과 일치합니다. TMDB·",
       importLetterboxd: "구매하기 Letterboxd",
-      importLetterboxdDesc:
-        "수출하기 Letterboxd Letterboxd.com (Settings → 개인 정보 보호 → 수출)의 일기. CSV 파일에는 날짜가 표시된 영화를 포함합니다. 영화의 역사를 가져올 수 있습니다.",
+      importLetterboxdDesc: "수출하기 Letterboxd Letterboxd.com (Settings → 개인 정보 보호 → 수출)의 일기. CSV 파일에는 날짜가 표시된 영화를 포함합니다. 영화의 역사를 가져올 수 있습니다.",
       exportFormats: "수출 형식",
-      exportFormatsDesc:
-        "Watchr 여러 수출 형식을 지원합니다. 이름 * Watchr JSON 형식은 백업 및 재 전달을 권장합니다. 다른 형식은 해당 플랫폼과 호환됩니다.",
+      exportFormatsDesc: "Watchr 여러 수출 형식을 지원합니다. 이름 * Watchr JSON 형식은 백업 및 재 전달을 권장합니다. 다른 형식은 해당 플랫폼과 호환됩니다.",
       reviewMatches: "관련 상품",
-      reviewMatchesDesc:
-        "가져올 때, 우리는 자동으로 당신의 쇼를 일치 TMDB. 경기가 불확실한 경우에, 그것은 검토를 위해 표시될 것입니다. 올바른 경기를 확인하거나 건너 뛸 수 있습니다. Skipped 항목은 수동으로 나중에 검색 할 수 있습니다.",
+      reviewMatchesDesc: "가져올 때, 우리는 자동으로 당신의 쇼를 일치 TMDB. 경기가 불확실한 경우에, 그것은 검토를 위해 표시될 것입니다. 올바른 경기를 확인하거나 건너 뛸 수 있습니다. Skipped 항목은 수동으로 나중에 검색 할 수 있습니다.",
       backToDashboard: "대시보드",
     },
     onboarding: {
@@ -816,8 +802,7 @@ const ko = {
     },
   },
   trafficNotice: {
-    message:
-      "우리의 서비스는 느리게 경험하고 있습니다. 우리는 문제를 해결하기 위해 노력하고 있습니다. 감사합니다.",
+    message: "우리의 서비스는 느리게 경험하고 있습니다. 우리는 문제를 해결하기 위해 노력하고 있습니다. 감사합니다.",
   },
   maintenance: {
     title: "Watchr",
@@ -829,8 +814,7 @@ const ko = {
   seo: {
     defaultTitle: "Watchr — TV 쇼 & 영화 트랙",
     contact: "기타 제품",
-    defaultDescription:
-      "시계 상태, 비율 에피소드를 추적, 새로운 콘텐츠를 발견, 당신의 가져 오기 TV Time 데이터.",
+    defaultDescription: "시계 상태, 비율 에피소드를 추적, 새로운 콘텐츠를 발견, 당신의 가져 오기 TV Time 데이터.",
     library: "내 도서관",
     search: "제품정보",
     series: "내 시리즈",
@@ -923,6 +907,13 @@ const ko = {
     mutualFriend: "상호 친구",
     newMessageSnackbar: "{{sender}}: {{preview}}",
     maxImages: "메시지당 최대 4개 이미지",
+    deleteConversation: "대화하기",
+    deleteConversationConfirm: "이 대화를 삭제?",
+    deleteConversationConfirmDesc: "이 대화는 목록에서 제거됩니다. 다른 참가자는 여전히 있습니다.",
+    conversationDeleted: "삭제 된",
+    conversationRestored: "대화 복원",
+    markAsRead: "읽기로 표시",
+    restore: "관련 상품",
   },
   updates: {
     title: "자주 묻는 질문",

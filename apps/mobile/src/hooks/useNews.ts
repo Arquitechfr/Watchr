@@ -2,6 +2,7 @@ import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { getNews, getNewsSources, getFilteredNews } from "../services/news.service";
 import { useAuthStore } from "../store/authStore";
 import { useLocaleStore } from "../store/localeStore";
+import { useRemoteConfig } from "./useRemoteConfig";
 
 const NEWS_QUERY_KEY = "news";
 
@@ -32,11 +33,12 @@ export function useNews(sourceId: string | null) {
 export function useFilteredNews(enabled: boolean) {
   const isHydrated = useAuthStore((state) => state.isHydrated);
   const locale = useLocaleStore((state) => state.locale);
+  const config = useRemoteConfig();
   return useQuery({
     queryKey: [NEWS_QUERY_KEY, "filtered", locale],
     queryFn: () => getFilteredNews(locale),
     staleTime: 15 * 60 * 1000,
-    enabled: isHydrated && enabled,
+    enabled: isHydrated && config.ai_news_filtering_enabled && enabled,
     placeholderData: keepPreviousData,
   });
 }

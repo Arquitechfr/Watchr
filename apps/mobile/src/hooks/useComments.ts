@@ -21,6 +21,7 @@ import {
 import { log } from "../utils/logger";
 import { useAuthStore } from "../store/authStore";
 import { useLocaleStore } from "../store/localeStore";
+import { useRemoteConfig } from "./useRemoteConfig";
 
 const COMMENTS_QUERY_KEY = "comments";
 
@@ -393,10 +394,11 @@ export function useThreadSummary(
 ) {
   const isHydrated = useAuthStore((state) => state.isHydrated);
   const locale = useLocaleStore((state) => state.locale);
+  const config = useRemoteConfig();
   return useQuery({
     queryKey: [COMMENTS_QUERY_KEY, "summary", showId, episodeRef?.season, episodeRef?.episode, locale],
     queryFn: () => getThreadSummary(showId, episodeRef),
-    enabled: isHydrated && Boolean(showId) && commentCount >= 20,
+    enabled: isHydrated && config.ai_thread_summary_enabled && Boolean(showId) && commentCount >= 20,
     staleTime: 60 * 60 * 1000,
   });
 }

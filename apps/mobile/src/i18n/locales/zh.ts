@@ -252,8 +252,7 @@ const zh = {
       themeDark: "阴暗",
       about: "关于",
       aboutVersion: "版本",
-      aboutDescription:
-        "Watchr 是一个电视节目和电影追踪器。 跟踪你的进展,评分你最喜欢的节目, 并与社区聊天。",
+      aboutDescription: "Watchr 是一个电视节目和电影追踪器。 跟踪你的进展,评分你最喜欢的节目, 并与社区聊天。",
       aboutCredits: "数据来源 TMDB。 。 。 。 Watchr 是一个开源项目。",
       aboutLegalEditor: "编辑器",
       aboutLegalCompanyName: "公司名称",
@@ -311,8 +310,7 @@ const zh = {
       apiKeysCreate: "创建密钥",
       apiKeysEmpty: "还没有 API 密钥",
       apiKeysEmptyDescription: "创建访问您的 API 密钥 Watchr 其他应用程序的数据。",
-      apiKeysLimitReached:
-        "您已经达到了 10 个 活性 API 密钥的极限 。 撤销或删除一个来创建新密钥 。",
+      apiKeysLimitReached: "您已经达到了 10 个 活性 API 密钥的极限 。 撤销或删除一个来创建新密钥 。",
       apiKeyName: "关键名称",
       apiKeyNamePlaceholder: "例如我的脚本",
       apiKeyNameRequired: "请输入您的密钥名称 。",
@@ -418,8 +416,7 @@ const zh = {
       privateProfile: "这个用户的活动是私人的.",
       publicProfileActivity: "这个用户公开分享他们的活动.",
       shareActivityTitle: "分享我的活动",
-      shareActivityDescription:
-        "启用后,跟随你的用户可以在他们的活动中看到您的收视率,监视列表的添加,以及评论.",
+      shareActivityDescription: "启用后,跟随你的用户可以在他们的活动中看到您的收视率,监视列表的添加,以及评论.",
       activityPublic: "公开",
       activityPrivate: "私营",
       ratedShow: "评级 {{title}} (单位:千美元){{value}}第10条",
@@ -524,7 +521,7 @@ const zh = {
       sortLiked: "喜欢",
       sortReplied: "多数答复",
       spoilerWarningTitle: "警告——破坏者",
-      spoilerWarningMessage: '你没看{{title}}" 然则. 评论可能包含破坏者。',
+      spoilerWarningMessage: "你没看{{title}}\" 然则. 评论可能包含破坏者。",
       proceedAnyway: "无论如何查看",
       markWatchedAndProceed: "标记为观看和阅读",
       reactionError: "无法反应",
@@ -683,23 +680,17 @@ const zh = {
       title: "帮助",
       subtitle: "导入和导出您数据的指南 。",
       importTvTime: "从 TV Time",
-      importTvTimeDesc:
-        "TV Time 2026年7月15日关闭 要导入您的数据,请访问 TV Time app (Settings – 隐私 – 下载我的数据). 你会收到一个包含表史的.zip文件. 上传到这里 我们会自动匹配你的节目",
+      importTvTimeDesc: "TV Time 2026年7月15日关闭 要导入您的数据,请访问 TV Time app (Settings – 隐私 – 下载我的数据). 你会收到一个包含表史的.zip文件. 上传到这里 我们会自动匹配你的节目",
       importTrakt: "从 Trakt",
-      importTraktDesc:
-        "导出您的数据 Trakt 通过设置 → 导出数据。 这将下载一个JSON文件 与你观看的历史,收视率,和监视列表。 在此上传文件以导入到 Watchr。 。 。 。",
+      importTraktDesc: "导出您的数据 Trakt 通过设置 → 导出数据。 这将下载一个JSON文件 与你观看的历史,收视率,和监视列表。 在此上传文件以导入到 Watchr。 。 。 。",
       importImdb: "从 IMDb",
-      importImdbDesc:
-        "导出您的 IMDb 收视率和监视列表来自imdb.com(您的活动 – 下载您的数据). CSV文件将包含您的被评为标题 。 上传到这里,我们会比对他们 TMDB。 。 。 。",
+      importImdbDesc: "导出您的 IMDb 收视率和监视列表来自imdb.com(您的活动 – 下载您的数据). CSV文件将包含您的被评为标题 。 上传到这里,我们会比对他们 TMDB。 。 。 。",
       importLetterboxd: "从 Letterboxd",
-      importLetterboxdDesc:
-        "导出您的 Letterboxd 日记,来源于tletboxd.com (Settings → privity → 导出). CSV文件将包含您观看的有日期的电影. 上传到这里以导入您的电影历史 。",
+      importLetterboxdDesc: "导出您的 Letterboxd 日记,来源于tletboxd.com (Settings → privity → 导出). CSV文件将包含您观看的有日期的电影. 上传到这里以导入您的电影历史 。",
       exportFormats: "导出格式",
-      exportFormatsDesc:
-        "Watchr 支持多种导出格式。 当地人 Watchr 推荐JSON格式用于备份和再导入. 其他格式与各自的平台相兼容.",
+      exportFormatsDesc: "Watchr 支持多种导出格式。 当地人 Watchr 推荐JSON格式用于备份和再导入. 其他格式与各自的平台相兼容.",
       reviewMatches: "审查匹配",
-      reviewMatchesDesc:
-        "导入时, 我们自动匹配您的显示 TMDB。如果匹配不确定,将标出供审查。 然后可以确认正确的匹配或者跳过. 跳过的项目可以在稍后手动搜索 。",
+      reviewMatchesDesc: "导入时, 我们自动匹配您的显示 TMDB。如果匹配不确定,将标出供审查。 然后可以确认正确的匹配或者跳过. 跳过的项目可以在稍后手动搜索 。",
       backToDashboard: "回到仪表板",
     },
     onboarding: {
@@ -916,6 +907,13 @@ const zh = {
     mutualFriend: "共同好友",
     newMessageSnackbar: "{{sender}}：{{preview}}",
     maxImages: "每条消息最多4张图片",
+    deleteConversation: "删除对白",
+    deleteConversationConfirm: "删除此对话吗 ?",
+    deleteConversationConfirmDesc: "这次谈话将从你的名单上删除。 彼入会还取.",
+    conversationDeleted: "对话已删除",
+    conversationRestored: "恢复对话",
+    markAsRead: "标记为已读",
+    restore: "恢复",
   },
   updates: {
     title: "更新可用",

@@ -81,8 +81,7 @@ const ja = {
     networkError: "インターネット接続をご確認ください。",
     accountBanned: "このアカウントは禁止されています。",
     accountSuspended: "このアカウントは中断されます。",
-    emailDomainBlocked:
-      "このメールドメインは利用できません。 有効なメールアドレスを入力してください。",
+    emailDomainBlocked: "このメールドメインは利用できません。 有効なメールアドレスを入力してください。",
     genericError: "何かが間違っていた。 お問い合わせ",
     forgotPassword: "パスワードを忘れた場合",
     forgotPasswordTitle: "パスワードを忘れた場合",
@@ -106,8 +105,7 @@ const ja = {
     emailCodeResend: "コードを送信します",
     emailCodeResendIn: "コードを送信します {{seconds}}ツイート",
     emailCodeSent: "コード送信!",
-    emailCodeSentDescription:
-      "このメールにアカウントが存在する場合、コードを受け取ることになります。",
+    emailCodeSentDescription: "このメールにアカウントが存在する場合、コードを受け取ることになります。",
     emailCodeInvalid: "無効なコード。",
     emailCodeExpired: "コードの有効期限が切れました。 お問い合わせ",
     emailCodeTooManyAttempts: "多くの試み。 新規のリクエストコードを入力してください。",
@@ -254,8 +252,7 @@ const ja = {
       themeDark: "ダーク",
       about: "お問い合わせ",
       aboutVersion: "バージョン",
-      aboutDescription:
-        "Watchr テレビ番組や映画のトラッカーです。 進行状況を追跡し、お気に入りのエピソードを率いて、コミュニティとチャットします。",
+      aboutDescription: "Watchr テレビ番組や映画のトラッカーです。 進行状況を追跡し、お気に入りのエピソードを率いて、コミュニティとチャットします。",
       aboutCredits: "提供されるデータ TMDB. . Watchr オープンソースプロジェクトです。",
       aboutLegalEditor: "ダウンロード",
       aboutLegalCompanyName: "会社名",
@@ -313,8 +310,7 @@ const ja = {
       apiKeysCreate: "キーを作成する",
       apiKeysEmpty: "API キーはまだありません",
       apiKeysEmptyDescription: "API キーを作成し、アクセスする Watchr 他のアプリからのデータ。",
-      apiKeysLimitReached:
-        "10個のアクティブAPIキーの制限に達しました。 新しいキーを作成するために 1 つを再実行または削除します。",
+      apiKeysLimitReached: "10個のアクティブAPIキーの制限に達しました。 新しいキーを作成するために 1 つを再実行または削除します。",
       apiKeyName: "キー名",
       apiKeyNamePlaceholder: "例: 私のスクリプト",
       apiKeyNameRequired: "お名前を入力してください。",
@@ -330,15 +326,13 @@ const ja = {
       apiKeysRenamed: "APIキーの名前を変更しました。",
       apiKeysRevoke: "リボケ",
       apiKeysRevokeConfirmTitle: "API キーを再起動しますか?",
-      apiKeysRevokeConfirmMessage:
-        "このキーはすぐに働くことを止めます。 このアクションは元に戻すことができません。",
+      apiKeysRevokeConfirmMessage: "このキーはすぐに働くことを止めます。 このアクションは元に戻すことができません。",
       apiKeysRevokedSuccess: "API のキーは再投票しました。",
       apiKeysDeleteConfirmTitle: "APIキーの削除",
       apiKeysDeleteConfirmMessage: "これはキーを永久に削除します。 このアクションは不可逆です。",
       apiKeysDeletedSuccess: "削除されたAPIキー。",
       apiKeysTokenWarning: "このトークンは再び表示されません",
-      apiKeysTokenWarningDescription:
-        "今それをコピーして安全に保管してください。 もう一度見ることができません。",
+      apiKeysTokenWarningDescription: "今それをコピーして安全に保管してください。 もう一度見ることができません。",
       apiKeysTokenLabel: "APIトークン",
       apiKeysCopy: "トークンのコピー",
       apiKeysCopied: "クリップボードにコピー",
@@ -413,8 +407,7 @@ const ja = {
       following: "お問い合わせ",
       friendsActivity: "友人の活動",
       findFriends: "友達を探す",
-      activityFeedEmpty:
-        "活動はまだありません。 活動を共有し、更新情報を見るためにユーザーに従ってください。",
+      activityFeedEmpty: "活動はまだありません。 活動を共有し、更新情報を見るためにユーザーに従ってください。",
       filter_all: "すべて",
       filter_rating: "評価",
       filter_watchlist_add: "リスト",
@@ -423,8 +416,7 @@ const ja = {
       privateProfile: "ユーザーの活動はプライベートです。",
       publicProfileActivity: "利用者は、公に活動を共有する。",
       shareActivityTitle: "活動を共有する",
-      shareActivityDescription:
-        "有効にすると、フォローしているユーザーは、自分の評価、Watchlistの追加、およびアクティビティフィードのコメントを見ることができます。",
+      shareActivityDescription: "有効にすると、フォローしているユーザーは、自分の評価、Watchlistの追加、およびアクティビティフィードのコメントを見ることができます。",
       activityPublic: "パブリック",
       activityPrivate: "プライベート",
       ratedShow: "評価される {{title}} ( ){{value}}10月10日",
@@ -488,14 +480,12 @@ const ja = {
       episodesWatched: "{{count}} エピソード 見ました",
       markAllAired: "マークエア",
       markAllAiredConfirmTitle: "すべてのエアエピソードをマーク?",
-      markAllAiredConfirmMessage:
-        "空いたエピソードは、全て見るとマークされます。 気にしないものをスキップします。",
+      markAllAiredConfirmMessage: "空いたエピソードは、全て見るとマークされます。 気にしないものをスキップします。",
       markAllAiredSuccess: "すべての放映されたエピソードは、時計のようにマークされています",
       markAllAiredError: "エピソードをマークできない",
       markAllAiredAlreadyUpToDate: "空いたエピソードはすべて、すでに時計としてマークされています",
       markSeasonAiredConfirmTitle: "Sのマークエアエピソード{{season}}お問い合わせ",
-      markSeasonAiredConfirmMessage:
-        "こちらのシーズンのエアエピソードは、全て見るとマークされます。",
+      markSeasonAiredConfirmMessage: "こちらのシーズンのエアエピソードは、全て見るとマークされます。",
       nextEpisodeAired: "今すぐ利用可能",
     },
     comments: {
@@ -514,8 +504,7 @@ const ja = {
       rejectedHate: "あなたのコメントには憎悪のコンテンツが含まれています。 お問い合わせ",
       rejectedHarassment: "コメントにはハラスメントが含まれています。 お問い合わせ",
       rejectedSpam: "コメントはスパムのように見えます。 有意義な内容を書きます。",
-      rejectedSelfHarm:
-        "難易度の高い方は、お気軽にご相談ください。 コンテンツの無断転載を禁じます。",
+      rejectedSelfHarm: "難易度の高い方は、お気軽にご相談ください。 コンテンツの無断転載を禁じます。",
       rejectedViolence: "あなたのコメントには暴力的な内容が含まれています。 お問い合わせ",
       rejectedOther: "コメントは不適切と判断しました。 コミュニティガイドラインをご確認ください。",
       spoilerAutoDetected: "スポイラー検出 — コメントは自動的にタグ付けされました。",
@@ -532,8 +521,7 @@ const ja = {
       sortLiked: "ログイン",
       sortReplied: "お問い合わせ",
       spoilerWarningTitle: "警告 — スポイラー",
-      spoilerWarningMessage:
-        'あなたは見ていない "{{title}}お問い合わせ コメントにはスポイラーが含まれる場合があります。',
+      spoilerWarningMessage: "あなたは見ていない \"{{title}}お問い合わせ コメントにはスポイラーが含まれる場合があります。",
       proceedAnyway: "とにかく見る",
       markWatchedAndProceed: "時計としてマークし、読む",
       reactionError: "反応できない",
@@ -602,8 +590,7 @@ const ja = {
       reviewPending: "レビュー {{count}} 試合の終了",
       recentImports: "最近の輸入",
       noRecentImports: "最近の輸入無し",
-      importDisclaimer:
-        "インポートはプラットフォームによって異なる場合があります。 一部のデータは一致しない、または遅延する可能性があります。",
+      importDisclaimer: "インポートはプラットフォームによって異なる場合があります。 一部のデータは一致しない、または遅延する可能性があります。",
       bannerProcessing: "インポート... {{processed}}・{{total}}",
       bannerCompleted: "インポート完了 — {{matched}} インポート",
       bannerFailed: "インポート失敗",
@@ -668,8 +655,7 @@ const ja = {
       ratingError: "エピソードを評価することができない",
       markSeasonAired: "マークエア",
       markSeasonAiredConfirmTitle: "Sのマークエアエピソード{{season}}お問い合わせ",
-      markSeasonAiredConfirmMessage:
-        "こちらのシーズンのエアエピソードは、全て見るとマークされます。 気にしないものをスキップします。",
+      markSeasonAiredConfirmMessage: "こちらのシーズンのエアエピソードは、全て見るとマークされます。 気にしないものをスキップします。",
       aiSummaryLoading: "人工知能の要約を生成する...",
       aiSummaryTitle: "AIの概要",
       communityStats: "コミュニティ",
@@ -694,29 +680,22 @@ const ja = {
       title: "お問い合わせ",
       subtitle: "データをインポートしてエクスポートするためのガイド。",
       importTvTime: "輸入から TV Time",
-      importTvTimeDesc:
-        "TV Time 2026年7月15日(水)は休館 データをインポートするには、GDPR のエクスポートをリクエストします。 TV Time アプリ(設定→プライバシー→データのダウンロード) 時計履歴を含む .zip ファイルを受け取ります。 ここにアップロードして、自動的に番組にマッチします。",
+      importTvTimeDesc: "TV Time 2026年7月15日(水)は休館 データをインポートするには、GDPR のエクスポートをリクエストします。 TV Time アプリ(設定→プライバシー→データのダウンロード) 時計履歴を含む .zip ファイルを受け取ります。 ここにアップロードして、自動的に番組にマッチします。",
       importTrakt: "輸入から Trakt",
-      importTraktDesc:
-        "データをエクスポートする Trakt 設定 → エクスポート データに移動します。 これは、あなたの視聴履歴、評価、およびウォッチリストでJSONファイルをダウンロードします。 ここにファイルをアップロードしてインポートする Watchr. .",
+      importTraktDesc: "データをエクスポートする Trakt 設定 → エクスポート データに移動します。 これは、あなたの視聴履歴、評価、およびウォッチリストでJSONファイルをダウンロードします。 ここにファイルをアップロードしてインポートする Watchr. .",
       importImdb: "輸入から IMDb",
-      importImdbDesc:
-        "エクスポート IMDb imdb.com (あなたの活動 → あなたのデータをダウンロード) からの評価と watchlist. CSVファイルには、評価されたタイトルが含まれています。 ここにアップロードして、それらにマッチします TMDB. .",
+      importImdbDesc: "エクスポート IMDb imdb.com (あなたの活動 → あなたのデータをダウンロード) からの評価と watchlist. CSVファイルには、評価されたタイトルが含まれています。 ここにアップロードして、それらにマッチします TMDB. .",
       importLetterboxd: "輸入から Letterboxd",
-      importLetterboxdDesc:
-        "エクスポート Letterboxd Letterboxd.com (Settings → プライバシー → エクスポート) からの日記。 CSVファイルには、ウォッチされた映画が日付とともに表示されます。 動画履歴をインポートするには、こちらをアップロードしてください。",
+      importLetterboxdDesc: "エクスポート Letterboxd Letterboxd.com (Settings → プライバシー → エクスポート) からの日記。 CSVファイルには、ウォッチされた映画が日付とともに表示されます。 動画履歴をインポートするには、こちらをアップロードしてください。",
       exportFormats: "エクスポート形式",
-      exportFormatsDesc:
-        "Watchr 複数のエクスポート形式をサポートしています。 ネイティブ Watchr バックアップおよび再インポートにはJSON形式が推奨されます。 他のフォーマットはそれぞれのプラットフォームと互換性があります。",
+      exportFormatsDesc: "Watchr 複数のエクスポート形式をサポートしています。 ネイティブ Watchr バックアップおよび再インポートにはJSON形式が推奨されます。 他のフォーマットはそれぞれのプラットフォームと互換性があります。",
       reviewMatches: "試合レビュー",
-      reviewMatchesDesc:
-        "インポート時に自動的にショーにマッチします。 TMDB. マッチが不確実な場合、レビューのためにマークされます。 正しいマッチを確認したり、スキップしたりすることができます。 スキップされた項目は後で手動で捜すことができます。",
+      reviewMatchesDesc: "インポート時に自動的にショーにマッチします。 TMDB. マッチが不確実な場合、レビューのためにマークされます。 正しいマッチを確認したり、スキップしたりすることができます。 スキップされた項目は後で手動で捜すことができます。",
       backToDashboard: "ダッシュボードに戻る",
     },
     onboarding: {
       welcomeTitle: "ようこそ! Watchr",
-      welcomeSubtitle:
-        "番組や映画を追跡し、お気に入りのエピソードを率いて、コミュニティとチャットします。",
+      welcomeSubtitle: "番組や映画を追跡し、お気に入りのエピソードを率いて、コミュニティとチャットします。",
       welcomeStart: "スタート",
       skip: "ツイート",
       importTitle: "データのインポート",
@@ -823,8 +802,7 @@ const ja = {
     },
   },
   trafficNotice: {
-    message:
-      "当社のサービスは、減速を経験しています。 課題解決に取り組みます。 ありがとうございます。",
+    message: "当社のサービスは、減速を経験しています。 課題解決に取り組みます。 ありがとうございます。",
   },
   maintenance: {
     title: "Watchr",
@@ -836,8 +814,7 @@ const ja = {
   seo: {
     defaultTitle: "Watchr — あなたのテレビ番組や映画を追跡",
     contact: "お問い合わせ",
-    defaultDescription:
-      "時計の状態を追跡し、エピソードを率い、新しいコンテンツを発見し、あなたの時計をインポートします TV Time データ。",
+    defaultDescription: "時計の状態を追跡し、エピソードを率い、新しいコンテンツを発見し、あなたの時計をインポートします TV Time データ。",
     library: "私の図書館",
     search: "インフォメーション",
     series: "マイシリーズ",
@@ -930,12 +907,18 @@ const ja = {
     mutualFriend: "相互フォロー",
     newMessageSnackbar: "{{sender}}: {{preview}}",
     maxImages: "メッセージあたり最大4枚の画像",
+    deleteConversation: "会話の削除",
+    deleteConversationConfirm: "この会話を削除する?",
+    deleteConversationConfirmDesc: "リストから削除されます。 他の参加者は引き続き参加します。",
+    conversationDeleted: "会話削除",
+    conversationRestored: "会話の復元",
+    markAsRead: "マーク 読み込み",
+    restore: "リストア",
   },
   updates: {
     title: "最新情報",
     message: "新しいバージョン Watchr 改善およびバグ修正で利用できます。 更新したいですか?",
-    degradedWarning:
-      "更新しない場合は、正しく機能しないか、利用できなくなったりする場合があります。",
+    degradedWarning: "更新しない場合は、正しく機能しないか、利用できなくなったりする場合があります。",
     updateNow: "ニュース",
     later: "多分後",
     ok: "お問い合わせ",

@@ -21,6 +21,8 @@ import { WatchStatus } from "../models/watchEntry.model.js";
 import { Show } from "../models/show.model.js";
 import { logError } from "../lib/logger.js";
 import { ApiError } from "../middleware/error.middleware.js";
+import { User } from "../models/user.model.js";
+import { checkAndConsumeMcpQuota } from "../lib/mcpQuota.js";
 
 export interface ApiUserContext {
   userId: string;
@@ -70,12 +72,19 @@ async function resolveShowId(showIdOrTmdbId: string, language: string): Promise<
   return show._id.toString();
 }
 
-function jsonResult(result: unknown): {
+function jsonResult(
+  result: unknown,
+  quota?: { remaining: number; limit: number },
+): {
   content: { type: "text"; text: string }[];
   structuredContent: { result: unknown };
 } {
+  const text =
+    quota !== undefined && result !== null && typeof result === "object" && !Array.isArray(result)
+      ? JSON.stringify({ ...(result as Record<string, unknown>), _quota: quota })
+      : JSON.stringify(result);
   return {
-    content: [{ type: "text", text: JSON.stringify(result) }],
+    content: [{ type: "text", text }],
     structuredContent: { result },
   };
 }
@@ -90,22 +99,47 @@ function toolError(status: number, code: string, message: string): {
   };
 }
 
-async function safeTool<T>(
-  fn: () => Promise<T>,
-): Promise<ReturnType<typeof jsonResult> | ReturnType<typeof toolError>> {
-  try {
-    const result = await fn();
-    return jsonResult(result);
-  } catch (err) {
-    if (err instanceof ApiError) {
-      return toolError(err.status, err.code, err.message);
-    }
-    logError("McpServer", "Unexpected tool error", err);
-    return toolError(500, "INTERNAL_ERROR", "An unexpected error occurred");
-  }
-}
+export async function buildMcpServer(apiUser: ApiUserContext): Promise<McpServer> {
+  const userData = await User.findById(apiUser.userId)
+    .select("subscriptionPlan isSystemUser role")
+    .lean();
 
-export function buildMcpServer(apiUser: ApiUserContext): McpServer {
+  if (!userData) {
+    logError("McpServer", "User not found for quota check", null, { userId: apiUser.userId });
+  }
+
+  const effectivePlan: "free" | "vip" =
+    userData?.isSystemUser || userData?.role === "admin"
+      ? "vip"
+      : (userData?.subscriptionPlan ?? "free");
+
+  async function safeTool<T>(
+    fn: () => Promise<T>,
+  ): Promise<ReturnType<typeof jsonResult> | ReturnType<typeof toolError>> {
+    try {
+      let quotaInfo: { remaining: number; limit: number } | undefined;
+      if (effectivePlan !== "vip") {
+        const quota = await checkAndConsumeMcpQuota(apiUser.userId, effectivePlan);
+        if (!quota.allowed) {
+          return toolError(
+            429,
+            "QUOTA_EXCEEDED",
+            `Daily MCP quota reached (${quota.limit} calls/day). Upgrade to VIP for unlimited access.`,
+          );
+        }
+        quotaInfo = { remaining: quota.remaining, limit: quota.limit };
+      }
+      const result = await fn();
+      return jsonResult(result, quotaInfo);
+    } catch (err) {
+      if (err instanceof ApiError) {
+        return toolError(err.status, err.code, err.message);
+      }
+      logError("McpServer", "Unexpected tool error", err);
+      return toolError(500, "INTERNAL_ERROR", "An unexpected error occurred");
+    }
+  }
+
   const server = new McpServer({
     name: "watchr-mcp",
     version: "1.0.0",
@@ -467,7 +501,7 @@ export async function mcpHandler(req: Request, res: Response): Promise<void> {
   const apiUser = req.apiUser!;
   const language = req.language ?? "en";
 
-  const server = buildMcpServer({ userId: apiUser.userId, scopes: apiUser.scopes, language });
+  const server = await buildMcpServer({ userId: apiUser.userId, scopes: apiUser.scopes, language });
 
   const transport = new StreamableHTTPServerTransport({
     sessionIdGenerator: undefined,

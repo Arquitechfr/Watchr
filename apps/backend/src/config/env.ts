@@ -48,6 +48,7 @@ const envSchema = z.object({
   MCP_OAUTH_REFRESH_TOKEN_TTL_DAYS: z.coerce.number().int().positive().default(30),
   MCP_OAUTH_CLIENT_SECRET_TTL_DAYS: z.coerce.number().int().positive().default(30),
   MCP_CONSENT_SESSION_SECRET: z.string().min(1, "MCP_CONSENT_SESSION_SECRET is required"),
+  MCP_FREE_DAILY_QUOTA: z.coerce.number().int().positive().default(50),
 });
 
 const parsed = envSchema.safeParse(process.env);

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from "vitest";
+import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from "vitest";
 import request from "supertest";
 import { createApp } from "../src/app.js";
 import { setup, teardown } from "./setup.js";
@@ -6,15 +6,45 @@ import { clearDatabase } from "../src/lib/database.js";
 import { Show } from "../src/models/show.model.js";
 import { User } from "../src/models/user.model.js";
 import { ApiKey, generateApiKey } from "../src/models/ApiKey.js";
+import { checkAndConsumeMcpQuota } from "../src/lib/mcpQuota.js";
+import { searchShows } from "../src/services/show.service.js";
 import bcrypt from "bcryptjs";
+
+vi.mock("../src/lib/mcpQuota.js", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    checkAndConsumeMcpQuota: vi.fn(actual.checkAndConsumeMcpQuota),
+  };
+});
+
+vi.mock("../src/services/show.service.js", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    searchShows: vi.fn(actual.searchShows),
+  };
+});
 
 const app = createApp();
 
-async function createUserAndKey(scopes: ("read" | "write")[] = ["read", "write"]) {
+interface CreateUserOptions {
+  subscriptionPlan?: "free" | "vip";
+  isSystemUser?: boolean;
+  role?: "user" | "admin";
+}
+
+async function createUserAndKey(
+  scopes: ("read" | "write")[] = ["read", "write"],
+  options?: CreateUserOptions,
+) {
   const user = await User.create({
     email: "mcp@example.com",
     username: "McpUser01",
     passwordHash: await bcrypt.hash("password123", 12),
+    subscriptionPlan: options?.subscriptionPlan,
+    isSystemUser: options?.isSystemUser,
+    role: options?.role,
   });
   const { token, hash, prefix } = generateApiKey();
   await ApiKey.create({
@@ -63,7 +93,11 @@ function mcpRequest(token: string, tool: string, args: Record<string, unknown> =
 describe("MCP Server", () => {
   beforeAll(setup);
   afterAll(teardown);
-  beforeEach(clearDatabase);
+  beforeEach(async () => {
+    vi.mocked(checkAndConsumeMcpQuota).mockClear();
+    vi.mocked(searchShows).mockClear();
+    await clearDatabase();
+  });
 
   it("should search shows with read scope", async () => {
     const { token } = await createUserAndKey(["read"]);
@@ -245,5 +279,88 @@ describe("MCP Server", () => {
     const text = res.body?.result?.content?.[0]?.text;
     const parsed = JSON.parse(text);
     expect(parsed.success).toBe(true);
+  });
+
+  // --- Quota tests ---
+
+  it("free user under quota: tool executes and _quota is present (fail-open)", async () => {
+    const { token } = await createUserAndKey(["read"]);
+    const res = await mcpRequest(token, "search_show", { query: "Breaking Bad" });
+    expect(res.status).toBe(200);
+    const text = res.body?.result?.content?.[0]?.text;
+    expect(text).toBeDefined();
+    const parsed = JSON.parse(text);
+    expect(parsed._quota).toBeDefined();
+    expect(parsed._quota.remaining).toBe(-1);
+    expect(parsed._quota.limit).toBe(50);
+  });
+
+  it("free user at quota: returns QUOTA_EXCEEDED and tool is not executed", async () => {
+    const { token } = await createUserAndKey(["read"]);
+    vi.mocked(checkAndConsumeMcpQuota).mockResolvedValueOnce({
+      allowed: false,
+      remaining: 0,
+      limit: 50,
+    });
+
+    const res = await mcpRequest(token, "search_show", { query: "Breaking Bad" });
+    expect(res.status).toBe(200);
+    const text = res.body?.result?.content?.[0]?.text;
+    expect(text).toBeDefined();
+    const parsed = JSON.parse(text);
+    expect(parsed.error).toBeDefined();
+    expect(parsed.error.code).toBe("QUOTA_EXCEEDED");
+    expect(parsed.error.status).toBe(429);
+    expect(searchShows).not.toHaveBeenCalled();
+  });
+
+  it("VIP user: never blocked, checkAndConsumeMcpQuota not called, no _quota", async () => {
+    const { token } = await createUserAndKey(["read"], { subscriptionPlan: "vip" });
+
+    for (let i = 0; i < 3; i++) {
+      const res = await mcpRequest(token, "search_show", { query: "Breaking Bad" });
+      expect(res.status).toBe(200);
+      const text = res.body?.result?.content?.[0]?.text;
+      const parsed = JSON.parse(text);
+      expect(parsed._quota).toBeUndefined();
+    }
+    expect(checkAndConsumeMcpQuota).not.toHaveBeenCalled();
+  });
+
+  it("isSystemUser: never blocked", async () => {
+    const { token } = await createUserAndKey(["read"], { isSystemUser: true });
+
+    for (let i = 0; i < 3; i++) {
+      const res = await mcpRequest(token, "search_show", { query: "Breaking Bad" });
+      expect(res.status).toBe(200);
+    }
+    expect(checkAndConsumeMcpQuota).not.toHaveBeenCalled();
+  });
+
+  it("Redis unavailable: fail-open, tool executes, _quota present with remaining -1", async () => {
+    const { token } = await createUserAndKey(["read"]);
+    const res = await mcpRequest(token, "search_show", { query: "Breaking Bad" });
+    expect(res.status).toBe(200);
+    const text = res.body?.result?.content?.[0]?.text;
+    const parsed = JSON.parse(text);
+    expect(parsed._quota).toBeDefined();
+    expect(parsed._quota.remaining).toBe(-1);
+  });
+
+  it("free user with remaining quota: _quota exposes remaining and limit", async () => {
+    const { token } = await createUserAndKey(["read"]);
+    vi.mocked(checkAndConsumeMcpQuota).mockResolvedValueOnce({
+      allowed: true,
+      remaining: 5,
+      limit: 50,
+    });
+
+    const res = await mcpRequest(token, "search_show", { query: "Breaking Bad" });
+    expect(res.status).toBe(200);
+    const text = res.body?.result?.content?.[0]?.text;
+    const parsed = JSON.parse(text);
+    expect(parsed._quota).toBeDefined();
+    expect(parsed._quota.remaining).toBe(5);
+    expect(parsed._quota.limit).toBe(50);
   });
 });

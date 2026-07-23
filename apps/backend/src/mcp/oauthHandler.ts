@@ -9,7 +9,7 @@ export async function mcpOAuthHandler(req: Request, res: Response): Promise<void
   const scopes = auth.scopes;
   const language = "en";
 
-  const server = buildMcpServer({ userId, scopes, language });
+  const server = await buildMcpServer({ userId, scopes, language });
 
   const transport = new StreamableHTTPServerTransport({
     sessionIdGenerator: undefined,

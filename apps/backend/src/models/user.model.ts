@@ -45,6 +45,8 @@ export interface IUser extends Document {
   activationNudgeSentAt: Date | null;
   activityVisibility: "private" | "public";
   dmPrivacy: "open" | "friends_only";
+  subscriptionPlan: "free" | "vip";
+  subscriptionExpiresAt: Date | null;
   bio?: string;
   bioTranslations?: Map<string, string>;
   bioOriginalLanguage?: string;
@@ -238,6 +240,15 @@ const userSchema = new Schema<IUser>(
       type: [String],
       required: false,
       default: [],
+    },
+    subscriptionPlan: {
+      type: String,
+      enum: ["free", "vip"],
+      default: "free",
+    },
+    subscriptionExpiresAt: {
+      type: Date,
+      default: null,
     },
   },
   { timestamps: true },

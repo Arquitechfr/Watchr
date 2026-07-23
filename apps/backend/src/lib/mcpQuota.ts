@@ -50,7 +50,12 @@ export async function checkAndConsumeMcpQuota(
       return { allowed: true, remaining: -1, limit };
     }
 
-    const count = result[0][1] as number;
+    const [incrErr, incrValue] = result[0];
+    if (incrErr) {
+      logError("McpQuota", "INCR command failed in pipeline", incrErr);
+      return { allowed: true, remaining: -1, limit };
+    }
+    const count = incrValue as number;
 
     if (count > limit) {
       return { allowed: false, remaining: 0, limit };

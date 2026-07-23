@@ -78,14 +78,12 @@ function jsonResult(
 ): {
   content: { type: "text"; text: string }[];
   structuredContent: { result: unknown };
+  _meta?: { quota: { remaining: number; limit: number } };
 } {
-  const text =
-    quota !== undefined && result !== null && typeof result === "object" && !Array.isArray(result)
-      ? JSON.stringify({ ...(result as Record<string, unknown>), _quota: quota })
-      : JSON.stringify(result);
   return {
-    content: [{ type: "text", text }],
+    content: [{ type: "text", text: JSON.stringify(result) }],
     structuredContent: { result },
+    ...(quota !== undefined ? { _meta: { quota } } : {}),
   };
 }
 

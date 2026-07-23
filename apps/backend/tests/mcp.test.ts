@@ -287,12 +287,8 @@ describe("MCP Server", () => {
     const { token } = await createUserAndKey(["read"]);
     const res = await mcpRequest(token, "search_show", { query: "Breaking Bad" });
     expect(res.status).toBe(200);
-    const text = res.body?.result?.content?.[0]?.text;
-    expect(text).toBeDefined();
-    const parsed = JSON.parse(text);
-    expect(parsed._quota).toBeDefined();
-    expect(parsed._quota.remaining).toBe(-1);
-    expect(parsed._quota.limit).toBe(50);
+    expect(res.body.result._meta?.quota?.remaining).toBe(-1);
+    expect(res.body.result._meta?.quota?.limit).toBe(50);
   });
 
   it("free user at quota: returns QUOTA_EXCEEDED and tool is not executed", async () => {
@@ -320,9 +316,7 @@ describe("MCP Server", () => {
     for (let i = 0; i < 3; i++) {
       const res = await mcpRequest(token, "search_show", { query: "Breaking Bad" });
       expect(res.status).toBe(200);
-      const text = res.body?.result?.content?.[0]?.text;
-      const parsed = JSON.parse(text);
-      expect(parsed._quota).toBeUndefined();
+      expect(res.body.result._meta?.quota).toBeUndefined();
     }
     expect(checkAndConsumeMcpQuota).not.toHaveBeenCalled();
   });
@@ -341,10 +335,7 @@ describe("MCP Server", () => {
     const { token } = await createUserAndKey(["read"]);
     const res = await mcpRequest(token, "search_show", { query: "Breaking Bad" });
     expect(res.status).toBe(200);
-    const text = res.body?.result?.content?.[0]?.text;
-    const parsed = JSON.parse(text);
-    expect(parsed._quota).toBeDefined();
-    expect(parsed._quota.remaining).toBe(-1);
+    expect(res.body.result._meta?.quota?.remaining).toBe(-1);
   });
 
   it("free user with remaining quota: _quota exposes remaining and limit", async () => {
@@ -357,10 +348,7 @@ describe("MCP Server", () => {
 
     const res = await mcpRequest(token, "search_show", { query: "Breaking Bad" });
     expect(res.status).toBe(200);
-    const text = res.body?.result?.content?.[0]?.text;
-    const parsed = JSON.parse(text);
-    expect(parsed._quota).toBeDefined();
-    expect(parsed._quota.remaining).toBe(5);
-    expect(parsed._quota.limit).toBe(50);
+    expect(res.body.result._meta?.quota?.remaining).toBe(5);
+    expect(res.body.result._meta?.quota?.limit).toBe(50);
   });
 });

@@ -40,7 +40,7 @@ export interface MistralEmbeddingsResult {
   model: string;
 }
 
-const DEFAULT_CHAT_MODEL = "mistral-large-latest";
+const DEFAULT_CHAT_MODEL = "mistral-small-latest";
 const DEFAULT_EMBEDDINGS_MODEL = "mistral-embed";
 const PREFERRED_SMALL_MODEL = "mistral-small-latest";
 const FALLBACK_CHAT_MODEL = "mistral-large-latest";
@@ -71,6 +71,7 @@ class MistralService {
   private circuitOpen = false;
   private circuitOpenedAt = 0;
   private consecutiveFailures = 0;
+  private nextIndex = 0;
 
   constructor() {
     if (env.MISTRAL_API_KEY) {
@@ -101,11 +102,16 @@ class MistralService {
       .filter((i) => !this.cooldowns.has(i) || this.cooldowns.get(i)! <= now);
 
     if (available.length > 0) {
-      const index = available[Math.floor(Math.random() * available.length)];
+      // Round-robin: find next available index in sequence
+      const sortedAvailable = available.sort((a, b) => a - b);
+      const nextInSequence = sortedAvailable.find((i) => i >= this.nextIndex);
+      const index = nextInSequence ?? sortedAvailable[0];
+      this.nextIndex = (index + 1) % this.clients.length;
       this.cooldowns.delete(index);
       return { client: this.clients[index], index };
     }
 
+    // All keys in cooldown — reuse least-recently-cooled
     let minIndex = 0;
     let minCooldown = Infinity;
     for (const [i, end] of this.cooldowns) {
@@ -134,14 +140,35 @@ class MistralService {
     if (this.isRateLimitError(err)) return true;
     const anyErr = err as Record<string, unknown>;
     const status = anyErr?.statusCode ?? anyErr?.status ?? anyErr?.code;
-    if (status === 503 || status === 502 || status === 504) return true;
+    if (status === 500 || status === 503 || status === 502 || status === 504) return true;
     if (err instanceof Error) {
       const msg = err.message.toLowerCase();
-      if (msg.includes("503") || msg.includes("502") || msg.includes("504")) return true;
+      if (msg.includes("500") || msg.includes("503") || msg.includes("502") || msg.includes("504")) return true;
       if (msg.includes("service unavailable") || msg.includes("bad gateway") || msg.includes("gateway timeout")) return true;
       if (msg.includes("upstream connect error") || msg.includes("connection refused")) return true;
+      if (msg.includes("econnreset") || msg.includes("etimedout") || msg.includes("enotfound")) return true;
+      if (msg.includes("network") || msg.includes("timeout") || msg.includes("socket hang up")) return true;
+      if (msg.includes("fetch failed") || msg.includes("aborted")) return true;
     }
     return false;
+  }
+
+  private isNonRetryableError(err: unknown): boolean {
+    const anyErr = err as Record<string, unknown>;
+    const status = anyErr?.statusCode ?? anyErr?.status ?? anyErr?.code;
+    if (status === 400 || status === 401 || status === 403) return true;
+    if (err instanceof Error) {
+      const msg = err.message.toLowerCase();
+      if (msg.includes("401") || msg.includes("403") || msg.includes("unauthorized") || msg.includes("forbidden")) return true;
+    }
+    return false;
+  }
+
+  private hasOtherAvailableKeys(currentIndex: number): boolean {
+    const now = Date.now();
+    return this.clients.some(
+      (_, i) => i !== currentIndex && (!this.cooldowns.has(i) || this.cooldowns.get(i)! <= now),
+    );
   }
 
   private async backoffDelay(attempt: number): Promise<void> {
@@ -260,18 +287,45 @@ class MistralService {
       } catch (err) {
         lastErr = err;
 
+        // Non-retryable errors (400/401/403) — will fail on every key
+        if (this.isNonRetryableError(err)) {
+          const latencyMs = Date.now() - startTime;
+          const message = err instanceof Error ? err.message : String(err);
+          logError("MistralService", "chat non-retryable error", err, { model, keyIndex: index });
+          AiLog.create({
+            service: "MistralService",
+            action: "chat",
+            feature,
+            status: "error",
+            aiModel: model,
+            tokens: { prompt: 0, completion: 0, total: 0 },
+            latencyMs,
+            errorMessage: message,
+            prompt: promptText.slice(0, MAX_LOG_LENGTH),
+            metadata: { promptLength: totalPromptLength, messageCount: messages.length, keyIndex: index },
+          }).catch(() => {});
+          throw this.handleError(err);
+        }
+
         if (this.isTransientError(err) && attempt < this.MAX_RETRIES) {
           if (this.isRateLimitError(err)) {
             this.markCooldown(index);
           }
           this.recordFailure();
-          log("MistralService", "chat transient error, retrying with backoff", {
+
+          // If another key is available, switch immediately without backoff
+          const hasOther = this.hasOtherAvailableKeys(index);
+          log("MistralService", "chat transient error, retrying", {
             keyIndex: index,
             attempt: attempt + 1,
             maxRetries: this.MAX_RETRIES,
+            immediateKeySwitch: hasOther,
             error: err instanceof Error ? err.message : String(err),
           });
-          await this.backoffDelay(attempt);
+
+          if (!hasOther) {
+            await this.backoffDelay(attempt);
+          }
           continue;
         }
 
@@ -345,18 +399,30 @@ class MistralService {
       } catch (err) {
         lastErr = err;
 
+        // Non-retryable errors (400/401/403) — will fail on every key
+        if (this.isNonRetryableError(err)) {
+          logError("MistralService", "stream chat non-retryable error", err, { model, keyIndex: index });
+          throw this.handleError(err);
+        }
+
         if (this.isTransientError(err) && attempt < this.MAX_RETRIES) {
           if (this.isRateLimitError(err)) {
             this.markCooldown(index);
           }
           this.recordFailure();
-          log("MistralService", "stream chat transient error, retrying with backoff", {
+
+          const hasOther = this.hasOtherAvailableKeys(index);
+          log("MistralService", "stream chat transient error, retrying", {
             keyIndex: index,
             attempt: attempt + 1,
             maxRetries: this.MAX_RETRIES,
+            immediateKeySwitch: hasOther,
             error: err instanceof Error ? err.message : String(err),
           });
-          await this.backoffDelay(attempt);
+
+          if (!hasOther) {
+            await this.backoffDelay(attempt);
+          }
           continue;
         }
 
@@ -422,18 +488,42 @@ class MistralService {
       } catch (err) {
         lastErr = err;
 
+        // Non-retryable errors (400/401/403) — will fail on every key
+        if (this.isNonRetryableError(err)) {
+          const latencyMs = Date.now() - startTime;
+          const message = err instanceof Error ? err.message : String(err);
+          logError("MistralService", "embeddings non-retryable error", err, { model, keyIndex: index });
+          AiLog.create({
+            service: "MistralService",
+            action: "embeddings",
+            status: "error",
+            aiModel: model,
+            tokens: { prompt: 0, completion: 0, total: 0 },
+            latencyMs,
+            errorMessage: message,
+            metadata: { inputCount: params.inputs.length, totalInputLength, keyIndex: index },
+          }).catch(() => {});
+          throw this.handleError(err);
+        }
+
         if (this.isTransientError(err) && attempt < this.MAX_RETRIES) {
           if (this.isRateLimitError(err)) {
             this.markCooldown(index);
           }
           this.recordFailure();
-          log("MistralService", "embeddings transient error, retrying with backoff", {
+
+          const hasOther = this.hasOtherAvailableKeys(index);
+          log("MistralService", "embeddings transient error, retrying", {
             keyIndex: index,
             attempt: attempt + 1,
             maxRetries: this.MAX_RETRIES,
+            immediateKeySwitch: hasOther,
             error: err instanceof Error ? err.message : String(err),
           });
-          await this.backoffDelay(attempt);
+
+          if (!hasOther) {
+            await this.backoffDelay(attempt);
+          }
           continue;
         }
 
@@ -492,7 +582,10 @@ class MistralService {
     try {
       return await this.chat(params);
     } catch (err) {
-      logError("MistralService", "safeChat swallowed error", err);
+      log("MistralService", "safeChat failed after all retries", {
+        feature: params.feature ?? "unknown",
+        error: err instanceof Error ? err.message : String(err),
+      });
       return null;
     }
   }

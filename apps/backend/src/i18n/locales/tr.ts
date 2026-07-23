@@ -36,8 +36,7 @@ const tr = {
     UNAUTHORIZED_DELETE: "Bu kaynağı silmek için izin verilmez.",
     ALREADY_TRACKED: "Zaten takip etti.",
     GOOGLE_ALREADY_LINKED: "Bu Bu Bu Bu Google Hesap zaten başka bir kullanıcı ile bağlantılıdır.",
-    GOOGLE_EMAIL_MISMATCH:
-      "The The The The The The The The Google Hesap e-posta hesabınız e-posta ile eşleşmez.",
+    GOOGLE_EMAIL_MISMATCH: "The The The The The The The The Google Hesap e-posta hesabınız e-posta ile eşleşmez.",
     CANNOT_UNLINK_NO_PASSWORD: "Bağlantısız olamazsın Google Hesabınızda bir şifre olmadan.",
     ACCOUNT_BANNED: "Bu hesap yasaklanmıştır.",
     ACCOUNT_SUSPENDED: "Bu hesap askıya alındı.",
@@ -50,11 +49,9 @@ const tr = {
     COMMENT_REJECTED_HATE: "Yorumunuz nefretli içerik içeriyor. Lütfen saygılı olun.",
     COMMENT_REJECTED_HARASSMENT: "Yorumunuz taciz içeriyor. Lütfen saygılı olun.",
     COMMENT_REJECTED_SPAM: "Yorumunuz spam gibi görünüyor. Lütfen anlamlı içerik yazın.",
-    COMMENT_REJECTED_SELF_HARM:
-      "Eğer mücadele ediyorsanız lütfen yardım için dışarı çık. Bu içerik izin verilmez.",
+    COMMENT_REJECTED_SELF_HARM: "Eğer mücadele ediyorsanız lütfen yardım için dışarı çık. Bu içerik izin verilmez.",
     COMMENT_REJECTED_VIOLENCE: "Yorumunuz şiddetli içerik içerir. Lütfen saygılı olun.",
-    COMMENT_REJECTED_OTHER:
-      "Yorumunuz uygunsuz olarak bayraklandı. Lütfen topluluk yönergelerimizi gözden geçirin.",
+    COMMENT_REJECTED_OTHER: "Yorumunuz uygunsuz olarak bayraklandı. Lütfen topluluk yönergelerimizi gözden geçirin.",
     EMAIL_CODE_EXPIRED: "Kod süresiz veya bulunamadı. Lütfen yeni bir tane talep edin.",
     INVALID_EMAIL_CODE: "Invalid kodu.",
     TOO_MANY_CODE_ATTEMPTS: "Çok fazla deneme. Lütfen yeni bir kod talep edin.",
@@ -71,12 +68,10 @@ const tr = {
     TOO_MANY_REACTION_REQUESTS: "Çok fazla reaksiyon isteği. Daha sonra tekrar deneyin.",
     TOO_MANY_REPORT_REQUESTS: "Çok fazla rapor isteği. Daha sonra tekrar deneyin.",
     TOO_MANY_UPLOAD_REQUESTS: "Çok fazla yükleme isteği. Daha sonra tekrar deneyin.",
-    TOO_MANY_TRAKT_SYNC_REQUESTS:
-      "Çok fazla Trakt senkronizasyon talepleri. Daha sonra tekrar deneyin.",
+    TOO_MANY_TRAKT_SYNC_REQUESTS: "Çok fazla Trakt senkronizasyon talepleri. Daha sonra tekrar deneyin.",
     TOO_MANY_AI_REQUESTS: "Çok fazla AI isteği. Daha sonra tekrar deneyin.",
     REPLIES_DISABLED: "Replies ithal incelemelerde mevcut değildir.",
-    EMAIL_DOMAIN_BLOCKED:
-      "Bu e-posta domaini izin verilmez. Lütfen geçerli bir e-posta adresi kullanın.",
+    EMAIL_DOMAIN_BLOCKED: "Bu e-posta domaini izin verilmez. Lütfen geçerli bir e-posta adresi kullanın.",
   },
   notifications: {
     commentReplyTitle: "Yorumunuz için Yeni Cevap",
@@ -93,89 +88,62 @@ const tr = {
     newArticlesAvailable: "Mevcut yeni makaleler mevcut",
     banTitle: "Hesap süspansiyonu bildirimi",
     banBody: "Hesabınız olmuştur {{action}}Sebep: {{reason}}",
-    actionBan:
-      "yasaklanmış yasak yasaklanmış yasak yasak yasaklanmış yasak yasak yasaklanmış yasak yasak yasaklanmış yasak yasak yasak yasaklanmış yasak yasak yasak yasaklanmış yasak yasak yasak yasaklanmış yasak yasak yasak yasaklanmış yasak yasak yasak",
+    actionBan: "yasaklanmış yasak yasaklanmış yasak yasak yasaklanmış yasak yasak yasaklanmış yasak yasak yasaklanmış yasak yasak yasak yasaklanmış yasak yasak yasak yasaklanmış yasak yasak yasak yasaklanmış yasak yasak yasak yasaklanmış yasak yasak yasak",
     actionSuspend: "askıya askıya askıya alındı",
     commentDeletedTitle: "Yorumunuz kaldırıldı",
-    commentDeletedBody: 'Yorumunuz "{{show}}" topluluğun birden çok raporunu takip ediyordu.',
+    commentDeletedBody: "Yorumunuz \"{{show}}\" topluluğun birden çok raporunu takip ediyordu.",
     commentHiddenTitle: "Yorumunuz gizliydi",
-    commentHiddenBody:
-      'Yorumunuz "{{show}}“Toplumdan raporlar takip edildi ve artık diğer kullanıcılara görünür değil.',
+    commentHiddenBody: "Yorumunuz \"{{show}}“Toplumdan raporlar takip edildi ve artık diğer kullanıcılara görünür değil.",
     commentAutoSpoilerTitle: "Yorumunuz spoiler olarak işaretlendi",
-    commentAutoSpoilerBody:
-      'Yorumunuz "{{show}}" otomatik olarak topluluğun raporları takip eden bir spoiler olarak işaretlendi.',
+    commentAutoSpoilerBody: "Yorumunuz \"{{show}}\" otomatik olarak topluluğun raporları takip eden bir spoiler olarak işaretlendi.",
     commentAdminSpoilerTitle: "Yorumunuz spoiler olarak işaretlendi",
-    commentAdminSpoilerBody: 'Bir moderatör Yorumunuzu "{{show}}“Bir spoiler olarak.',
+    commentAdminSpoilerBody: "Bir moderatör Yorumunuzu \"{{show}}“Bir spoiler olarak.",
     activationNudgeTitle: "Saatlistin bekliyor",
-    activationNudgeBody:
-      "Yeni bölümler hakkında bilgi almaya başlamak için birkaç gösteri veya film ekleyin.",
+    activationNudgeBody: "Yeni bölümler hakkında bilgi almaya başlamak için birkaç gösteri veya film ekleyin.",
     directMessageTitle: "Yeni mesaj",
     directMessageBody: "{{sender}}: {{preview}}",
   },
   emails: {
-    welcomeSubject:
-      "Hoş geldiniz to Welcome to Welcome to Welcome to Welcome to Welcome to Welcome to Watchr!",
-    welcomeHeading:
-      "Hoş geldiniz to Welcome to Welcome to Welcome to Welcome to Welcome to Welcome to Watchr!",
-    welcomeBody:
-      "Merhaba Merhaba {{username}}Ancak hesabınız başarıyla oluşturuldu. Şimdi en sevdiğiniz şovları ve filmlerinizi takip etmeye başlayın!",
-    welcomeTipUsername:
-      'Kullanıcınız "{{username}}" otomatik olarak üretildi. Bunu profil ayarlarınızda her zaman değiştirebilirsiniz.',
-    welcomeTipFeatures:
-      "İşte yapabileceğiniz şey: şovlar ve filmler, oran bölümlerini takip edin, tartışmalara katılın TV Time Tarih ve yeni bölümler hava olduğunda haberdar olun.",
+    welcomeSubject: "Hoş geldiniz to Welcome to Welcome to Welcome to Welcome to Welcome to Welcome to Watchr!",
+    welcomeHeading: "Hoş geldiniz to Welcome to Welcome to Welcome to Welcome to Welcome to Welcome to Watchr!",
+    welcomeBody: "Merhaba Merhaba {{username}}Ancak hesabınız başarıyla oluşturuldu. Şimdi en sevdiğiniz şovları ve filmlerinizi takip etmeye başlayın!",
+    welcomeTipUsername: "Kullanıcınız \"{{username}}\" otomatik olarak üretildi. Bunu profil ayarlarınızda her zaman değiştirebilirsiniz.",
+    welcomeTipFeatures: "İşte yapabileceğiniz şey: şovlar ve filmler, oran bölümlerini takip edin, tartışmalara katılın TV Time Tarih ve yeni bölümler hava olduğunda haberdar olun.",
     welcomeCta: "Web üzerinden başlayın",
-    welcomeFooter:
-      "Bu e-postayı alıyorsunuz, çünkü bir yarattınız Watchr hesap. Eğer bu sizin değilse, bu e-postayı güvenle görmezden gelebilirsiniz.",
+    welcomeFooter: "Bu e-postayı alıyorsunuz, çünkü bir yarattınız Watchr hesap. Eğer bu sizin değilse, bu e-postayı güvenle görmezden gelebilirsiniz.",
     resetPasswordSubject: "Şifrenizi sıfırlayın",
     resetPasswordHeading: "Şifrenizi sıfırlayın",
-    resetPasswordBody:
-      "Bir parola sıfırlama talep ettiniz. Yeni bir şifre seçmek için aşağıdaki düğmeye tıklayın. Bu bağlantı 15 dakika içinde sona erer.",
-    resetPasswordTipSecurity:
-      "Güçlü, eşsiz bir şifre seçin. Başka bir hizmetten birini yeniden kullanmayın. Bu bağlantıyı herkesle asla paylaşma - Watchr Personel asla bunu istemeyecektir.",
+    resetPasswordBody: "Bir parola sıfırlama talep ettiniz. Yeni bir şifre seçmek için aşağıdaki düğmeye tıklayın. Bu bağlantı 15 dakika içinde sona erer.",
+    resetPasswordTipSecurity: "Güçlü, eşsiz bir şifre seçin. Başka bir hizmetten birini yeniden kullanmayın. Bu bağlantıyı herkesle asla paylaşma - Watchr Personel asla bunu istemeyecektir.",
     resetPasswordCta: "Şifre sıfırlama parola sıfırlama",
-    resetPasswordFooter:
-      "Bu sıfırlamayı talep etmediyseniz, bu e-postayı görmezden gelin - şifreniz değişmeyecektir. İletişim desteği eğer bu devam ederse.",
+    resetPasswordFooter: "Bu sıfırlamayı talep etmediyseniz, bu e-postayı görmezden gelin - şifreniz değişmeyecektir. İletişim desteği eğer bu devam ederse.",
     banSubject: "Senin Watchr Hesap askıya alındı",
     banHeading: "Hesap süspansiyonu bildirimi",
-    banBody:
-      "Merhaba Merhaba {{username}}Ama hesabınız olmuştur {{action}}Sebep: {{reason}}. Bu eylem üzerinde etkilenecek {{effectiveDate}}.",
+    banBody: "Merhaba Merhaba {{username}}Ama hesabınız olmuştur {{action}}Sebep: {{reason}}. Bu eylem üzerinde etkilenecek {{effectiveDate}}.",
     banSuspendedUntil: "Hesabınız yeniden doğacak {{date}}.",
-    banTipAppeal:
-      "Bu kararın yanlış olduğuna inanıyorsanız, destek ekibimizle iletişime geçebilirsiniz. Lütfen adınızı ve ilgili bağlamınızı ekleyin.",
-    banFooter:
-      "Toplum yönergelerimizi https://watchr.me/community-guidelines. Eğer bunun bir hata olduğuna inanıyorsanız lütfen temas desteği ile iletişime geçin.",
+    banTipAppeal: "Bu kararın yanlış olduğuna inanıyorsanız, destek ekibimizle iletişime geçebilirsiniz. Lütfen adınızı ve ilgili bağlamınızı ekleyin.",
+    banFooter: "Toplum yönergelerimizi https://watchr.me/community-guidelines. Eğer bunun bir hata olduğuna inanıyorsanız lütfen temas desteği ile iletişime geçin.",
     commentDeletedSubject: "Yorumunuz hakkında Watchr kaldırıldı.",
     commentDeletedHeading: "Yorum kaldırıldı",
-    commentDeletedBody:
-      'Merhaba Merhaba {{username}}Yorumunuz "{{show}}" Birden çok rapor alındıktan sonra Watchr topluluk. Tekrar yayınlamadan önce topluluk yönergelerimizi incelemenizi teşvik ediyoruz.',
-    commentDeletedTip:
-      "Yeni bir yorum yayınlamaya hoş geldiniz, çünkü topluluk yönergelerimizi takip ettiği sürece. Saygılı olun ve uygun tagging olmadan şımartın.",
-    commentDeletedFooter:
-      "Toplum yönergelerimizi https://watchr.me/community-guidelines. Eğer bunun bir hata olduğuna inanıyorsanız lütfen temas desteği ile iletişime geçin.",
+    commentDeletedBody: "Merhaba Merhaba {{username}}Yorumunuz \"{{show}}\" Birden çok rapor alındıktan sonra Watchr topluluk. Tekrar yayınlamadan önce topluluk yönergelerimizi incelemenizi teşvik ediyoruz.",
+    commentDeletedTip: "Yeni bir yorum yayınlamaya hoş geldiniz, çünkü topluluk yönergelerimizi takip ettiği sürece. Saygılı olun ve uygun tagging olmadan şımartın.",
+    commentDeletedFooter: "Toplum yönergelerimizi https://watchr.me/community-guidelines. Eğer bunun bir hata olduğuna inanıyorsanız lütfen temas desteği ile iletişime geçin.",
     commentHiddenSubject: "Yorumunuz hakkında Watchr Gizli gizliydi",
     commentHiddenHeading: "Yorum gizli",
-    commentHiddenBody:
-      'Merhaba Merhaba {{username}}Yorumunuz "{{show}}“Diğer kullanıcılardan raporlar takip edildi. Artık topluluğa görünür değil. Tekrarlanan ihlaller hesabınızda daha fazla eyleme yol açabilir.',
-    commentHiddenTip:
-      "Yorumunuzu yönergelerimizle uyumlu hale getirmek için düzenleyebilirsiniz. güncellendikten sonra, gözden geçirilecek ve tekrar görünür olabilir.",
-    commentHiddenFooter:
-      "Toplum yönergelerimizi https://watchr.me/community-guidelines. Eğer bunun bir hata olduğuna inanıyorsanız lütfen temas desteği ile iletişime geçin.",
+    commentHiddenBody: "Merhaba Merhaba {{username}}Yorumunuz \"{{show}}“Diğer kullanıcılardan raporlar takip edildi. Artık topluluğa görünür değil. Tekrarlanan ihlaller hesabınızda daha fazla eyleme yol açabilir.",
+    commentHiddenTip: "Yorumunuzu yönergelerimizle uyumlu hale getirmek için düzenleyebilirsiniz. güncellendikten sonra, gözden geçirilecek ve tekrar görünür olabilir.",
+    commentHiddenFooter: "Toplum yönergelerimizi https://watchr.me/community-guidelines. Eğer bunun bir hata olduğuna inanıyorsanız lütfen temas desteği ile iletişime geçin.",
     commentSpoilerSubject: "Yorumunuz spoiler olarak işaretlendi",
     commentSpoilerHeading: "Spoiler etiketi sizin yorumunuza eklendi",
-    commentSpoilerBody:
-      'Merhaba Merhaba {{username}}Yorumunuz "{{show}}" topluluğun raporları takip eden bir spoiler olarak işaretlendi. Lütfen arsa detaylarını tartışırken spoiler etiketi kullanmayı unutmayın.',
-    commentSpoilerTip:
-      "Bir spoiler işaretlemek için, yorumunuzu yazarken ya da şımartılmış metinleri şımartmak için. Bu, toplum herkes için keyifli bir deneyim tutar.",
-    commentSpoilerFooter:
-      "Toplum yönergelerimizi https://watchr.me/community-guidelines. Eğer bunun bir hata olduğuna inanıyorsanız lütfen temas desteği ile iletişime geçin.",
+    commentSpoilerBody: "Merhaba Merhaba {{username}}Yorumunuz \"{{show}}\" topluluğun raporları takip eden bir spoiler olarak işaretlendi. Lütfen arsa detaylarını tartışırken spoiler etiketi kullanmayı unutmayın.",
+    commentSpoilerTip: "Bir spoiler işaretlemek için, yorumunuzu yazarken ya da şımartılmış metinleri şımartmak için. Bu, toplum herkes için keyifli bir deneyim tutar.",
+    commentSpoilerFooter: "Toplum yönergelerimizi https://watchr.me/community-guidelines. Eğer bunun bir hata olduğuna inanıyorsanız lütfen temas desteği ile iletişime geçin.",
     emailCodeSubject: "Senin Watchr sign-in code",
     emailCodeHeading: "Sign in to to to Watchr",
-    emailCodeBody:
-      "Hesabınızı imzalamak için aşağıdaki kodu kullanın. Bu kod 15 dakika içinde sona erer.",
+    emailCodeBody: "Hesabınızı imzalamak için aşağıdaki kodu kullanın. Bu kod 15 dakika içinde sona erer.",
     emailCodeLabel: "İşaret kodunuz:",
     emailCodeCta: "Sign in in Sign in",
-    emailCodeTipSecurity:
-      "Bu kodu herkesle asla paylaşma. Watchr Personel asla bunu istemeyecektir.",
+    emailCodeTipSecurity: "Bu kodu herkesle asla paylaşma. Watchr Personel asla bunu istemeyecektir.",
     emailCodeFooter: "Bu kodu talep etmediyseniz, bu e-postayı görmezden gelin. Hesabınız güvenli.",
   },
   websocket: {
@@ -196,8 +164,7 @@ const tr = {
     popularMovies: "Popüler Filmler",
   },
   welcomeMessage: {
-    content:
-      "Hoş geldiniz to Welcome to Welcome to Welcome to Welcome to Welcome to Welcome to Watchr🎬\n\nEn sevdiğiniz şovları takip edin, yeni olanları keşfedin ve arkadaşlarıyla bağlantı kurun. İşte yapabileceğiniz birkaç şey:\n\n• Saatlistine şov ekle\n• Bölümler hakkında puan ve yorum\n• Faaliyetlerini görmek için arkadaşlarını takip edin\n\nHerhangi bir sorunuz varsa, sadece bu mesaja cevap verin!",
+    content: "Hoş geldiniz to Welcome to Welcome to Welcome to Welcome to Welcome to Welcome to Watchr🎬\n\nEn sevdiğiniz şovları takip edin, yeni olanları keşfedin ve arkadaşlarıyla bağlantı kurun. İşte yapabileceğiniz birkaç şey:\n\n• Saatlistine şov ekle\n• Bölümler hakkında puan ve yorum\n• Faaliyetlerini görmek için arkadaşlarını takip edin\n\nHerhangi bir sorunuz varsa, sadece bu mesaja cevap verin!",
   },
   recommendations: {
     fallbackReason: "Şu anda trend",

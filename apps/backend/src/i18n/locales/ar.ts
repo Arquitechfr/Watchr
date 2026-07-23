@@ -93,12 +93,11 @@ const ar = {
     commentDeletedTitle: "تعليقك أزيل",
     commentDeletedBody: "تعليقك على{{show}}أزيلت بعد تقارير متعددة من المجتمع",
     commentHiddenTitle: "تعليقك مخفي",
-    commentHiddenBody:
-      'تعليقك على{{show}}"كانت مخبأة بعد تقارير من المجتمع ولم تعد مرئية لمستعملين آخرين"',
+    commentHiddenBody: "تعليقك على{{show}}\"كانت مخبأة بعد تقارير من المجتمع ولم تعد مرئية لمستعملين آخرين\"",
     commentAutoSpoilerTitle: "تعليقك كان مدللاً",
-    commentAutoSpoilerBody: 'تعليقك على{{show}}"تُسمّى تلقائياً على أنه مفسد يتبع تقارير المجتمع',
+    commentAutoSpoilerBody: "تعليقك على{{show}}\"تُسمّى تلقائياً على أنه مفسد يتبع تقارير المجتمع",
     commentAdminSpoilerTitle: "تعليقك كان مدللاً",
-    commentAdminSpoilerBody: 'المُدير وضع تعليقك على{{show}}"كإفساد"',
+    commentAdminSpoilerBody: "المُدير وضع تعليقك على{{show}}\"كإفساد\"",
     activationNudgeTitle: "مراقبتك تنتظر",
     activationNudgeBody: "أضف بضعة عروض أو أفلام ليبدأوا في التبليغ عن حلقات جديدة",
     directMessageTitle: "رسالة جديدة",
@@ -109,53 +108,36 @@ const ar = {
     welcomeHeading: "مرحبا بكم في Watchr!",
     welcomeBody: "مرحبا {{username}}لقد تم صنع حسابك بنجاح ابدأ بتتبع عروضك و أفلامك المفضلة الآن",
     welcomeTipUsername: "إسمك المستخدم{{username}}تولد تلقائياً يمكنك تغييره في أي وقت في ملفاتك",
-    welcomeTipFeatures:
-      "هذا ما يمكنك القيام به: عروض وأفلام المسار، حلقات العرض، الإنضمام إلى المناقشات TV Time التاريخ، ويُصبحُ مُخطراً عندما حلقاتِ جديدةِ تَهْوى.",
+    welcomeTipFeatures: "هذا ما يمكنك القيام به: عروض وأفلام المسار، حلقات العرض، الإنضمام إلى المناقشات TV Time التاريخ، ويُصبحُ مُخطراً عندما حلقاتِ جديدةِ تَهْوى.",
     welcomeCta: "ابدأ على الانترنت",
-    welcomeFooter:
-      "أنت تستلم هذه الرسالة لأنك خلقت Watchr الحساب إذا لم يكن هذا أنت، يمكنك تجاهل هذا البريد الإلكتروني بأمان.",
+    welcomeFooter: "أنت تستلم هذه الرسالة لأنك خلقت Watchr الحساب إذا لم يكن هذا أنت، يمكنك تجاهل هذا البريد الإلكتروني بأمان.",
     resetPasswordSubject: "أعد كلمة سرك",
     resetPasswordHeading: "أعد كلمة سرك",
-    resetPasswordBody:
-      "لقد طلبت إعادة صياغة كلمة السر اضغطي الزر تحت لاختيار كلمة سر جديدة تنتهي هذه الصلة خلال 15 دقيقة",
-    resetPasswordTipSecurity:
-      "اختر كلمة سر قوية فريدة لا تعيد استخدام واحد من خدمة أخرى. لا تتقاسم أبدا هذه الصلة مع أي شخص Watchr لن يطلبه الموظفون",
+    resetPasswordBody: "لقد طلبت إعادة صياغة كلمة السر اضغطي الزر تحت لاختيار كلمة سر جديدة تنتهي هذه الصلة خلال 15 دقيقة",
+    resetPasswordTipSecurity: "اختر كلمة سر قوية فريدة لا تعيد استخدام واحد من خدمة أخرى. لا تتقاسم أبدا هذه الصلة مع أي شخص Watchr لن يطلبه الموظفون",
     resetPasswordCta: "إعادة كلمة السر",
-    resetPasswordFooter:
-      "إذا لم تطلب إعادة هذا، تجاهل هذا البريد الإلكتروني كلمة السر لن تتغير اتصل بالدعم إذا استمر هذا في الحدوث",
+    resetPasswordFooter: "إذا لم تطلب إعادة هذا، تجاهل هذا البريد الإلكتروني كلمة السر لن تتغير اتصل بالدعم إذا استمر هذا في الحدوث",
     banSubject: "أنت Watchr تم تعليق الحساب",
     banHeading: "إشعار بتعليق الحساب",
-    banBody:
-      "مرحبا {{username}}حسابك كان {{action}}السبب: {{reason}}وسيبدأ تنفيذ هذا الإجراء {{effectiveDate}}.",
+    banBody: "مرحبا {{username}}حسابك كان {{action}}السبب: {{reason}}وسيبدأ تنفيذ هذا الإجراء {{effectiveDate}}.",
     banSuspendedUntil: "سيتم إعادة حسابك {{date}}.",
-    banTipAppeal:
-      "إذا كنت تعتقد أن هذا القرار غير صحيح، يمكنك الاستئناف من خلال الاتصال بفريق الدعم لدينا. يرجى إدراج اسم المستخدم الخاص بك وأي سياق ذي صلة.",
-    banFooter:
-      "Review our community guidelines at https://watchr.me/community-guidelines. إذا كنت تعتقد أن هذا خطأ، يرجى الاتصال بالدعم.",
+    banTipAppeal: "إذا كنت تعتقد أن هذا القرار غير صحيح، يمكنك الاستئناف من خلال الاتصال بفريق الدعم لدينا. يرجى إدراج اسم المستخدم الخاص بك وأي سياق ذي صلة.",
+    banFooter: "Review our community guidelines at https://watchr.me/community-guidelines. إذا كنت تعتقد أن هذا خطأ، يرجى الاتصال بالدعم.",
     commentDeletedSubject: "تعليقك Watchr أزيل",
     commentDeletedHeading: "ألغي التعليق",
-    commentDeletedBody:
-      "مرحبا {{username}}تعليقك على{{show}}أزيلت بعد تقارير متعددة من Watchr المجتمع ونشجعكم على استعراض مبادئنا التوجيهية المجتمعية قبل نشرها من جديد.",
-    commentDeletedTip:
-      "على الرحب والسعة أن تنشر تعليقاً جديداً طالما أنه يتبع مبادئنا الاجتماعية كونوا محترمين وتجنبوا المفسدين دون أن تتفاخروا",
-    commentDeletedFooter:
-      "Review our community guidelines at https://watchr.me/community-guidelines. إذا كنت تعتقد أن هذا كان خطأ، يرجى الاتصال بالدعم.",
+    commentDeletedBody: "مرحبا {{username}}تعليقك على{{show}}أزيلت بعد تقارير متعددة من Watchr المجتمع ونشجعكم على استعراض مبادئنا التوجيهية المجتمعية قبل نشرها من جديد.",
+    commentDeletedTip: "على الرحب والسعة أن تنشر تعليقاً جديداً طالما أنه يتبع مبادئنا الاجتماعية كونوا محترمين وتجنبوا المفسدين دون أن تتفاخروا",
+    commentDeletedFooter: "Review our community guidelines at https://watchr.me/community-guidelines. إذا كنت تعتقد أن هذا كان خطأ، يرجى الاتصال بالدعم.",
     commentHiddenSubject: "تعليقك Watchr مخبأ",
     commentHiddenHeading: "التعليق مخفي",
-    commentHiddenBody:
-      "مرحبا {{username}}تعليقك على{{show}}كان مخبأً بعد تقارير من مستعملين آخرين ولم يعد مرئياً للمجتمع. الانتهاكات المتكررة قد تؤدي إلى مزيد من العمل على حسابك.",
-    commentHiddenTip:
-      "يمكنك تحرير تعليقك ليتوافق مع مبادئنا التوجيهية وبعد استكماله، سيجري استعراضه ويمكن إبرازه مرة أخرى.",
-    commentHiddenFooter:
-      "Review our community guidelines at https://watchr.me/community-guidelines. إذا كنت تعتقد أن هذا كان خطأ، يرجى الاتصال بالدعم.",
+    commentHiddenBody: "مرحبا {{username}}تعليقك على{{show}}كان مخبأً بعد تقارير من مستعملين آخرين ولم يعد مرئياً للمجتمع. الانتهاكات المتكررة قد تؤدي إلى مزيد من العمل على حسابك.",
+    commentHiddenTip: "يمكنك تحرير تعليقك ليتوافق مع مبادئنا التوجيهية وبعد استكماله، سيجري استعراضه ويمكن إبرازه مرة أخرى.",
+    commentHiddenFooter: "Review our community guidelines at https://watchr.me/community-guidelines. إذا كنت تعتقد أن هذا كان خطأ، يرجى الاتصال بالدعم.",
     commentSpoilerSubject: "تعليقك كان مدللاً",
     commentSpoilerHeading: "العلامة تضيف إلى تعليقك",
-    commentSpoilerBody:
-      'مرحبا {{username}}تعليقك على{{show}}"وُضِعَت كa مُفسدة بعد تقارير من المجتمع. يرجى تذكر استخدام علامة المفسد عند مناقشة تفاصيل المؤامرة.',
-    commentSpoilerTip:
-      "لعلامة المفسد، استخدام الزر المفسد عندما يكتب تعليقك أو يلف النص الحساس مع علامة المفسد. هذا يبقي تجربة المجتمع ممتعة للجميع",
-    commentSpoilerFooter:
-      "Review our community guidelines at https://watchr.me/community-guidelines. إذا كنت تعتقد أن هذا كان خطأ، يرجى الاتصال بالدعم.",
+    commentSpoilerBody: "مرحبا {{username}}تعليقك على{{show}}\"وُضِعَت كa مُفسدة بعد تقارير من المجتمع. يرجى تذكر استخدام علامة المفسد عند مناقشة تفاصيل المؤامرة.",
+    commentSpoilerTip: "لعلامة المفسد، استخدام الزر المفسد عندما يكتب تعليقك أو يلف النص الحساس مع علامة المفسد. هذا يبقي تجربة المجتمع ممتعة للجميع",
+    commentSpoilerFooter: "Review our community guidelines at https://watchr.me/community-guidelines. إذا كنت تعتقد أن هذا كان خطأ، يرجى الاتصال بالدعم.",
     emailCodeSubject: "أنت Watchr رمز الإشارة",
     emailCodeHeading: "وقع Watchr",
     emailCodeBody: "استخدم الرمز أدناه للتوقيع على حسابك هذا الرمز ينتهي بعد 15 دقيقة",
@@ -182,8 +164,7 @@ const ar = {
     popularMovies: "الأفلام الشعبية",
   },
   welcomeMessage: {
-    content:
-      "مرحبا بكم في Watchr!\n\nتعقّب عروضك المفضّلة، واكتشف عروضاً جديدة، وتتواصل مع الأصدقاء. هنا بضعة أشياء يمكنك القيام بها:\n\n• Add shows to your watchlist\n● معدل الحوادث والتعليق عليها\n• Follow friends to see their activity\n\nإذا كان لديك أي أسئلة، مجرد الرد على هذه الرسالة!",
+    content: "مرحبا بكم في Watchr!\n\nتعقّب عروضك المفضّلة، واكتشف عروضاً جديدة، وتتواصل مع الأصدقاء. هنا بضعة أشياء يمكنك القيام بها:\n\n• Add shows to your watchlist\n● معدل الحوادث والتعليق عليها\n• Follow friends to see their activity\n\nإذا كان لديك أي أسئلة، مجرد الرد على هذه الرسالة!",
   },
   recommendations: {
     fallbackReason: "الاتجاه الحالي",

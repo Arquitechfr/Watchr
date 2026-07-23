@@ -143,16 +143,33 @@ function flattenObject(obj: Record<string, unknown>, prefix = ""): Array<[string
   return entries;
 }
 
-function setNestedValue(obj: Record<string, unknown>, path: string, value: string): void {
-  const parts = path.split(".");
-  let current = obj;
-  for (let i = 0; i < parts.length - 1; i++) {
-    if (!current[parts[i]] || typeof current[parts[i]] !== "object") {
-      current[parts[i]] = {};
+function buildMergedObject(
+  enObj: Record<string, unknown>,
+  existingFlat: Map<string, string>,
+  newTranslations: Map<string, string>,
+  prefix = "",
+): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
+  for (const [key, enValue] of Object.entries(enObj)) {
+    const fullKey = prefix ? `${prefix}.${key}` : key;
+    if (typeof enValue === "string") {
+      if (newTranslations.has(fullKey)) {
+        result[key] = newTranslations.get(fullKey)!;
+      } else if (existingFlat.has(fullKey)) {
+        result[key] = existingFlat.get(fullKey)!;
+      } else {
+        result[key] = enValue;
+      }
+    } else if (typeof enValue === "object" && enValue !== null && !Array.isArray(enValue)) {
+      result[key] = buildMergedObject(
+        enValue as Record<string, unknown>,
+        existingFlat,
+        newTranslations,
+        fullKey,
+      );
     }
-    current = current[parts[i]] as Record<string, unknown>;
   }
-  current[parts[parts.length - 1]] = value;
+  return result;
 }
 
 function isValidIdentifier(key: string): boolean {
@@ -380,18 +397,8 @@ async function main() {
     }
 
     // Build merged object: preserved + translated missing - obsolete
-    const mergedObj: Record<string, unknown> = {};
-
-    // First, set all preserved keys (existing translations)
-    for (const [key] of preservedKeys) {
-      const existingVal = existingKeyToValue.get(key);
-      if (existingVal !== undefined) {
-        setNestedValue(mergedObj, key, existingVal);
-      }
-    }
-
-    // Then, set missing keys (translated or English for DO_NOT_TRANSLATE)
-    let transIdx = 0;
+    // Uses recursive merge to preserve en.ts structure (fixes keys with dots)
+    const newTranslations = new Map<string, string>();
     for (const { key, enValue, useEnglish } of translateMeta) {
       let translated: string;
       if (useEnglish) {
@@ -402,9 +409,10 @@ async function main() {
         // Should not happen, but fallback to English
         translated = enValue;
       }
-      setNestedValue(mergedObj, key, translated);
-      transIdx++;
+      newTranslations.set(key, translated);
     }
+
+    const mergedObj = buildMergedObject(enObj, existingKeyToValue, newTranslations);
 
     // Write the file
     const fileContent = `const ${lang} = ${objectToString(mergedObj)};\n\nexport default ${lang};\n`;

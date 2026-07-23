@@ -198,8 +198,8 @@ export async function getAiStatus() {
     fallbackChatModel: "mistral-large-latest",
     defaultEmbeddingsModel: "mistral-embed",
     rateLimiter: {
-      capacity: 10,
-      refillRate: "10 per 60s",
+      capacity: 60,
+      refillRate: "60 per 60s",
     },
   };
 }

@@ -72,7 +72,7 @@ describe("MistralService", () => {
     it("should return a result when chat succeeds", async () => {
       vi.spyOn(mistralService as any, "chat").mockResolvedValueOnce({
         content: "improved text",
-        model: "mistral-large-latest",
+        model: "mistral-small-latest",
         usage: { promptTokens: 10, completionTokens: 5, totalTokens: 15 },
       });
 
@@ -149,6 +149,19 @@ describe("MistralService", () => {
 
     it("getApiKeysCount should return the number of configured keys", () => {
       expect(mistralService.getApiKeysCount()).toBeGreaterThanOrEqual(1);
+    });
+
+    it("should rotate keys in round-robin order (2 consecutive calls use different keys)", async () => {
+      const clients = (mistralService as any).clients as any[];
+      if (clients.length < 2) return; // skip if only 1 key configured
+
+      (mistralService as any).nextIndex = 0;
+      (mistralService as any).cooldowns.clear();
+
+      const firstPick = (mistralService as any).pickClient();
+      const secondPick = (mistralService as any).pickClient();
+
+      expect(firstPick.index).not.toBe(secondPick.index);
     });
 
     it("should retry with another key on 429", async () => {
@@ -331,6 +344,71 @@ describe("MistralService", () => {
       await mistralService.chat({ messages: [{ role: "user", content: "test" }] });
 
       expect(sleep).toHaveBeenCalled();
+    });
+  });
+
+  describe("500 error retry with immediate key switch", () => {
+    it("should retry on 500 error with another key immediately (no backoff)", async () => {
+      const err500 = Object.assign(new Error("Internal server error"), { statusCode: 500 });
+      const successResult = {
+        choices: [{ message: { content: "success" } }],
+        model: "mistral-small-latest",
+        usage: { promptTokens: 5, completionTokens: 3, totalTokens: 8 },
+      };
+
+      const clients = (mistralService as any).clients as any[];
+      if (clients.length < 2) return; // skip if only 1 key configured
+
+      vi.spyOn(clients[0].chat, "complete").mockRejectedValueOnce(err500);
+      vi.spyOn(clients[1].chat, "complete").mockResolvedValueOnce(successResult);
+
+      vi.spyOn(mistralService as any, "pickClient")
+        .mockReturnValueOnce({ client: clients[0], index: 0 })
+        .mockReturnValueOnce({ client: clients[1], index: 1 });
+
+      const { sleep } = await import("../src/lib/rateLimiter.js");
+      (sleep as any).mockClear();
+
+      const result = await mistralService.chat({
+        messages: [{ role: "user", content: "test" }],
+      });
+
+      expect(result.content).toBe("success");
+      // Should NOT have called backoff since another key was available
+      expect(sleep).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("Non-retryable errors (400/401/403)", () => {
+    it("should not retry on 400 error and throw immediately", async () => {
+      const err400 = Object.assign(new Error("Bad request"), { statusCode: 400 });
+      const clients = (mistralService as any).clients as any[];
+
+      vi.spyOn(clients[0].chat, "complete").mockRejectedValueOnce(err400);
+      vi.spyOn(mistralService as any, "pickClient")
+        .mockReturnValue({ client: clients[0], index: 0 });
+
+      await expect(
+        mistralService.chat({ messages: [{ role: "user", content: "test" }] }),
+      ).rejects.toMatchObject({ status: 502, code: "MISTRAL_ERROR" });
+
+      // Should have only called complete once (no retry)
+      expect(clients[0].chat.complete).toHaveBeenCalledTimes(1);
+    });
+
+    it("should not retry on 401 error and throw immediately", async () => {
+      const err401 = Object.assign(new Error("Unauthorized"), { statusCode: 401 });
+      const clients = (mistralService as any).clients as any[];
+
+      vi.spyOn(clients[0].chat, "complete").mockRejectedValueOnce(err401);
+      vi.spyOn(mistralService as any, "pickClient")
+        .mockReturnValue({ client: clients[0], index: 0 });
+
+      await expect(
+        mistralService.chat({ messages: [{ role: "user", content: "test" }] }),
+      ).rejects.toThrow();
+
+      expect(clients[0].chat.complete).toHaveBeenCalledTimes(1);
     });
   });
 

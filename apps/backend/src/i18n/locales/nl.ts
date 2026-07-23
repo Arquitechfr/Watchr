@@ -37,8 +37,7 @@ const nl = {
     ALREADY_TRACKED: "Al getraceerd.",
     GOOGLE_ALREADY_LINKED: "Dit Google account is al gekoppeld aan een andere gebruiker.",
     GOOGLE_EMAIL_MISMATCH: "De Google account e-mail komt niet overeen met uw account e-mail.",
-    CANNOT_UNLINK_NO_PASSWORD:
-      "U kunt geen verbinding maken Google zonder wachtwoord ingesteld op uw account.",
+    CANNOT_UNLINK_NO_PASSWORD: "U kunt geen verbinding maken Google zonder wachtwoord ingesteld op uw account.",
     ACCOUNT_BANNED: "Deze rekening is verboden.",
     ACCOUNT_SUSPENDED: "Deze rekening is geschorst.",
     UNKNOWN: "Er ging iets mis.",
@@ -50,11 +49,9 @@ const nl = {
     COMMENT_REJECTED_HATE: "Uw commentaar bevat haatdragende inhoud. Wees respectvol.",
     COMMENT_REJECTED_HARASSMENT: "Je commentaar bevat intimidatie. Wees respectvol.",
     COMMENT_REJECTED_SPAM: "Je reactie lijkt op spam. Schrijf betekenisvolle inhoud.",
-    COMMENT_REJECTED_SELF_HARM:
-      "Als je het moeilijk hebt, vraag dan om hulp. Deze inhoud is niet toegestaan.",
+    COMMENT_REJECTED_SELF_HARM: "Als je het moeilijk hebt, vraag dan om hulp. Deze inhoud is niet toegestaan.",
     COMMENT_REJECTED_VIOLENCE: "Uw commentaar bevat gewelddadige inhoud. Wees respectvol.",
-    COMMENT_REJECTED_OTHER:
-      "Je commentaar werd gemarkeerd als ongepast. Bekijk onze community richtlijnen.",
+    COMMENT_REJECTED_OTHER: "Je commentaar werd gemarkeerd als ongepast. Bekijk onze community richtlijnen.",
     EMAIL_CODE_EXPIRED: "Code verlopen of niet gevonden. Vraag een nieuwe aan.",
     INVALID_EMAIL_CODE: "Ongeldige code.",
     TOO_MANY_CODE_ATTEMPTS: "Te veel pogingen. Vraag een nieuwe code aan.",
@@ -71,8 +68,7 @@ const nl = {
     TOO_MANY_REACTION_REQUESTS: "Te veel reactieverzoeken. Probeer het later nog eens.",
     TOO_MANY_REPORT_REQUESTS: "Te veel verzoeken. Probeer het later nog eens.",
     TOO_MANY_UPLOAD_REQUESTS: "Te veel verzoeken uploaden. Probeer het later nog eens.",
-    TOO_MANY_TRAKT_SYNC_REQUESTS:
-      "Te veel Trakt verzoeken synchroniseren. Probeer het later nog eens.",
+    TOO_MANY_TRAKT_SYNC_REQUESTS: "Te veel Trakt verzoeken synchroniseren. Probeer het later nog eens.",
     TOO_MANY_AI_REQUESTS: "Te veel AI verzoeken. Probeer het later nog eens.",
     REPLIES_DISABLED: "Antwoorden zijn niet beschikbaar op geïmporteerde beoordelingen.",
     EMAIL_DOMAIN_BLOCKED: "Dit e-maildomein is niet toegestaan. Gebruik een geldig e-mailadres.",
@@ -95,87 +91,60 @@ const nl = {
     actionBan: "verboden",
     actionSuspend: "geschorst",
     commentDeletedTitle: "Uw commentaar werd verwijderd",
-    commentDeletedBody:
-      'Uw commentaar op "{{show}}" werd verwijderd na meerdere rapporten uit de gemeenschap.',
+    commentDeletedBody: "Uw commentaar op \"{{show}}\" werd verwijderd na meerdere rapporten uit de gemeenschap.",
     commentHiddenTitle: "Uw commentaar was verborgen.",
-    commentHiddenBody:
-      'Uw commentaar op "{{show}}" was verborgen na rapporten van de gemeenschap en is niet meer zichtbaar voor andere gebruikers.',
+    commentHiddenBody: "Uw commentaar op \"{{show}}\" was verborgen na rapporten van de gemeenschap en is niet meer zichtbaar voor andere gebruikers.",
     commentAutoSpoilerTitle: "Uw opmerking werd gemarkeerd als spoiler",
-    commentAutoSpoilerBody:
-      'Uw commentaar op "{{show}}" werd automatisch gemarkeerd als een spoiler na rapporten van de gemeenschap.',
+    commentAutoSpoilerBody: "Uw commentaar op \"{{show}}\" werd automatisch gemarkeerd als een spoiler na rapporten van de gemeenschap.",
     commentAdminSpoilerTitle: "Uw opmerking werd gemarkeerd als spoiler",
-    commentAdminSpoilerBody:
-      'Een moderator heeft uw commentaar gemarkeerd op "{{show}}"als spoiler.',
+    commentAdminSpoilerBody: "Een moderator heeft uw commentaar gemarkeerd op \"{{show}}\"als spoiler.",
     activationNudgeTitle: "Uw wachtlijst wacht",
-    activationNudgeBody:
-      "Voeg een paar shows of films toe om geïnformeerd te worden over nieuwe afleveringen.",
+    activationNudgeBody: "Voeg een paar shows of films toe om geïnformeerd te worden over nieuwe afleveringen.",
     directMessageTitle: "Nieuw bericht",
     directMessageBody: "{{sender}}: {{preview}}",
   },
   emails: {
     welcomeSubject: "Welkom bij Watchr!",
     welcomeHeading: "Welkom bij Watchr!",
-    welcomeBody:
-      "Hallo. {{username}}, uw account is succesvol aangemaakt. Start het volgen van uw favoriete shows en films nu!",
-    welcomeTipUsername:
-      'Uw gebruikersnaam "{{username}}" werd automatisch gegenereerd. U kunt het altijd wijzigen in uw profielinstellingen.',
-    welcomeTipFeatures:
-      "Hier is wat je kunt doen: track shows en films, tarief afleveringen, deelnemen aan discussies, importeren van uw TV Time Geschiedenis, en word ingelicht wanneer nieuwe afleveringen lucht.",
+    welcomeBody: "Hallo. {{username}}, uw account is succesvol aangemaakt. Start het volgen van uw favoriete shows en films nu!",
+    welcomeTipUsername: "Uw gebruikersnaam \"{{username}}\" werd automatisch gegenereerd. U kunt het altijd wijzigen in uw profielinstellingen.",
+    welcomeTipFeatures: "Hier is wat je kunt doen: track shows en films, tarief afleveringen, deelnemen aan discussies, importeren van uw TV Time Geschiedenis, en word ingelicht wanneer nieuwe afleveringen lucht.",
     welcomeCta: "Aan de slag op web",
-    welcomeFooter:
-      "Je ontvangt deze e-mail omdat je een Watchr rekening. Als jij het niet was, kun je deze e-mail veilig negeren.",
+    welcomeFooter: "Je ontvangt deze e-mail omdat je een Watchr rekening. Als jij het niet was, kun je deze e-mail veilig negeren.",
     resetPasswordSubject: "Uw wachtwoord resetten",
     resetPasswordHeading: "Uw wachtwoord resetten",
-    resetPasswordBody:
-      "U vroeg om een wachtwoord reset. Klik op onderstaande knop om een nieuw wachtwoord te kiezen. Deze link verloopt over 15 minuten.",
-    resetPasswordTipSecurity:
-      "Kies een sterk, uniek wachtwoord. Gebruik het niet uit een andere dienst. Deel deze link nooit met iemand Watchr Het personeel zal er nooit om vragen.",
+    resetPasswordBody: "U vroeg om een wachtwoord reset. Klik op onderstaande knop om een nieuw wachtwoord te kiezen. Deze link verloopt over 15 minuten.",
+    resetPasswordTipSecurity: "Kies een sterk, uniek wachtwoord. Gebruik het niet uit een andere dienst. Deel deze link nooit met iemand Watchr Het personeel zal er nooit om vragen.",
     resetPasswordCta: "Wachtwoord resetten",
-    resetPasswordFooter:
-      "Als je deze reset niet hebt gevraagd, negeer dan deze e-mail.Je wachtwoord zal niet veranderen. Contacteer ondersteuning als dit blijft gebeuren.",
+    resetPasswordFooter: "Als je deze reset niet hebt gevraagd, negeer dan deze e-mail.Je wachtwoord zal niet veranderen. Contacteer ondersteuning als dit blijft gebeuren.",
     banSubject: "Uw Watchr account is opgeschort",
     banHeading: "Kennisgeving van opschorting van de rekening",
-    banBody:
-      "Hallo. {{username}}, uw account is {{action}}Reden: {{reason}}. Deze actie zal van kracht worden op {{effectiveDate}}.",
+    banBody: "Hallo. {{username}}, uw account is {{action}}Reden: {{reason}}. Deze actie zal van kracht worden op {{effectiveDate}}.",
     banSuspendedUntil: "Uw account zal worden hersteld op {{date}}.",
-    banTipAppeal:
-      "Als u denkt dat deze beslissing onjuist is, kunt u in beroep gaan door contact op te nemen met ons supportteam. Vermeld uw gebruikersnaam en elke relevante context.",
-    banFooter:
-      "Bekijk onze communautaire richtlijnen op https://watchr.me/community-guidelines. Als u denkt dat dit een fout is, neem dan contact op met ondersteuning.",
+    banTipAppeal: "Als u denkt dat deze beslissing onjuist is, kunt u in beroep gaan door contact op te nemen met ons supportteam. Vermeld uw gebruikersnaam en elke relevante context.",
+    banFooter: "Bekijk onze communautaire richtlijnen op https://watchr.me/community-guidelines. Als u denkt dat dit een fout is, neem dan contact op met ondersteuning.",
     commentDeletedSubject: "Uw commentaar op Watchr is verwijderd",
     commentDeletedHeading: "Commentaar verwijderd",
-    commentDeletedBody:
-      'Hallo. {{username}}, uw commentaar op "{{show}}" werd verwijderd na meerdere rapporten van de Watchr Gemeenschap. Wij raden u aan om onze community richtlijnen te herzien voordat u opnieuw post.',
-    commentDeletedTip:
-      "Je mag een nieuwe opmerking plaatsen, zolang het onze gemeenschap richtlijnen volgt. Wees respectvol en vermijd spoilers zonder de juiste tagging.",
-    commentDeletedFooter:
-      "Bekijk onze communautaire richtlijnen op https://watchr.me/community-guidelines. Als u denkt dat dit een fout was, neem dan contact op met ondersteuning.",
+    commentDeletedBody: "Hallo. {{username}}, uw commentaar op \"{{show}}\" werd verwijderd na meerdere rapporten van de Watchr Gemeenschap. Wij raden u aan om onze community richtlijnen te herzien voordat u opnieuw post.",
+    commentDeletedTip: "Je mag een nieuwe opmerking plaatsen, zolang het onze gemeenschap richtlijnen volgt. Wees respectvol en vermijd spoilers zonder de juiste tagging.",
+    commentDeletedFooter: "Bekijk onze communautaire richtlijnen op https://watchr.me/community-guidelines. Als u denkt dat dit een fout was, neem dan contact op met ondersteuning.",
     commentHiddenSubject: "Uw commentaar op Watchr was verborgen",
     commentHiddenHeading: "Commentaar verborgen",
-    commentHiddenBody:
-      'Hallo. {{username}}, uw commentaar op "{{show}}" werd verborgen na rapporten van andere gebruikers. Het is niet meer zichtbaar voor de gemeenschap. Herhaalde schendingen kunnen leiden tot verdere actie op uw rekening.',
-    commentHiddenTip:
-      "U kunt uw commentaar aanpassen aan onze richtlijnen. Eenmaal bijgewerkt, zal het worden herzien en kan weer zichtbaar worden gemaakt.",
-    commentHiddenFooter:
-      "Bekijk onze communautaire richtlijnen op https://watchr.me/community-guidelines. Als u denkt dat dit een fout was, neem dan contact op met ondersteuning.",
+    commentHiddenBody: "Hallo. {{username}}, uw commentaar op \"{{show}}\" werd verborgen na rapporten van andere gebruikers. Het is niet meer zichtbaar voor de gemeenschap. Herhaalde schendingen kunnen leiden tot verdere actie op uw rekening.",
+    commentHiddenTip: "U kunt uw commentaar aanpassen aan onze richtlijnen. Eenmaal bijgewerkt, zal het worden herzien en kan weer zichtbaar worden gemaakt.",
+    commentHiddenFooter: "Bekijk onze communautaire richtlijnen op https://watchr.me/community-guidelines. Als u denkt dat dit een fout was, neem dan contact op met ondersteuning.",
     commentSpoilerSubject: "Uw opmerking werd gemarkeerd als spoiler",
     commentSpoilerHeading: "Spoiler-tag toegevoegd aan uw commentaar",
-    commentSpoilerBody:
-      'Hallo. {{username}}, uw commentaar op "{{show}}" werd gemarkeerd als een spoiler na rapporten van de gemeenschap. Vergeet niet om de spoiler tag te gebruiken bij het bespreken van plot details.',
-    commentSpoilerTip:
-      "Om een spoiler te markeren, gebruik de spoiler knop bij het schrijven van uw commentaar of wrap gevoelige tekst met de spoiler tag. Dit houdt de gemeenschap plezierig voor iedereen.",
-    commentSpoilerFooter:
-      "Bekijk onze communautaire richtlijnen op https://watchr.me/community-guidelines. Als u denkt dat dit een fout was, neem dan contact op met ondersteuning.",
+    commentSpoilerBody: "Hallo. {{username}}, uw commentaar op \"{{show}}\" werd gemarkeerd als een spoiler na rapporten van de gemeenschap. Vergeet niet om de spoiler tag te gebruiken bij het bespreken van plot details.",
+    commentSpoilerTip: "Om een spoiler te markeren, gebruik de spoiler knop bij het schrijven van uw commentaar of wrap gevoelige tekst met de spoiler tag. Dit houdt de gemeenschap plezierig voor iedereen.",
+    commentSpoilerFooter: "Bekijk onze communautaire richtlijnen op https://watchr.me/community-guidelines. Als u denkt dat dit een fout was, neem dan contact op met ondersteuning.",
     emailCodeSubject: "Uw Watchr Inlogcode",
     emailCodeHeading: "Aanmelden Watchr",
-    emailCodeBody:
-      "Gebruik onderstaande code om je aan te melden bij je account. Deze code verloopt over 15 minuten.",
+    emailCodeBody: "Gebruik onderstaande code om je aan te melden bij je account. Deze code verloopt over 15 minuten.",
     emailCodeLabel: "Uw inlogcode:",
     emailCodeCta: "Aanmelden",
-    emailCodeTipSecurity:
-      "Deel deze code nooit met iemand. Watchr Het personeel zal er nooit om vragen.",
-    emailCodeFooter:
-      "Als je deze code niet hebt aangevraagd, negeer dan deze e-mail. Je account is veilig.",
+    emailCodeTipSecurity: "Deel deze code nooit met iemand. Watchr Het personeel zal er nooit om vragen.",
+    emailCodeFooter: "Als je deze code niet hebt aangevraagd, negeer dan deze e-mail. Je account is veilig.",
   },
   websocket: {
     reconnecting: "Opnieuw verbinden...",
@@ -195,8 +164,7 @@ const nl = {
     popularMovies: "Populaire films",
   },
   welcomeMessage: {
-    content:
-      "Welkom bij Watchr.\n\nVolg je favoriete shows, ontdek nieuwe, en maak contact met vrienden. Hier zijn een paar dingen die je kunt doen:\n\n• Voeg shows toe aan uw wachtlijst\n• Prijs en commentaar op afleveringen\nVolg vrienden om hun activiteit te zien\n\nAls u vragen heeft, geef dan gewoon antwoord op dit bericht!",
+    content: "Welkom bij Watchr.\n\nVolg je favoriete shows, ontdek nieuwe, en maak contact met vrienden. Hier zijn een paar dingen die je kunt doen:\n\n• Voeg shows toe aan uw wachtlijst\n• Prijs en commentaar op afleveringen\nVolg vrienden om hun activiteit te zien\n\nAls u vragen heeft, geef dan gewoon antwoord op dit bericht!",
   },
   recommendations: {
     fallbackReason: "Momenteel trending",

@@ -49,11 +49,9 @@ const pl = {
     COMMENT_REJECTED_HATE: "Twój komentarz zawiera nienawistną treść. Proszę o szacunek.",
     COMMENT_REJECTED_HARASSMENT: "Twój komentarz zawiera nękanie. Proszę o szacunek.",
     COMMENT_REJECTED_SPAM: "Twój komentarz wygląda jak spam. Proszę napisać znaczącą treść.",
-    COMMENT_REJECTED_SELF_HARM:
-      "Jeśli masz problemy, proszę o pomoc. Ta zawartość nie jest dozwolona.",
+    COMMENT_REJECTED_SELF_HARM: "Jeśli masz problemy, proszę o pomoc. Ta zawartość nie jest dozwolona.",
     COMMENT_REJECTED_VIOLENCE: "Twój komentarz zawiera brutalną treść. Proszę o szacunek.",
-    COMMENT_REJECTED_OTHER:
-      "Twój komentarz został uznany za niestosowny. Proszę przejrzeć nasze wytyczne społeczne.",
+    COMMENT_REJECTED_OTHER: "Twój komentarz został uznany za niestosowny. Proszę przejrzeć nasze wytyczne społeczne.",
     EMAIL_CODE_EXPIRED: "Kod wygasł lub nie został znaleziony. Proszę o nową.",
     INVALID_EMAIL_CODE: "Niepoprawny kod.",
     TOO_MANY_CODE_ATTEMPTS: "Za dużo prób. Proszę o nowy kod.",
@@ -73,8 +71,7 @@ const pl = {
     TOO_MANY_TRAKT_SYNC_REQUESTS: "Zbyt wiele Trakt żądania synchronizacji. Spróbuj później.",
     TOO_MANY_AI_REQUESTS: "Zbyt wiele próśb o SI. Spróbuj później.",
     REPLIES_DISABLED: "Odpowiedzi nie są dostępne na importowanych recenzjach.",
-    EMAIL_DOMAIN_BLOCKED:
-      "Ta domena e-mail nie jest dozwolona. Proszę użyć poprawnego adresu e-mail.",
+    EMAIL_DOMAIN_BLOCKED: "Ta domena e-mail nie jest dozwolona. Proszę użyć poprawnego adresu e-mail.",
   },
   notifications: {
     commentReplyTitle: "Nowa odpowiedź na Twój komentarz",
@@ -94,86 +91,60 @@ const pl = {
     actionBan: "zakazane",
     actionSuspend: "zawieszony",
     commentDeletedTitle: "Twój komentarz został usunięty",
-    commentDeletedBody:
-      'Twój komentarz na "{{show}}"został usunięty po wielu raportach ze społeczności.',
+    commentDeletedBody: "Twój komentarz na \"{{show}}\"został usunięty po wielu raportach ze społeczności.",
     commentHiddenTitle: "Twój komentarz był ukryty.",
-    commentHiddenBody:
-      'Twój komentarz na "{{show}}"został ukryty na podstawie raportów od społeczności i nie jest już widoczny dla innych użytkowników.',
+    commentHiddenBody: "Twój komentarz na \"{{show}}\"został ukryty na podstawie raportów od społeczności i nie jest już widoczny dla innych użytkowników.",
     commentAutoSpoilerTitle: "Twój komentarz został oznaczony jako spoiler",
-    commentAutoSpoilerBody:
-      'Twój komentarz na "{{show}}"został automatycznie oznaczony jako spoiler na podstawie raportów społeczności.',
+    commentAutoSpoilerBody: "Twój komentarz na \"{{show}}\"został automatycznie oznaczony jako spoiler na podstawie raportów społeczności.",
     commentAdminSpoilerTitle: "Twój komentarz został oznaczony jako spoiler",
-    commentAdminSpoilerBody: 'Moderator zaznaczył swój komentarz na "{{show}}"jako spoiler.',
+    commentAdminSpoilerBody: "Moderator zaznaczył swój komentarz na \"{{show}}\"jako spoiler.",
     activationNudgeTitle: "Twoja lista oczekujących",
-    activationNudgeBody:
-      "Dodaj kilka programów lub filmów, aby zacząć otrzymywać powiadomienia o nowych odcinkach.",
+    activationNudgeBody: "Dodaj kilka programów lub filmów, aby zacząć otrzymywać powiadomienia o nowych odcinkach.",
     directMessageTitle: "Nowa wiadomość",
     directMessageBody: "{{sender}}: {{preview}}",
   },
   emails: {
     welcomeSubject: "Witamy w Watchr!",
     welcomeHeading: "Witamy w Watchr!",
-    welcomeBody:
-      "Halo? {{username}}Twoje konto zostało utworzone pomyślnie. Zacznij śledzić swoje ulubione programy i filmy teraz!",
-    welcomeTipUsername:
-      'Twoja nazwa użytkownika "{{username}}"został wygenerowany automatycznie. Możesz je zmienić w dowolnym momencie w ustawieniach profilu.',
-    welcomeTipFeatures:
-      "Oto co możesz zrobić: track show i filmy, oceny epizodów, dołączyć do dyskusji, importować TV Time historii, i uzyskać powiadomienie, gdy nowe odcinki powietrza.",
+    welcomeBody: "Halo? {{username}}Twoje konto zostało utworzone pomyślnie. Zacznij śledzić swoje ulubione programy i filmy teraz!",
+    welcomeTipUsername: "Twoja nazwa użytkownika \"{{username}}\"został wygenerowany automatycznie. Możesz je zmienić w dowolnym momencie w ustawieniach profilu.",
+    welcomeTipFeatures: "Oto co możesz zrobić: track show i filmy, oceny epizodów, dołączyć do dyskusji, importować TV Time historii, i uzyskać powiadomienie, gdy nowe odcinki powietrza.",
     welcomeCta: "Zacznij w sieci",
-    welcomeFooter:
-      "Otrzymujesz ten e-mail, ponieważ stworzyłeś Watchr konto. Jeśli to nie byłeś ty, możesz bezpiecznie zignorować ten e-mail.",
+    welcomeFooter: "Otrzymujesz ten e-mail, ponieważ stworzyłeś Watchr konto. Jeśli to nie byłeś ty, możesz bezpiecznie zignorować ten e-mail.",
     resetPasswordSubject: "Zresetuj hasło",
     resetPasswordHeading: "Zresetuj hasło",
-    resetPasswordBody:
-      "Poprosiłeś o zresetowanie hasła. Kliknij przycisk poniżej, aby wybrać nowe hasło. Ten link wygasa za 15 minut.",
-    resetPasswordTipSecurity:
-      "Wybierz silne, unikalne hasło. Nie używaj go z innego serwisu. Nigdy nie dziel się tym linkiem z nikim. Watchr Personel nigdy o to nie poprosi.",
+    resetPasswordBody: "Poprosiłeś o zresetowanie hasła. Kliknij przycisk poniżej, aby wybrać nowe hasło. Ten link wygasa za 15 minut.",
+    resetPasswordTipSecurity: "Wybierz silne, unikalne hasło. Nie używaj go z innego serwisu. Nigdy nie dziel się tym linkiem z nikim. Watchr Personel nigdy o to nie poprosi.",
     resetPasswordCta: "Zmień hasło",
-    resetPasswordFooter:
-      "Jeśli nie zażądałeś resetu, zignoruj ten e-mail - hasło się nie zmieni. Skontaktuj się ze wsparciem, jeśli tak dalej będzie.",
+    resetPasswordFooter: "Jeśli nie zażądałeś resetu, zignoruj ten e-mail - hasło się nie zmieni. Skontaktuj się ze wsparciem, jeśli tak dalej będzie.",
     banSubject: "Twój Watchr konto zostało zawieszone",
     banHeading: "Ogłoszenie o zawieszeniu rachunku",
-    banBody:
-      "Halo? {{username}}Twoje konto zostało {{action}}Powód: {{reason}}Działania te będą miały wpływ na {{effectiveDate}}.",
+    banBody: "Halo? {{username}}Twoje konto zostało {{action}}Powód: {{reason}}Działania te będą miały wpływ na {{effectiveDate}}.",
     banSuspendedUntil: "Twoje konto zostanie przywrócone na {{date}}.",
-    banTipAppeal:
-      "Jeśli uważasz, że ta decyzja jest nieprawidłowa, możesz odwołać się, kontaktując się z naszym zespołem wsparcia. Proszę podać nazwę użytkownika i dowolny odpowiedni kontekst.",
-    banFooter:
-      "Przegląd naszych wytycznych społeczności pod adresem https: / / watchr.me / community- guidelines. Jeśli uważasz, że to błąd, skontaktuj się ze wsparciem.",
+    banTipAppeal: "Jeśli uważasz, że ta decyzja jest nieprawidłowa, możesz odwołać się, kontaktując się z naszym zespołem wsparcia. Proszę podać nazwę użytkownika i dowolny odpowiedni kontekst.",
+    banFooter: "Przegląd naszych wytycznych społeczności pod adresem https: / / watchr.me / community- guidelines. Jeśli uważasz, że to błąd, skontaktuj się ze wsparciem.",
     commentDeletedSubject: "Twój komentarz na Watchr został usunięty",
     commentDeletedHeading: "Komentarz usunięty",
-    commentDeletedBody:
-      'Halo? {{username}}, twój komentarz na "{{show}}"został usunięty po wielu doniesieniach z Watchr Społeczność. Zachęcamy do zapoznania się z naszymi wytycznymi społeczności przed ponownym delegowaniem.',
-    commentDeletedTip:
-      "Możesz opublikować nowy komentarz, o ile będzie on zgodny z naszymi wytycznymi. Miej szacunek i unikaj spoilerów bez odpowiedniego znakowania.",
-    commentDeletedFooter:
-      "Przegląd naszych wytycznych społeczności pod adresem https: / / watchr.me / community- guidelines. Jeśli uważasz, że to był błąd, skontaktuj się ze wsparciem.",
+    commentDeletedBody: "Halo? {{username}}, twój komentarz na \"{{show}}\"został usunięty po wielu doniesieniach z Watchr Społeczność. Zachęcamy do zapoznania się z naszymi wytycznymi społeczności przed ponownym delegowaniem.",
+    commentDeletedTip: "Możesz opublikować nowy komentarz, o ile będzie on zgodny z naszymi wytycznymi. Miej szacunek i unikaj spoilerów bez odpowiedniego znakowania.",
+    commentDeletedFooter: "Przegląd naszych wytycznych społeczności pod adresem https: / / watchr.me / community- guidelines. Jeśli uważasz, że to był błąd, skontaktuj się ze wsparciem.",
     commentHiddenSubject: "Twój komentarz na Watchr był ukryty",
     commentHiddenHeading: "Komentarz ukryty",
-    commentHiddenBody:
-      'Halo? {{username}}, twój komentarz na "{{show}}"został ukryty na podstawie raportów innych użytkowników. Nie jest już widoczny dla społeczności. Powtarzające się naruszenia mogą prowadzić do dalszych działań na twoim koncie.',
-    commentHiddenTip:
-      "Możesz edytować swój komentarz, aby dostosować się do naszych wytycznych. Po aktualizacji zostanie on poddany przeglądowi i może być ponownie widoczny.",
-    commentHiddenFooter:
-      "Przegląd naszych wytycznych społeczności pod adresem https: / / watchr.me / community- guidelines. Jeśli uważasz, że to był błąd, skontaktuj się ze wsparciem.",
+    commentHiddenBody: "Halo? {{username}}, twój komentarz na \"{{show}}\"został ukryty na podstawie raportów innych użytkowników. Nie jest już widoczny dla społeczności. Powtarzające się naruszenia mogą prowadzić do dalszych działań na twoim koncie.",
+    commentHiddenTip: "Możesz edytować swój komentarz, aby dostosować się do naszych wytycznych. Po aktualizacji zostanie on poddany przeglądowi i może być ponownie widoczny.",
+    commentHiddenFooter: "Przegląd naszych wytycznych społeczności pod adresem https: / / watchr.me / community- guidelines. Jeśli uważasz, że to był błąd, skontaktuj się ze wsparciem.",
     commentSpoilerSubject: "Twój komentarz został oznaczony jako spoiler",
     commentSpoilerHeading: "Znacznik spoiler dodany do komentarza",
-    commentSpoilerBody:
-      'Halo? {{username}}, twój komentarz na "{{show}}"został oznaczony jako spoiler po doniesieniach od społeczności. Pamiętaj, aby używać znacznika spoiler podczas dyskusji o szczegółach wykresu.',
-    commentSpoilerTip:
-      "Aby zaznaczyć spoiler, użyj przycisku spoiler podczas pisania komentarza lub zawiń czuły tekst za pomocą znacznika spoiler. To sprawia, że doświadczenie społeczne jest przyjemne dla wszystkich.",
-    commentSpoilerFooter:
-      "Przegląd naszych wytycznych społeczności pod adresem https: / / watchr.me / community- guidelines. Jeśli uważasz, że to był błąd, skontaktuj się ze wsparciem.",
+    commentSpoilerBody: "Halo? {{username}}, twój komentarz na \"{{show}}\"został oznaczony jako spoiler po doniesieniach od społeczności. Pamiętaj, aby używać znacznika spoiler podczas dyskusji o szczegółach wykresu.",
+    commentSpoilerTip: "Aby zaznaczyć spoiler, użyj przycisku spoiler podczas pisania komentarza lub zawiń czuły tekst za pomocą znacznika spoiler. To sprawia, że doświadczenie społeczne jest przyjemne dla wszystkich.",
+    commentSpoilerFooter: "Przegląd naszych wytycznych społeczności pod adresem https: / / watchr.me / community- guidelines. Jeśli uważasz, że to był błąd, skontaktuj się ze wsparciem.",
     emailCodeSubject: "Twój Watchr kod sign- in",
     emailCodeHeading: "Zaloguj się do Watchr",
-    emailCodeBody:
-      "Użyj poniższego kodu, aby zalogować się na swoje konto. Ten kod wygasa za 15 minut.",
+    emailCodeBody: "Użyj poniższego kodu, aby zalogować się na swoje konto. Ten kod wygasa za 15 minut.",
     emailCodeLabel: "Twój znak w kodzie:",
     emailCodeCta: "Podpisz",
-    emailCodeTipSecurity:
-      "Nigdy nie dziel się tym kodem z nikim. Watchr Personel nigdy o to nie poprosi.",
-    emailCodeFooter:
-      "Jeśli nie poprosiłeś o ten kod, zignoruj ten e-mail. Twoje konto jest bezpieczne.",
+    emailCodeTipSecurity: "Nigdy nie dziel się tym kodem z nikim. Watchr Personel nigdy o to nie poprosi.",
+    emailCodeFooter: "Jeśli nie poprosiłeś o ten kod, zignoruj ten e-mail. Twoje konto jest bezpieczne.",
   },
   websocket: {
     reconnecting: "Rozpoczynam...",
@@ -193,8 +164,7 @@ const pl = {
     popularMovies: "Popularne filmy",
   },
   welcomeMessage: {
-    content:
-      "Witamy w Watchr!\n\nŚledź swoje ulubione programy, odkryj nowe, i połączyć się z przyjaciółmi. Oto kilka rzeczy, które możesz zrobić:\n\n• Dodaj pokazy do listy obserwacyjnej\n• Oceń i komentuj odcinki\n• Podążaj za przyjaciółmi, aby zobaczyć ich aktywność\n\nJeśli masz jakieś pytania, wystarczy odpowiedzieć na tę wiadomość!",
+    content: "Witamy w Watchr!\n\nŚledź swoje ulubione programy, odkryj nowe, i połączyć się z przyjaciółmi. Oto kilka rzeczy, które możesz zrobić:\n\n• Dodaj pokazy do listy obserwacyjnej\n• Oceń i komentuj odcinki\n• Podążaj za przyjaciółmi, aby zobaczyć ich aktywność\n\nJeśli masz jakieś pytania, wystarczy odpowiedzieć na tę wiadomość!",
   },
   recommendations: {
     fallbackReason: "Aktualnie trending",

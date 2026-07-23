@@ -37,8 +37,7 @@ const pt = {
     ALREADY_TRACKED: "Já o localizei.",
     GOOGLE_ALREADY_LINKED: "Isto Google a conta já está ligada a outro utilizador.",
     GOOGLE_EMAIL_MISMATCH: "A Google o e-mail da conta não corresponde ao e-mail da sua conta.",
-    CANNOT_UNLINK_NO_PASSWORD:
-      "Você não pode desvincular Google sem uma senha definida na sua conta.",
+    CANNOT_UNLINK_NO_PASSWORD: "Você não pode desvincular Google sem uma senha definida na sua conta.",
     ACCOUNT_BANNED: "Esta conta foi banida.",
     ACCOUNT_SUSPENDED: "Esta conta está suspensa.",
     UNKNOWN: "Algo correu mal.",
@@ -49,14 +48,10 @@ const pt = {
     MAINTENANCE_MODE: "Watchr está sob manutenção. Por favor, tente mais tarde.",
     COMMENT_REJECTED_HATE: "Seu comentário contém conteúdo odioso. Por favor, seja respeitoso.",
     COMMENT_REJECTED_HARASSMENT: "O seu comentário contém assédio. Por favor, seja respeitoso.",
-    COMMENT_REJECTED_SPAM:
-      "O seu comentário parece spam. Por favor escreva conteúdo significativo.",
-    COMMENT_REJECTED_SELF_HARM:
-      "Se estás a lutar, por favor, pede ajuda. Este conteúdo não é permitido.",
-    COMMENT_REJECTED_VIOLENCE:
-      "Seu comentário contém conteúdo violento. Por favor, seja respeitoso.",
-    COMMENT_REJECTED_OTHER:
-      "O seu comentário foi apontado como inapropriado. Por favor, reveja nossas diretrizes comunitárias.",
+    COMMENT_REJECTED_SPAM: "O seu comentário parece spam. Por favor escreva conteúdo significativo.",
+    COMMENT_REJECTED_SELF_HARM: "Se estás a lutar, por favor, pede ajuda. Este conteúdo não é permitido.",
+    COMMENT_REJECTED_VIOLENCE: "Seu comentário contém conteúdo violento. Por favor, seja respeitoso.",
+    COMMENT_REJECTED_OTHER: "O seu comentário foi apontado como inapropriado. Por favor, reveja nossas diretrizes comunitárias.",
     EMAIL_CODE_EXPIRED: "Código expirado ou não encontrado. Por favor, peça um novo.",
     INVALID_EMAIL_CODE: "Código inválido.",
     TOO_MANY_CODE_ATTEMPTS: "Demasiadas tentativas. Por favor, solicite um novo código.",
@@ -73,12 +68,10 @@ const pt = {
     TOO_MANY_REACTION_REQUESTS: "Muitos pedidos de reacção. Tenta mais tarde.",
     TOO_MANY_REPORT_REQUESTS: "Muitos pedidos de relatório. Tenta mais tarde.",
     TOO_MANY_UPLOAD_REQUESTS: "Muitos pedidos de envio. Tenta mais tarde.",
-    TOO_MANY_TRAKT_SYNC_REQUESTS:
-      "Demasiados. Trakt Solicitações de sincronização. Tenta mais tarde.",
+    TOO_MANY_TRAKT_SYNC_REQUESTS: "Demasiados. Trakt Solicitações de sincronização. Tenta mais tarde.",
     TOO_MANY_AI_REQUESTS: "Muitos pedidos de IA. Tenta mais tarde.",
     REPLIES_DISABLED: "As respostas não estão disponíveis em comentários importados.",
-    EMAIL_DOMAIN_BLOCKED:
-      "Este domínio de email não é permitido. Por favor, use um endereço de e- mail válido.",
+    EMAIL_DOMAIN_BLOCKED: "Este domínio de email não é permitido. Por favor, use um endereço de e- mail válido.",
   },
   notifications: {
     commentReplyTitle: "Nova resposta ao seu comentário",
@@ -98,87 +91,60 @@ const pt = {
     actionBan: "proibido",
     actionSuspend: "suspenso",
     commentDeletedTitle: "O seu comentário foi removido",
-    commentDeletedBody:
-      'O seu comentário sobre "{{show}}" foi removido após vários relatórios da comunidade.',
+    commentDeletedBody: "O seu comentário sobre \"{{show}}\" foi removido após vários relatórios da comunidade.",
     commentHiddenTitle: "O seu comentário foi escondido",
-    commentHiddenBody:
-      'O seu comentário sobre "{{show}}" foi escondido seguindo relatórios da comunidade e não é mais visível para outros usuários.',
+    commentHiddenBody: "O seu comentário sobre \"{{show}}\" foi escondido seguindo relatórios da comunidade e não é mais visível para outros usuários.",
     commentAutoSpoilerTitle: "Seu comentário foi marcado como spoiler",
-    commentAutoSpoilerBody:
-      'O seu comentário sobre "{{show}}" foi automaticamente marcado como um spoiler após relatórios da comunidade.',
+    commentAutoSpoilerBody: "O seu comentário sobre \"{{show}}\" foi automaticamente marcado como um spoiler após relatórios da comunidade.",
     commentAdminSpoilerTitle: "Seu comentário foi marcado como spoiler",
-    commentAdminSpoilerBody:
-      'Um moderador marcou o seu comentário sobre "{{show}}" como um spoiler.',
+    commentAdminSpoilerBody: "Um moderador marcou o seu comentário sobre \"{{show}}\" como um spoiler.",
     activationNudgeTitle: "A sua lista de vigilância está à espera.",
-    activationNudgeBody:
-      "Adicione alguns shows ou filmes para começar a ser notificado sobre novos episódios.",
+    activationNudgeBody: "Adicione alguns shows ou filmes para começar a ser notificado sobre novos episódios.",
     directMessageTitle: "Nova mensagem",
     directMessageBody: "{{sender}}: {{preview}}",
   },
   emails: {
     welcomeSubject: "Bem- vindo a Watchr!",
     welcomeHeading: "Bem- vindo a Watchr!",
-    welcomeBody:
-      "Olá. {{username}}, sua conta foi criada com sucesso. Comece a rastrear seus programas e filmes favoritos agora!",
-    welcomeTipUsername:
-      'Seu nome de usuário "{{username}}" foi gerado automaticamente. Você pode alterá-lo a qualquer momento em suas configurações de perfil.',
-    welcomeTipFeatures:
-      "Aqui está o que você pode fazer: acompanhar programas e filmes, avaliar episódios, participar de discussões, importar seu TV Time História, e ser notificado quando novos episódios ar.",
+    welcomeBody: "Olá. {{username}}, sua conta foi criada com sucesso. Comece a rastrear seus programas e filmes favoritos agora!",
+    welcomeTipUsername: "Seu nome de usuário \"{{username}}\" foi gerado automaticamente. Você pode alterá-lo a qualquer momento em suas configurações de perfil.",
+    welcomeTipFeatures: "Aqui está o que você pode fazer: acompanhar programas e filmes, avaliar episódios, participar de discussões, importar seu TV Time História, e ser notificado quando novos episódios ar.",
     welcomeCta: "Começar na web",
-    welcomeFooter:
-      "Você está recebendo este email porque você criou um Watchr conta. Se não foi você, pode ignorar este e-mail com segurança.",
+    welcomeFooter: "Você está recebendo este email porque você criou um Watchr conta. Se não foi você, pode ignorar este e-mail com segurança.",
     resetPasswordSubject: "Reinicie sua senha",
     resetPasswordHeading: "Reinicie sua senha",
-    resetPasswordBody:
-      "Pediu uma nova senha. Clique no botão abaixo para escolher uma nova senha. Este link expira em 15 minutos.",
-    resetPasswordTipSecurity:
-      "Escolha uma senha forte e única. Não reutilize um de outro serviço. Nunca partilhe esta ligação com ninguém — Watchr O pessoal nunca o pedirá.",
+    resetPasswordBody: "Pediu uma nova senha. Clique no botão abaixo para escolher uma nova senha. Este link expira em 15 minutos.",
+    resetPasswordTipSecurity: "Escolha uma senha forte e única. Não reutilize um de outro serviço. Nunca partilhe esta ligação com ninguém — Watchr O pessoal nunca o pedirá.",
     resetPasswordCta: "Reiniciar senha",
-    resetPasswordFooter:
-      "Se você não solicitou esse reset, ignore este e-mail — sua senha não vai mudar. Contacte o suporte se isto continuar a acontecer.",
+    resetPasswordFooter: "Se você não solicitou esse reset, ignore este e-mail — sua senha não vai mudar. Contacte o suporte se isto continuar a acontecer.",
     banSubject: "Sua Watchr conta foi suspensa",
     banHeading: "Aviso de suspensão da conta",
-    banBody:
-      "Olá. {{username}}, sua conta foi {{action}}. Razão: {{reason}}Esta acção produzirá efeitos sobre {{effectiveDate}}.",
+    banBody: "Olá. {{username}}, sua conta foi {{action}}. Razão: {{reason}}Esta acção produzirá efeitos sobre {{effectiveDate}}.",
     banSuspendedUntil: "Sua conta será reintegrada em {{date}}.",
-    banTipAppeal:
-      "Se você acredita que esta decisão está incorreta, você pode apelar contatando nossa equipe de suporte. Por favor, inclua seu nome de usuário e qualquer contexto relevante.",
-    banFooter:
-      "Revise nossas diretrizes comunitárias em https://watchr.me/community-guidelines. Se você acredita que isso é um erro, entre em contato com o suporte.",
+    banTipAppeal: "Se você acredita que esta decisão está incorreta, você pode apelar contatando nossa equipe de suporte. Por favor, inclua seu nome de usuário e qualquer contexto relevante.",
+    banFooter: "Revise nossas diretrizes comunitárias em https://watchr.me/community-guidelines. Se você acredita que isso é um erro, entre em contato com o suporte.",
     commentDeletedSubject: "O seu comentário sobre Watchr foi removido",
     commentDeletedHeading: "Comentário removido",
-    commentDeletedBody:
-      'Olá. {{username}}, o seu comentário sobre "{{show}}" foi removido após vários relatórios do Watchr comunidade. Nós encorajamos você a rever nossas diretrizes comunitárias antes de postar novamente.',
-    commentDeletedTip:
-      "Você pode postar um novo comentário, desde que siga nossas diretrizes comunitárias. Seja respeitoso e evite spoilers sem marcação adequada.",
-    commentDeletedFooter:
-      "Revise nossas diretrizes comunitárias em https://watchr.me/community-guidelines. Se você acredita que isso foi um erro, entre em contato com o suporte.",
+    commentDeletedBody: "Olá. {{username}}, o seu comentário sobre \"{{show}}\" foi removido após vários relatórios do Watchr comunidade. Nós encorajamos você a rever nossas diretrizes comunitárias antes de postar novamente.",
+    commentDeletedTip: "Você pode postar um novo comentário, desde que siga nossas diretrizes comunitárias. Seja respeitoso e evite spoilers sem marcação adequada.",
+    commentDeletedFooter: "Revise nossas diretrizes comunitárias em https://watchr.me/community-guidelines. Se você acredita que isso foi um erro, entre em contato com o suporte.",
     commentHiddenSubject: "O seu comentário sobre Watchr foi escondido",
     commentHiddenHeading: "Comentário oculto",
-    commentHiddenBody:
-      'Olá. {{username}}, o seu comentário sobre "{{show}}" foi escondido seguindo relatórios de outros usuários. Já não é visível para a comunidade. Violações repetidas podem levar a novas ações por sua conta.',
-    commentHiddenTip:
-      "Você pode editar seu comentário para se alinhar com nossas diretrizes. Uma vez atualizado, ele será revisto e pode ser tornado visível novamente.",
-    commentHiddenFooter:
-      "Revise nossas diretrizes comunitárias em https://watchr.me/community-guidelines. Se você acredita que isso foi um erro, entre em contato com o suporte.",
+    commentHiddenBody: "Olá. {{username}}, o seu comentário sobre \"{{show}}\" foi escondido seguindo relatórios de outros usuários. Já não é visível para a comunidade. Violações repetidas podem levar a novas ações por sua conta.",
+    commentHiddenTip: "Você pode editar seu comentário para se alinhar com nossas diretrizes. Uma vez atualizado, ele será revisto e pode ser tornado visível novamente.",
+    commentHiddenFooter: "Revise nossas diretrizes comunitárias em https://watchr.me/community-guidelines. Se você acredita que isso foi um erro, entre em contato com o suporte.",
     commentSpoilerSubject: "Seu comentário foi marcado como spoiler",
     commentSpoilerHeading: "Marca de spoiler adicionada ao seu comentário",
-    commentSpoilerBody:
-      'Olá. {{username}}, o seu comentário sobre "{{show}}" foi marcado como um spoiler após relatórios da comunidade. Por favor, lembre-se de usar a etiqueta spoiler ao discutir detalhes do enredo.',
-    commentSpoilerTip:
-      "Para marcar um spoiler, use o botão spoiler ao escrever seu comentário ou envolver texto sensível com a tag spoiler. Isto mantém a experiência comunitária agradável para todos.",
-    commentSpoilerFooter:
-      "Revise nossas diretrizes comunitárias em https://watchr.me/community-guidelines. Se você acredita que isso foi um erro, entre em contato com o suporte.",
+    commentSpoilerBody: "Olá. {{username}}, o seu comentário sobre \"{{show}}\" foi marcado como um spoiler após relatórios da comunidade. Por favor, lembre-se de usar a etiqueta spoiler ao discutir detalhes do enredo.",
+    commentSpoilerTip: "Para marcar um spoiler, use o botão spoiler ao escrever seu comentário ou envolver texto sensível com a tag spoiler. Isto mantém a experiência comunitária agradável para todos.",
+    commentSpoilerFooter: "Revise nossas diretrizes comunitárias em https://watchr.me/community-guidelines. Se você acredita que isso foi um erro, entre em contato com o suporte.",
     emailCodeSubject: "Sua Watchr código de entrada",
     emailCodeHeading: "Iniciar sessão em Watchr",
-    emailCodeBody:
-      "Use o código abaixo para entrar na sua conta. Este código expira em 15 minutos.",
+    emailCodeBody: "Use o código abaixo para entrar na sua conta. Este código expira em 15 minutos.",
     emailCodeLabel: "O seu código de entrada:",
     emailCodeCta: "Iniciar sessão",
-    emailCodeTipSecurity:
-      "Nunca partilhe este código com ninguém. Watchr O pessoal nunca o pedirá.",
-    emailCodeFooter:
-      "Se você não solicitou este código, ignore este e-mail. A tua conta está segura.",
+    emailCodeTipSecurity: "Nunca partilhe este código com ninguém. Watchr O pessoal nunca o pedirá.",
+    emailCodeFooter: "Se você não solicitou este código, ignore este e-mail. A tua conta está segura.",
   },
   websocket: {
     reconnecting: "Reconectando...",
@@ -198,8 +164,7 @@ const pt = {
     popularMovies: "Filmes populares",
   },
   welcomeMessage: {
-    content:
-      "Bem- vindo a Watchr!\n\nAcompanhe seus programas favoritos, descubra novos e se conecte com amigos. Aqui estão algumas coisas que você pode fazer:\n\n• Adicionar mostras à sua lista de observação\n• Taxa e comentário sobre episódios\n• Siga os amigos para ver sua atividade\n\nSe tiver alguma pergunta, basta responder a esta mensagem!",
+    content: "Bem- vindo a Watchr!\n\nAcompanhe seus programas favoritos, descubra novos e se conecte com amigos. Aqui estão algumas coisas que você pode fazer:\n\n• Adicionar mostras à sua lista de observação\n• Taxa e comentário sobre episódios\n• Siga os amigos para ver sua atividade\n\nSe tiver alguma pergunta, basta responder a esta mensagem!",
   },
   recommendations: {
     fallbackReason: "Evolução actual",

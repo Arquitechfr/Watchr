@@ -49,11 +49,9 @@ const ko = {
     COMMENT_REJECTED_HATE: "당신의 의견은 잘못된 내용이 포함되어 있습니다. 감사합니다.",
     COMMENT_REJECTED_HARASSMENT: "당신의 의견은 harassment를 포함합니다. 감사합니다.",
     COMMENT_REJECTED_SPAM: "당신의 의견은 스팸처럼 보입니다. 자주 묻는 질문",
-    COMMENT_REJECTED_SELF_HARM:
-      "당신이 struggling 인 경우, 도와주세요. 이 콘텐츠는 허용되지 않습니다.",
+    COMMENT_REJECTED_SELF_HARM: "당신이 struggling 인 경우, 도와주세요. 이 콘텐츠는 허용되지 않습니다.",
     COMMENT_REJECTED_VIOLENCE: "당신의 의견은 폭력적인 내용이 포함되어 있습니다. 감사합니다.",
-    COMMENT_REJECTED_OTHER:
-      "당신의 의견은 부적절한 것으로 밝혀졌다. 커뮤니티 가이드를 검토하십시오.",
+    COMMENT_REJECTED_OTHER: "당신의 의견은 부적절한 것으로 밝혀졌다. 커뮤니티 가이드를 검토하십시오.",
     EMAIL_CODE_EXPIRED: "코드가 만료되거나 찾을 수 없습니다. 새로운 것을 요청하십시오.",
     INVALID_EMAIL_CODE: "잘못된 코드.",
     TOO_MANY_CODE_ATTEMPTS: "너무 많은 시도. 새 코드를 요청하십시오.",
@@ -93,15 +91,13 @@ const ko = {
     actionBan: "뚱 베어",
     actionSuspend: "관련 기사",
     commentDeletedTitle: "자주 묻는 질문",
-    commentDeletedBody: '당신의 의견 "{{show}}" 커뮤니티에서 여러 보고서를 통해 제거되었습니다.',
+    commentDeletedBody: "당신의 의견 \"{{show}}\" 커뮤니티에서 여러 보고서를 통해 제거되었습니다.",
     commentHiddenTitle: "당신의 의견은 숨겨진",
-    commentHiddenBody:
-      '당신의 의견 "{{show}}" 커뮤니티의 보고서를 따르고 다른 사용자에게 더 이상 볼 수 없습니다.',
+    commentHiddenBody: "당신의 의견 \"{{show}}\" 커뮤니티의 보고서를 따르고 다른 사용자에게 더 이상 볼 수 없습니다.",
     commentAutoSpoilerTitle: "귀하의 의견은 스포일러로 표시되었습니다.",
-    commentAutoSpoilerBody:
-      '당신의 의견 "{{show}}"는 커뮤니티의 보고서를 따르는 스포일러로 자동 표시되었습니다.',
+    commentAutoSpoilerBody: "당신의 의견 \"{{show}}\"는 커뮤니티의 보고서를 따르는 스포일러로 자동 표시되었습니다.",
     commentAdminSpoilerTitle: "귀하의 의견은 스포일러로 표시되었습니다.",
-    commentAdminSpoilerBody: 'moderator는 "에 댓글을 표시했습니다.{{show}}"스포일러로.',
+    commentAdminSpoilerBody: "moderator는 \"에 댓글을 표시했습니다.{{show}}\"스포일러로.",
     activationNudgeTitle: "당신의 watchlist는 기다리고 있습니다",
     activationNudgeBody: "몇 가지 쇼 또는 영화가 새로운 에피소드에 대해 알리기 시작하십시오.",
     directMessageTitle: "새 메시지",
@@ -110,66 +106,45 @@ const ko = {
   emails: {
     welcomeSubject: "제품 정보 Watchr·",
     welcomeHeading: "제품 정보 Watchr·",
-    welcomeBody:
-      "이름 * {{username}}, 계정이 성공적으로 생성되었습니다. 지금 좋아하는 쇼와 영화를 추적 시작!",
-    welcomeTipUsername:
-      '사용자 이름 "{{username}}"는 자동으로 생성되었습니다. 프로필 설정에서 언제든지 변경할 수 있습니다.',
-    welcomeTipFeatures:
-      "여기에 당신이 할 수있는 것은: 트랙 쇼와 영화, 비율 에피소드, 토론에 참여, 당신의 가져 오기 TV Time 역사, 새로운 에피소드 공기 때 알림을 얻을.",
+    welcomeBody: "이름 * {{username}}, 계정이 성공적으로 생성되었습니다. 지금 좋아하는 쇼와 영화를 추적 시작!",
+    welcomeTipUsername: "사용자 이름 \"{{username}}\"는 자동으로 생성되었습니다. 프로필 설정에서 언제든지 변경할 수 있습니다.",
+    welcomeTipFeatures: "여기에 당신이 할 수있는 것은: 트랙 쇼와 영화, 비율 에피소드, 토론에 참여, 당신의 가져 오기 TV Time 역사, 새로운 에피소드 공기 때 알림을 얻을.",
     welcomeCta: "웹에서 시작",
-    welcomeFooter:
-      "당신이 만든이 이메일 받기 Watchr 계정. 그렇지 않은 경우, 당신은 안전하게이 이메일을 무시할 수 있습니다.",
+    welcomeFooter: "당신이 만든이 이메일 받기 Watchr 계정. 그렇지 않은 경우, 당신은 안전하게이 이메일을 무시할 수 있습니다.",
     resetPasswordSubject: "비밀번호 재설정",
     resetPasswordHeading: "비밀번호 재설정",
-    resetPasswordBody:
-      "비밀번호 재설정을 요청했습니다. 아래 버튼을 클릭하여 새 비밀번호를 선택하십시오. 이 링크는 15 분에 만료됩니다.",
-    resetPasswordTipSecurity:
-      "강력한 독특한 암호를 선택하십시오. 다른 서비스에서 하나를 재사용하지 마십시오. 이 링크를 공유하지 마십시오. Watchr 직원은 그것을 요구하지 않습니다.",
+    resetPasswordBody: "비밀번호 재설정을 요청했습니다. 아래 버튼을 클릭하여 새 비밀번호를 선택하십시오. 이 링크는 15 분에 만료됩니다.",
+    resetPasswordTipSecurity: "강력한 독특한 암호를 선택하십시오. 다른 서비스에서 하나를 재사용하지 마십시오. 이 링크를 공유하지 마십시오. Watchr 직원은 그것을 요구하지 않습니다.",
     resetPasswordCta: "비밀번호 재설정",
-    resetPasswordFooter:
-      "이 재설정을 요청하지 않은 경우, 이 이메일 무시 — 비밀번호가 변경되지 않습니다. 이 작업을 유지하면 연락처 지원.",
+    resetPasswordFooter: "이 재설정을 요청하지 않은 경우, 이 이메일 무시 — 비밀번호가 변경되지 않습니다. 이 작업을 유지하면 연락처 지원.",
     banSubject: "내 계정 Watchr 계정이 중단되었습니다.",
     banHeading: "책임의 한계",
-    banBody:
-      "이름 * {{username}}, 계정이 있습니다. {{action}}. 이유: {{reason}}. 이 활동은에 효력을 가지고 갈 것입니다 {{effectiveDate}}·",
+    banBody: "이름 * {{username}}, 계정이 있습니다. {{action}}. 이유: {{reason}}. 이 활동은에 효력을 가지고 갈 것입니다 {{effectiveDate}}·",
     banSuspendedUntil: "귀하의 계정은 재시작됩니다. {{date}}·",
-    banTipAppeal:
-      "이 결정이 잘못되었는지 믿는다면, 지원팀에 연락하여 호소할 수 있습니다. 사용자 이름과 관련한 글이 있습니다.",
-    banFooter:
-      "https://watchr.me/community-guidelines에서 커뮤니티 가이드 라인을 검토하십시오. 이 오류가 있다고 믿으면 지원에 문의하십시오.",
+    banTipAppeal: "이 결정이 잘못되었는지 믿는다면, 지원팀에 연락하여 호소할 수 있습니다. 사용자 이름과 관련한 글이 있습니다.",
+    banFooter: "https://watchr.me/community-guidelines에서 커뮤니티 가이드 라인을 검토하십시오. 이 오류가 있다고 믿으면 지원에 문의하십시오.",
     commentDeletedSubject: "당신의 의견 Watchr 제거 된",
     commentDeletedHeading: "댓글 제거",
-    commentDeletedBody:
-      '이름 * {{username}}, "에 당신의 의견{{show}}"는 여러 보고서를 통해 제거되었습니다. Watchr 커뮤니티 우리는 다시 게시하기 전에 커뮤니티 지침을 검토하는 것을 권장합니다.',
-    commentDeletedTip:
-      "새로운 의견을 게시 할 수 있습니다, 그것은 우리의 지역 사회 지침을 따르기 때문에. 의심하고 적절한 태깅없이 스포일러를 피하십시오.",
-    commentDeletedFooter:
-      "https://watchr.me/community-guidelines에서 커뮤니티 가이드 라인을 검토하십시오. 이 오류가 발생하면 지원에 문의하십시오.",
+    commentDeletedBody: "이름 * {{username}}, \"에 당신의 의견{{show}}\"는 여러 보고서를 통해 제거되었습니다. Watchr 커뮤니티 우리는 다시 게시하기 전에 커뮤니티 지침을 검토하는 것을 권장합니다.",
+    commentDeletedTip: "새로운 의견을 게시 할 수 있습니다, 그것은 우리의 지역 사회 지침을 따르기 때문에. 의심하고 적절한 태깅없이 스포일러를 피하십시오.",
+    commentDeletedFooter: "https://watchr.me/community-guidelines에서 커뮤니티 가이드 라인을 검토하십시오. 이 오류가 발생하면 지원에 문의하십시오.",
     commentHiddenSubject: "당신의 의견 Watchr 뚱 베어",
     commentHiddenHeading: "댓글 숨겨진",
-    commentHiddenBody:
-      '이름 * {{username}}, "에 당신의 의견{{show}}"은 다른 사용자의 보고서에 따라 숨겨졌습니다. 커뮤니티에 더 이상 볼 수 없습니다. 반복된 위반은 귀하의 계정에 더 많은 행동으로 이어질 수 있습니다.',
-    commentHiddenTip:
-      "당신은 우리의 지침과 일치 할 수있는 의견을 편집 할 수 있습니다. 업데이트되면 검토하고 다시 볼 수 있습니다.",
-    commentHiddenFooter:
-      "https://watchr.me/community-guidelines에서 커뮤니티 가이드 라인을 검토하십시오. 이 오류가 발생하면 지원에 문의하십시오.",
+    commentHiddenBody: "이름 * {{username}}, \"에 당신의 의견{{show}}\"은 다른 사용자의 보고서에 따라 숨겨졌습니다. 커뮤니티에 더 이상 볼 수 없습니다. 반복된 위반은 귀하의 계정에 더 많은 행동으로 이어질 수 있습니다.",
+    commentHiddenTip: "당신은 우리의 지침과 일치 할 수있는 의견을 편집 할 수 있습니다. 업데이트되면 검토하고 다시 볼 수 있습니다.",
+    commentHiddenFooter: "https://watchr.me/community-guidelines에서 커뮤니티 가이드 라인을 검토하십시오. 이 오류가 발생하면 지원에 문의하십시오.",
     commentSpoilerSubject: "귀하의 의견은 스포일러로 표시되었습니다.",
     commentSpoilerHeading: "Spoiler 태그가 추가되었습니다.",
-    commentSpoilerBody:
-      '이름 * {{username}}, "에 당신의 의견{{show}}"이 지역 사회의 보고서를 따르는 스포일러로 표시되었습니다. 플로트 세부 사항을 논의 할 때 스포일러 태그를 사용하는 것을 기억하십시오.',
-    commentSpoilerTip:
-      "스포일러를 표시하려면 스포일러 태그를 사용하여 댓글을 작성하거나 민감한 텍스트를 포장 할 때 스포일러 버튼을 사용하십시오. 모두가 즐길 수 있는 지역 사회의 경험.",
-    commentSpoilerFooter:
-      "https://watchr.me/community-guidelines에서 커뮤니티 가이드 라인을 검토하십시오. 이 오류가 발생하면 지원에 문의하십시오.",
+    commentSpoilerBody: "이름 * {{username}}, \"에 당신의 의견{{show}}\"이 지역 사회의 보고서를 따르는 스포일러로 표시되었습니다. 플로트 세부 사항을 논의 할 때 스포일러 태그를 사용하는 것을 기억하십시오.",
+    commentSpoilerTip: "스포일러를 표시하려면 스포일러 태그를 사용하여 댓글을 작성하거나 민감한 텍스트를 포장 할 때 스포일러 버튼을 사용하십시오. 모두가 즐길 수 있는 지역 사회의 경험.",
+    commentSpoilerFooter: "https://watchr.me/community-guidelines에서 커뮤니티 가이드 라인을 검토하십시오. 이 오류가 발생하면 지원에 문의하십시오.",
     emailCodeSubject: "내 계정 Watchr 로그인",
     emailCodeHeading: "로그인 Watchr",
     emailCodeBody: "아래 코드를 사용하여 계정에 로그인하십시오. 이 코드는 15 분에 만료됩니다.",
     emailCodeLabel: "로그인 코드:",
     emailCodeCta: "이름 *",
-    emailCodeTipSecurity:
-      "이 코드를 누구와 공유하지 마십시오. Watchr 직원은 그것을 요구하지 않습니다.",
-    emailCodeFooter:
-      "이 코드를 요청하지 않은 경우,이 이메일을 무시합니다. 귀하의 계정은 안전합니다.",
+    emailCodeTipSecurity: "이 코드를 누구와 공유하지 마십시오. Watchr 직원은 그것을 요구하지 않습니다.",
+    emailCodeFooter: "이 코드를 요청하지 않은 경우,이 이메일을 무시합니다. 귀하의 계정은 안전합니다.",
   },
   websocket: {
     reconnecting: "연결 ...",
@@ -189,8 +164,7 @@ const ko = {
     popularMovies: "인기 있는 영화",
   },
   welcomeMessage: {
-    content:
-      "제품 정보 Watchr₢ 킹\n\n좋아하는 쇼를 추적, 새로운 것을 발견, 친구와 연결. 여기에 당신이 할 수있는 몇 가지가 있습니다:\n\n• 당신의 watchlist에 쇼 추가\n• 에피소드의 비율과 의견\n• 그들의 활동을 볼 친구를 따르십시오\n\n질문이 있으시면, 그냥이 메시지에 대답하십시오!",
+    content: "제품 정보 Watchr₢ 킹\n\n좋아하는 쇼를 추적, 새로운 것을 발견, 친구와 연결. 여기에 당신이 할 수있는 몇 가지가 있습니다:\n\n• 당신의 watchlist에 쇼 추가\n• 에피소드의 비율과 의견\n• 그들의 활동을 볼 친구를 따르십시오\n\n질문이 있으시면, 그냥이 메시지에 대답하십시오!",
   },
   recommendations: {
     fallbackReason: "현재 추세",

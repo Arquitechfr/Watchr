@@ -91,13 +91,13 @@ const zh = {
     actionBan: "被禁止",
     actionSuspend: "暂停",
     commentDeletedTitle: "你的评论被删除了",
-    commentDeletedBody: '你的评论 "{{show}}" 在社区提出多份报告后被删除。',
+    commentDeletedBody: "你的评论 \"{{show}}\" 在社区提出多份报告后被删除。",
     commentHiddenTitle: "你的评论被隐藏",
-    commentHiddenBody: '你的评论 "{{show}}" 被隐藏在社区报告之后,其他用户也看不到。',
+    commentHiddenBody: "你的评论 \"{{show}}\" 被隐藏在社区报告之后,其他用户也看不到。",
     commentAutoSpoilerTitle: "你的评论被标记为破坏者",
-    commentAutoSpoilerBody: '你的评论 "{{show}}" 根据社区的报告,自动被标记为破坏者。',
+    commentAutoSpoilerBody: "你的评论 \"{{show}}\" 根据社区的报告,自动被标记为破坏者。",
     commentAdminSpoilerTitle: "你的评论被标记为破坏者",
-    commentAdminSpoilerBody: '主持人将你的评论标出 "{{show}}" 作作作乱相.',
+    commentAdminSpoilerBody: "主持人将你的评论标出 \"{{show}}\" 作作作乱相.",
     activationNudgeTitle: "你的监视名单等着呢",
     activationNudgeBody: "增加几出节目或电影开始获得新剧集的通知.",
     directMessageTitle: "新消息",
@@ -107,53 +107,37 @@ const zh = {
     welcomeSubject: "欢迎光临 Watchr来啊!",
     welcomeHeading: "欢迎光临 Watchr来啊!",
     welcomeBody: "哈罗 {{username}},您的账户已成功创建。 开始追踪你最喜欢的节目和电影!",
-    welcomeTipUsername: '您的用户名 "{{username}}" 是自动生成的。 您可以在配置设置中随时更改它 。',
-    welcomeTipFeatures:
-      "以下是你能做的: 追踪节目和电影, 评分, 加入讨论, 导入您的 TV Time 历史,并在新剧集播出时得到通知。",
+    welcomeTipUsername: "您的用户名 \"{{username}}\" 是自动生成的。 您可以在配置设置中随时更改它 。",
+    welcomeTipFeatures: "以下是你能做的: 追踪节目和电影, 评分, 加入讨论, 导入您的 TV Time 历史,并在新剧集播出时得到通知。",
     welcomeCta: "在网络上开始",
-    welcomeFooter:
-      "你收到这封邮件是因为你创造了 Watchr 账户。 如果不是你,你可以安全地忽略这封邮件。",
+    welcomeFooter: "你收到这封邮件是因为你创造了 Watchr 账户。 如果不是你,你可以安全地忽略这封邮件。",
     resetPasswordSubject: "重置密码",
     resetPasswordHeading: "重置密码",
     resetPasswordBody: "您要求重新设置密码 。 单击下面的按钮选择新的密码。 此链接在15分钟后失效.",
-    resetPasswordTipSecurity:
-      "选择一个强而独特的密码. 别再利用别人的服务 永远不要与任何人分享这种联系—— Watchr 工作人员永远不会要求它。",
+    resetPasswordTipSecurity: "选择一个强而独特的密码. 别再利用别人的服务 永远不要与任何人分享这种联系—— Watchr 工作人员永远不会要求它。",
     resetPasswordCta: "重置密码",
-    resetPasswordFooter:
-      "如果您没有要求重置, 请忽略这封邮件—— 您的密码不会更改 。 如果继续发生, 请联系支援 。",
+    resetPasswordFooter: "如果您没有要求重置, 请忽略这封邮件—— 您的密码不会更改 。 如果继续发生, 请联系支援 。",
     banSubject: " Watchr 账户已被中止",
     banHeading: "账户暂停通知",
-    banBody:
-      "哈罗 {{username}},你的账户已经 {{action}}原因: {{reason}}。这一行动将在 {{effectiveDate}}。 。 。 。",
+    banBody: "哈罗 {{username}},你的账户已经 {{action}}原因: {{reason}}。这一行动将在 {{effectiveDate}}。 。 。 。",
     banSuspendedUntil: "你的账户将会恢复 {{date}}。 。 。 。",
-    banTipAppeal:
-      "如果你认为这个决定是不正确的,你可以通过联系我们的支援团队来上诉. 请列出您的用户名和任何相关上下文 。",
-    banFooter:
-      "在https://watchr.me/community-guidelines上审查我们的社区指导方针。 如果您认为这是错误, 请联系支援 。",
+    banTipAppeal: "如果你认为这个决定是不正确的,你可以通过联系我们的支援团队来上诉. 请列出您的用户名和任何相关上下文 。",
+    banFooter: "在https://watchr.me/community-guidelines上审查我们的社区指导方针。 如果您认为这是错误, 请联系支援 。",
     commentDeletedSubject: "你的评论 Watchr 已删除",
     commentDeletedHeading: "注释已删除",
-    commentDeletedBody:
-      '哈罗 {{username}},你的评论 "{{show}}" 在多次报告之后被删除。 Watchr 社区。 我们鼓励大家在再次张贴之前审查我们社区的指导方针。',
-    commentDeletedTip:
-      "欢迎你发表新的评论 只要它符合我们的社区准则 尊重并避免破坏者 没有适当的标记。",
-    commentDeletedFooter:
-      "在https://watchr.me/community-guidelines上审查我们的社区指导方针。 如果您认为错误, 请联系支援 。",
+    commentDeletedBody: "哈罗 {{username}},你的评论 \"{{show}}\" 在多次报告之后被删除。 Watchr 社区。 我们鼓励大家在再次张贴之前审查我们社区的指导方针。",
+    commentDeletedTip: "欢迎你发表新的评论 只要它符合我们的社区准则 尊重并避免破坏者 没有适当的标记。",
+    commentDeletedFooter: "在https://watchr.me/community-guidelines上审查我们的社区指导方针。 如果您认为错误, 请联系支援 。",
     commentHiddenSubject: "你的评论 Watchr 被隐藏",
     commentHiddenHeading: "隐藏注释",
-    commentHiddenBody:
-      '哈罗 {{username}},你的评论 "{{show}}" 是在其他用户的报告之后隐藏的。 社区已经看不到了。 屡次违反规定可能导致对您采取进一步行动。',
-    commentHiddenTip:
-      "你可以编辑你的评论,以符合我们的准则。 一旦更新,将对其进行审查,并可再次亮相。",
-    commentHiddenFooter:
-      "在https://watchr.me/community-guidelines上审查我们的社区指导方针。 如果您认为错误, 请联系支援 。",
+    commentHiddenBody: "哈罗 {{username}},你的评论 \"{{show}}\" 是在其他用户的报告之后隐藏的。 社区已经看不到了。 屡次违反规定可能导致对您采取进一步行动。",
+    commentHiddenTip: "你可以编辑你的评论,以符合我们的准则。 一旦更新,将对其进行审查,并可再次亮相。",
+    commentHiddenFooter: "在https://watchr.me/community-guidelines上审查我们的社区指导方针。 如果您认为错误, 请联系支援 。",
     commentSpoilerSubject: "你的评论被标记为破坏者",
     commentSpoilerHeading: "在您的注释中添加了 Spoiler 标签",
-    commentSpoilerBody:
-      '哈罗 {{username}},你的评论 "{{show}}" 根据社区的报告,被标记为破坏者。 请记住在讨论情节细节时使用破坏者标签 。',
-    commentSpoilerTip:
-      "要标记被破坏者,在撰写评论时使用被破坏者按钮,或者用被破坏者标记来包裹敏感的文字. 这使社区经验为每个人所享受。",
-    commentSpoilerFooter:
-      "在https://watchr.me/community-guidelines上审查我们的社区指导方针。 如果您认为错误, 请联系支援 。",
+    commentSpoilerBody: "哈罗 {{username}},你的评论 \"{{show}}\" 根据社区的报告,被标记为破坏者。 请记住在讨论情节细节时使用破坏者标签 。",
+    commentSpoilerTip: "要标记被破坏者,在撰写评论时使用被破坏者按钮,或者用被破坏者标记来包裹敏感的文字. 这使社区经验为每个人所享受。",
+    commentSpoilerFooter: "在https://watchr.me/community-guidelines上审查我们的社区指导方针。 如果您认为错误, 请联系支援 。",
     emailCodeSubject: " Watchr 登录代码",
     emailCodeHeading: "签名到 Watchr",
     emailCodeBody: "使用下面的代码在您的账户中签名 。 此代码在15分钟后失效.",
@@ -180,8 +164,7 @@ const zh = {
     popularMovies: "流行电影",
   },
   welcomeMessage: {
-    content:
-      "欢迎光临 Watchr!!\n\n追踪你最喜欢的节目 发现新的节目 和朋友联系 这里有一些你可以做的:\n\n• 在监视列表中添加显示\n• 对事件的比率和评论\n• 跟踪朋友,看他们的活动\n\n如果你有任何问题, 请回答这个信息!",
+    content: "欢迎光临 Watchr!!\n\n追踪你最喜欢的节目 发现新的节目 和朋友联系 这里有一些你可以做的:\n\n• 在监视列表中添加显示\n• 对事件的比率和评论\n• 跟踪朋友,看他们的活动\n\n如果你有任何问题, 请回答这个信息!",
   },
   recommendations: {
     fallbackReason: "目前的趋势",

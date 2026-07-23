@@ -36,10 +36,8 @@ const ja = {
     UNAUTHORIZED_DELETE: "このリソースを削除することはできません。",
     ALREADY_TRACKED: "すでに追跡されています。",
     GOOGLE_ALREADY_LINKED: "お問い合わせ Google 既に他のユーザーとリンクしています。",
-    GOOGLE_EMAIL_MISMATCH:
-      "ザ・オブ・ザ・ Google アカウントのメールがアカウントのメールに一致しません。",
-    CANNOT_UNLINK_NO_PASSWORD:
-      "リンクを解除できません Google アカウントにパスワードが設定されていない",
+    GOOGLE_EMAIL_MISMATCH: "ザ・オブ・ザ・ Google アカウントのメールがアカウントのメールに一致しません。",
+    CANNOT_UNLINK_NO_PASSWORD: "リンクを解除できません Google アカウントにパスワードが設定されていない",
     ACCOUNT_BANNED: "このアカウントは禁止されています。",
     ACCOUNT_SUSPENDED: "このアカウントは中断されます。",
     UNKNOWN: "何かが間違っていた。",
@@ -51,11 +49,9 @@ const ja = {
     COMMENT_REJECTED_HATE: "あなたのコメントには憎悪のコンテンツが含まれています。 お問い合わせ",
     COMMENT_REJECTED_HARASSMENT: "コメントにはハラスメントが含まれています。 お問い合わせ",
     COMMENT_REJECTED_SPAM: "コメントはスパムのように見えます。 有意義な内容を書きます。",
-    COMMENT_REJECTED_SELF_HARM:
-      "難易度の高い方は、お気軽にご相談ください。 コンテンツの無断転載を禁じます。",
+    COMMENT_REJECTED_SELF_HARM: "難易度の高い方は、お気軽にご相談ください。 コンテンツの無断転載を禁じます。",
     COMMENT_REJECTED_VIOLENCE: "あなたのコメントには暴力的な内容が含まれています。 お問い合わせ",
-    COMMENT_REJECTED_OTHER:
-      "コメントは不適切と判断しました。 コミュニティガイドラインをご確認ください。",
+    COMMENT_REJECTED_OTHER: "コメントは不適切と判断しました。 コミュニティガイドラインをご確認ください。",
     EMAIL_CODE_EXPIRED: "コードの有効期限が切れる、または見つかりませんでした。 お問い合わせ",
     INVALID_EMAIL_CODE: "無効なコード。",
     TOO_MANY_CODE_ATTEMPTS: "多くの試み。 新規のリクエストコードを入力してください。",
@@ -72,12 +68,10 @@ const ja = {
     TOO_MANY_REACTION_REQUESTS: "多くの反応要求をtoo。 もう一度お試しください。",
     TOO_MANY_REPORT_REQUESTS: "多くのレポートリクエスト。 もう一度お試しください。",
     TOO_MANY_UPLOAD_REQUESTS: "アップロードリクエスト数が多い もう一度お試しください。",
-    TOO_MANY_TRAKT_SYNC_REQUESTS:
-      "あまりにも多くの Trakt リクエストの同期 もう一度お試しください。",
+    TOO_MANY_TRAKT_SYNC_REQUESTS: "あまりにも多くの Trakt リクエストの同期 もう一度お試しください。",
     TOO_MANY_AI_REQUESTS: "多くのAIリクエストをtoo。 もう一度お試しください。",
     REPLIES_DISABLED: "インポートされたレビューでは、返信は使用できません。",
-    EMAIL_DOMAIN_BLOCKED:
-      "このメールドメインは利用できません。 有効なメールアドレスを入力してください。",
+    EMAIL_DOMAIN_BLOCKED: "このメールドメインは利用できません。 有効なメールアドレスを入力してください。",
   },
   notifications: {
     commentReplyTitle: "あなたのコメントに新しい返信",
@@ -97,16 +91,13 @@ const ja = {
     actionBan: "禁止されている",
     actionSuspend: "キャンセル",
     commentDeletedTitle: "コメントは削除されました",
-    commentDeletedBody:
-      '"コメント"{{show}}「コミュニティから複数のレポートを以下に削除されました。',
+    commentDeletedBody: "\"コメント\"{{show}}「コミュニティから複数のレポートを以下に削除されました。",
     commentHiddenTitle: "あなたのコメントは隠されました",
-    commentHiddenBody:
-      '"コメント"{{show}}" コミュニティからのレポートの後に隠され、他のユーザーには表示されません。',
+    commentHiddenBody: "\"コメント\"{{show}}\" コミュニティからのレポートの後に隠され、他のユーザーには表示されません。",
     commentAutoSpoilerTitle: "あなたのコメントはスポイラーとしてマークされました",
-    commentAutoSpoilerBody:
-      '"コメント"{{show}}「コミュニティからのレポートに従ったスピルラーとして自動的にマークされました。',
+    commentAutoSpoilerBody: "\"コメント\"{{show}}「コミュニティからのレポートに従ったスピルラーとして自動的にマークされました。",
     commentAdminSpoilerTitle: "あなたのコメントはスポイラーとしてマークされました",
-    commentAdminSpoilerBody: 'モデレータはコメントを "{{show}}" スポイラーとして。',
+    commentAdminSpoilerBody: "モデレータはコメントを \"{{show}}\" スポイラーとして。",
     activationNudgeTitle: "あなたのウォッチリストは待っています",
     activationNudgeBody: "新しいエピソードについて通知を開始するいくつかのショーや映画を追加.",
     directMessageTitle: "新しいメッセージ",
@@ -115,67 +106,45 @@ const ja = {
   emails: {
     welcomeSubject: "ようこそ! Watchrお問い合わせ",
     welcomeHeading: "ようこそ! Watchrお問い合わせ",
-    welcomeBody:
-      "お問い合わせ {{username}}あなたのアカウントは正常に作成されました。 お気に入りのショーや映画を今すぐ追跡し始めましょう!",
-    welcomeTipUsername:
-      'ユーザー名 "{{username}}「自動的に生成されました。 プロフィール設定でいつでも変更できます。',
-    welcomeTipFeatures:
-      "ショーや映画を追跡したり、エピソードを率いたり、ディスカッションに参加したり、インポートしたりできます。 TV Time 歴史、そして新しいエピソードの空気の時通知を得て下さい。",
+    welcomeBody: "お問い合わせ {{username}}あなたのアカウントは正常に作成されました。 お気に入りのショーや映画を今すぐ追跡し始めましょう!",
+    welcomeTipUsername: "ユーザー名 \"{{username}}「自動的に生成されました。 プロフィール設定でいつでも変更できます。",
+    welcomeTipFeatures: "ショーや映画を追跡したり、エピソードを率いたり、ディスカッションに参加したり、インポートしたりできます。 TV Time 歴史、そして新しいエピソードの空気の時通知を得て下さい。",
     welcomeCta: "ウェブで始める",
-    welcomeFooter:
-      "作成したので、このメールを受信しています Watchr アカウント。 もしそうでなければ、このメールを安全に無視することができます。",
+    welcomeFooter: "作成したので、このメールを受信しています Watchr アカウント。 もしそうでなければ、このメールを安全に無視することができます。",
     resetPasswordSubject: "パスワードの再設定",
     resetPasswordHeading: "パスワードの再設定",
-    resetPasswordBody:
-      "パスワードリセットをリクエストしました。 下のボタンをクリックして、新しいパスワードを選択します。 こちらのリンクは15分以内です。",
-    resetPasswordTipSecurity:
-      "強力なユニークなパスワードを選択します。 別のサービスから1つを再利用しないでください。 誰とでもこのリンクを共有しません。 Watchr スタッフにお尋ねください。",
+    resetPasswordBody: "パスワードリセットをリクエストしました。 下のボタンをクリックして、新しいパスワードを選択します。 こちらのリンクは15分以内です。",
+    resetPasswordTipSecurity: "強力なユニークなパスワードを選択します。 別のサービスから1つを再利用しないでください。 誰とでもこのリンクを共有しません。 Watchr スタッフにお尋ねください。",
     resetPasswordCta: "パスワードの再設定",
-    resetPasswordFooter:
-      "このリセットをリクエストしなかった場合は、このメールを無視してください。パスワードは変更されません。 これが起こっているかどうかサポートにお問い合わせください。",
+    resetPasswordFooter: "このリセットをリクエストしなかった場合は、このメールを無視してください。パスワードは変更されません。 これが起こっているかどうかサポートにお問い合わせください。",
     banSubject: "お問い合わせ Watchr 口座が中断された",
     banHeading: "口座停止通知",
-    banBody:
-      "お問い合わせ {{username}}、あなたの記述はありました {{action}}. 理由: {{reason}}. このアクションは効果をとります {{effectiveDate}}. .",
+    banBody: "お問い合わせ {{username}}、あなたの記述はありました {{action}}. 理由: {{reason}}. このアクションは効果をとります {{effectiveDate}}. .",
     banSuspendedUntil: "あなたのアカウントは再登録されます {{date}}. .",
-    banTipAppeal:
-      "この決定が間違っていると思われる場合は、サポートチームに連絡してアピールすることができます。 ユーザー名と関連する文脈を入力してください。",
-    banFooter:
-      "コミュニティガイドラインを https://watchr.me/community-guidelines でご確認ください。 エラーと思われる場合は、サポートにお問い合わせください。",
+    banTipAppeal: "この決定が間違っていると思われる場合は、サポートチームに連絡してアピールすることができます。 ユーザー名と関連する文脈を入力してください。",
+    banFooter: "コミュニティガイドラインを https://watchr.me/community-guidelines でご確認ください。 エラーと思われる場合は、サポートにお問い合わせください。",
     commentDeletedSubject: "あなたのコメント Watchr 削除されました",
     commentDeletedHeading: "コメント削除",
-    commentDeletedBody:
-      'お問い合わせ {{username}}, あなたのコメント "{{show}}" 複数のレポートから削除された Watchr コミュニティ。 コミュニティガイドラインを再度投稿する前にご確認ください。',
-    commentDeletedTip:
-      "コミュニティガイドラインに従う限り、新しいコメントを投稿することを歓迎します。 適切なタグ付けなしでスポイラーを尊重し、避けてください。",
-    commentDeletedFooter:
-      "コミュニティガイドラインを https://watchr.me/community-guidelines でご確認ください。 エラーだと思われた場合は、サポートにお問い合わせください。",
+    commentDeletedBody: "お問い合わせ {{username}}, あなたのコメント \"{{show}}\" 複数のレポートから削除された Watchr コミュニティ。 コミュニティガイドラインを再度投稿する前にご確認ください。",
+    commentDeletedTip: "コミュニティガイドラインに従う限り、新しいコメントを投稿することを歓迎します。 適切なタグ付けなしでスポイラーを尊重し、避けてください。",
+    commentDeletedFooter: "コミュニティガイドラインを https://watchr.me/community-guidelines でご確認ください。 エラーだと思われた場合は、サポートにお問い合わせください。",
     commentHiddenSubject: "あなたのコメント Watchr 隠されました",
     commentHiddenHeading: "隠れたコメント",
-    commentHiddenBody:
-      'お問い合わせ {{username}}, あなたのコメント "{{show}}「他のユーザーからの報告に従わなかった」 コミュニティにもはや見えません。 繰り返された違反は、アカウントのさらなる行動につながる可能性があります。',
-    commentHiddenTip:
-      "コメントを編集してガイドラインに合わせることができます。 更新後、見直しを行い、再度閲覧することができます。",
-    commentHiddenFooter:
-      "コミュニティガイドラインを https://watchr.me/community-guidelines でご確認ください。 エラーだと思われた場合は、サポートにお問い合わせください。",
+    commentHiddenBody: "お問い合わせ {{username}}, あなたのコメント \"{{show}}「他のユーザーからの報告に従わなかった」 コミュニティにもはや見えません。 繰り返された違反は、アカウントのさらなる行動につながる可能性があります。",
+    commentHiddenTip: "コメントを編集してガイドラインに合わせることができます。 更新後、見直しを行い、再度閲覧することができます。",
+    commentHiddenFooter: "コミュニティガイドラインを https://watchr.me/community-guidelines でご確認ください。 エラーだと思われた場合は、サポートにお問い合わせください。",
     commentSpoilerSubject: "あなたのコメントはスポイラーとしてマークされました",
     commentSpoilerHeading: "あなたのコメントに追加Spoilerタグ",
-    commentSpoilerBody:
-      'お問い合わせ {{username}}, あなたのコメント "{{show}}「コミュニティからの報告に従ったスピルアとしてマークされました。 プロットの詳細を議論するときにスポイラータグを使用するようにしてください。',
-    commentSpoilerTip:
-      "スピルアをマークするには、スピルアのコメントを書くか、スピルアのタグで敏感なテキストをラップするときにスピルアボタンを使用します。 誰もが楽しめるコミュニティ体験を",
-    commentSpoilerFooter:
-      "コミュニティガイドラインを https://watchr.me/community-guidelines でご確認ください。 エラーだと思われた場合は、サポートにお問い合わせください。",
+    commentSpoilerBody: "お問い合わせ {{username}}, あなたのコメント \"{{show}}「コミュニティからの報告に従ったスピルアとしてマークされました。 プロットの詳細を議論するときにスポイラータグを使用するようにしてください。",
+    commentSpoilerTip: "スピルアをマークするには、スピルアのコメントを書くか、スピルアのタグで敏感なテキストをラップするときにスピルアボタンを使用します。 誰もが楽しめるコミュニティ体験を",
+    commentSpoilerFooter: "コミュニティガイドラインを https://watchr.me/community-guidelines でご確認ください。 エラーだと思われた場合は、サポートにお問い合わせください。",
     emailCodeSubject: "お問い合わせ Watchr サインインコード",
     emailCodeHeading: "サインイン Watchr",
-    emailCodeBody:
-      "以下のコードを使用してアカウントにサインインします。 このコードは15分以内です。",
+    emailCodeBody: "以下のコードを使用してアカウントにサインインします。 このコードは15分以内です。",
     emailCodeLabel: "サインインコード:",
     emailCodeCta: "サインイン",
-    emailCodeTipSecurity:
-      "誰とでもこのコードを共有しないでください。 Watchr スタッフにお尋ねください。",
-    emailCodeFooter:
-      "このコードをリクエストしなかった場合は、このメールを無視してください。 あなたのアカウントは安全です。",
+    emailCodeTipSecurity: "誰とでもこのコードを共有しないでください。 Watchr スタッフにお尋ねください。",
+    emailCodeFooter: "このコードをリクエストしなかった場合は、このメールを無視してください。 あなたのアカウントは安全です。",
   },
   websocket: {
     reconnecting: "再接続...",
@@ -195,8 +164,7 @@ const ja = {
     popularMovies: "人気の映画",
   },
   welcomeMessage: {
-    content:
-      "ようこそ! Watchr. . . .\n\nお気に入りのショーを追跡し、新しいものを発見し、友達とつながる。 以下は、いくつかできることです。\n\n•ウォッチリストにショーを追加\n• エピソードのレートとコメント\n• 友達をフォローして活動を見る\n\nご質問がございましたら、こちらのメールに返信してください!",
+    content: "ようこそ! Watchr. . . .\n\nお気に入りのショーを追跡し、新しいものを発見し、友達とつながる。 以下は、いくつかできることです。\n\n•ウォッチリストにショーを追加\n• エピソードのレートとコメント\n• 友達をフォローして活動を見る\n\nご質問がございましたら、こちらのメールに返信してください!",
   },
   recommendations: {
     fallbackReason: "現在トレンドトレンド",

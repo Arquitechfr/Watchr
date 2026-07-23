@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Text, TouchableOpacity, TextInput, ActivityIndicator, Platform, useWindowDimensions, ScrollView } from "react-native";
+import { View, Text, TouchableOpacity, TextInput, ActivityIndicator, ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ScreenContainer } from "../../components/ScreenContainer";
@@ -74,8 +74,6 @@ export function EditProfileScreen() {
 
   const { pickAvatar, isUploading: isAvatarUploading } = useAvatarUpload();
   const { pickBanner, isUploading: isBannerUploading } = useBannerUpload();
-  const { width } = useWindowDimensions();
-  const isDesktopWeb = Platform.OS === "web" && width >= 768;
 
   const usernameMutation = useMutation({
     mutationFn: (username: string) => updateUsername(username),

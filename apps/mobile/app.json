@@ -14,7 +14,9 @@
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": true
         },
-        "LSApplicationQueriesSchemes": ["itms-apps"]
+        "LSApplicationQueriesSchemes": [
+          "itms-apps"
+        ]
       },
       "supportsTablet": true,
       "bundleIdentifier": "com.watchr.app",
@@ -48,7 +50,14 @@
       "./plugins/withCustomSplashScreen",
       "./plugins/withAppLinks",
       "expo-localization",
-      "expo-notifications",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#C65D3A",
+          "defaultChannel": "default"
+        }
+      ],
       "expo-dev-client",
       "@react-native-google-signin/google-signin",
       [
@@ -126,7 +135,8 @@
       ],
       "expo-sharing",
       "expo-status-bar",
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-background-task"
     ],
     "owner": "arquitech"
   }

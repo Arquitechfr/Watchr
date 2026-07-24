@@ -17,6 +17,7 @@ import {
   listFollowing,
   updateActivityVisibility,
   getPublicProfile,
+  getPublicUserStats,
   searchUsers,
   getFriendsActivityFeed,
 } from "../services/social.service.js";
@@ -104,6 +105,15 @@ router.get(
   asyncHandler(async (req: Request, res: Response) => {
     const { username } = req.params;
     const result = await getPublicProfile(username, req.userId!, req.language);
+    res.json(result);
+  }),
+);
+
+router.get(
+  "/users/:username/stats",
+  asyncHandler(async (req: Request, res: Response) => {
+    const { username } = req.params;
+    const result = await getPublicUserStats(username, req.language);
     res.json(result);
   }),
 );

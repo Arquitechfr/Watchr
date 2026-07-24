@@ -4,12 +4,14 @@ import {
   unfollowUser,
   getFollowStatus,
   getPublicProfile,
+  getPublicUserStats,
   searchUsers,
   listFollowing,
   getFriendsActivityFeed,
   updateActivityVisibility,
   type ActivityFeedResult,
   type PublicProfile,
+  type PublicUserStats,
   type PaginatedResult,
   type FollowUserItem,
 } from "../services/social.service";
@@ -59,6 +61,16 @@ export function usePublicProfile(username: string | undefined) {
     queryKey: ["social", "profile", username],
     queryFn: () => getPublicProfile(username!),
     enabled: isHydrated && !!username,
+  });
+}
+
+export function usePublicUserStats(username: string | undefined, enabled: boolean) {
+  const isHydrated = useAuthStore((state) => state.isHydrated);
+
+  return useQuery<PublicUserStats>({
+    queryKey: ["social", "profile", username, "stats"],
+    queryFn: () => getPublicUserStats(username!),
+    enabled: isHydrated && !!username && enabled,
   });
 }
 

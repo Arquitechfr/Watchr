@@ -8,7 +8,6 @@ import {
   cancelRevolutSubscription,
   getRevolutSubscription,
 } from "../lib/revolutClient.js";
-import { env } from "../config/env.js";
 import { log, logError } from "../lib/logger.js";
 import { peekMcpQuota } from "../lib/mcpQuota.js";
 
@@ -49,7 +48,9 @@ export async function startSubscription(userId: string): Promise<{ checkoutUrl: 
   const customerId = await ensureRevolutCustomer(userId);
   const planVariationId = await getPlanVariationId();
 
-  const redirectUrl = `${env.PUBLIC_URL}/profile/subscription/success`;
+  const webAppEntry = await MobileConfig.findOne({ key: "web_app_url" }).lean();
+  const webAppUrl = webAppEntry?.value || "https://app.watchr.me";
+  const redirectUrl = `${webAppUrl}/profile/subscription/success`;
 
   const subscription = await createRevolutSubscription({
     plan_variation_id: planVariationId,

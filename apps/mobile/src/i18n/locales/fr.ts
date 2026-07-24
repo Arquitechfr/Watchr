@@ -773,7 +773,7 @@ const fr = {
       successTitle: "Abonnement activé !",
       successMessage: "Votre abonnement VIP est maintenant actif.",
       backToProfile: "Retour au profil",
-      featureNoAds: "Expérience sans publicité",
+      featureNoAds: "Expérience sans publicité ",
       featureAdvancedStats: "Statistiques avancées",
       featureUnlimitedTracking: "Suivi illimité des spectacles",
       featureAiInsights: "Aperçus alimentés par l'IA",

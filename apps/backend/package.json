@@ -29,7 +29,8 @@
     "mobile-config:seed": "tsx scripts/mobile-config-seed.ts",
     "promote-admin": "tsx src/scripts/promote-admin.ts",
     "migrate-ratings-scale": "tsx scripts/migrate-ratings-scale.ts",
-    "migrate-auto-follow-admin": "tsx scripts/migrate-auto-follow-admin.ts"
+    "migrate-auto-follow-admin": "tsx scripts/migrate-auto-follow-admin.ts",
+    "vip-features:seed": "tsx scripts/vip-features-seed.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1079.0",

@@ -24,6 +24,7 @@ const ScheduledJobs = lazy(() => import("./pages/ScheduledJobs").then((m) => ({ 
 const Messages = lazy(() => import("./pages/Messages").then((m) => ({ default: m.Messages })));
 const Engagement = lazy(() => import("./pages/Engagement").then((m) => ({ default: m.Engagement })));
 const Status = lazy(() => import("./pages/Status").then((m) => ({ default: m.Status })));
+const Subscriptions = lazy(() => import("./pages/Subscriptions").then((m) => ({ default: m.Subscriptions })));
 
 function PageLoader() {
   return (
@@ -74,6 +75,7 @@ export default function App() {
             <Route path="/api-keys" element={<ApiKeys />} />
             <Route path="/engagement" element={<Engagement />} />
             <Route path="/status" element={<Status />} />
+            <Route path="/subscriptions" element={<Subscriptions />} />
             <Route path="/messages" element={<Messages />} />
             <Route path="*" element={<NotFound />} />
           </Route>

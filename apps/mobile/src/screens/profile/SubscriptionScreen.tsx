@@ -10,10 +10,11 @@ import { useUIStore } from "../../store/uiStore";
 import { useErrorMessage } from "../../services/api";
 import { getMe } from "../../services/auth.service";
 import { startSubscription, cancelSubscription } from "../../services/subscription.service";
+import { fetchVipFeatures, type VipFeature } from "../../services/vipFeatures.service";
 import { remoteConfigService } from "../../services/remoteConfig";
 import { useState } from "react";
 
-const VIP_FEATURES = [
+const FALLBACK_FEATURES = [
   { icon: "remove-circle-outline" as const, key: "screens.subscription.featureNoAds" },
   { icon: "bar-chart-outline" as const, key: "screens.subscription.featureAdvancedStats" },
   { icon: "infinite-outline" as const, key: "screens.subscription.featureUnlimitedTracking" },
@@ -25,7 +26,7 @@ function getWebAppUrl(): string {
 }
 
 export function SubscriptionScreen() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const colors = useThemeColors();
   const { showSnackbar } = useUIStore();
   const getErrorMessage = useErrorMessage();
@@ -35,6 +36,20 @@ export function SubscriptionScreen() {
   const { data: me } = useQuery({ queryKey: ["me"], queryFn: getMe });
   const isVip = me?.subscriptionPlan === "vip";
   const isNative = Platform.OS !== "web";
+
+  const { data: dynamicFeatures } = useQuery({
+    queryKey: ["vip-features"],
+    queryFn: fetchVipFeatures,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const features: Array<{ icon: string; label: string; description?: string }> = (dynamicFeatures && dynamicFeatures.length > 0)
+    ? dynamicFeatures.map((f: VipFeature) => ({
+        icon: f.icon,
+        label: f.translations[locale] ?? f.translations.en ?? f.labelKey,
+        description: f.descriptionTranslations[locale] ?? f.descriptionTranslations.en ?? undefined,
+      }))
+    : FALLBACK_FEATURES.map((f) => ({ icon: f.icon, label: t(f.key) }));
 
   const startMutation = useMutation({
     mutationFn: startSubscription,
@@ -105,10 +120,15 @@ export function SubscriptionScreen() {
         )}
 
         <View className="gap-3 mb-8">
-          {VIP_FEATURES.map((feature) => (
-            <View key={feature.key} className="flex-row items-center rounded-lg p-4" style={{ backgroundColor: colors.surface }}>
-              <Ionicons name={feature.icon} size={22} color={colors.primary} />
-              <Text className="text-text text-base flex-1 ml-3">{t(feature.key)}</Text>
+          {features.map((feature, index) => (
+            <View key={`feature-${index}`} className="flex-row items-center rounded-lg p-4" style={{ backgroundColor: colors.surface }}>
+              <Ionicons name={feature.icon as keyof typeof Ionicons.glyphMap} size={22} color={colors.primary} />
+              <View className="flex-1 ml-3">
+                <Text className="text-text text-base">{feature.label}</Text>
+                {feature.description ? (
+                  <Text className="text-text-muted text-sm mt-0.5">{feature.description}</Text>
+                ) : null}
+              </View>
               {!isVip && <Ionicons name="checkmark-circle" size={20} color={colors.primary} />}
             </View>
           ))}

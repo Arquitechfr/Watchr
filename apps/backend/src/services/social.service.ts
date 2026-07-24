@@ -1,9 +1,12 @@
-import { Types, type PipelineStage } from "mongoose";
+import { Types } from "mongoose";
 import { Follow } from "../models/follow.model.js";
 import { User } from "../models/user.model.js";
 import { Rating } from "../models/rating.model.js";
 import { WatchEntry } from "../models/watchEntry.model.js";
 import { Comment } from "../models/comment.model.js";
+import { CommentLike } from "../models/commentLike.model.js";
+import { CommentReaction } from "../models/commentReaction.model.js";
+import { getShowTitle } from "../models/show.model.js";
 import { ApiError } from "../middleware/error.middleware.js";
 import { SupportedLocale } from "../i18n/translations.js";
 
@@ -280,6 +283,147 @@ export async function getPublicProfile(
   };
 }
 
+export interface PublicUserStats {
+  tvCount: number;
+  movieCount: number;
+  episodesWatched: number;
+  hoursWatched: number;
+  commentsCount: number;
+  reactionsCount: number;
+  likesCount: number;
+  genreBreakdown: { id: number; name: string; count: number }[];
+  recentActivity: {
+    commentId: string;
+    content: string;
+    showId: string;
+    showTitle: string;
+    tmdbId: number;
+    createdAt: string;
+  }[];
+}
+
+const DEFAULT_EPISODE_RUNTIME = 45;
+
+export async function getPublicUserStats(
+  username: string,
+  locale: SupportedLocale = "en",
+): Promise<PublicUserStats> {
+  const user = await User.findOne({
+    username: { $regex: `^${escapeRegex(username)}$`, $options: "i" },
+  })
+    .select("_id activityVisibility isBanned")
+    .lean();
+
+  if (!user || user.isBanned) {
+    throw new ApiError(404, "USER_NOT_FOUND", "User not found");
+  }
+
+  if (user.activityVisibility !== "public") {
+    throw new ApiError(403, "ACTIVITY_PRIVATE", "This user's activity is private");
+  }
+
+  const userObjectId = user._id;
+
+  const [commentsCount, reactionsCount, likesCount, watchEntries] = await Promise.all([
+    Comment.countDocuments({ userId: userObjectId }),
+    CommentReaction.countDocuments({ userId: userObjectId }),
+    CommentLike.countDocuments({ userId: userObjectId }),
+    WatchEntry.find({ userId: userObjectId }).populate("showId", "type runtime seasons genres translations").lean(),
+  ]);
+
+  let tvCount = 0;
+  let movieCount = 0;
+  let episodesWatched = 0;
+  let totalMinutes = 0;
+  const genreMap = new Map<number, { id: number; name: string; count: number }>();
+
+  for (const entry of watchEntries) {
+    const show = entry.showId as unknown as {
+      _id: Types.ObjectId;
+      type: "tv" | "movie";
+      runtime?: number;
+      seasons?: Array<{
+        seasonNumber: number;
+        episodes: Array<{ episodeNumber: number; runtime?: number }>;
+      }>;
+      genres?: Array<{ id: number; name?: string }>;
+      translations?: Map<string, { genres?: Array<{ id: number; name?: string }> }>;
+    };
+
+    if (!show) continue;
+
+    if (show.type === "tv") {
+      tvCount++;
+    } else {
+      movieCount++;
+    }
+
+    if (show.genres) {
+      for (const genre of show.genres) {
+        const existing = genreMap.get(genre.id);
+        if (existing) {
+          existing.count++;
+        } else {
+          genreMap.set(genre.id, { id: genre.id, name: genre.name ?? "Unknown", count: 1 });
+        }
+      }
+    }
+
+    for (const watched of entry.watchedEpisodes) {
+      episodesWatched++;
+
+      if (show.type === "movie") {
+        totalMinutes += show.runtime ?? 0;
+      } else {
+        const season = show.seasons?.find((s) => s.seasonNumber === watched.season);
+        const episode = season?.episodes.find((e) => e.episodeNumber === watched.episode);
+        totalMinutes += episode?.runtime ?? show.runtime ?? DEFAULT_EPISODE_RUNTIME;
+      }
+    }
+  }
+
+  const genreBreakdown = Array.from(genreMap.values())
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5);
+
+  const recentComments = await Comment.find({ userId: userObjectId })
+    .sort({ createdAt: -1 })
+    .limit(5)
+    .populate("showId", "tmdbId title translations")
+    .lean();
+
+  const recentActivity = recentComments
+    .filter((comment) => comment.showId)
+    .map((comment) => {
+      const show = comment.showId as unknown as {
+        _id: Types.ObjectId;
+        tmdbId: number;
+        title: string;
+        translations?: Map<string, { title?: string }>;
+      };
+      return {
+        commentId: comment._id.toString(),
+        content: comment.content,
+        showId: show._id.toString(),
+        showTitle: getShowTitle(show, locale),
+        tmdbId: show.tmdbId,
+        createdAt: comment.createdAt.toISOString(),
+      };
+    });
+
+  return {
+    tvCount,
+    movieCount,
+    episodesWatched,
+    hoursWatched: Math.floor(totalMinutes / 60),
+    commentsCount,
+    reactionsCount,
+    likesCount,
+    genreBreakdown,
+    recentActivity,
+  };
+}
+
 export async function searchUsers(
   query: string,
   requestingUserId: string,
@@ -375,165 +519,123 @@ export async function getFriendsActivityFeed(
   const includeComments = validTypes.length === 0 || validTypes.includes("comment");
 
   const skip = (page - 1) * limit;
+  const pageLimit = skip + limit;
 
-  const facetStages: Record<string, unknown[]> = {};
-  if (includeRatings) {
-    facetStages.ratings = [
-      { $match: { userId: { $in: publicFollowingIds } } },
-      { $sort: { createdAt: -1 } },
-      { $skip: skip },
-      { $limit: limit },
-      {
-        $lookup: {
-          from: "users",
-          localField: "userId",
-          foreignField: "_id",
-          as: "userDoc",
-          pipeline: [{ $project: { username: 1, avatarUrl: 1 } }],
-        },
-      },
-      { $unwind: "$userDoc" },
-      {
-        $lookup: {
-          from: "shows",
-          localField: "showId",
-          foreignField: "_id",
-          as: "showDoc",
-          pipeline: [{ $project: { tmdbId: 1, title: 1, posterPath: 1, type: 1 } }],
-        },
-      },
-      { $unwind: "$showDoc" },
-      {
-        $project: {
-          type: { $literal: "rating" },
-          createdAt: 1,
-          userId: 1,
-          username: "$userDoc.username",
-          avatarUrl: "$userDoc.avatarUrl",
-          showId: 1,
-          tmdbId: "$showDoc.tmdbId",
-          title: "$showDoc.title",
-          posterPath: "$showDoc.posterPath",
-          showType: "$showDoc.type",
-          ratingValue: "$value",
-        },
-      },
-    ];
-  }
-  if (includeWatchlist) {
-    facetStages.watchlist = [
-      { $match: { userId: { $in: publicFollowingIds }, status: { $in: ["plan_to_watch", "watching"] } } },
-      { $sort: { createdAt: -1 } },
-      { $skip: skip },
-      { $limit: limit },
-      {
-        $lookup: {
-          from: "users",
-          localField: "userId",
-          foreignField: "_id",
-          as: "userDoc",
-          pipeline: [{ $project: { username: 1, avatarUrl: 1 } }],
-        },
-      },
-      { $unwind: "$userDoc" },
-      {
-        $lookup: {
-          from: "shows",
-          localField: "showId",
-          foreignField: "_id",
-          as: "showDoc",
-          pipeline: [{ $project: { tmdbId: 1, title: 1, posterPath: 1, type: 1 } }],
-        },
-      },
-      { $unwind: "$showDoc" },
-      {
-        $project: {
-          type: { $literal: "watchlist_add" },
-          createdAt: 1,
-          userId: 1,
-          username: "$userDoc.username",
-          avatarUrl: "$userDoc.avatarUrl",
-          showId: 1,
-          tmdbId: "$showDoc.tmdbId",
-          title: "$showDoc.title",
-          posterPath: "$showDoc.posterPath",
-          showType: "$showDoc.type",
-        },
-      },
-    ];
-  }
-  if (includeComments) {
-    facetStages.comments = [
-      { $match: { userId: { $in: publicFollowingIds }, isSpoiler: false, isHidden: false } },
-      { $sort: { createdAt: -1 } },
-      { $skip: skip },
-      { $limit: limit },
-      {
-        $lookup: {
-          from: "users",
-          localField: "userId",
-          foreignField: "_id",
-          as: "userDoc",
-          pipeline: [{ $project: { username: 1, avatarUrl: 1 } }],
-        },
-      },
-      { $unwind: "$userDoc" },
-      {
-        $lookup: {
-          from: "shows",
-          localField: "showId",
-          foreignField: "_id",
-          as: "showDoc",
-          pipeline: [{ $project: { tmdbId: 1, title: 1, posterPath: 1, type: 1 } }],
-        },
-      },
-      { $unwind: "$showDoc" },
-      {
-        $project: {
-          type: { $literal: "comment" },
-          createdAt: 1,
-          userId: 1,
-          username: "$userDoc.username",
-          avatarUrl: "$userDoc.avatarUrl",
-          showId: 1,
-          tmdbId: "$showDoc.tmdbId",
-          title: "$showDoc.title",
-          posterPath: "$showDoc.posterPath",
-          showType: "$showDoc.type",
-          commentId: { $toString: "$_id" },
-          content: 1,
-        },
-      },
-    ];
-  }
+  const userLookup = {
+    from: "users",
+    localField: "userId",
+    foreignField: "_id",
+    as: "userDoc",
+    pipeline: [{ $project: { username: 1, avatarUrl: 1 } }],
+  };
+  const showLookup = {
+    from: "shows",
+    localField: "showId",
+    foreignField: "_id",
+    as: "showDoc",
+    pipeline: [{ $project: { tmdbId: 1, title: 1, posterPath: 1, type: 1 } }],
+  };
 
-  const concatArrays: string[] = [];
-  if (includeRatings) concatArrays.push("$ratings");
-  if (includeWatchlist) concatArrays.push("$watchlist");
-  if (includeComments) concatArrays.push("$comments");
+  const [ratingsResults, watchlistResults, commentsResults, ratingsCount, watchlistCount, commentsCount] =
+    await Promise.all([
+      includeRatings
+        ? Rating.aggregate([
+            { $match: { userId: { $in: publicFollowingIds } } },
+            { $sort: { createdAt: -1 } },
+            { $limit: pageLimit },
+            { $lookup: userLookup },
+            { $unwind: "$userDoc" },
+            { $lookup: showLookup },
+            { $unwind: "$showDoc" },
+            {
+              $project: {
+                type: { $literal: "rating" },
+                createdAt: 1,
+                userId: 1,
+                username: "$userDoc.username",
+                avatarUrl: "$userDoc.avatarUrl",
+                showId: 1,
+                tmdbId: "$showDoc.tmdbId",
+                title: "$showDoc.title",
+                posterPath: "$showDoc.posterPath",
+                showType: "$showDoc.type",
+                ratingValue: "$value",
+              },
+            },
+          ])
+        : Promise.resolve([]),
+      includeWatchlist
+        ? WatchEntry.aggregate([
+            { $match: { userId: { $in: publicFollowingIds }, status: { $in: ["plan_to_watch", "watching"] } } },
+            { $sort: { createdAt: -1 } },
+            { $limit: pageLimit },
+            { $lookup: userLookup },
+            { $unwind: "$userDoc" },
+            { $lookup: showLookup },
+            { $unwind: "$showDoc" },
+            {
+              $project: {
+                type: { $literal: "watchlist_add" },
+                createdAt: 1,
+                userId: 1,
+                username: "$userDoc.username",
+                avatarUrl: "$userDoc.avatarUrl",
+                showId: 1,
+                tmdbId: "$showDoc.tmdbId",
+                title: "$showDoc.title",
+                posterPath: "$showDoc.posterPath",
+                showType: "$showDoc.type",
+              },
+            },
+          ])
+        : Promise.resolve([]),
+      includeComments
+        ? Comment.aggregate([
+            { $match: { userId: { $in: publicFollowingIds }, isSpoiler: false, isHidden: false } },
+            { $sort: { createdAt: -1 } },
+            { $limit: pageLimit },
+            { $lookup: userLookup },
+            { $unwind: "$userDoc" },
+            { $lookup: showLookup },
+            { $unwind: "$showDoc" },
+            {
+              $project: {
+                type: { $literal: "comment" },
+                createdAt: 1,
+                userId: 1,
+                username: "$userDoc.username",
+                avatarUrl: "$userDoc.avatarUrl",
+                showId: 1,
+                tmdbId: "$showDoc.tmdbId",
+                title: "$showDoc.title",
+                posterPath: "$showDoc.posterPath",
+                showType: "$showDoc.type",
+                commentId: { $toString: "$_id" },
+                content: 1,
+              },
+            },
+          ])
+        : Promise.resolve([]),
+      includeRatings
+        ? Rating.countDocuments({ userId: { $in: publicFollowingIds } })
+        : Promise.resolve(0),
+      includeWatchlist
+        ? WatchEntry.countDocuments({ userId: { $in: publicFollowingIds }, status: { $in: ["plan_to_watch", "watching"] } })
+        : Promise.resolve(0),
+      includeComments
+        ? Comment.countDocuments({ userId: { $in: publicFollowingIds }, isSpoiler: false, isHidden: false })
+        : Promise.resolve(0),
+    ]);
 
-  const pipeline = [
-    { $facet: facetStages },
-    {
-      $project: {
-        allItems: { $concatArrays: concatArrays },
-      },
-    },
-    { $unwind: "$allItems" },
-    { $replaceRoot: { newRoot: "$allItems" } },
-    { $sort: { createdAt: -1 } },
-    { $limit: limit },
-  ];
+  const allResults = [...ratingsResults, ...watchlistResults, ...commentsResults] as Record<string, unknown>[];
+  allResults.sort((a, b) => {
+    const aDate = a.createdAt instanceof Date ? a.createdAt.getTime() : new Date(a.createdAt as string | number).getTime();
+    const bDate = b.createdAt instanceof Date ? b.createdAt.getTime() : new Date(b.createdAt as string | number).getTime();
+    return bDate - aDate;
+  });
+  const pagedResults = allResults.slice(skip, skip + limit);
 
-  const [ratingsCount, watchlistCount, commentsCount] = await Promise.all([
-    Rating.countDocuments({ userId: { $in: publicFollowingIds } }),
-    WatchEntry.countDocuments({ userId: { $in: publicFollowingIds }, status: { $in: ["plan_to_watch", "watching"] } }),
-    Comment.countDocuments({ userId: { $in: publicFollowingIds }, isSpoiler: false, isHidden: false }),
-  ]);
-
-  const results = await Rating.aggregate(pipeline as PipelineStage[]);
-
-  const rawItems: RawActivityItem[] = results.map((r: Record<string, unknown>) => ({
+  const rawItems: RawActivityItem[] = pagedResults.map((r: Record<string, unknown>) => ({
     type: r.type as RawActivityItem["type"],
     createdAt: r.createdAt instanceof Date ? r.createdAt : new Date(r.createdAt as string | number),
     userId: r.userId as Types.ObjectId,

@@ -8,12 +8,15 @@ import { ScreenContainer } from "../components/ScreenContainer";
 import { SubScreenHeader } from "../components/SubScreenHeader";
 import { Avatar } from "../components/Avatar";
 import { CoverBanner } from "../components/Profile/CoverBanner";
+import { StatCard } from "../components/Profile/StatCard";
+import { GenreBreakdown } from "../components/Profile/GenreBreakdown";
+import { RecentActivity } from "../components/Profile/RecentActivity";
 import { FollowButton } from "../components/FollowButton";
 import { Seo } from "../components/Seo";
 import { EmptyState } from "../components/EmptyState";
 import { useI18n } from "../i18n/useI18n";
 import { useThemeColors } from "../theme/useThemeColors";
-import { usePublicProfile } from "../hooks/useSocial";
+import { usePublicProfile, usePublicUserStats } from "../hooks/useSocial";
 import { useCreateConversation } from "../hooks/useMessages";
 import { useAuthStore } from "../store/authStore";
 import { useUIStore } from "../store/uiStore";
@@ -34,6 +37,8 @@ export function PublicProfileScreen() {
   const createConversationMutation = useCreateConversation();
 
   const { data: profile, isLoading, isError } = usePublicProfile(username);
+  const isPublicActivity = profile?.activityVisibility === "public";
+  const { data: stats, isLoading: statsLoading } = usePublicUserStats(username, isPublicActivity);
 
   const isOwnProfile = profile?.id === currentUserId;
 
@@ -148,16 +153,43 @@ export function PublicProfileScreen() {
               {t("screens.social.privateProfile")}
             </Text>
           </View>
-        ) : (
-          <View
-            className="rounded-lg p-4 items-center"
-            style={{ backgroundColor: colors.surface }}
-          >
-            <Text className="text-text-muted text-sm text-center">
-              {t("screens.social.publicProfileActivity")}
-            </Text>
+        ) : statsLoading ? (
+          <View className="items-center py-8">
+            <ActivityIndicator size="small" color={colors.primary} />
           </View>
-        )}
+        ) : stats ? (
+          <View className="mb-6">
+            <Text className="text-text font-semibold text-base mb-3">{t("screens.profile.statsTitle")}</Text>
+            <View className="flex-row flex-wrap gap-3 mb-3">
+              <View className="w-[48%] md:w-[31%]">
+                <StatCard icon="tv-outline" value={stats.tvCount} label={t("screens.profile.statsShowsFollowed")} />
+              </View>
+              <View className="w-[48%] md:w-[31%]">
+                <StatCard icon="film-outline" value={stats.movieCount} label={t("screens.profile.statsMoviesFollowed")} />
+              </View>
+              <View className="w-[48%] md:w-[31%]">
+                <StatCard icon="play-circle-outline" value={stats.episodesWatched} label={t("screens.profile.statsEpisodesWatched")} />
+              </View>
+              <View className="w-[48%] md:w-[31%]">
+                <StatCard icon="time-outline" value={`${stats.hoursWatched}h`} label={t("screens.profile.statsHoursWatched")} />
+              </View>
+              <View className="w-[48%] md:w-[31%]">
+                <StatCard icon="chatbubble-outline" value={stats.commentsCount} label={t("screens.profile.statsComments")} />
+              </View>
+              <View className="w-[48%] md:w-[31%]">
+                <StatCard icon="heart-outline" value={stats.reactionsCount + stats.likesCount} label={t("screens.profile.statsReactions")} />
+              </View>
+            </View>
+
+            {stats.genreBreakdown.length > 0 && (
+              <View className="mb-6">
+                <GenreBreakdown genres={stats.genreBreakdown} />
+              </View>
+            )}
+
+            <RecentActivity items={stats.recentActivity} />
+          </View>
+        ) : null}
       </ScrollView>
     </ScreenContainer>
   );

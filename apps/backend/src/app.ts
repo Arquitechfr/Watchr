@@ -32,6 +32,7 @@ import contactRoutes from "./routes/contact.routes.js";
 import mobileConfigRoutes from "./routes/internal/mobileConfig.routes.js";
 import errorTrackingRoutes from "./routes/internal/errorTracking.routes.js";
 import statusRoutes from "./routes/internal/status.routes.js";
+import vipFeaturesRoutes from "./routes/internal/vipFeatures.routes.js";
 import adminRoutes from "./routes/admin/index.js";
 import inAppNotificationRoutes from "./routes/inAppNotifications.routes.js";
 import emailTrackingRoutes from "./routes/emailTracking.routes.js";
@@ -395,6 +396,7 @@ export function createApp(): Application {
   app.use("/internal", mobileConfigRoutes);
   app.use("/internal", errorTrackingRoutes);
   app.use("/internal", statusRoutes);
+  app.use("/internal", vipFeaturesRoutes);
   app.use("/api/in-app-notifications", inAppNotificationRoutes);
   app.use("/api/account/api-keys", accountApiKeyRoutes);
   app.use("/api/subscriptions", subscriptionRoutes);

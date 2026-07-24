@@ -116,6 +116,30 @@ export async function getPublicProfile(username: string): Promise<PublicProfile>
   return response.data;
 }
 
+export interface PublicUserStats {
+  tvCount: number;
+  movieCount: number;
+  episodesWatched: number;
+  hoursWatched: number;
+  commentsCount: number;
+  reactionsCount: number;
+  likesCount: number;
+  genreBreakdown: { id: number; name: string; count: number }[];
+  recentActivity: {
+    commentId: string;
+    content: string;
+    showId: string;
+    showTitle: string;
+    tmdbId: number;
+    createdAt: string;
+  }[];
+}
+
+export async function getPublicUserStats(username: string): Promise<PublicUserStats> {
+  const response = await api.get<PublicUserStats>(`/social/users/${username}/stats`);
+  return response.data;
+}
+
 export async function searchUsers(
   query: string,
   page = 1,

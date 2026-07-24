@@ -56,6 +56,26 @@ import apiKeysRouter from "./apiKeys.js";
 import messageAdminRouter from "./messages.routes.js";
 import { runAllChecks, saveStatusSnapshot, getStatusHistory, getUptimeStats, clearStatusHistory, isMonitorEnabled, getPublicServices, setMonitorEnabled, setPublicServices, ALL_SERVICE_NAMES } from "../../services/status.service.js";
 import { invalidateStatusCache } from "../../routes/internal/status.routes.js";
+import {
+  getSubscriptionStats,
+  listSubscriptions,
+  adminCancelSubscription,
+  overrideSubscription,
+  listVipFeatures,
+  createVipFeature,
+  updateVipFeature,
+  deleteVipFeature,
+  reorderVipFeatures,
+} from "../../services/admin/adminSubscription.service.js";
+import {
+  listSubscriptionsQuerySchema,
+  userIdParamSchema,
+  overrideSubscriptionSchema,
+  createVipFeatureSchema,
+  updateVipFeatureSchema,
+  vipFeatureIdParamSchema,
+  reorderVipFeaturesSchema,
+} from "../../validators/admin/adminSubscription.validator.js";
 
 const router: Router = Router();
 
@@ -1378,6 +1398,98 @@ router.patch(
     await setPublicServices(services);
     invalidateStatusCache();
     res.json({ publicServices: services });
+  }),
+);
+
+// Subscriptions
+router.get(
+  "/subscriptions/stats",
+  asyncHandler(async (_req: Request, res: Response) => {
+    const stats = await getSubscriptionStats();
+    res.json(stats);
+  }),
+);
+
+router.get(
+  "/subscriptions",
+  validateRequest(undefined, listSubscriptionsQuerySchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const query = req.query as unknown as {
+      page: number;
+      limit: number;
+      search?: string;
+      plan?: "free" | "vip" | "all";
+    };
+    const result = await listSubscriptions({
+      page: query.page,
+      limit: query.limit,
+      search: query.search,
+      plan: query.plan,
+    });
+    res.json(result);
+  }),
+);
+
+router.post(
+  "/subscriptions/:userId/cancel",
+  validateRequest(undefined, undefined, userIdParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    await adminCancelSubscription(req.params.userId, req.userId!);
+    res.json({ success: true });
+  }),
+);
+
+router.post(
+  "/subscriptions/:userId/override",
+  validateRequest(overrideSubscriptionSchema, undefined, userIdParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    await overrideSubscription(req.params.userId, req.body.plan, req.userId!, req.body.reason);
+    res.json({ success: true });
+  }),
+);
+
+// VIP Features
+router.get(
+  "/vip-features",
+  asyncHandler(async (_req: Request, res: Response) => {
+    const features = await listVipFeatures(true);
+    res.json(features);
+  }),
+);
+
+router.post(
+  "/vip-features",
+  validateRequest(createVipFeatureSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const feature = await createVipFeature(req.body);
+    res.status(201).json(feature);
+  }),
+);
+
+router.patch(
+  "/vip-features/reorder",
+  validateRequest(reorderVipFeaturesSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    await reorderVipFeatures(req.body.ids);
+    res.json({ success: true });
+  }),
+);
+
+router.patch(
+  "/vip-features/:id",
+  validateRequest(updateVipFeatureSchema, undefined, vipFeatureIdParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const feature = await updateVipFeature(req.params.id, req.body);
+    res.json(feature);
+  }),
+);
+
+router.delete(
+  "/vip-features/:id",
+  validateRequest(undefined, undefined, vipFeatureIdParamSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    await deleteVipFeature(req.params.id);
+    res.status(204).send();
   }),
 );
 

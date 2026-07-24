@@ -8,17 +8,17 @@ interface TraktHistoryEntry {
     season?: number;
     number?: number;
     title?: string;
-    ids?: { trakt?: number; tmdb?: number; imdb?: string };
+    ids?: { trakt?: number; tmdb?: number; imdb?: string; tvdb?: number };
   };
   show?: {
     title?: string;
     year?: number;
-    ids?: { trakt?: number; tmdb?: number; imdb?: string };
+    ids?: { trakt?: number; tmdb?: number; imdb?: string; tvdb?: number };
   };
   movie?: {
     title?: string;
     year?: number;
-    ids?: { trakt?: number; tmdb?: number; imdb?: string };
+    ids?: { trakt?: number; tmdb?: number; imdb?: string; tvdb?: number };
   };
 }
 
@@ -29,17 +29,17 @@ interface TraktRatingEntry {
   episode?: {
     season?: number;
     number?: number;
-    ids?: { trakt?: number; tmdb?: number; imdb?: string };
+    ids?: { trakt?: number; tmdb?: number; imdb?: string; tvdb?: number };
   };
   show?: {
     title?: string;
     year?: number;
-    ids?: { trakt?: number; tmdb?: number; imdb?: string };
+    ids?: { trakt?: number; tmdb?: number; imdb?: string; tvdb?: number };
   };
   movie?: {
     title?: string;
     year?: number;
-    ids?: { trakt?: number; tmdb?: number; imdb?: string };
+    ids?: { trakt?: number; tmdb?: number; imdb?: string; tvdb?: number };
   };
 }
 
@@ -49,12 +49,12 @@ interface TraktWatchlistEntry {
   show?: {
     title?: string;
     year?: number;
-    ids?: { trakt?: number; tmdb?: number; imdb?: string };
+    ids?: { trakt?: number; tmdb?: number; imdb?: string; tvdb?: number };
   };
   movie?: {
     title?: string;
     year?: number;
-    ids?: { trakt?: number; tmdb?: number; imdb?: string };
+    ids?: { trakt?: number; tmdb?: number; imdb?: string; tvdb?: number };
   };
 }
 
@@ -123,6 +123,7 @@ export class TraktParser extends BaseParser {
         type: "tv",
         tmdbId: entry.show.ids?.tmdb,
         imdbId: entry.show.ids?.imdb,
+        tvdbId: entry.show.ids?.tvdb,
       };
     }
     if (entry.movie) {
@@ -134,6 +135,7 @@ export class TraktParser extends BaseParser {
         type: "movie",
         tmdbId: entry.movie.ids?.tmdb,
         imdbId: entry.movie.ids?.imdb,
+        tvdbId: entry.movie.ids?.tvdb,
       };
     }
     return { title: "" };
@@ -154,6 +156,9 @@ export class TraktParser extends BaseParser {
         type: "tv" as const,
         tmdbId: entry.show.ids?.tmdb,
         imdbId: entry.show.ids?.imdb,
+        tvdbId: entry.show.ids?.tvdb,
+        season: entry.episode?.season,
+        episode: entry.episode?.number,
       };
     }
     if (entry.movie) {
@@ -164,6 +169,7 @@ export class TraktParser extends BaseParser {
         type: "movie" as const,
         tmdbId: entry.movie.ids?.tmdb,
         imdbId: entry.movie.ids?.imdb,
+        tvdbId: entry.movie.ids?.tvdb,
       };
     }
     return base;
@@ -179,6 +185,7 @@ export class TraktParser extends BaseParser {
         type: "tv",
         tmdbId: entry.show.ids?.tmdb,
         imdbId: entry.show.ids?.imdb,
+        tvdbId: entry.show.ids?.tvdb,
       };
     }
     if (entry.movie) {
@@ -190,6 +197,7 @@ export class TraktParser extends BaseParser {
         type: "movie",
         tmdbId: entry.movie.ids?.tmdb,
         imdbId: entry.movie.ids?.imdb,
+        tvdbId: entry.movie.ids?.tvdb,
       };
     }
     return { title: "" };

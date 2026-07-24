@@ -62,14 +62,21 @@ export function DocsPage() {
                 <DocsEndpoints />
               </div>
 
-              <DocsModels />
-              <DocsErrors />
+              <div id="models" className="scroll-mt-20">
+                <DocsModels />
+              </div>
+
+              <div id="errors" className="scroll-mt-20">
+                <DocsErrors />
+              </div>
 
               <div id="rate-limiting" className="scroll-mt-20">
                 <DocsRateLimit />
               </div>
 
-              <DocsSdk />
+              <div id="sdk" className="scroll-mt-20">
+                <DocsSdk />
+              </div>
 
               <div id="mcp" className="scroll-mt-20">
                 <DocsMcp />

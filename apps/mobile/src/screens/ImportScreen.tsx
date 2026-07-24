@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Linking, Switch } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -48,11 +48,12 @@ interface PlatformCardProps {
   icon: string;
   name: string;
   description: string;
+  badge?: string;
   onPress: () => void;
   disabled?: boolean;
 }
 
-function PlatformCard({ icon, name, description, onPress, disabled }: PlatformCardProps) {
+function PlatformCard({ icon, name, description, badge, onPress, disabled }: PlatformCardProps) {
   const colors = useThemeColors();
   return (
     <TouchableOpacity
@@ -64,7 +65,14 @@ function PlatformCard({ icon, name, description, onPress, disabled }: PlatformCa
     >
       <Text className="text-2xl mr-3">{icon}</Text>
       <View className="flex-1">
-        <Text className="text-text font-semibold text-base">{name}</Text>
+        <View className="flex-row items-center gap-2">
+          <Text className="text-text font-semibold text-base">{name}</Text>
+          {badge ? (
+            <View className="rounded-full px-2 py-0.5" style={{ backgroundColor: colors.primary + "20" }}>
+              <Text className="text-xs font-medium" style={{ color: colors.primary }}>{badge}</Text>
+            </View>
+          ) : null}
+        </View>
         <Text className="text-text-muted text-sm mt-0.5">{description}</Text>
       </View>
     </TouchableOpacity>
@@ -82,6 +90,7 @@ export function ImportScreen() {
   const setActiveJobId = useImportStore((state) => state.setActiveJobId);
   const clearActiveJob = useImportStore((state) => state.clearActiveJob);
   const [showDisclaimer, setShowDisclaimer] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
   const [recentJobsCollapsed, setRecentJobsCollapsed] = useState(true);
   const [errors, setErrors] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -98,6 +107,27 @@ export function ImportScreen() {
     queryKey: ["trakt-status"],
     queryFn: getTraktStatus,
   });
+
+  useEffect(() => {
+    function handleTraktCallbackUrl(url: string) {
+      if (!url.includes("trakt/callback")) return;
+      const parsed = new URL(url);
+      const username = parsed.searchParams.get("username");
+      const error = parsed.searchParams.get("error");
+      if (username) {
+        queryClient.invalidateQueries({ queryKey: ["trakt-status"] });
+        showSnackbar(t("screens.import.traktConnectedSuccess"), "success");
+      } else if (error) {
+        showSnackbar(t("screens.import.traktConnectError", { error }), "error");
+      }
+    }
+
+    const sub = Linking.addEventListener("url", ({ url }) => handleTraktCallbackUrl(url));
+    Linking.getInitialURL().then((url) => {
+      if (url) handleTraktCallbackUrl(url);
+    });
+    return () => sub.remove();
+  }, [queryClient, showSnackbar, t]);
 
   const pickAndUploadFile = useCallback(
     async (source: ImportSource, mimeType: string) => {
@@ -252,6 +282,7 @@ export function ImportScreen() {
           icon="📺"
           name="TV Time"
           description={t("screens.import.tvtimeDesc")}
+          badge={t("screens.import.zipBadge")}
           onPress={() => pickAndUploadFile("tvtime", "application/zip")}
           disabled={isUploading || Boolean(activeJobId && !isComplete)}
         />
@@ -260,6 +291,7 @@ export function ImportScreen() {
           icon="🎬"
           name="Trakt"
           description={t("screens.import.traktDesc")}
+          badge={t("screens.import.jsonBadge")}
           onPress={() => pickAndUploadFile("trakt", "application/json")}
           disabled={isUploading || Boolean(activeJobId && !isComplete)}
         />
@@ -268,6 +300,7 @@ export function ImportScreen() {
           icon="⭐"
           name="IMDb"
           description={t("screens.import.imdbDesc")}
+          badge={t("screens.import.csvBadge")}
           onPress={() => pickAndUploadFile("imdb", "text/csv")}
           disabled={isUploading || Boolean(activeJobId && !isComplete)}
         />
@@ -276,9 +309,32 @@ export function ImportScreen() {
           icon="🎞️"
           name="Letterboxd"
           description={t("screens.import.letterboxdDesc")}
+          badge={t("screens.import.csvBadge")}
           onPress={() => pickAndUploadFile("letterboxd", "text/csv")}
           disabled={isUploading || Boolean(activeJobId && !isComplete)}
         />
+
+        <TouchableOpacity
+          className="flex-row items-center mb-3 mt-2"
+          onPress={() => setShowHelp((v) => !v)}
+          activeOpacity={0.7}
+        >
+          <Ionicons
+            name={showHelp ? "chevron-down" : "chevron-forward"}
+            size={20}
+            color={colors.text}
+            style={{ marginRight: 8 }}
+          />
+          <Text className="text-text font-semibold text-lg">{t("screens.import.helpTitle")}</Text>
+        </TouchableOpacity>
+        {showHelp && (
+          <View className="bg-surface rounded-lg p-4 mb-4">
+            <Text className="text-text-muted text-sm mb-2">{t("screens.import.helpTvTime")}</Text>
+            <Text className="text-text-muted text-sm mb-2">{t("screens.import.helpTrakt")}</Text>
+            <Text className="text-text-muted text-sm mb-2">{t("screens.import.helpImdb")}</Text>
+            <Text className="text-text-muted text-sm">{t("screens.import.helpLetterboxd")}</Text>
+          </View>
+        )}
 
         {isTraktLinked && (
           <View className="bg-surface rounded-lg p-4 mb-4 mt-2">

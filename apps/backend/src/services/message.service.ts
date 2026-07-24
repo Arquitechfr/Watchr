@@ -219,6 +219,10 @@ export async function sendMessage(
         lastMessageId: msg._id,
         lastMessageAt: msg.createdAt,
       },
+      $pull: {
+        archivedBy: new Types.ObjectId(recipientId),
+        deletedBy: new Types.ObjectId(recipientId),
+      },
     },
   );
 
@@ -291,7 +295,7 @@ export async function getConversations(
   const userMap = new Map(users.map((u) => [u._id.toString(), u]));
 
   const lastMessageIds = conversations.map((c) => c.lastMessageId).filter(Boolean);
-  const lastMessages = await Message.find({ _id: { $in: lastMessageIds } }).lean();
+  const lastMessages = await Message.find({ _id: { $in: lastMessageIds }, isHidden: { $ne: true } }).lean();
   const lastMessageMap = new Map(lastMessages.map((m) => [m._id.toString(), m]));
 
   const unreadCounts = await Promise.all(
@@ -358,7 +362,10 @@ export async function getMessages(
 
   const requester = await User.findById(userId).select("preferredLanguage").lean();
 
-  const filter: Record<string, unknown> = { conversationId: new Types.ObjectId(conversationId) };
+  const filter: Record<string, unknown> = {
+    conversationId: new Types.ObjectId(conversationId),
+    isHidden: { $ne: true },
+  };
   if (before) {
     filter.createdAt = { $lt: new Date(before) };
   }
@@ -507,6 +514,14 @@ export async function addReaction(
     throw new ApiError(404, "MESSAGE_NOT_FOUND", "Message not found");
   }
 
+  const conv = await Conversation.findById(msg.conversationId).select("participantIds").lean();
+  if (!conv) {
+    throw new ApiError(404, "CONVERSATION_NOT_FOUND", "Conversation not found");
+  }
+  if (!conv.participantIds.some((id) => id.toString() === userId)) {
+    throw new ApiError(403, "NOT_PARTICIPANT", "You are not a participant in this conversation");
+  }
+
   const existing = msg.reactions.find(
     (r) => r.userId.toString() === userId && r.emoji === emoji,
   );
@@ -517,8 +532,7 @@ export async function addReaction(
   msg.reactions.push({ userId: new Types.ObjectId(userId), emoji });
   await msg.save();
 
-  const conv = await Conversation.findById(msg.conversationId).lean();
-  const recipientId = conv ? getOtherParticipantId(conv, userId).toString() : "";
+  const recipientId = getOtherParticipantId(conv, userId).toString();
 
   wsEvents.emit("message:reaction", {
     recipientId,
@@ -540,13 +554,20 @@ export async function removeReaction(
     throw new ApiError(404, "MESSAGE_NOT_FOUND", "Message not found");
   }
 
+  const conv = await Conversation.findById(msg.conversationId).select("participantIds").lean();
+  if (!conv) {
+    throw new ApiError(404, "CONVERSATION_NOT_FOUND", "Conversation not found");
+  }
+  if (!conv.participantIds.some((id) => id.toString() === userId)) {
+    throw new ApiError(403, "NOT_PARTICIPANT", "You are not a participant in this conversation");
+  }
+
   msg.reactions = msg.reactions.filter(
     (r) => !(r.userId.toString() === userId && r.emoji === emoji),
   );
   await msg.save();
 
-  const conv = await Conversation.findById(msg.conversationId).lean();
-  const recipientId = conv ? getOtherParticipantId(conv, userId).toString() : "";
+  const recipientId = getOtherParticipantId(conv, userId).toString();
 
   wsEvents.emit("message:reaction", {
     recipientId,
@@ -616,6 +637,14 @@ export async function reportMessage(
     throw new ApiError(404, "MESSAGE_NOT_FOUND", "Message not found");
   }
 
+  const conv = await Conversation.findById(msg.conversationId).select("participantIds").lean();
+  if (!conv) {
+    throw new ApiError(404, "CONVERSATION_NOT_FOUND", "Conversation not found");
+  }
+  if (!conv.participantIds.some((id) => id.toString() === reporterId)) {
+    throw new ApiError(403, "NOT_PARTICIPANT", "You are not a participant in this conversation");
+  }
+
   try {
     const report = await MessageReport.create({
       reporterId: new Types.ObjectId(reporterId),
@@ -643,7 +672,7 @@ export async function reportMessage(
 
 export async function getUnreadCount(userId: string): Promise<{ unreadCount: number }> {
   const userObjectId = new Types.ObjectId(userId);
-  const conversations = await Conversation.find({ participantIds: userObjectId }).select("_id").lean();
+  const conversations = await Conversation.find({ participantIds: userObjectId, deletedBy: { $ne: userObjectId } }).select("_id").lean();
   const convIds = conversations.map((c) => c._id);
 
   const count = await Message.countDocuments({
@@ -705,5 +734,5 @@ export async function getDmContacts(
       isMutual: mutualIds.some((mid) => new Types.ObjectId(String(mid)).equals(u._id)),
     }));
 
-  return { contacts, total: contacts.length, page, limit };
+  return { contacts, total: eligibleIds.length, page, limit };
 }

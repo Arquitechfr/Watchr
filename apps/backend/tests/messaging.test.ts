@@ -538,6 +538,199 @@ describe("Messaging System", () => {
     });
   });
 
+  describe("Conversation reactivation on new message (Bug 1)", () => {
+    it("should unarchive conversation for recipient when they receive a new message", async () => {
+      const { token: tokenA } = await getAuthUser("UserA", "a@example.com");
+      const { user: userB, token: tokenB } = await getAuthUser("UserB", "b@example.com");
+
+      const convRes = await request(app)
+        .post(`/api/messages/conversations/${userB._id}`)
+        .set("Authorization", `Bearer ${tokenA}`);
+
+      const conversationId = convRes.body.id;
+
+      await request(app)
+        .patch(`/api/messages/conversations/${conversationId}/archive`)
+        .set("Authorization", `Bearer ${tokenB}`)
+        .send({ archived: true });
+
+      const listBefore = await request(app)
+        .get(`/api/messages/conversations`)
+        .set("Authorization", `Bearer ${tokenB}`);
+      expect(listBefore.body.conversations.find((c: { id: string }) => c.id === conversationId)).toBeUndefined();
+
+      await request(app)
+        .post(`/api/messages/conversations/${conversationId}/messages`)
+        .set("Authorization", `Bearer ${tokenA}`)
+        .send({ content: "Reactivate!" });
+
+      const listAfter = await request(app)
+        .get(`/api/messages/conversations`)
+        .set("Authorization", `Bearer ${tokenB}`);
+      expect(listAfter.body.conversations.find((c: { id: string }) => c.id === conversationId)).toBeTruthy();
+    });
+
+    it("should undelete conversation for recipient when they receive a new message", async () => {
+      const { token: tokenA } = await getAuthUser("UserA", "a@example.com");
+      const { user: userB, token: tokenB } = await getAuthUser("UserB", "b@example.com");
+
+      const convRes = await request(app)
+        .post(`/api/messages/conversations/${userB._id}`)
+        .set("Authorization", `Bearer ${tokenA}`);
+
+      const conversationId = convRes.body.id;
+
+      await request(app)
+        .delete(`/api/messages/conversations/${conversationId}`)
+        .set("Authorization", `Bearer ${tokenB}`);
+
+      const listBefore = await request(app)
+        .get(`/api/messages/conversations`)
+        .set("Authorization", `Bearer ${tokenB}`);
+      expect(listBefore.body.conversations.find((c: { id: string }) => c.id === conversationId)).toBeUndefined();
+
+      await request(app)
+        .post(`/api/messages/conversations/${conversationId}/messages`)
+        .set("Authorization", `Bearer ${tokenA}`)
+        .send({ content: "Reactivate from delete!" });
+
+      const listAfter = await request(app)
+        .get(`/api/messages/conversations`)
+        .set("Authorization", `Bearer ${tokenB}`);
+      expect(listAfter.body.conversations.find((c: { id: string }) => c.id === conversationId)).toBeTruthy();
+    });
+  });
+
+  describe("Unread count excludes deleted conversations (Bug 2)", () => {
+    it("should not count unread messages from deleted conversations", async () => {
+      const { token: tokenA } = await getAuthUser("UserA", "a@example.com");
+      const { user: userB, token: tokenB } = await getAuthUser("UserB", "b@example.com");
+
+      const convRes = await request(app)
+        .post(`/api/messages/conversations/${userB._id}`)
+        .set("Authorization", `Bearer ${tokenA}`);
+
+      await request(app)
+        .post(`/api/messages/conversations/${convRes.body.id}/messages`)
+        .set("Authorization", `Bearer ${tokenA}`)
+        .send({ content: "Unread in deleted conv" });
+
+      await request(app)
+        .delete(`/api/messages/conversations/${convRes.body.id}`)
+        .set("Authorization", `Bearer ${tokenB}`);
+
+      const res = await request(app)
+        .get(`/api/messages/unread-count`)
+        .set("Authorization", `Bearer ${tokenB}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.unreadCount).toBe(0);
+    });
+  });
+
+  describe("Reaction participation check (Bug 5)", () => {
+    it("should not allow non-participant to add a reaction", async () => {
+      const { token: tokenA } = await getAuthUser("UserA", "a@example.com");
+      const { user: userB } = await getAuthUser("UserB", "b@example.com");
+      const { token: tokenC } = await getAuthUser("UserC", "c@example.com");
+
+      const convRes = await request(app)
+        .post(`/api/messages/conversations/${userB._id}`)
+        .set("Authorization", `Bearer ${tokenA}`);
+
+      const msgRes = await request(app)
+        .post(`/api/messages/conversations/${convRes.body.id}/messages`)
+        .set("Authorization", `Bearer ${tokenA}`)
+        .send({ content: "React test" });
+
+      const res = await request(app)
+        .post(`/api/messages/${msgRes.body.id}/reactions`)
+        .set("Authorization", `Bearer ${tokenC}`)
+        .send({ emoji: "👍" });
+
+      expect(res.status).toBe(403);
+      expect(res.body.error.code).toBe("NOT_PARTICIPANT");
+    });
+
+    it("should not allow non-participant to remove a reaction", async () => {
+      const { token: tokenA } = await getAuthUser("UserA", "a@example.com");
+      const { user: userB } = await getAuthUser("UserB", "b@example.com");
+      const { token: tokenC } = await getAuthUser("UserC", "c@example.com");
+
+      const convRes = await request(app)
+        .post(`/api/messages/conversations/${userB._id}`)
+        .set("Authorization", `Bearer ${tokenA}`);
+
+      const msgRes = await request(app)
+        .post(`/api/messages/conversations/${convRes.body.id}/messages`)
+        .set("Authorization", `Bearer ${tokenA}`)
+        .send({ content: "React test" });
+
+      await request(app)
+        .post(`/api/messages/${msgRes.body.id}/reactions`)
+        .set("Authorization", `Bearer ${tokenA}`)
+        .send({ emoji: "👍" });
+
+      const res = await request(app)
+        .delete(`/api/messages/${msgRes.body.id}/reactions`)
+        .set("Authorization", `Bearer ${tokenC}`)
+        .send({ emoji: "👍" });
+
+      expect(res.status).toBe(403);
+      expect(res.body.error.code).toBe("NOT_PARTICIPANT");
+    });
+  });
+
+  describe("Report participation check (Bug 6)", () => {
+    it("should not allow non-participant to report a message", async () => {
+      const { token: tokenA } = await getAuthUser("UserA", "a@example.com");
+      const { user: userB } = await getAuthUser("UserB", "b@example.com");
+      const { token: tokenC } = await getAuthUser("UserC", "c@example.com");
+
+      const convRes = await request(app)
+        .post(`/api/messages/conversations/${userB._id}`)
+        .set("Authorization", `Bearer ${tokenA}`);
+
+      const msgRes = await request(app)
+        .post(`/api/messages/conversations/${convRes.body.id}/messages`)
+        .set("Authorization", `Bearer ${tokenA}`)
+        .send({ content: "Report test" });
+
+      const res = await request(app)
+        .post(`/api/messages/${msgRes.body.id}/report`)
+        .set("Authorization", `Bearer ${tokenC}`)
+        .send({ reason: "spam" });
+
+      expect(res.status).toBe(403);
+      expect(res.body.error.code).toBe("NOT_PARTICIPANT");
+    });
+  });
+
+  describe("Hidden messages filtered from getMessages (Bug 7)", () => {
+    it("should not return hidden messages in getMessages", async () => {
+      const { token: tokenA } = await getAuthUser("UserA", "a@example.com");
+      const { user: userB, token: tokenB } = await getAuthUser("UserB", "b@example.com");
+
+      const convRes = await request(app)
+        .post(`/api/messages/conversations/${userB._id}`)
+        .set("Authorization", `Bearer ${tokenA}`);
+
+      const msgRes = await request(app)
+        .post(`/api/messages/conversations/${convRes.body.id}/messages`)
+        .set("Authorization", `Bearer ${tokenA}`)
+        .send({ content: "Will be hidden" });
+
+      await Message.updateOne({ _id: msgRes.body.id }, { $set: { isHidden: true } });
+
+      const res = await request(app)
+        .get(`/api/messages/conversations/${convRes.body.id}/messages`)
+        .set("Authorization", `Bearer ${tokenB}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.messages.find((m: { id: string }) => m.id === msgRes.body.id)).toBeUndefined();
+    });
+  });
+
   describe("Welcome message", () => {
     it("should send welcome message content in correct locale", async () => {
       const { translations } = await import("../src/i18n/translations.js");

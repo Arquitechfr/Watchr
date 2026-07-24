@@ -93,7 +93,7 @@ export function NewsScreen() {
           columnWrapperStyle={isDesktopWeb ? { gap: 16 } : undefined}
           renderItem={({ item }) => <NewsCard article={item} compact={isDesktopWeb} />}
           refreshControl={<RefreshControl refreshing={displayLoading} onRefresh={() => throttledRefresh(displayRefetch)} tintColor={colors.primary} />}
-          contentContainerStyle={{ paddingBottom: 24, gap: isDesktopWeb ? 16 : 0 }}
+          contentContainerStyle={{ flexGrow: 1, paddingBottom: 24, gap: isDesktopWeb ? 16 : 0 }}
           ListEmptyComponent={
             <EmptyState
               icon="newspaper-outline"

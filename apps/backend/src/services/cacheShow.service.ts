@@ -179,6 +179,18 @@ export async function upsertShowFromTmdb(
     lastSyncedAt: new Date(),
   };
 
+  // Fetch external IDs (imdbId, tvdbId) from TMDB if not already cached
+  let imdbId: string | undefined = undefined;
+  try {
+    const externalIds = await tmdbService.getExternalIds(tmdbDetails.id, type);
+    imdbId = externalIds.imdb_id ?? undefined;
+  } catch {
+    // Non-critical — continue without imdbId
+  }
+  if (imdbId) {
+    baseUpdate.imdbId = imdbId;
+  }
+
   const show = await Show.findOne({ tmdbId: tmdbDetails.id });
 
   if (show) {

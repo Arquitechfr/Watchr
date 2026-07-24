@@ -70,6 +70,7 @@ export interface IShow extends Document {
   tmdbId: number;
   type: "tv" | "movie";
   title: string;
+  imdbId?: string;
   posterPath?: string;
   backdropPath?: string;
   overview?: string;
@@ -204,6 +205,10 @@ const showSchema = new Schema<IShow>(
     title: {
       type: String,
       required: true,
+    },
+    imdbId: {
+      type: String,
+      index: { sparse: true },
     },
     posterPath: {
       type: String,

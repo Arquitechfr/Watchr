@@ -84,20 +84,33 @@ export async function processImport(
         }
 
         const status = parser?.normalizeStatus(record.status) ?? normalizeGenericStatus(record.status);
-        const watchedEpisodes = record.season !== undefined && record.episode !== undefined
-          ? [{ season: record.season, episode: record.episode, watchedAt: record.watchedAt ? new Date(record.watchedAt) : new Date() }]
-          : [];
 
-        await WatchEntry.findOneAndUpdate(
-          { userId: new Types.ObjectId(userId), showId: match.show._id },
-          {
-            $set: {
-              status: status || (record.status as WatchStatus) || "plan_to_watch",
-              watchedEpisodes,
+        if (record.season !== undefined && record.episode !== undefined) {
+          // G2: Use $addToSet to avoid overwriting existing watched episodes
+          await WatchEntry.findOneAndUpdate(
+            { userId: new Types.ObjectId(userId), showId: match.show._id },
+            {
+              $set: { status: status || (record.status as WatchStatus) || "plan_to_watch" },
+              $addToSet: {
+                watchedEpisodes: {
+                  season: record.season,
+                  episode: record.episode,
+                  watchedAt: record.watchedAt ? new Date(record.watchedAt) : new Date(),
+                },
+              },
             },
-          },
-          { upsert: true, new: true, setDefaultsOnInsert: true },
-        );
+            { upsert: true, new: true, setDefaultsOnInsert: true },
+          );
+        } else {
+          // No season/episode — update status only, preserve existing watchedEpisodes
+          await WatchEntry.findOneAndUpdate(
+            { userId: new Types.ObjectId(userId), showId: match.show._id },
+            {
+              $set: { status: status || (record.status as WatchStatus) || "plan_to_watch" },
+            },
+            { upsert: true, new: true, setDefaultsOnInsert: true },
+          );
+        }
 
         if (record.rating && record.rating >= 1 && record.rating <= 10) {
           const episodeRef =

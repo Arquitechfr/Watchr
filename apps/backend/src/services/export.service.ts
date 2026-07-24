@@ -5,11 +5,17 @@ import { ApiError } from "../middleware/error.middleware.js";
 
 export type ExportFormat = "csv" | "json" | "trakt" | "imdb" | "letterboxd";
 
+export interface ExportOptions {
+  includeRatings?: boolean;
+  includeWatchlist?: boolean;
+}
+
 export interface LeanShow {
   _id: Types.ObjectId;
   tmdbId: number;
   type: "tv" | "movie";
   title: string;
+  imdbId?: string;
   firstAirDate?: Date;
   runtime?: number;
   genres?: Array<{ id: number; name?: string }>;
@@ -95,7 +101,7 @@ function formatDateTime(date: Date | string | undefined): string {
   return d.toISOString();
 }
 
-export async function exportToCsv(userId: string): Promise<string> {
+export async function exportToCsv(userId: string, _options?: ExportOptions): Promise<string> {
   const entries = await gatherExportData(userId);
   const rows = entries.map((e) => ({
     title: e.show.title,
@@ -110,7 +116,7 @@ export async function exportToCsv(userId: string): Promise<string> {
   return buildCsv(rows, ["title", "type", "tmdb_id", "status", "rating", "year", "watched_at"]);
 }
 
-export async function exportToJson(userId: string): Promise<string> {
+export async function exportToJson(userId: string, _options?: ExportOptions): Promise<string> {
   const entries = await gatherExportData(userId);
   const data = entries.map((e) => ({
     title: e.show.title,
@@ -131,44 +137,57 @@ export async function exportToJson(userId: string): Promise<string> {
   return JSON.stringify({ exportedAt: new Date().toISOString(), entries: data }, null, 2);
 }
 
-export async function exportToTraktJson(userId: string): Promise<string> {
+export async function exportToTraktJson(userId: string, options?: ExportOptions): Promise<string> {
   const entries = await gatherExportData(userId);
+  const includeRatings = options?.includeRatings ?? true;
+  const includeWatchlist = options?.includeWatchlist ?? true;
   const watched: Array<Record<string, unknown>> = [];
   const ratings: Array<Record<string, unknown>> = [];
   const watchlist: Array<Record<string, unknown>> = [];
 
   for (const e of entries) {
+    const ids: Record<string, unknown> = { tmdb: e.show.tmdbId };
+    // E-Tr2: Include imdb ID when available for better Trakt compatibility
+    if (e.show.imdbId) {
+      ids.imdb = e.show.imdbId;
+    }
     const showData = {
       title: e.show.title,
       year: e.show.firstAirDate ? new Date(e.show.firstAirDate).getFullYear() : undefined,
-      ids: { tmdb: e.show.tmdbId },
+      ids,
     };
 
     if (e.show.type === "tv") {
       if (e.watchEntry.status === "plan_to_watch") {
-        watchlist.push({ listed_at: formatDateTime(e.watchEntry.updatedAt), type: "show", show: showData });
+        if (includeWatchlist) {
+          watchlist.push({ listed_at: formatDateTime(e.watchEntry.updatedAt), type: "show", show: showData });
+        }
       } else {
         for (const ep of e.watchEntry.watchedEpisodes) {
+          // E-Tr1: Fallback to watchEntry.updatedAt if ep.watchedAt is missing
+          const watchedAt = formatDateTime(ep.watchedAt) || formatDateTime(e.watchEntry.updatedAt) || new Date().toISOString();
           watched.push({
-            watched_at: formatDateTime(ep.watchedAt),
+            watched_at: watchedAt,
             type: "episode",
             show: showData,
             episode: { season: ep.season, number: ep.episode },
           });
         }
         if (e.watchEntry.watchedEpisodes.length === 0 && e.watchEntry.status === "completed") {
-          watched.push({ watched_at: formatDateTime(e.watchEntry.updatedAt), type: "show", show: showData });
+          watched.push({ watched_at: formatDateTime(e.watchEntry.updatedAt) || new Date().toISOString(), type: "show", show: showData });
         }
       }
     } else {
       if (e.watchEntry.status === "plan_to_watch") {
-        watchlist.push({ listed_at: formatDateTime(e.watchEntry.updatedAt), type: "movie", movie: showData });
+        if (includeWatchlist) {
+          watchlist.push({ listed_at: formatDateTime(e.watchEntry.updatedAt), type: "movie", movie: showData });
+        }
       } else {
-        watched.push({ watched_at: formatDateTime(e.watchEntry.updatedAt), type: "movie", movie: showData });
+        watched.push({ watched_at: formatDateTime(e.watchEntry.updatedAt) || new Date().toISOString(), type: "movie", movie: showData });
       }
     }
 
-    if (e.rating?.value) {
+    if (e.rating?.value && includeRatings) {
       const type = e.show.type === "tv" ? "show" : "movie";
       ratings.push({
         rated_at: formatDateTime(e.rating.updatedAt),
@@ -182,15 +201,15 @@ export async function exportToTraktJson(userId: string): Promise<string> {
   return JSON.stringify({ watched, ratings, watchlist }, null, 2);
 }
 
-export async function exportToImdbCsv(userId: string): Promise<string> {
+export async function exportToImdbCsv(userId: string, _options?: ExportOptions): Promise<string> {
   const entries = await gatherExportData(userId);
   const rows = entries.map((e) => ({
-    Const: "",
+    Const: e.show.imdbId ?? "",
     "Your Rating": e.rating?.value ?? "",
     "Date Rated": e.rating ? formatDate(e.rating.updatedAt) : "",
     Title: e.show.title,
     "Original Title": "",
-    URL: "",
+    URL: e.show.imdbId ? `https://www.imdb.com/title/${e.show.imdbId}/` : "",
     "Title Type": e.show.type === "tv" ? "TV Series" : "Movie",
     "IMDb Rating": "",
     "Runtime (mins)": e.show.runtime ?? "",
@@ -204,7 +223,7 @@ export async function exportToImdbCsv(userId: string): Promise<string> {
   return buildCsv(rows, ["Const", "Your Rating", "Date Rated", "Title", "Original Title", "URL", "Title Type", "IMDb Rating", "Runtime (mins)", "Year", "Genres", "Num Votes", "Release Date", "Directors"]);
 }
 
-export async function exportToLetterboxdCsv(userId: string): Promise<string> {
+export async function exportToLetterboxdCsv(userId: string, _options?: ExportOptions): Promise<string> {
   const entries = await gatherExportData(userId);
   const movieEntries = entries.filter((e) => e.show.type === "movie");
   const rows = movieEntries.map((e) => ({
@@ -221,8 +240,17 @@ export async function exportToLetterboxdCsv(userId: string): Promise<string> {
   return buildCsv(rows, ["Date", "Name", "Year", "Letterboxd URI", "Rating", "Watched Date", "Tags", "Comments"]);
 }
 
-export async function generateExport(userId: string, format: ExportFormat): Promise<{ content: string; contentType: string; filename: string }> {
-  const exporters: Record<ExportFormat, (uid: string) => Promise<string>> = {
+export async function generateExport(
+  userId: string,
+  format: ExportFormat,
+  options?: ExportOptions,
+): Promise<{ content: string; contentType: string; filename: string }> {
+  const opts: ExportOptions = {
+    includeRatings: options?.includeRatings ?? true,
+    includeWatchlist: options?.includeWatchlist ?? true,
+  };
+
+  const exporters: Record<ExportFormat, (uid: string, o?: ExportOptions) => Promise<string>> = {
     csv: exportToCsv,
     json: exportToJson,
     trakt: exportToTraktJson,
@@ -251,7 +279,7 @@ export async function generateExport(userId: string, format: ExportFormat): Prom
     throw new ApiError(400, "INVALID_EXPORT_FORMAT", `Unsupported export format: ${format}`);
   }
 
-  const content = await exporter(userId);
+  const content = await exporter(userId, opts);
   return {
     content,
     contentType: contentTypes[format],

@@ -217,6 +217,10 @@ export function useDeleteMessage(conversationId: string) {
         });
       }
     },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: [MESSAGES_KEY, conversationId] });
+      queryClient.invalidateQueries({ queryKey: [CONVERSATIONS_KEY] });
+    },
   });
 }
 
@@ -353,10 +357,7 @@ export function useMarkAsRead(conversationId: string) {
 
       if (prevUnread) {
         let convUnreadCount = 0;
-        const convData = queryClient.getQueriesData<{ pages: { conversations: ConversationItem[] }[] }>({
-          queryKey: [CONVERSATIONS_KEY],
-        });
-        for (const [, pageData] of convData) {
+        for (const [, pageData] of prevConversations) {
           if (!pageData?.pages) continue;
           for (const page of pageData.pages) {
             const conv = page.conversations.find((c) => c.id === conversationId);

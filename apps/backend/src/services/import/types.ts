@@ -13,6 +13,8 @@ export interface ParsedRecord {
   type?: "tv" | "movie";
   imdbId?: string;
   tmdbId?: number;
+  tvdbId?: number;
+  rewatch?: boolean;
 }
 
 export interface ImportResult {

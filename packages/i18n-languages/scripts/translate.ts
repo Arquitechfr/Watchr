@@ -64,6 +64,13 @@ const DO_NOT_TRANSLATE_KEYS = new Set([
   "maintenance.title",
   "screens.export.watchrJson",
   "screens.export.watchrCsv",
+  "screens.export.traktFormat",
+  "screens.export.imdbFormat",
+  "screens.export.letterboxdFormat",
+  "profile.apiKeysQuickGuideExample",
+  "screens.import.zipBadge",
+  "screens.import.jsonBadge",
+  "screens.import.csvBadge",
 ]);
 
 // Protect template variables {{...}} and brand names before translation.

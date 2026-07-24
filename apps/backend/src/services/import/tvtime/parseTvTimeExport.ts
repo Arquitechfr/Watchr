@@ -18,11 +18,13 @@ export function parseGoMap(raw: string): Record<string, string> | null {
   if (!raw || !raw.startsWith("map[") || !raw.endsWith("]")) return null;
   const content = raw.slice(4, -1);
   const entries: Record<string, string> = {};
-  for (const pair of content.split(" ")) {
-    const idx = pair.indexOf(":");
-    if (idx === -1) continue;
-    const key = pair.slice(0, idx);
-    const value = pair.slice(idx + 1);
+  // T4: Use regex to match key:value pairs where key is alphanumeric/underscore
+  // and value is everything until the next key: pattern or end of string
+  const regex = /(\w+):([^\s]+(?:\s+(?!\w+:)[^\s]+)*)/g;
+  let match: RegExpExecArray | null;
+  while ((match = regex.exec(content)) !== null) {
+    const key = match[1];
+    const value = match[2];
     if (key) entries[key] = value;
   }
   return entries;
@@ -108,6 +110,114 @@ export async function extractCsvBuffer(filePath: string): Promise<Buffer | null>
   }
 
   return null;
+}
+
+/**
+ * T2+T3: Extract multiple CSV buffers from a ZIP for ratings and followed shows.
+ * Returns buffers for tracking-prod-records-v2, ratings, and followed_tv_show files.
+ */
+export interface TvTimeZipContents {
+  trackingBuffer: Buffer | null;
+  ratingsBuffer: Buffer | null;
+  followedBuffer: Buffer | null;
+}
+
+export async function extractAllCsvBuffers(filePath: string): Promise<TvTimeZipContents> {
+  const result: TvTimeZipContents = {
+    trackingBuffer: null,
+    ratingsBuffer: null,
+    followedBuffer: null,
+  };
+
+  if (!filePath.endsWith(".zip")) {
+    result.trackingBuffer = await extractCsvBuffer(filePath);
+    return result;
+  }
+
+  try {
+    const zip = new AdmZip(filePath);
+    const entries = zip.getEntries();
+
+    result.trackingBuffer =
+      entries.find((e) => e.entryName.endsWith(".csv") && e.entryName.includes("tracking-prod-records-v2"))?.getData() ??
+      entries.find((e) => e.entryName.endsWith(".csv") && e.entryName.includes("tracking-prod-records"))?.getData() ??
+      entries.find((e) => e.entryName.endsWith(".csv"))?.getData() ??
+      null;
+
+    // T2: Find ratings file
+    result.ratingsBuffer =
+      entries.find((e) => e.entryName.endsWith(".csv") && e.entryName.toLowerCase().includes("rating"))?.getData() ??
+      null;
+
+    // T3: Find followed_tv_show file
+    result.followedBuffer =
+      entries.find((e) => e.entryName.endsWith(".csv") && e.entryName.toLowerCase().includes("followed"))?.getData() ??
+      null;
+  } catch (err) {
+    logError("TvTimeImport", "extractAllCsvBuffers zip error", err);
+  }
+
+  return result;
+}
+
+/**
+ * T2: Parse ratings CSV buffer into a map of seriesName → rating.
+ */
+export function parseRatingsCsv(buffer: Buffer): Map<string, number> {
+  const ratings = new Map<string, number>();
+  try {
+    const content = buffer.toString("utf8");
+    const rows = parse(content, {
+      columns: true,
+      skip_empty_lines: true,
+      trim: true,
+      cast: false,
+      relax_column_count: true,
+    }) as Array<Record<string, string>>;
+
+    for (const row of rows) {
+      const title = row["series_name"] ?? row["title"] ?? row["name"] ?? "";
+      const ratingStr = row["rating"] ?? row["user_rating"] ?? "";
+      if (title && ratingStr) {
+        const rating = Number(ratingStr);
+        if (!isNaN(rating)) {
+          ratings.set(title.trim(), rating);
+        }
+      }
+    }
+  } catch (err) {
+    logError("TvTimeImport", "parseRatingsCsv error", err);
+  }
+  return ratings;
+}
+
+/**
+ * T3: Parse followed_tv_show.csv for archived status.
+ * Returns a set of series names that are archived.
+ */
+export function parseFollowedCsv(buffer: Buffer): Set<string> {
+  const archived = new Set<string>();
+  try {
+    const content = buffer.toString("utf8");
+    const rows = parse(content, {
+      columns: true,
+      skip_empty_lines: true,
+      trim: true,
+      cast: false,
+      relax_column_count: true,
+    }) as Array<Record<string, string>>;
+
+    for (const row of rows) {
+      const title = row["series_name"] ?? row["title"] ?? row["name"] ?? "";
+      const isArchived = (row["is_archived"] ?? row["archived"] ?? "").toLowerCase();
+      if (title && (isArchived === "true" || isArchived === "1")) {
+        archived.add(title.trim());
+      }
+    }
+  } catch (err) {
+    logError("TvTimeImport", "parseFollowedCsv error", err);
+  }
+  return archived;
 }
 
 /**

@@ -2,11 +2,13 @@ import { Types } from "mongoose";
 import * as fs from "fs";
 import { ImportJob, ImportProgress } from "../../../models/importJob.model.js";
 import { WatchEntry } from "../../../models/watchEntry.model.js";
+import { Rating } from "../../../models/rating.model.js";
 import { PendingImportReview } from "../../../models/pendingImportReview.model.js";
 import { Show, IShow } from "../../../models/show.model.js";
 import { wsEvents } from "../../../lib/wsEvents.js";
 import { log, logError } from "../../../lib/logger.js";
-import { extractCsvBuffer, parseTrackingRecordsV2 } from "./parseTvTimeExport.js";
+import { extractCsvBuffer, parseTrackingRecordsV2, extractAllCsvBuffers, parseRatingsCsv, parseFollowedCsv } from "./parseTvTimeExport.js";
+import { isTvTimeJsonZip, parseTvTimeJsonZip } from "./parseTvTimeJson.js";
 import { matchToTmdb } from "./matchTmdb.js";
 import { resolveWatchedEpisodes, type MatchedSeries } from "./resolveWatchedEpisodes.js";
 import { upsertShowFromTmdb } from "../../cacheShow.service.js";
@@ -150,16 +152,23 @@ export async function processTvTimeImport(
   };
 
   try {
-    // Step 1: Extract CSV buffer (from zip or direct csv)
+    // Step 1: Detect format and parse (CSV or JSON)
     await updateJobProgress(jobId, userId, { total: 0, processed: 0 }, "processing");
 
-    const csvBuffer = await extractCsvBuffer(sourceFile);
-    if (!csvBuffer) {
-      throw new Error("No valid CSV file found in the uploaded file");
-    }
+    let parsed: ParsedTvTimeExport;
 
-    // Step 2: Parse CSV
-    const parsed: ParsedTvTimeExport = parseTrackingRecordsV2(csvBuffer);
+    // T1: Check for new JSON format first
+    if (isTvTimeJsonZip(sourceFile)) {
+      log("TvTimeImport", "Detected new JSON format", { jobId });
+      parsed = parseTvTimeJsonZip(sourceFile);
+    } else {
+      // Legacy CSV format
+      const csvBuffer = await extractCsvBuffer(sourceFile);
+      if (!csvBuffer) {
+        throw new Error("No valid CSV or JSON file found in the uploaded file");
+      }
+      parsed = parseTrackingRecordsV2(csvBuffer);
+    }
     result.total = parsed.series.length + parsed.movies.length;
     result.skipped = parsed.skippedRows;
 
@@ -213,6 +222,62 @@ export async function processTvTimeImport(
     // Step 7: Create pending reviews for unmatched items
     const pendingSeriesCount = await createPendingReviews(userId, jobId, seriesMatches, "series");
     const pendingMoviesCount = await createPendingReviews(userId, jobId, movieMatches, "movie");
+
+    // T2+T3: Import ratings and update archived shows (legacy CSV format only)
+    if (!isTvTimeJsonZip(sourceFile)) {
+      const zipContents = await extractAllCsvBuffers(sourceFile);
+
+      // T2: Import ratings
+      if (zipContents.ratingsBuffer) {
+        const ratingsMap = parseRatingsCsv(zipContents.ratingsBuffer);
+        for (const [seriesName, ratingValue] of ratingsMap) {
+          // Find the matched show by series name
+          const seriesMatch = seriesMatches.find(
+            (r) => r.sourceTitle.toLowerCase() === seriesName.toLowerCase(),
+          );
+          if (seriesMatch?.matched && seriesMatch.bestMatch) {
+            try {
+              const show = await findOrCreateShow(seriesMatch.bestMatch.tmdbId, "tv");
+              await Rating.findOneAndUpdate(
+                {
+                  userId: new Types.ObjectId(userId),
+                  showId: show._id,
+                  episodeRef: { $exists: false },
+                },
+                { $set: { value: ratingValue } },
+                { upsert: true, new: true },
+              );
+            } catch (err) {
+              logError("TvTimeImport", "rating import error", err, { seriesName });
+            }
+          }
+        }
+        log("TvTimeImport", "Ratings imported", { count: ratingsMap.size, jobId });
+      }
+
+      // T3: Update archived shows to dropped status
+      if (zipContents.followedBuffer) {
+        const archivedNames = parseFollowedCsv(zipContents.followedBuffer);
+        for (const name of archivedNames) {
+          const seriesMatch = seriesMatches.find(
+            (r) => r.sourceTitle.toLowerCase() === name.toLowerCase(),
+          );
+          if (seriesMatch?.matched && seriesMatch.bestMatch) {
+            try {
+              const show = await findOrCreateShow(seriesMatch.bestMatch.tmdbId, "tv");
+              await WatchEntry.findOneAndUpdate(
+                { userId: new Types.ObjectId(userId), showId: show._id },
+                { $set: { status: "dropped" } },
+                { upsert: true, new: true, setDefaultsOnInsert: true },
+              );
+            } catch (err) {
+              logError("TvTimeImport", "archived update error", err, { name });
+            }
+          }
+        }
+        log("TvTimeImport", "Archived shows updated", { count: archivedNames.size, jobId });
+      }
+    }
 
     // Step 8: Compute final counts
     result.matched = matchedSeries.length + matchedMoviesCount;

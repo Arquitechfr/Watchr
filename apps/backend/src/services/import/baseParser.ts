@@ -56,11 +56,47 @@ export abstract class BaseParser implements IParser {
 export async function matchShow(
   record: ParsedRecord,
 ): Promise<{ show: ShowDocument; type: "tv" | "movie" } | null> {
-  if (!record.title && !record.imdbId && !record.tmdbId) return null;
+  if (!record.title && !record.imdbId && !record.tmdbId && !record.tvdbId) return null;
 
   if (record.tmdbId) {
     const type = record.type ?? "tv";
     return { show: await findOrCreateShow(record.tmdbId, type), type };
+  }
+
+  // G1: Try imdbId lookup via TMDB /find endpoint
+  if (record.imdbId) {
+    const type = record.type ?? "tv";
+    try {
+      // First check DB by imdbId
+      const existing = await Show.findOne({ imdbId: record.imdbId });
+      if (existing) {
+        return { show: existing, type: existing.type };
+      }
+      // Fallback to TMDB find endpoint
+      const result = await tmdbService.findByExternalId(record.imdbId, "imdb_id");
+      if (result) {
+        const resultType = result.media_type === "movie" ? "movie" : type;
+        return { show: await findOrCreateShow(result.id, resultType), type: resultType };
+      }
+    } catch {
+      // Continue to title search
+    }
+  }
+
+  // Tr1: Try tvdbId lookup via TMDB /find endpoint
+  if (record.tvdbId) {
+    try {
+      const existing = await Show.findOne({ tmdbId: record.tvdbId } as never);
+      // tvdbId is not stored on Show, so we use TMDB find
+      void existing;
+      const result = await tmdbService.findByExternalId(String(record.tvdbId), "tvdb_id");
+      if (result) {
+        const resultType = result.media_type === "movie" ? "movie" : "tv";
+        return { show: await findOrCreateShow(result.id, resultType), type: resultType };
+      }
+    } catch {
+      // Continue to title search
+    }
   }
 
   const query = record.year ? `${record.title} ${record.year}` : record.title;

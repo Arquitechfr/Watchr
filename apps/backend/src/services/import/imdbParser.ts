@@ -43,8 +43,14 @@ export class ImdbParser extends BaseParser {
 
     const type = IMDB_TITLE_TYPE_MAP[titleType];
 
+    // I2: For TV Episode, extract show name from title (format: "Show Name: Episode Name")
+    let cleanTitle = title;
+    if (titleType === "tv episode" && title.includes(":")) {
+      cleanTitle = title.split(":")[0].trim();
+    }
+
     return {
-      title: title.trim(),
+      title: cleanTitle.trim(),
       year: year ? Number(year) : undefined,
       rating: rating ? Number(rating) : undefined,
       watchedAt: dateRated.trim() || undefined,

@@ -4,6 +4,11 @@ import { api } from "./api";
 
 export type ExportFormat = "csv" | "json" | "trakt" | "imdb" | "letterboxd";
 
+export interface ExportOptions {
+  includeRatings?: boolean;
+  includeWatchlist?: boolean;
+}
+
 const FILENAMES: Record<ExportFormat, string> = {
   csv: "watchr-export.csv",
   json: "watchr-export.json",
@@ -12,9 +17,14 @@ const FILENAMES: Record<ExportFormat, string> = {
   letterboxd: "watchr-letterboxd-export.csv",
 };
 
-export async function downloadAndShareExport(format: ExportFormat): Promise<void> {
-  log("ExportService", "downloadExport", { format });
-  const response = await api.get(`/export/${format}`, { responseType: "text" });
+export async function downloadAndShareExport(format: ExportFormat, options?: ExportOptions): Promise<void> {
+  log("ExportService", "downloadExport", { format, options });
+  const params = new URLSearchParams();
+  if (options?.includeRatings === false) params.set("includeRatings", "false");
+  if (options?.includeWatchlist === false) params.set("includeWatchlist", "false");
+  const queryString = params.toString();
+  const url = `/export/${format}${queryString ? `?${queryString}` : ""}`;
+  const response = await api.get(url, { responseType: "text" });
   const content = typeof response.data === "string" ? response.data : JSON.stringify(response.data);
 
   const filename = FILENAMES[format];

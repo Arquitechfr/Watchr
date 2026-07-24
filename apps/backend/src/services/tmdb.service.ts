@@ -163,6 +163,22 @@ export interface TmdbShowDetails {
   original_language?: string;
 }
 
+export interface TmdbExternalIds {
+  imdb_id?: string;
+  tvdb_id?: number;
+  facebook_id?: string;
+  instagram_id?: string;
+  twitter_id?: string;
+}
+
+export interface TmdbFindResult {
+  movie_results: TmdbSearchResult[];
+  tv_results: TmdbSearchResult[];
+  tv_episode_results: TmdbSearchResult[];
+  tv_season_results: TmdbSearchResult[];
+  person_results: TmdbSearchResult[];
+}
+
 class TmdbService {
   private readonly client: AxiosInstance;
 
@@ -422,6 +438,35 @@ class TmdbService {
         page: response.data.page,
         totalPages: response.data.total_pages,
       };
+    } catch (err) {
+      throw this.handleError(err);
+    }
+  }
+
+  async findByExternalId(
+    externalId: string,
+    externalSource: "imdb_id" | "tvdb_id" | "facebook_id" | "instagram_id" | "twitter_id",
+  ): Promise<TmdbSearchResult | null> {
+    await tmdbRateLimiter.consume();
+    try {
+      const response = await this.client.get<TmdbFindResult>(`/find/${externalId}`, {
+        params: { external_source: externalSource },
+      });
+      const data = response.data;
+      if (data.movie_results?.length > 0) return data.movie_results[0];
+      if (data.tv_results?.length > 0) return data.tv_results[0];
+      return null;
+    } catch (err) {
+      throw this.handleError(err);
+    }
+  }
+
+  async getExternalIds(tmdbId: number, type: "tv" | "movie"): Promise<TmdbExternalIds> {
+    await tmdbRateLimiter.consume();
+    try {
+      const endpoint = type === "tv" ? `/tv/${tmdbId}/external_ids` : `/movie/${tmdbId}/external_ids`;
+      const response = await this.client.get<TmdbExternalIds>(endpoint);
+      return response.data;
     } catch (err) {
       throw this.handleError(err);
     }

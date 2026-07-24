@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 import rateLimit from "express-rate-limit";
 import { requireAuth } from "../middleware/requireAuth.middleware.js";
-import { generateExport, ExportFormat } from "../services/export.service.js";
+import { generateExport, ExportFormat, ExportOptions } from "../services/export.service.js";
 import { asyncHandler } from "../lib/asyncHandler.js";
 import { ApiError } from "../middleware/error.middleware.js";
 import { translate } from "../i18n/index.js";
@@ -33,7 +33,12 @@ router.get(
       throw new ApiError(400, "INVALID_EXPORT_FORMAT", `Unsupported export format: ${format}`);
     }
 
-    const { content, contentType, filename } = await generateExport(req.userId!, format as ExportFormat);
+    const options: ExportOptions = {
+      includeRatings: req.query.includeRatings !== "false",
+      includeWatchlist: req.query.includeWatchlist !== "false",
+    };
+
+    const { content, contentType, filename } = await generateExport(req.userId!, format as ExportFormat, options);
 
     res.setHeader("Content-Type", contentType);
     res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);

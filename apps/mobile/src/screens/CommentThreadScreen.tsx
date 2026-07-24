@@ -254,7 +254,7 @@ export function CommentThreadScreen() {
             refreshControl={
               <RefreshControl refreshing={isLoadingReplies} onRefresh={refetch} tintColor={colors.primary} />
             }
-            contentContainerStyle={{ paddingBottom: 16 }}
+            contentContainerStyle={{ flexGrow: 1, paddingBottom: 16 }}
             keyboardShouldPersistTaps="handled"
             keyboardDismissMode="interactive"
           />

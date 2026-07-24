@@ -8,6 +8,18 @@ export class TvTimeParser extends BaseParser {
 
   detect(filePath: string): boolean {
     if (filePath.endsWith(".zip")) return true;
+    if (filePath.endsWith(".json")) {
+      // T1: New TV Time JSON format
+      try {
+        const content = fs.readFileSync(filePath, "utf8");
+        const data = JSON.parse(content);
+        if (Array.isArray(data) || (data && typeof data === "object")) {
+          return true;
+        }
+      } catch {
+        return false;
+      }
+    }
     if (!filePath.endsWith(".csv")) return false;
     const header = this.getFirstLine(filePath).toLowerCase();
     return (

@@ -25,7 +25,7 @@ const TIPS: { icon: IconName; key: string }[] = [
 
 const DOC_LINKS: { icon: IconName; labelKey: string; url: string }[] = [
   { icon: "book-outline", labelKey: "screens.profile.apiKeysLinkDocs", url: "https://watchr.me/docs" },
-  { icon: "key-outline", labelKey: "screens.profile.apiKeysLinkAuth", url: "https://watchr.me/docs#auth" },
+  { icon: "key-outline", labelKey: "screens.profile.apiKeysLinkAuth", url: "https://watchr.me/docs#authentication" },
   { icon: "terminal-outline", labelKey: "screens.profile.apiKeysLinkMcp", url: "https://watchr.me/docs#mcp" },
   { icon: "server-outline", labelKey: "screens.profile.apiKeysLinkEndpoints", url: "https://watchr.me/docs#endpoints" },
 ];

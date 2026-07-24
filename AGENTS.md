@@ -254,7 +254,8 @@ Le script protège automatiquement avant traduction :
 2. **Lancer le sync** — `pnpm --filter @watchr/i18n-languages sync --app <app>` (sync les 13 langues) ou `--target fr,es` (langues spécifiques).
 3. **Vérifier le résumé** — le script affiche `+N missing, -M obsolete, K preserved`. Si `0 missing, 0 obsolete` → rien à faire, les langues sont déjà à jour.
 4. **Optionnel : `--dry-run`** — pour preview le diff avant d'appliquer.
-5. **Clés non-traduisibles** — si la clé ne doit **pas** être traduite (nom d'app, format technique, etc.), l'ajouter à `DO_NOT_TRANSLATE_KEYS` dans **les deux** scripts : `packages/i18n-languages/scripts/translate.ts` **et** `packages/i18n-languages/scripts/sync-translations.ts`.
+5. **Clés non-traduisibles** — si la clé ne doit **pas** être traduite (nom d'app, format technique, header HTTP, etc.), l'ajouter à `DO_NOT_TRANSLATE_KEYS` dans **les deux** scripts : `packages/i18n-languages/scripts/translate.ts` **et** `packages/i18n-languages/scripts/sync-translations.ts`.
+   - **⚠️ AVANT de lancer le sync** : toujours vérifier si la nouvelle clé contient une valeur universelle/technique (ex: `Authorization: Bearer ...`, `Trakt JSON`, `IMDb CSV`, nom d'app, nom de format). Si oui, l'ajouter aux `DO_NOT_TRANSLATE_KEYS` **avant** de lancer le sync, sinon LibreTranslate traduira absurdement la valeur (ex: `Bearer` → `porteur` en français, `JSON` → `贾森` en chinois).
 6. **Brand names / variables `{{}}`** — le script protège automatiquement `Watchr`, `TMDB`, `Google`, etc. et les variables `{{count}}`. Vérifier après sync qu'aucun tag `<x>` résiduel n'est présent.
 
 **Erreurs fréquentes à éviter** :
@@ -262,6 +263,7 @@ Le script protège automatiquement avant traduction :
 - ❌ Oublier de lancer le sync après avoir modifié `en.ts` → les autres langues sont désynchronisées
 - ❌ Lancer le sync sur la mauvaise app (ex: `--app mobile` alors que la clé est dans `backend`)
 - ❌ Modifier `en.ts` dans une app sans modifier dans les autres apps concernées → parité obligatoire entre apps
+- ❌ Oublier d'ajouter une clé technique/universelle aux `DO_NOT_TRANSLATE_KEYS` avant le sync → LibreTranslate traduit absurdement la valeur (ex: `Authorization: Bearer` → `Autorisation : porteur`, `JSON` → `贾森`)
 
 ### Re-traduire entièrement une langue
 
@@ -311,6 +313,7 @@ Le script protège automatiquement avant traduction :
 - [ ] Landing : si touché, `pnpm --filter landing dev` sans crash, i18n parité 14 langues, SEO meta à jour.
 - [ ] Mobile : pas de régression iOS/Android.
 - [ ] Translations : `en.ts` modifié uniquement, sync lancé pour chaque app concernée. 0 tag `<x>` résiduel, variables `{{}}` préservées, brand names intacts, clés `DO_NOT_TRANSLATE_KEYS` = valeur EN. **Aucun fichier de locale non-anglais édité manuellement par l'IA.**
+- [ ] Translations : toute nouvelle clé avec une valeur universelle/technique (header HTTP, nom de format, nom d'app) a été identifiée et ajoutée aux `DO_NOT_TRANSLATE_KEYS` **avant** le sync.
 - [ ] Pas d'usage de `Alert.alert()` / `Alert.prompt()` natif — utiliser `CustomAlert` via `useUIStore.showAlert()`.
 - [ ] Clavier mobile : tout `TextInput` a une gestion clavier explicite (`KeyboardAwareScrollView`, `useKeyboardHandler` + spacer, ou `keyboardShouldPersistTaps`/`keyboardDismissMode` sur ScrollView/FlatList parent).
 - [ ] Scrollabilité : toute page/composant avec données dynamiques a un conteneur scrollable (`ScrollView`/`FlatList`/`SectionList`). Vérifié avec beaucoup et peu de données.

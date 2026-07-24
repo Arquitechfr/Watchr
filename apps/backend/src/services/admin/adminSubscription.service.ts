@@ -191,6 +191,11 @@ export async function overrideSubscription(
 
 // ─── VIP Features CRUD ───
 
+type LeanVipFeature = Omit<IVipFeature, "translations" | "descriptionTranslations"> & {
+  translations: Record<string, string>;
+  descriptionTranslations: Record<string, string>;
+};
+
 export interface VipFeatureDto {
   id: string;
   icon: string;
@@ -203,13 +208,19 @@ export interface VipFeatureDto {
   updatedAt: Date;
 }
 
-function toDto(feature: IVipFeature): VipFeatureDto {
+function toDto(feature: IVipFeature | LeanVipFeature): VipFeatureDto {
+  const translations = feature.translations instanceof Map
+    ? Object.fromEntries(feature.translations)
+    : { ...(feature.translations as Record<string, string>) };
+  const descriptionTranslations = feature.descriptionTranslations instanceof Map
+    ? Object.fromEntries(feature.descriptionTranslations)
+    : { ...(feature.descriptionTranslations as Record<string, string>) };
   return {
     id: feature._id.toString(),
     icon: feature.icon,
     labelKey: feature.labelKey,
-    translations: Object.fromEntries(feature.translations),
-    descriptionTranslations: Object.fromEntries(feature.descriptionTranslations),
+    translations,
+    descriptionTranslations,
     order: feature.order,
     isActive: feature.isActive,
     createdAt: feature.createdAt,
@@ -220,7 +231,7 @@ function toDto(feature: IVipFeature): VipFeatureDto {
 export async function listVipFeatures(includeInactive = false): Promise<VipFeatureDto[]> {
   const filter = includeInactive ? {} : { isActive: true };
   const features = await VipFeature.find(filter).sort({ order: 1, createdAt: 1 }).lean();
-  return features.map((f) => toDto(f as unknown as IVipFeature));
+  return features.map((f) => toDto(f as unknown as LeanVipFeature));
 }
 
 export async function createVipFeature(params: {
@@ -379,8 +390,8 @@ export async function getPublicVipFeatures(): Promise<
   return features.map((f) => ({
     icon: f.icon,
     labelKey: f.labelKey,
-    translations: Object.fromEntries(f.translations as unknown as Map<string, string>),
-    descriptionTranslations: Object.fromEntries(f.descriptionTranslations as unknown as Map<string, string>),
+    translations: { ...(f.translations as unknown as Record<string, string>) },
+    descriptionTranslations: { ...(f.descriptionTranslations as unknown as Record<string, string>) },
     order: f.order,
   }));
 }

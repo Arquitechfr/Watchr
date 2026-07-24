@@ -1,7 +1,7 @@
 import { User } from "../../models/user.model.js";
 import { VipFeature, IVipFeature } from "../../models/vipFeature.model.js";
 import { ApiError } from "../../middleware/error.middleware.js";
-import { cancelRevolutSubscription, getRevolutSubscription } from "../../lib/revolutClient.js";
+import { cancelRevolutSubscription } from "../../lib/revolutClient.js";
 import { translateMultiLang, type TranslationInput } from "../translation.service.js";
 import { SUPPORTED_LOCALES } from "../../i18n/translations.js";
 import { log, logError } from "../../lib/logger.js";
@@ -379,8 +379,8 @@ export async function getPublicVipFeatures(): Promise<
   return features.map((f) => ({
     icon: f.icon,
     labelKey: f.labelKey,
-    translations: Object.fromEntries(f.translations as Map<string, string>),
-    descriptionTranslations: Object.fromEntries(f.descriptionTranslations as Map<string, string>),
+    translations: Object.fromEntries(f.translations as unknown as Map<string, string>),
+    descriptionTranslations: Object.fromEntries(f.descriptionTranslations as unknown as Map<string, string>),
     order: f.order,
   }));
 }

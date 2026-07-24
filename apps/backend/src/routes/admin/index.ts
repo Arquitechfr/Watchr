@@ -69,7 +69,7 @@ import {
 } from "../../services/admin/adminSubscription.service.js";
 import {
   listSubscriptionsQuerySchema,
-  userIdParamSchema,
+  userIdParamSchema as subscriptionUserIdParamSchema,
   overrideSubscriptionSchema,
   createVipFeatureSchema,
   updateVipFeatureSchema,
@@ -1432,7 +1432,7 @@ router.get(
 
 router.post(
   "/subscriptions/:userId/cancel",
-  validateRequest(undefined, undefined, userIdParamSchema),
+  validateRequest(undefined, undefined, subscriptionUserIdParamSchema),
   asyncHandler(async (req: Request, res: Response) => {
     await adminCancelSubscription(req.params.userId, req.userId!);
     res.json({ success: true });
@@ -1441,7 +1441,7 @@ router.post(
 
 router.post(
   "/subscriptions/:userId/override",
-  validateRequest(overrideSubscriptionSchema, undefined, userIdParamSchema),
+  validateRequest(overrideSubscriptionSchema, undefined, subscriptionUserIdParamSchema),
   asyncHandler(async (req: Request, res: Response) => {
     await overrideSubscription(req.params.userId, req.body.plan, req.userId!, req.body.reason);
     res.json({ success: true });

@@ -63,6 +63,12 @@ describe("Subscription API", () => {
     mockGetRevolutSubscription.mockReset();
 
     await MobileConfig.create({
+      key: "revolut_plan_id",
+      value: "test-plan-id",
+      type: "string",
+      updatedBy: "test",
+    });
+    await MobileConfig.create({
       key: "revolut_plan_variation_id",
       value: "test-variation-id",
       type: "string",

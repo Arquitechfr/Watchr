@@ -12,12 +12,18 @@ import {
 import { log, logError } from "../lib/logger.js";
 import { peekMcpQuota } from "../lib/mcpQuota.js";
 
-async function getPlanVariationId(): Promise<string> {
-  const entry = await MobileConfig.findOne({ key: "revolut_plan_variation_id" }).lean();
-  if (!entry?.value) {
+async function getPlanConfig(): Promise<{ planId: string; planVariationId: string }> {
+  const [planEntry, variationEntry] = await Promise.all([
+    MobileConfig.findOne({ key: "revolut_plan_id" }).lean(),
+    MobileConfig.findOne({ key: "revolut_plan_variation_id" }).lean(),
+  ]);
+  if (!planEntry?.value) {
+    throw new ApiError(500, "REVOLUT_PLAN_NOT_CONFIGURED", "Revolut plan ID not configured in remote config");
+  }
+  if (!variationEntry?.value) {
     throw new ApiError(500, "REVOLUT_PLAN_NOT_CONFIGURED", "Revolut plan variation ID not configured in remote config");
   }
-  return entry.value;
+  return { planId: planEntry.value, planVariationId: variationEntry.value };
 }
 
 export async function ensureRevolutCustomer(userId: string): Promise<string> {
@@ -56,7 +62,7 @@ export async function startSubscription(userId: string): Promise<{ checkoutUrl: 
   }
 
   const customerId = await ensureRevolutCustomer(userId);
-  const planVariationId = await getPlanVariationId();
+  const { planId, planVariationId } = await getPlanConfig();
 
   const webAppEntry = await MobileConfig.findOne({ key: "web_app_url" }).lean();
   const webAppUrl = webAppEntry?.value || "https://app.watchr.me";
@@ -65,13 +71,14 @@ export async function startSubscription(userId: string): Promise<{ checkoutUrl: 
   let subscription;
   try {
     subscription = await createRevolutSubscription({
+      plan_id: planId,
       plan_variation_id: planVariationId,
       customer_id: customerId,
       external_reference: userId,
       setup_order_redirect_url: redirectUrl,
     });
   } catch (err) {
-    logError("Subscription", "Failed to create Revolut subscription", err, { userId, planVariationId, customerId });
+    logError("Subscription", "Failed to create Revolut subscription", err, { userId, planId, planVariationId, customerId });
     if (err instanceof RevolutApiError) {
       throw new ApiError(502, "REVOLUT_SUBSCRIPTION_FAILED", `Revolut API error (${err.status})`, err, { status: err.status });
     }

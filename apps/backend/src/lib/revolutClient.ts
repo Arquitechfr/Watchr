@@ -58,6 +58,7 @@ export interface RevolutSubscriptionCreated {
 }
 
 export async function createRevolutSubscription(params: {
+  plan_id: string;
   plan_variation_id: string;
   customer_id: string;
   external_reference: string;

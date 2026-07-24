@@ -40,6 +40,7 @@ export interface PublicProfile {
   translatedBio?: string;
   isBioTranslated?: boolean;
   favoriteGenres?: string[];
+  subscriptionPlan?: "free" | "vip";
 }
 
 export type ActivityFeedItemType = "rating" | "watchlist_add" | "comment";

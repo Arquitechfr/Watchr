@@ -54,6 +54,7 @@ export interface PublicProfileResult {
   translatedBio?: string;
   isBioTranslated?: boolean;
   favoriteGenres?: string[];
+  subscriptionPlan?: "free" | "vip";
 }
 
 export type ActivityFeedItemType = "rating" | "watchlist_add" | "comment";
@@ -237,7 +238,7 @@ export async function getPublicProfile(
   const user = await User.findOne({
     username: { $regex: `^${username.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, $options: "i" },
   })
-    .select("username avatarUrl bannerUrl createdAt activityVisibility isBanned bio bioTranslations bioOriginalLanguage favoriteGenres")
+    .select("username avatarUrl bannerUrl createdAt activityVisibility isBanned bio bioTranslations bioOriginalLanguage favoriteGenres subscriptionPlan")
     .lean();
 
   if (!user || user.isBanned) {
@@ -280,6 +281,7 @@ export async function getPublicProfile(
     translatedBio: isBioTranslated ? translatedBio! : undefined,
     isBioTranslated,
     favoriteGenres: user.favoriteGenres ?? [],
+    subscriptionPlan: user.subscriptionPlan ?? "free",
   };
 }
 

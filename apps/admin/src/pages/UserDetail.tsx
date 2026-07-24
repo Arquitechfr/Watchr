@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, MessageSquare, Tv, Heart, Star, Download, Trash2, MessageCircleX, ChevronLeft, ChevronRight, KeyRound } from "lucide-react";
+import { ArrowLeft, MessageSquare, Tv, Heart, Star, Download, Trash2, MessageCircleX, ChevronLeft, ChevronRight, KeyRound, Crown } from "lucide-react";
 import api from "../lib/api";
 import { useUserNavigationStore } from "../store/userNavigationStore";
 import { Card, CardHeader, CardTitle, CardContent } from "../components/ui/Card";
@@ -46,6 +46,7 @@ interface UserDetail {
   ratingsCount: number;
   importJobsCount: number;
   recentComments: Array<{ id: string; content: string; showId: string; createdAt: string }>;
+  subscriptionPlan: "free" | "vip";
 }
 
 interface BanHistoryEntry {
@@ -194,6 +195,11 @@ export function UserDetail() {
           <p className="text-text-muted">{user.email}</p>
           <div className="flex gap-2 mt-1">
             <Badge className="bg-primary/20 text-primary">{user.role}</Badge>
+            {user.subscriptionPlan === "vip" && (
+              <Badge className="bg-primary/20 text-primary">
+                <Crown size={10} className="mr-1" /> VIP
+              </Badge>
+            )}
             {user.googleLinked && (
               <Badge className="bg-surface-light text-text-muted">Google linked</Badge>
             )}
@@ -278,6 +284,12 @@ export function UserDetail() {
             <div className="flex justify-between">
               <span className="text-text-muted">Onboarding</span>
               <span>{user.hasCompletedOnboarding ? "Completed" : "Pending"}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-text-muted">Plan</span>
+              <span className={user.subscriptionPlan === "vip" ? "text-primary font-medium" : ""}>
+                {user.subscriptionPlan === "vip" ? "VIP" : "Free"}
+              </span>
             </div>
             <div className="flex justify-between">
               <span className="text-text-muted">Signup Platform</span>

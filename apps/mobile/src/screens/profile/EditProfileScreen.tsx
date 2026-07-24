@@ -17,6 +17,10 @@ import { useBannerUpload } from "../../hooks/useBannerUpload";
 import { useFadeIn } from "../../hooks/useFadeIn";
 import Animated from "react-native-reanimated";
 import { Seo } from "../../components/Seo";
+import { VipBadge } from "../../components/VipBadge";
+import { useNavigation } from "@react-navigation/native";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import type { RootStackParamList } from "../../navigation/RootNavigator";
 
 export function EditProfileScreen() {
   const { t } = useI18n();
@@ -128,6 +132,8 @@ export function EditProfileScreen() {
     setIsEditingBio(true);
   }
 
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const isVip = me?.subscriptionPlan === "vip";
   const { containerAnimatedStyle } = useFadeIn();
 
   return (
@@ -205,6 +211,7 @@ export function EditProfileScreen() {
         ) : (
           <View className="flex-row items-center gap-2">
             <Text className="text-text text-base flex-1">{me?.username}</Text>
+            {isVip && <VipBadge />}
             <TouchableOpacity onPress={() => { setUsernameInput(me?.username ?? ""); setEditingUsername(true); }}>
               <Text className="text-primary text-sm">{t("screens.profile.changeUsername")}</Text>
             </TouchableOpacity>
@@ -215,6 +222,25 @@ export function EditProfileScreen() {
       <View className="mb-6">
         <Text className="text-text-muted text-sm mb-2">{t("screens.profile.email")}</Text>
         <Text className="text-text text-base">{me?.email}</Text>
+      </View>
+
+      <View className="mb-6">
+        <Text className="text-text-muted text-sm mb-2">{t("screens.profile.subscription")}</Text>
+        <View className="flex-row items-center gap-2">
+          {isVip ? (
+            <>
+              <VipBadge />
+              <Text className="text-text-muted text-sm flex-1">{t("screens.subscription.activeMessage")}</Text>
+            </>
+          ) : (
+            <>
+              <Text className="text-text-muted text-sm flex-1">{t("screens.subscription.apiPlanFree")}</Text>
+              <TouchableOpacity onPress={() => navigation.navigate("ProfileSubscription" as never)}>
+                <Text className="text-primary text-sm">{t("screens.profile.upgradeVip")}</Text>
+              </TouchableOpacity>
+            </>
+          )}
+        </View>
       </View>
 
       <View className="mb-6">

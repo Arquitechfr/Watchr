@@ -98,6 +98,23 @@ describe("Subscription API", () => {
     expect(updated?.revolutSubscriptionId).toBe("sub-abc");
   });
 
+  it("POST /subscriptions/start — Revolut API error returns 502", async () => {
+    const { token } = await createUserAndToken("sub-err@test.com", "subuser-err");
+
+    mockCreateRevolutCustomer.mockResolvedValue({ id: "cust-err", email: "sub-err@test.com" });
+    const revolutError = new (vi.mocked(await import("../src/lib/revolutClient.js")).RevolutApiError)(400, {
+      message: "Invalid plan variation",
+    });
+    mockCreateRevolutSubscription.mockRejectedValue(revolutError);
+
+    const res = await request(app)
+      .post("/api/subscriptions/start")
+      .set("Authorization", `Bearer ${token}`);
+
+    expect(res.status).toBe(502);
+    expect(res.body.error.code).toBe("REVOLUT_SUBSCRIPTION_FAILED");
+  });
+
   it("POST /subscriptions/start — already VIP returns 400", async () => {
     const { token } = await createUserAndToken("sub2@test.com", "subuser2", "vip");
 

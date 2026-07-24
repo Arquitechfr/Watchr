@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, ChevronLeft, ChevronRight, Shield, ShieldOff, Ban, Trash2, Users as UsersIcon, CheckCheck, Loader2 } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, Shield, ShieldOff, Ban, Trash2, Users as UsersIcon, CheckCheck, Loader2, Crown } from "lucide-react";
 import api from "../lib/api";
 import { useNewUsersStore } from "../store/newUsersStore";
 import { useUserNavigationStore } from "../store/userNavigationStore";
@@ -31,6 +31,7 @@ interface UserRow {
   banReason: string | null;
   preferredLanguage?: string;
   signupPlatform?: string | null;
+  subscriptionPlan: "free" | "vip";
   isNew: boolean;
 }
 
@@ -254,6 +255,7 @@ export function Users() {
                 <TableHead>Username</TableHead>
                 <TableHead className="hidden md:table-cell">Email</TableHead>
                 <TableHead className="hidden md:table-cell">Role</TableHead>
+                <TableHead>Plan</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="hidden lg:table-cell">Last Login</TableHead>
                 <TableHead className="hidden lg:table-cell">Joined</TableHead>
@@ -264,7 +266,7 @@ export function Users() {
               {loading
                 ? Array.from({ length: 5 }).map((_, i) => (
                     <TableRow key={i}>
-                      {Array.from({ length: 7 }).map((_, j) => (
+                      {Array.from({ length: 8 }).map((_, j) => (
                         <TableCell key={j}>
                           <Skeleton height={20} />
                         </TableCell>
@@ -273,7 +275,7 @@ export function Users() {
                   ))
                 : data && data.users.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={7} className="p-0">
+                      <TableCell colSpan={8} className="p-0">
                         <EmptyState
                           icon={UsersIcon}
                           title="No users found"
@@ -321,6 +323,15 @@ export function Users() {
                         >
                           {user.role}
                         </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {user.subscriptionPlan === "vip" ? (
+                          <Badge className="bg-primary/20 text-primary">
+                            <Crown size={10} className="mr-1" /> VIP
+                          </Badge>
+                        ) : (
+                          <Badge className="bg-surface-light text-text-muted">Free</Badge>
+                        )}
                       </TableCell>
                       <TableCell>{getStatusBadge(user)}</TableCell>
                       <TableCell className="text-text-muted text-xs hidden lg:table-cell">

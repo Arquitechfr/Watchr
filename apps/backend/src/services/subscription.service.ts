@@ -7,6 +7,7 @@ import {
   getRevolutOrder,
   cancelRevolutSubscription,
   getRevolutSubscription,
+  RevolutApiError,
 } from "../lib/revolutClient.js";
 import { log, logError } from "../lib/logger.js";
 import { peekMcpQuota } from "../lib/mcpQuota.js";
@@ -29,7 +30,16 @@ export async function ensureRevolutCustomer(userId: string): Promise<string> {
     return user.revolutCustomerId;
   }
 
-  const customer = await createRevolutCustomer(user.email, user.username);
+  let customer;
+  try {
+    customer = await createRevolutCustomer(user.email, user.username);
+  } catch (err) {
+    logError("Subscription", "Failed to create Revolut customer", err, { userId, email: user.email });
+    if (err instanceof RevolutApiError) {
+      throw new ApiError(502, "REVOLUT_CUSTOMER_FAILED", `Revolut API error (${err.status})`, err, { status: err.status });
+    }
+    throw new ApiError(500, "REVOLUT_CUSTOMER_FAILED", "Failed to create Revolut customer", err);
+  }
   await User.findByIdAndUpdate(userId, { revolutCustomerId: customer.id });
   log("Subscription", "Created Revolut customer", { userId, customerId: customer.id });
   return customer.id;
@@ -52,17 +62,35 @@ export async function startSubscription(userId: string): Promise<{ checkoutUrl: 
   const webAppUrl = webAppEntry?.value || "https://app.watchr.me";
   const redirectUrl = `${webAppUrl}/profile/subscription/success`;
 
-  const subscription = await createRevolutSubscription({
-    plan_variation_id: planVariationId,
-    customer_id: customerId,
-    external_reference: userId,
-    setup_order_redirect_url: redirectUrl,
-  });
+  let subscription;
+  try {
+    subscription = await createRevolutSubscription({
+      plan_variation_id: planVariationId,
+      customer_id: customerId,
+      external_reference: userId,
+      setup_order_redirect_url: redirectUrl,
+    });
+  } catch (err) {
+    logError("Subscription", "Failed to create Revolut subscription", err, { userId, planVariationId, customerId });
+    if (err instanceof RevolutApiError) {
+      throw new ApiError(502, "REVOLUT_SUBSCRIPTION_FAILED", `Revolut API error (${err.status})`, err, { status: err.status });
+    }
+    throw new ApiError(500, "REVOLUT_SUBSCRIPTION_FAILED", "Failed to create Revolut subscription", err);
+  }
 
   await User.findByIdAndUpdate(userId, { revolutSubscriptionId: subscription.id });
   log("Subscription", "Created Revolut subscription", { userId, subscriptionId: subscription.id });
 
-  const order = await getRevolutOrder(subscription.setup_order_id);
+  let order;
+  try {
+    order = await getRevolutOrder(subscription.setup_order_id);
+  } catch (err) {
+    logError("Subscription", "Failed to retrieve Revolut order", err, { userId, orderId: subscription.setup_order_id });
+    if (err instanceof RevolutApiError) {
+      throw new ApiError(502, "REVOLUT_ORDER_FAILED", `Revolut API error (${err.status})`, err, { status: err.status });
+    }
+    throw new ApiError(500, "REVOLUT_ORDER_FAILED", "Failed to retrieve checkout URL from Revolut", err);
+  }
   log("Subscription", "Retrieved checkout URL", { userId, orderId: subscription.setup_order_id });
 
   return { checkoutUrl: order.checkout_url, subscriptionId: subscription.id };

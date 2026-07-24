@@ -13,6 +13,7 @@ import { GenreBreakdown } from "../components/Profile/GenreBreakdown";
 import { RecentActivity } from "../components/Profile/RecentActivity";
 import { FollowButton } from "../components/FollowButton";
 import { Seo } from "../components/Seo";
+import { VipBadge } from "../components/VipBadge";
 import { EmptyState } from "../components/EmptyState";
 import { useI18n } from "../i18n/useI18n";
 import { useThemeColors } from "../theme/useThemeColors";
@@ -89,7 +90,10 @@ export function PublicProfileScreen() {
         </View>
         <View className="items-center mb-6" style={{ marginTop: -40 }}>
           <Avatar url={profile.avatarUrl} size={80} />
-          <Text className="text-text text-lg font-bold mt-3">{profile.username}</Text>
+          <View className="flex-row items-center gap-2 mt-3">
+            <Text className="text-text text-lg font-bold">{profile.username}</Text>
+            {profile.subscriptionPlan === "vip" && <VipBadge />}
+          </View>
           {memberSinceFormatted && (
             <Text className="text-text-muted text-xs mt-1">
               {t("screens.profile.memberSince", { date: memberSinceFormatted })}

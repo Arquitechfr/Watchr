@@ -67,6 +67,7 @@ export interface ListUsersResult {
     lastLoginAt: string | null;
     createdAt: string;
     hasCompletedOnboarding: boolean;
+    subscriptionPlan: "free" | "vip";
     isNew: boolean;
   }>;
   total: number;
@@ -94,7 +95,7 @@ export async function listUsers(query: ListUsersQuery): Promise<ListUsersResult>
 
   const [users, total] = await Promise.all([
     User.find(filter)
-      .select("email username avatarUrl role lastLoginAt createdAt hasCompletedOnboarding isBanned bannedAt suspendedUntil banReason preferredLanguage signupPlatform")
+      .select("email username avatarUrl role lastLoginAt createdAt hasCompletedOnboarding isBanned bannedAt suspendedUntil banReason preferredLanguage signupPlatform subscriptionPlan")
       .sort(sortOptions)
       .skip((page - 1) * limit)
       .limit(limit)
@@ -118,6 +119,7 @@ export async function listUsers(query: ListUsersQuery): Promise<ListUsersResult>
       banReason: u.banReason,
       preferredLanguage: u.preferredLanguage,
       signupPlatform: u.signupPlatform ?? null,
+      subscriptionPlan: u.subscriptionPlan ?? "free",
       isNew: lastUsersVisitAt ? u.createdAt > lastUsersVisitAt : false,
     })),
     total,
@@ -157,6 +159,7 @@ export interface AdminUserDetail {
   favoritesCount: number;
   ratingsCount: number;
   importJobsCount: number;
+  subscriptionPlan: "free" | "vip";
 }
 
 export async function getUserDetail(userId: string): Promise<AdminUserDetail> {
@@ -205,6 +208,7 @@ export async function getUserDetail(userId: string): Promise<AdminUserDetail> {
     favoritesCount,
     ratingsCount,
     importJobsCount,
+    subscriptionPlan: user.subscriptionPlan ?? "free",
   };
 }
 

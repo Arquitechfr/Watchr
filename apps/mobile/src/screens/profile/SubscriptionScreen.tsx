@@ -1,7 +1,5 @@
 import { View, Text, TouchableOpacity, ScrollView, Platform, ActivityIndicator, Modal, Alert, Linking } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ScreenContainer } from "../../components/ScreenContainer";
 import { SubScreenHeader } from "../../components/SubScreenHeader";
@@ -13,10 +11,7 @@ import { useErrorMessage } from "../../services/api";
 import { getMe } from "../../services/auth.service";
 import { startSubscription, cancelSubscription } from "../../services/subscription.service";
 import { remoteConfigService } from "../../services/remoteConfig";
-import { RootStackParamList } from "../../navigation/RootNavigator";
 import { useState } from "react";
-
-type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const VIP_FEATURES = [
   { icon: "remove-circle-outline" as const, key: "screens.subscription.featureNoAds" },
@@ -32,7 +27,6 @@ function getWebAppUrl(): string {
 export function SubscriptionScreen() {
   const { t } = useI18n();
   const colors = useThemeColors();
-  const navigation = useNavigation<NavigationProp>();
   const { showSnackbar } = useUIStore();
   const getErrorMessage = useErrorMessage();
   const queryClient = useQueryClient();

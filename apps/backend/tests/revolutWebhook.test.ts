@@ -5,7 +5,6 @@ import { createApp } from "../src/app.js";
 import { setup, teardown } from "./setup.js";
 import { clearDatabase } from "../src/lib/database.js";
 import { User } from "../src/models/user.model.js";
-import { RevolutWebhookEvent } from "../src/models/revolutWebhookEvent.model.js";
 import type { RevolutSubscription } from "../src/lib/revolutClient.js";
 
 const mockGetRevolutSubscription = vi.fn();

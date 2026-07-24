@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Text, TouchableOpacity, ActivityIndicator, Linking, ScrollView, Platform } from "react-native";
+import { View, Text, TouchableOpacity, ActivityIndicator, Linking, ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 import { ScreenContainer } from "../../components/ScreenContainer";
@@ -46,8 +46,6 @@ export function ApiKeysScreen() {
 
   const isVip = me?.subscriptionPlan === "vip";
   const mcpQuota = subStatus?.mcpQuota;
-  const isNative = Platform.OS !== "web";
-
   const activeCount = apiKeys?.filter((k: ApiKey) => k.revokedAt === null).length ?? 0;
   const hasReachedLimit = activeCount >= MAX_ACTIVE_KEYS;
 

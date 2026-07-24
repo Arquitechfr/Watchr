@@ -44,6 +44,7 @@ import { mcpOAuthHandler } from "./mcp/oauthHandler.js";
 import { mcpOAuthProvider } from "./mcp/oauth/provider.js";
 import { consentRouter } from "./mcp/oauth/consentRoutes.js";
 import { cookieParser } from "./middleware/cookieParser.js";
+import revolutWebhookRoutes from "./routes/webhooks/revolut.routes.js";
 import { mcpAuthRouter, getOAuthProtectedResourceMetadataUrl } from "@modelcontextprotocol/sdk/server/auth/router.js";
 import { requireBearerAuth } from "@modelcontextprotocol/sdk/server/auth/middleware/bearerAuth.js";
 
@@ -75,6 +76,7 @@ export function createApp(): Application {
       legacyHeaders: false,
     }),
   );
+  app.use("/api/webhooks", revolutWebhookRoutes);
   app.use(express.json({ limit: "10mb" }));
   app.use(express.urlencoded({ extended: true, limit: "10mb" }));
   app.use(cookieParser);

@@ -49,6 +49,10 @@ const envSchema = z.object({
   MCP_OAUTH_CLIENT_SECRET_TTL_DAYS: z.coerce.number().int().positive().default(30),
   MCP_CONSENT_SESSION_SECRET: z.string().min(1, "MCP_CONSENT_SESSION_SECRET is required"),
   MCP_FREE_DAILY_QUOTA: z.coerce.number().int().positive().default(50),
+  REVOLUT_API_BASE_URL: z.string().url(),
+  REVOLUT_SECRET_KEY: z.string().min(1, "REVOLUT_SECRET_KEY is required"),
+  REVOLUT_WEBHOOK_SIGNING_SECRET: z.string().min(1, "REVOLUT_WEBHOOK_SIGNING_SECRET is required"),
+  REVOLUT_API_VERSION: z.string().default("2026-04-20"),
 });
 
 const parsed = envSchema.safeParse(process.env);

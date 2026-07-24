@@ -45,6 +45,7 @@ import { mcpOAuthProvider } from "./mcp/oauth/provider.js";
 import { consentRouter } from "./mcp/oauth/consentRoutes.js";
 import { cookieParser } from "./middleware/cookieParser.js";
 import revolutWebhookRoutes from "./routes/webhooks/revolut.routes.js";
+import subscriptionRoutes from "./routes/subscriptions.routes.js";
 import { mcpAuthRouter, getOAuthProtectedResourceMetadataUrl } from "@modelcontextprotocol/sdk/server/auth/router.js";
 import { requireBearerAuth } from "@modelcontextprotocol/sdk/server/auth/middleware/bearerAuth.js";
 
@@ -396,6 +397,7 @@ export function createApp(): Application {
   app.use("/internal", statusRoutes);
   app.use("/api/in-app-notifications", inAppNotificationRoutes);
   app.use("/api/account/api-keys", accountApiKeyRoutes);
+  app.use("/api/subscriptions", subscriptionRoutes);
   app.use("/api/admin", adminRoutes);
 
   app.use("/api/public/v1", publicV1Router);

@@ -10,9 +10,10 @@ import { useUnreadCount } from "../hooks/useMessages";
 import { useAuthStore } from "../store/authStore";
 import { useUIStore } from "../store/uiStore";
 import { useErrorMessage } from "../services/api";
-import { logout } from "../services/auth.service";
+import { logout, getMe } from "../services/auth.service";
 import { getItem as secureGetItem } from "../utils/secureStorage";
 import { log } from "../utils/logger";
+import { useQuery } from "@tanstack/react-query";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -26,6 +27,12 @@ const MESSAGES_ITEM: MenuItem = {
   icon: "chatbubbles-outline",
   labelKey: "messages.title",
   target: "ConversationList",
+};
+
+const UPGRADE_VIP_ITEM: MenuItem = {
+  icon: "star-outline",
+  labelKey: "screens.profile.upgradeVip",
+  target: "ProfileSubscription",
 };
 
 const MENU_ITEMS: MenuItem[] = [
@@ -49,6 +56,12 @@ export function ProfileMenuButton() {
   const { logout: clearAuth } = useAuthStore();
   const { showSnackbar } = useUIStore();
   const getErrorMessage = useErrorMessage();
+  const { data: me } = useQuery({ queryKey: ["me"], queryFn: getMe });
+  const isFree = me?.subscriptionPlan !== "vip";
+
+  const dynamicMenuItems = isFree
+    ? [...MENU_ITEMS.slice(0, -1), UPGRADE_VIP_ITEM, MENU_ITEMS[MENU_ITEMS.length - 1]]
+    : MENU_ITEMS;
 
   function handleSelect(target: keyof RootStackParamList) {
     setVisible(false);
@@ -96,15 +109,15 @@ export function ProfileMenuButton() {
             className="absolute top-16 right-4 rounded-xl overflow-hidden"
             style={{ backgroundColor: colors.surface, minWidth: 200, elevation: 8, shadowColor: "#000", shadowOpacity: 0.3, shadowRadius: 12, shadowOffset: { width: 0, height: 4 } }}
           >
-            {MENU_ITEMS.map((item, index) => (
+            {dynamicMenuItems.map((item, index) => (
               <TouchableOpacity
                 key={item.target}
                 onPress={() => handleSelect(item.target)}
                 className="flex-row items-center px-4 py-3"
-                style={index < MENU_ITEMS.length - 1 ? { borderBottomWidth: 1, borderBottomColor: colors.border } : undefined}
+                style={index < dynamicMenuItems.length - 1 ? { borderBottomWidth: 1, borderBottomColor: colors.border } : undefined}
                 activeOpacity={0.7}
               >
-                <Ionicons name={item.icon} size={20} color={colors.primary} />
+                <Ionicons name={item.icon} size={20} color={item.target === "ProfileSubscription" ? colors.primary : colors.primary} />
                 <Text className="text-text text-base ml-3 flex-1">{t(item.labelKey)}</Text>
                 {item.target === "ConversationList" && unreadCount > 0 && (
                   <View

@@ -30,6 +30,6 @@ process.env.MINIO_S3_ACCESS_KEY = "test-access-key";
 process.env.MINIO_S3_SECRET_KEY = "test-secret-key";
 process.env.POSTHOG_API_KEY = "test-posthog-key";
 process.env.REVOLUT_API_BASE_URL = "https://sandbox-merchant.revolut.com";
-process.env.REVOLUT_SECRET_KEY = "sk_E_Dulkrhaom8OWG7Y0uYuga_bXyboT0kMc7DyY4DyTywr0d9CAwqtt-MuxBrI7mS";
+process.env.REVOLUT_SECRET_KEY = "test_revolut_secret_key";
 process.env.REVOLUT_WEBHOOK_SIGNING_SECRET = "test_signing_secret";
 process.env.REVOLUT_API_VERSION = "2026-04-20";

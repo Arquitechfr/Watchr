@@ -47,6 +47,8 @@ export interface IUser extends Document {
   dmPrivacy: "open" | "friends_only";
   subscriptionPlan: "free" | "vip";
   subscriptionExpiresAt: Date | null;
+  revolutCustomerId?: string;
+  revolutSubscriptionId?: string;
   bio?: string;
   bioTranslations?: Map<string, string>;
   bioOriginalLanguage?: string;
@@ -248,6 +250,14 @@ const userSchema = new Schema<IUser>(
     },
     subscriptionExpiresAt: {
       type: Date,
+      default: null,
+    },
+    revolutCustomerId: {
+      type: String,
+      default: null,
+    },
+    revolutSubscriptionId: {
+      type: String,
       default: null,
     },
   },

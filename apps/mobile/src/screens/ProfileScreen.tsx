@@ -1,6 +1,6 @@
 import { Text, TouchableOpacity, ActivityIndicator, View, ScrollView, Platform, useWindowDimensions, TextInput } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useScrollToTop } from "@react-navigation/native";
+import { useScrollToTop, useNavigation } from "@react-navigation/native";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { ScreenContainer } from "../components/ScreenContainer";
@@ -18,6 +18,7 @@ import { RecentActivity } from "../components/Profile/RecentActivity";
 import { AiInsights } from "../components/Profile/AiInsights";
 import { YearInReviewModal } from "../components/Profile/YearInReviewModal";
 import { BioGenresCard } from "../components/Profile/BioGenresCard";
+import { VipBadge } from "../components/VipBadge";
 import { Skeleton } from "../components/Skeleton";
 import { getMe, updateUsername } from "../services/auth.service";
 import { useThemeColors } from "../theme/useThemeColors";
@@ -47,6 +48,7 @@ export function ProfileScreen() {
   const [usernameInput, setUsernameInput] = useState("");
   const { width } = useWindowDimensions();
   const isDesktopWeb = Platform.OS === "web" && width >= 768;
+  const navigation = useNavigation();
   const { pickAvatar, isUploading: isAvatarUploading } = useAvatarUpload();
   const { pickBanner, isUploading: isBannerUploading } = useBannerUpload();
 
@@ -170,6 +172,7 @@ export function ProfileScreen() {
               ) : (
                 <View className="flex-row items-center gap-1.5 mt-3">
                   <Text className="text-text text-lg font-bold">{me?.username ?? "..."}</Text>
+                  {me?.subscriptionPlan === "vip" && <VipBadge />}
                   {!me?.usernameChanged && (
                     <TouchableOpacity
                       onPress={() => {
@@ -199,6 +202,24 @@ export function ProfileScreen() {
         </View>
 
         <BioGenresCard bio={me?.bio} favoriteGenres={me?.favoriteGenres} />
+
+        {me?.subscriptionPlan !== "vip" && (
+          <TouchableOpacity
+            onPress={() => navigation.navigate("ProfileSubscription" as never)}
+            className="rounded-xl p-4 mb-6 flex-row items-center"
+            style={{ backgroundColor: colors.primary + "15", borderWidth: 1, borderColor: colors.primary + "40" }}
+            activeOpacity={0.7}
+          >
+            <View className="w-10 h-10 rounded-full items-center justify-center" style={{ backgroundColor: colors.primary }}>
+              <Ionicons name="star" size={20} color={colors.background} />
+            </View>
+            <View className="flex-1 ml-3">
+              <Text className="text-text font-bold text-base">{t("screens.subscription.upgradeCta")}</Text>
+              <Text className="text-text-muted text-sm">{t("screens.subscription.monthlyPrice")}</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color={colors.primary} />
+          </TouchableOpacity>
+        )}
 
         {statsLoading ? (
           <View className="mb-6">

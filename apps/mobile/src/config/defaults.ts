@@ -1,5 +1,6 @@
 export const DEFAULT_REMOTE_CONFIG = {
   backend_url: "https://api.watchr.me",
+  web_app_url: "https://app.watchr.me",
   traffic_notice_enabled: false,
   auth_enabled: true,
   maintenance_enabled: false,

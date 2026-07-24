@@ -67,3 +67,30 @@ export async function checkAndConsumeMcpQuota(
     return { allowed: true, remaining: -1, limit };
   }
 }
+
+export async function peekMcpQuota(
+  userId: string,
+  plan: "free" | "vip",
+): Promise<QuotaResult> {
+  if (plan === "vip") {
+    return { allowed: true, remaining: Infinity, limit: Infinity };
+  }
+
+  const limit = env.MCP_FREE_DAILY_QUOTA;
+
+  if (!isRedisAvailable()) {
+    return { allowed: true, remaining: -1, limit };
+  }
+
+  const key = `mcp:quota:${userId}:${todayUTC()}`;
+
+  try {
+    const count = await redisClient.get(key);
+    const used = count ? parseInt(count, 10) : 0;
+    const remaining = Math.max(0, limit - used);
+    return { allowed: remaining > 0, remaining, limit };
+  } catch (err) {
+    logError("McpQuota", "Redis quota peek failed", err);
+    return { allowed: true, remaining: -1, limit };
+  }
+}

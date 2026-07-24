@@ -75,6 +75,7 @@ export interface Me {
   activityVisibility?: "private" | "public";
   bio?: string;
   favoriteGenres?: string[];
+  subscriptionPlan?: "free" | "vip";
 }
 
 export async function getMe(): Promise<Me> {

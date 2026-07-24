@@ -18,6 +18,7 @@ interface SettingsRow {
 }
 
 const SETTINGS_ROWS: SettingsRow[] = [
+  { icon: "card-outline", labelKey: "screens.profile.subscription", target: "ProfileSubscription" },
   { icon: "language-outline", labelKey: "screens.profile.language", target: "ProfileLanguage" },
   { icon: "color-palette-outline", labelKey: "screens.profile.appearance", target: "ProfileAppearance" },
   { icon: "notifications-outline", labelKey: "screens.profile.notifications", target: "ProfileNotifications" },

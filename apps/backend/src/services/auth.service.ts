@@ -362,7 +362,7 @@ export function verifyAccessToken(token: string): { sub: string; lang?: string }
 }
 
 export async function getMe(userId: string) {
-  const user = await User.findById(userId).select("email username usernameChanged avatarUrl bannerUrl preferredLanguage themePreference hasCompletedOnboarding firebaseUid createdAt lastLoginAt role isBanned suspendedUntil banReason activityVisibility bio favoriteGenres").lean();
+  const user = await User.findById(userId).select("email username usernameChanged avatarUrl bannerUrl preferredLanguage themePreference hasCompletedOnboarding firebaseUid createdAt lastLoginAt role isBanned suspendedUntil banReason activityVisibility bio favoriteGenres subscriptionPlan").lean();
   if (!user) {
     throw new ApiError(404, "USER_NOT_FOUND", "User not found");
   }
@@ -386,6 +386,7 @@ export async function getMe(userId: string) {
     activityVisibility: user.activityVisibility ?? "private",
     bio: user.bio ?? "",
     favoriteGenres: user.favoriteGenres ?? [],
+    subscriptionPlan: user.subscriptionPlan ?? "free",
   };
 }
 

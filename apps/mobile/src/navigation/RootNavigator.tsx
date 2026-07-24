@@ -31,6 +31,8 @@ import { SettingsScreen } from "../screens/profile/SettingsScreen";
 import { ProfileDataScreen } from "../screens/profile/ProfileDataScreen";
 import { ProfileContactScreen } from "../screens/profile/ProfileContactScreen";
 import { ApiKeysScreen } from "../screens/profile/ApiKeysScreen";
+import { SubscriptionScreen } from "../screens/profile/SubscriptionScreen";
+import { SubscriptionSuccessScreen } from "../screens/profile/SubscriptionSuccessScreen";
 import { PublicProfileScreen } from "../screens/PublicProfileScreen";
 import { FriendsActivityScreen } from "../screens/FriendsActivityScreen";
 import { UserSearchScreen } from "../screens/UserSearchScreen";
@@ -69,6 +71,8 @@ export type RootStackParamList = {
   ProfileData: undefined;
   ProfileContact: undefined;
   ProfileApiKeys: undefined;
+  ProfileSubscription: undefined;
+  SubscriptionSuccess: undefined;
   PublicProfile: { username: string };
   FriendsActivity: undefined;
   UserSearch: undefined;
@@ -208,6 +212,8 @@ export function RootNavigator() {
         ProfileData: "profile/data",
         ProfileContact: "profile/contact",
         ProfileApiKeys: "profile/api-keys",
+        ProfileSubscription: "profile/subscription",
+        SubscriptionSuccess: "profile/subscription/success",
         PublicProfile: "u/:username",
         FriendsActivity: "friends",
         UserSearch: "search-users",
@@ -310,6 +316,8 @@ export function RootNavigator() {
             <Stack.Screen name="ProfileData" component={ProfileDataScreen} />
             <Stack.Screen name="ProfileContact" component={ProfileContactScreen} />
             <Stack.Screen name="ProfileApiKeys" component={ApiKeysScreen} />
+            <Stack.Screen name="ProfileSubscription" component={SubscriptionScreen} />
+            <Stack.Screen name="SubscriptionSuccess" component={SubscriptionSuccessScreen} />
             <Stack.Screen name="PublicProfile" component={PublicProfileScreen} />
             <Stack.Screen name="FriendsActivity" component={FriendsActivityScreen} />
             <Stack.Screen name="UserSearch" component={UserSearchScreen} />
